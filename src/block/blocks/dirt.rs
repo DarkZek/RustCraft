@@ -5,5 +5,6 @@ pub const DIRT_BLOCK: Block = Block {
     name: "Dirt",
     raw_texture_names: ["dirt"; 6],
     texture_ids: [0; 6],
+    texture_atlas_lookups: [([0.0, 0.0], [1.0, 1.0]); 6],
     transparent: false,
 };

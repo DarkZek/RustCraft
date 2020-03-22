@@ -1,8 +1,10 @@
 use crate::block::Block;
 
-pub mod dirt;
-pub mod grass;
-pub mod stone;
+mod dirt;
+mod grass;
+mod stone;
+mod sand;
+mod sandstone;
 
 pub fn get_blocks() -> Vec<Block> {
     let mut blocks = Vec::new();
@@ -10,6 +12,8 @@ pub fn get_blocks() -> Vec<Block> {
     blocks.push(stone::STONE_BLOCK);
     blocks.push(dirt::DIRT_BLOCK);
     blocks.push(grass::GRASS_BLOCK);
+    blocks.push(sand::SAND_BLOCK);
+    blocks.push(sandstone::SANDSTONE_BLOCK);
 
     blocks
 }

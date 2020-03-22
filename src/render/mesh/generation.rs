@@ -1,14 +1,15 @@
 use crate::render::mesh::Vertex;
+use crate::world::generator::WorldGenerator;
+use crate::block::Block;
 
-pub fn generate_terrain() -> (Vec<Vertex>, Vec<u16>) {
-    (vec![
-        Vertex { position: [-0.5, -0.5, 0.0], tex_coords: [0.0, 0.0]},
-        Vertex { position: [0.5, -0.5, 0.0], tex_coords: [1.0, 0.0]},
-        Vertex { position: [0.5, 0.5, 0.0], tex_coords: [1.0, 1.0]},
-        Vertex { position: [-0.5, 0.5, 0.0], tex_coords: [0.0, 1.0]},
-    ],
-    vec![
-        2, 1, 0,
-        3, 2, 0,
-    ])
+pub fn generate_terrain(blocks: &Vec<Block>) -> (Vec<Vertex>, Vec<u16>) {
+
+    let seed: f32 = rand::random();
+
+    let world = WorldGenerator { seed: (seed * 1000.0) as u32 };
+    let mut chunk = world.generate_chunk(0, 0, blocks);
+
+    chunk.generate_mesh();
+
+    (chunk.vertices.unwrap().clone(), chunk.indices.unwrap().clone())
 }

@@ -5,8 +5,8 @@ pub const DEPTH_FORMAT: wgpu::TextureFormat = wgpu::TextureFormat::Depth32Float;
 pub fn create_depth_texture(device: &wgpu::Device, sc_desc: &wgpu::SwapChainDescriptor) -> (Texture, TextureView, Sampler) {
     let desc = wgpu::TextureDescriptor {
         format: DEPTH_FORMAT,
-        usage: wgpu::TextureUsage::OUTPUT_ATTACHMENT, // 2.
-        ..sc_desc.to_texture_desc() // 3.
+        usage: wgpu::TextureUsage::OUTPUT_ATTACHMENT,
+        ..sc_desc.to_texture_desc()
     };
     let texture = device.create_texture(&desc);
 
