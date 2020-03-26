@@ -1,5 +1,4 @@
 use winit::window::Window;
-use crate::render::mesh::generation::generate_terrain;
 use crate::render::mesh::Vertex;
 use crate::render::camera::Camera;
 use crate::render::pass::uniforms::Uniforms;
@@ -8,6 +7,7 @@ use wgpu::{Texture, TextureView, Sampler};
 use crate::block::{blocks, Block};
 use crate::render::shaders::load_shaders;
 use crate::render::texture::atlas::TextureAtlasIndex;
+use crate::world::generator::{World};
 
 pub mod mesh;
 pub mod pass;
@@ -17,7 +17,6 @@ pub mod shaders;
 
 pub struct RenderState {
     surface: wgpu::Surface,
-    adapter: wgpu::Adapter,
     pub device: wgpu::Device,
     pub queue: wgpu::Queue,
     sc_desc: wgpu::SwapChainDescriptor,
@@ -25,15 +24,8 @@ pub struct RenderState {
 
     render_pipeline: wgpu::RenderPipeline,
 
-    vertex_buffer: wgpu::Buffer,
-
-    indices_buffer: wgpu::Buffer,
-    indices_buffer_len: u32,
-
     size: winit::dpi::PhysicalSize<u32>,
 
-    diffuse_texture: wgpu::Texture,
-    diffuse_texture_view: wgpu::TextureView,
     diffuse_sampler: wgpu::Sampler,
     diffuse_bind_group: wgpu::BindGroup,
 
@@ -45,7 +37,8 @@ pub struct RenderState {
     depth_texture: (Texture, TextureView, Sampler),
 
     atlas_mapping: Vec<TextureAtlasIndex>,
-    blocks: Vec<Block>
+    blocks: Vec<Block>,
+    world: World
 }
 
 impl RenderState {
@@ -61,7 +54,7 @@ impl RenderState {
 
         let (device, mut queue) = adapter.request_device(&wgpu::DeviceDescriptor {
             extensions: wgpu::Extensions {
-                anisotropic_filtering: false,
+                anisotropic_filtering: true,
             },
             limits: Default::default(),
         });
@@ -70,7 +63,7 @@ impl RenderState {
 
         let (sampler, atlas_texture, atlas_mapping) = texture::mapping::load_textures(&mut blocks, &mut queue, &device);
 
-        let (texture_bind_group_layout, diffuse_bind_group, diffuse_texture_view) = texture::binding::binding_layout(&device, &atlas_texture, &sampler);
+        let (texture_bind_group_layout, diffuse_bind_group) = texture::binding::binding_layout(&device, &atlas_texture, &sampler);
 
         let sc_desc = wgpu::SwapChainDescriptor {
             usage: wgpu::TextureUsage::OUTPUT_ATTACHMENT,
@@ -88,24 +81,24 @@ impl RenderState {
 
         let (uniform_buffer, uniform_bind_group_layout, uniform_bind_group) = uniforms.create_uniform_buffers(&device);
 
-        let (mut terrain, mut tindices) = generate_terrain(&blocks);
-        let vertices = terrain.as_mut_slice();
-        let indices = tindices.as_mut_slice();
+        // Create the world
+        let seed: f32 = rand::random();
 
-        let vertex_buffer = device
-            .create_buffer_mapped(vertices.len(), wgpu::BufferUsage::VERTEX)
-            .fill_from_slice(vertices);
+        let render_distance = 6;
+        let mut world = World::new(&device, (seed * 1000.0) as u32, render_distance as u32);
 
-        let indices_buffer = device
-            .create_buffer_mapped(indices.len(), wgpu::BufferUsage::INDEX)
-            .fill_from_slice(indices);
+        for x in -render_distance..render_distance {
+            for y in -render_distance..render_distance {
+                world.generate_chunk(x, y, &blocks, &device);
+            }
+        }
 
         let swap_chain = device.create_swap_chain(&surface, &sc_desc);
 
         let (vs_module, fs_module) = load_shaders(&device);
 
         let render_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-            bind_group_layouts: &[&texture_bind_group_layout, &uniform_bind_group_layout],
+            bind_group_layouts: &[&texture_bind_group_layout, &uniform_bind_group_layout, &world.model_bind_group_layout],
         });
 
         let depth_texture = create_depth_texture(&device, &sc_desc);
@@ -151,23 +144,17 @@ impl RenderState {
             }),
             sample_count: 1,
             sample_mask: !0,
-            alpha_to_coverage_enabled: false,
+            alpha_to_coverage_enabled: false
         });
 
         Self {
             surface,
-            adapter,
             device,
             queue,
             sc_desc,
             swap_chain,
             size,
             render_pipeline,
-            vertex_buffer,
-            indices_buffer,
-            indices_buffer_len: tindices.len() as u32,
-            diffuse_texture: atlas_texture,
-            diffuse_texture_view,
             diffuse_sampler: sampler,
             diffuse_bind_group,
             camera,
@@ -176,7 +163,8 @@ impl RenderState {
             uniform_bind_group,
             depth_texture,
             atlas_mapping,
-            blocks
+            blocks,
+            world
         }
     }
 

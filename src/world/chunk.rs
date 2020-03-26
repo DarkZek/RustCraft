@@ -1,6 +1,6 @@
 use crate::block::Block;
 use crate::render::mesh::Vertex;
-use wgpu::Buffer;
+use wgpu::{Buffer, BindGroup};
 use crate::world::CHUNK_SIZE;
 
 pub struct Chunk {
@@ -10,6 +10,8 @@ pub struct Chunk {
     pub indices: Option<Vec<u16>>,
     pub vertices_buffer: Option<Buffer>,
     pub indices_buffer: Option<Buffer>,
+    pub indices_buffer_len: u32,
+    pub model_bind_group: Option<BindGroup>,
     pub x: i32,
     pub z: i32,
 }

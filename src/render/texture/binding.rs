@@ -1,6 +1,6 @@
-use wgpu::{Device, BindGroup, BindGroupLayout, Texture, Sampler, TextureView};
+use wgpu::{Device, BindGroup, BindGroupLayout, Texture, Sampler};
 
-pub fn binding_layout(device: &Device, diffuse_texture: &Texture, diffuse_sampler: &Sampler) -> (BindGroupLayout, BindGroup, TextureView) {
+pub fn binding_layout(device: &Device, diffuse_texture: &Texture, diffuse_sampler: &Sampler) -> (BindGroupLayout, BindGroup) {
 
     let diffuse_texture_view = diffuse_texture.create_default_view();
 
@@ -36,5 +36,5 @@ pub fn binding_layout(device: &Device, diffuse_texture: &Texture, diffuse_sample
         ],
     });
 
-    (texture_bind_group_layout, diffuse_bind_group, diffuse_texture_view)
+    (texture_bind_group_layout, diffuse_bind_group)
 }

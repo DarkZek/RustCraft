@@ -2,6 +2,7 @@ pub mod generation;
 pub mod chunk;
 pub mod culling;
 pub mod block;
+pub mod model;
 
 #[repr(C)]
 #[derive(Copy, Clone, Debug, PartialEq)]
@@ -12,12 +13,12 @@ pub struct Vertex {
 }
 
 pub enum ViewableDirectionBitMap {
-    Top = 0b00000001,
-    Bottom = 0b00000010,
-    Left = 0b00000100,
-    Right = 0b00001000,
-    Front = 0b00010000,
-    Back = 0b00100000,
+    Top     = 0b00000001,
+    Bottom  = 0b00000010,
+    Left    = 0b00000100,
+    Right   = 0b00001000,
+    Front   = 0b00010000,
+    Back    = 0b00100000,
 }
 
 impl Vertex {

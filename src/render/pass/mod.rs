@@ -10,7 +10,7 @@ impl RenderState {
             todo: 0,
         });
 
-        {
+         {
             let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
                 color_attachments: &[
                     wgpu::RenderPassColorAttachmentDescriptor {
@@ -24,7 +24,6 @@ impl RenderState {
                             b: 0.3,
                             a: 1.0,
                         },
-
                     }
                 ],
                 depth_stencil_attachment: Some(wgpu::RenderPassDepthStencilAttachmentDescriptor {
@@ -32,7 +31,7 @@ impl RenderState {
                     depth_load_op: wgpu::LoadOp::Clear,
                     depth_store_op: wgpu::StoreOp::Store,
                     clear_depth: 1.0,
-                    stencil_load_op: wgpu::LoadOp::Clear,
+                    stencil_load_op: wgpu::LoadOp::Load,
                     stencil_store_op: wgpu::StoreOp::Store,
                     clear_stencil: 0,
                 }),
@@ -41,9 +40,17 @@ impl RenderState {
             render_pass.set_pipeline(&self.render_pipeline);
             render_pass.set_bind_group(0, &self.diffuse_bind_group, &[]);
             render_pass.set_bind_group(1, &self.uniform_bind_group, &[]);
-            render_pass.set_vertex_buffers(0, &[(&self.vertex_buffer, 0)]);
-            render_pass.set_index_buffer(&self.indices_buffer, 0); // 1.
-            render_pass.draw_indexed(0..self.indices_buffer_len, 0, 0..1);
+
+            for chunk in &self.world.chunks {
+                let indices_buffer = chunk.indices_buffer.as_ref().unwrap();
+                let vertices_buffer = chunk.vertices_buffer.as_ref().unwrap();
+                let model_bind_group = chunk.model_bind_group.as_ref().unwrap();
+
+                render_pass.set_bind_group(2, model_bind_group, &[0]);
+                render_pass.set_vertex_buffers(0, &[(vertices_buffer, 0)]);
+                render_pass.set_index_buffer(indices_buffer, 0);
+                render_pass.draw_indexed(0..chunk.indices_buffer_len, 0, 0..1);
+            }
         }
 
         self.queue.submit(&[

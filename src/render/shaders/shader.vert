@@ -11,15 +11,14 @@ layout(set=1, binding=0) uniform Uniforms {
     mat4 u_view_proj;
 };
 
+layout(set=2, binding=0) uniform ModelBindings {
+    mat4 model;
+};
 
 void main() {
     normal = normals;
     v_tex_coords = a_tex_coords;
 
-    gl_Position = u_view_proj * vec4(a_position, 1.0);
-    //gl_Position = vec4(a_position, 1.0);
+    mat4 modelviewproj = u_view_proj * model;
+    gl_Position = modelviewproj * vec4(a_position, 1.0);
 }
-
- 
-
- 

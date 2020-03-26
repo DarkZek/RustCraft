@@ -2,9 +2,7 @@ use crate::render::RenderState;
 use crate::client::events::GameChanges;
 use crate::entity::player::Player;
 use std::f32::consts::PI;
-use crate::game::physics::PhysicsObject;
 use crate::entity::ecs::{create_store};
-use crate::entity::ecs::physics::PhysicsSystem;
 
 pub struct GameState {
     player: Player,

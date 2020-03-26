@@ -1,4 +1,4 @@
-use specs::{Builder, Component, ReadStorage, System, VecStorage, World, WorldExt, RunNow, WriteStorage};
+use specs::{System, WriteStorage};
 use crate::entity::ecs::{Position, Velocity};
 use specs::Join;
 
@@ -17,9 +17,9 @@ impl<'a> System<'a> for PhysicsSystem {
             pos.y += vel.y * delta_time;
             pos.z += vel.z * delta_time;
 
-            vel.x *= DRAG;
-            vel.y *= DRAG;
-            vel.z *= DRAG;
+            vel.x *= 1.0 - DRAG;
+            vel.y *= 1.0 - DRAG;
+            vel.z *= 1.0 - DRAG;
         }
     }
 }

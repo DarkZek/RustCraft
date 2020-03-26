@@ -23,7 +23,6 @@ impl Uniforms {
     pub fn create_uniform_buffers(self, device: &Device) -> (Buffer, BindGroupLayout, BindGroup) {
 
         let uniform_buffer = device
-            // The COPY_DST part will be important later
             .create_buffer_mapped(1, wgpu::BufferUsage::UNIFORM | wgpu::BufferUsage::COPY_DST | wgpu::BufferUsage::COPY_SRC)
             .fill_from_slice(&[self]);
 
