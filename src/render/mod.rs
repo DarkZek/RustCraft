@@ -3,24 +3,30 @@ use crate::render::mesh::Vertex;
 use crate::render::camera::Camera;
 use crate::render::pass::uniforms::Uniforms;
 use crate::render::texture::depth_map::{create_depth_texture, DEPTH_FORMAT};
-use wgpu::{Texture, TextureView, Sampler};
+use wgpu::{Texture, TextureView, Sampler, AdapterInfo};
 use crate::block::{blocks, Block};
 use crate::render::shaders::load_shaders;
 use crate::render::texture::atlas::TextureAtlasIndex;
 use crate::world::generator::{World};
+use wgpu_glyph::{Section, GlyphBrushBuilder, GlyphBrush};
+use crate::render::font::Font;
+use std::time::Instant;
+use systemstat::{System, Platform};
 
 pub mod mesh;
 pub mod pass;
 pub mod texture;
 pub mod camera;
 pub mod shaders;
+pub mod font;
+pub mod screens;
 
 pub struct RenderState {
     surface: wgpu::Surface,
     pub device: wgpu::Device,
     pub queue: wgpu::Queue,
     sc_desc: wgpu::SwapChainDescriptor,
-    swap_chain: wgpu::SwapChain,
+    swap_chain: Option<wgpu::SwapChain>,
 
     render_pipeline: wgpu::RenderPipeline,
 
@@ -38,7 +44,18 @@ pub struct RenderState {
 
     atlas_mapping: Vec<TextureAtlasIndex>,
     blocks: Vec<Block>,
-    world: World
+    world: World,
+    font: Vec<u8>,
+
+    fps: u32,
+    fps_counter: Instant,
+    frames: u32,
+
+    vertices_count: u32,
+    render_distance: u32,
+
+    gpu_info: AdapterInfo,
+    system_info: System
 }
 
 impl RenderState {
@@ -49,8 +66,11 @@ impl RenderState {
         let surface = wgpu::Surface::create(window);
 
         let adapter = wgpu::Adapter::request(&wgpu::RequestAdapterOptions {
-            ..Default::default()
+            power_preference: wgpu::PowerPreference::HighPerformance,
+            backends: wgpu::BackendBit::all(),
         }).unwrap();
+
+        let gpu_info = adapter.get_info();
 
         let (device, mut queue) = adapter.request_device(&wgpu::DeviceDescriptor {
             extensions: wgpu::Extensions {
@@ -84,12 +104,15 @@ impl RenderState {
         // Create the world
         let seed: f32 = rand::random();
 
-        let render_distance = 6;
+        let render_distance = 12;
         let mut world = World::new(&device, (seed * 1000.0) as u32, render_distance as u32);
+        let mut vertices_count = 0;
 
         for x in -render_distance..render_distance {
             for y in -render_distance..render_distance {
                 world.generate_chunk(x, y, &blocks, &device);
+                let chunk = world.chunks.get(world.chunks.len() - 1).unwrap();
+                vertices_count += chunk.vertices.as_ref().unwrap().len();
             }
         }
 
@@ -147,12 +170,17 @@ impl RenderState {
             alpha_to_coverage_enabled: false
         });
 
+        //Load font
+        let font = Font::from_path("/home/darkzek/Documents/Projects/AshLearning/assets/fonts");
+
+        let system_info = System::new();
+
         Self {
             surface,
             device,
             queue,
             sc_desc,
-            swap_chain,
+            swap_chain: Some(swap_chain),
             size,
             render_pipeline,
             diffuse_sampler: sampler,
@@ -164,7 +192,15 @@ impl RenderState {
             depth_texture,
             atlas_mapping,
             blocks,
-            world
+            world,
+            font,
+            fps: 0,
+            fps_counter: Instant::now(),
+            frames: 0,
+            vertices_count: vertices_count as u32,
+            render_distance: render_distance as u32,
+            gpu_info,
+            system_info
         }
     }
 
@@ -172,7 +208,7 @@ impl RenderState {
         self.size = new_size;
         self.sc_desc.width = new_size.width;
         self.sc_desc.height = new_size.height;
-        self.swap_chain = self.device.create_swap_chain(&self.surface, &self.sc_desc);
+        self.swap_chain = Some(self.device.create_swap_chain(&self.surface, &self.sc_desc));
         self.depth_texture = create_depth_texture(&self.device, &self.sc_desc);
         self.camera.aspect = new_size.width as f32 / new_size.height as f32;
     }

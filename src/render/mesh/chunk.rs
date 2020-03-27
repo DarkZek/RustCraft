@@ -33,7 +33,7 @@ impl Chunk {
     }
 
     pub fn create_buffers(&mut self, device: &Device, model_bind_group_layout: &BindGroupLayout) {
-        let mut vertices = self.vertices.take().unwrap();
+        let mut vertices = self.vertices.as_mut().unwrap();
 
         let vertex_buffer = device
             .create_buffer_mapped(vertices.len(), wgpu::BufferUsage::VERTEX)
