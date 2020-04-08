@@ -110,7 +110,7 @@ impl GameChanges {
                     self.look[1] += y;
 
                     if let Err(e) = window.set_cursor_position(changes.mouse_home) {
-                        println!("Error setting cursor position: {}", e);
+                        log_error!("Error setting cursor position: {}", e);
                     }
                 }
             }

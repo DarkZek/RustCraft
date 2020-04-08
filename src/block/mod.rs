@@ -1,4 +1,4 @@
-use crate::render::texture::atlas::TextureAtlasIndex;
+use crate::services::asset_service::atlas::TextureAtlasIndex;
 
 pub mod blocks;
 

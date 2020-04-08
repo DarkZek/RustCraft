@@ -1,8 +1,7 @@
 use crate::world::chunk::Chunk;
-use crate::render::mesh::{Vertex, model};
+use crate::render::mesh::{Vertex};
 use crate::render::mesh::culling::{calculate_viewable, ViewableDirection};
 use crate::render::mesh::block::draw_block;
-use crate::render;
 use wgpu::{Device, BindGroupLayout};
 use cgmath::{Matrix4, Vector3};
 
@@ -33,20 +32,20 @@ impl Chunk {
     }
 
     pub fn create_buffers(&mut self, device: &Device, model_bind_group_layout: &BindGroupLayout) {
-        let mut vertices = self.vertices.as_mut().unwrap();
+        let vertices = self.vertices.as_ref().unwrap();
 
         let vertex_buffer = device
             .create_buffer_mapped(vertices.len(), wgpu::BufferUsage::VERTEX)
-            .fill_from_slice(vertices.as_mut_slice());
+            .fill_from_slice(vertices.as_slice());
 
         self.vertices_buffer = Some(vertex_buffer);
 
-        let mut indices = self.indices.take().unwrap();
+        let indices = self.indices.take().unwrap();
         self.indices_buffer_len = indices.len() as u32;
 
         let indices_buffer = device
             .create_buffer_mapped(indices.len(), wgpu::BufferUsage::INDEX)
-            .fill_from_slice(indices.as_mut_slice());
+            .fill_from_slice(indices.as_slice());
 
         self.indices_buffer = Some(indices_buffer);
 

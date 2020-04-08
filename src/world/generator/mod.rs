@@ -2,9 +2,7 @@ use noise::{NoiseFn, Perlin, Seedable};
 use crate::block::Block;
 use crate::world::CHUNK_SIZE;
 use crate::world::chunk::Chunk;
-use wgpu::{Device, BindGroup, BindGroupLayout, Buffer};
-use cgmath::{Matrix4, Vector3};
-use winit::event::VirtualKeyCode::V;
+use wgpu::{Device, BindGroupLayout};
 
 pub struct World {
     pub seed: u32,

@@ -1,5 +1,6 @@
 use cgmath::Vector3;
 
+#[allow(dead_code)]
 pub struct Hitbox {
     start: [f32; 2],
     end: [f32; 2]

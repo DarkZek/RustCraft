@@ -1,7 +1,7 @@
 use crate::render::mesh::{Vertex, ViewableDirectionBitMap};
 use crate::render::mesh::culling::ViewableDirection;
+use crate::services::asset_service::atlas::TextureAtlasIndex;
 use crate::block::Block;
-use crate::render::texture::atlas::TextureAtlasIndex;
 
 pub fn draw_block(x: f32, y: f32, z: f32, viewable: ViewableDirection, vertices: &mut Vec<Vertex>, indices: &mut Vec<u16>, block: &Block) {
     if viewable.has_flag(ViewableDirectionBitMap::Top) {

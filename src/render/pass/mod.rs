@@ -1,8 +1,5 @@
 use crate::render::RenderState;
-use wgpu_glyph::{Section, GlyphBrushBuilder, GlyphBrush, Scale};
-use std::time::{SystemTime, Instant};
-use std::ops::Add;
-use std::borrow::Borrow;
+use std::time::{Instant};
 use crate::render::screens::debug::draw_debug_screen;
 
 pub mod uniforms;

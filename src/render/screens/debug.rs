@@ -1,7 +1,6 @@
 use crate::render::RenderState;
 use wgpu::{CommandEncoder, SwapChainOutput};
-use wgpu_glyph::{Section, GlyphBrushBuilder, GlyphBrush, Scale, Layout, HorizontalAlign, VerticalAlign, LineBreak, BuiltInLineBreaker};
-use std::ops::Add;
+use wgpu_glyph::{Section, GlyphBrushBuilder, Scale, Layout, HorizontalAlign, VerticalAlign, BuiltInLineBreaker};
 use systemstat::Platform;
 
 pub fn draw_debug_screen(render: &mut RenderState, encoder: &mut CommandEncoder, frame: &SwapChainOutput) {
@@ -25,7 +24,7 @@ pub fn draw_debug_screen(render: &mut RenderState, encoder: &mut CommandEncoder,
         Ok(mem) => {
             format!("?/{}MB", (mem.total.0 as f32 * 0.000001 as f32).round())
         }
-        Err(e) => String::from("?")
+        Err(_) => String::from("?")
     };
 
     let stats_right: [(&str, String); 2] = [("Rust {}", String::from("64bit")),
@@ -33,9 +32,7 @@ pub fn draw_debug_screen(render: &mut RenderState, encoder: &mut CommandEncoder,
 
     for (i, section) in stats_left.iter().enumerate() {
 
-        let mut text = section.0;
-
-        let text = text.replace("{}", &section.1);
+        let text = section.0.replace("{}", &section.1);
 
         brush.queue(Section {
             text: &text,
@@ -48,9 +45,7 @@ pub fn draw_debug_screen(render: &mut RenderState, encoder: &mut CommandEncoder,
 
     for (i, section) in stats_right.iter().enumerate() {
 
-        let mut text = section.0;
-
-        let text = text.replace("{}", &section.1);
+        let text = section.0.replace("{}", &section.1);
 
         brush.queue(Section {
             text: &text,
@@ -62,28 +57,13 @@ pub fn draw_debug_screen(render: &mut RenderState, encoder: &mut CommandEncoder,
         });
     }
 
-    brush.draw_queued(
+    if let Err(e) = brush.draw_queued(
         &render.device,
         encoder,
         &frame.view,
         render.size.width,
         render.size.height,
-    );
-}
-
-fn format_vertices(mut count: u32) -> String {
-    let mut msg = String::new();
-
-    while count != 0 {
-        if count / 1000 == 0 {
-            msg = (count % 1000).to_string().add(msg.as_str());
-        } else {
-            msg = format!(",{}", count % 1000).add(msg.as_str());
-        }
-
-        count = count / 1000;
-
+    ) {
+        log_error!("Failed to draw frame! {}", e);
     }
-
-    msg
 }

@@ -10,20 +10,24 @@ use crate::render::RenderState;
 use crate::client::events::{GameChangesContext, GameChanges};
 use crate::game::game_state::GameState;
 use std::time::{SystemTime};
+use systemstat::Duration;
 
 extern crate zerocopy;
 
+#[macro_use]
+pub mod services;
 pub mod render;
 pub mod block;
 pub mod world;
 pub mod client;
 pub mod game;
 pub mod entity;
+pub mod helpers;
 
 fn main() {
 
     let event_loop = EventLoop::new();
-    let window = WindowBuilder::new()
+    let window = WindowBuilder::new().with_title("My First World - Rustcraft")
         .build(&event_loop)
         .unwrap();
 
@@ -35,6 +39,7 @@ fn main() {
     let mut changes = GameChanges::new();
 
     let mut last_frame_time = SystemTime::now();
+    let mut delta_time = Duration::from_millis(0);
 
     let mut fps = 0;
     let mut fps_counter_frames = 0;
@@ -65,7 +70,6 @@ fn main() {
             }
             Event::MainEventsCleared => {
                 // Calculate delta time
-                let delta_time = last_frame_time.elapsed().unwrap();
                 last_frame_time = SystemTime::now();
 
                 // Update fps counter
@@ -82,6 +86,9 @@ fn main() {
                 render_state.render();
 
                 *control_flow = ControlFlow::Poll;
+                delta_time = last_frame_time.elapsed().unwrap();
+
+                render_state.services.logging.flush_buffer();
             }
             _ => *control_flow = ControlFlow::Poll
         }

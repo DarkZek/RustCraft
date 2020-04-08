@@ -2,19 +2,15 @@ use crate::render::RenderState;
 use crate::client::events::GameChanges;
 use crate::entity::player::Player;
 use std::f32::consts::PI;
-use crate::entity::ecs::{create_store};
 
 pub struct GameState {
-    player: Player,
-    pub(crate) store_world: specs::World,
+    player: Player
 }
 
 impl GameState {
     pub fn new() -> GameState {
-        let store_world = create_store();
         GameState {
-            player: Player::new(),
-            store_world
+            player: Player::new()
         }
     }
 

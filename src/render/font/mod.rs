@@ -1,6 +1,5 @@
 use std::fs::File;
 use std::io::Read;
-use wgpu::{Device, TextureFormat};
 
 pub struct Font {
 }
