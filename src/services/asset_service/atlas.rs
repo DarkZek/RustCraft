@@ -89,16 +89,16 @@ impl AssetService {
                     log_error!("Atlas too small! Not all textures could fit in");
                     break;
                 }
+            }
 
-                println!("Current Y: {}", current_y);
-                println!("Y: {}", y);
-                println!("Row Width: {}", row_width);
-                println!("Texture_Numbers_x: {:?}", texture_numbers_x);
+            // Reset current texture after x row
+            if x == 0 {
+                current_texture_id = 0;
             }
 
             // Check if there is any more textures to draw this row
             if texture_numbers_x.len() <= current_texture_id {
-                //*pixel = image::Rgba([0, 0, 0, 255]);
+                *pixel = image::Rgba([0, 0, 0, 255]);
                 continue;
             }
 
@@ -113,11 +113,6 @@ impl AssetService {
                 continue;
             }
 
-            // Reset current texture after x row
-            if x == 0 {
-                current_texture_id = 0;
-            }
-
             // Get the pixel
             match textures.get(texture_id + current_texture_id as usize) {
                 Some((name, image)) => {
@@ -127,19 +122,6 @@ impl AssetService {
                         *pixel = image.get_pixel(tex_x, tex_y);
                     } else {
                         *pixel = image::Rgba([255, 0, 0, 255]);
-                        println!("-----");
-                        println!("X: {}", x);
-                        println!("Y: {}", y);
-                        println!("current_texture_id: {}", current_texture_id);
-                        println!("texture_numbers_x len: {}", texture_numbers_x.len());
-                        println!("texture_numbers_x: {}", texture_numbers_x.get(current_texture_id).unwrap());
-                        println!("Width: {}", image.width() - 1);
-                        println!("Height: {}", image.height());
-                        println!("current_y: {}", current_y);
-                        println!("tex_x: {}", tex_x);
-                        println!("tex_y: {}", tex_y);
-                        println!("Yeet: {}", (current_y - y));
-                        println!("-----");
                     }
                 }
                 None => {
@@ -148,7 +130,7 @@ impl AssetService {
             }
         }
 
-        atlas.save("/home/darkzek/Documents/atlas.png");
+        //atlas.save("/home/darkzek/Documents/atlas.png");
 
         let atlas_img = DynamicImage::ImageRgba8(atlas);
         let diffuse_rgba = atlas_img.as_rgba8().unwrap();
