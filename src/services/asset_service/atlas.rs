@@ -3,25 +3,29 @@ use std::time::SystemTime;
 use wgpu::{Device, Queue, Texture, Sampler};
 use crate::services::asset_service::{ResourcePack, AssetService};
 use std::collections::HashMap;
+use crate::block::Block;
+use crate::services::settings_service::SettingsService;
+use std::fs::File;
+use std::io::Write;
 
 pub type TextureAtlasIndex = ([f32; 2], [f32; 2]);
 
+const ATLAS_WIDTH: u32 = 4096;
+const ATLAS_HEIGHT: u32 = 4096 * 2;
+
 impl AssetService {
     /// Generate a a new texture atlas from a list of textures and a resources directory
-    pub fn generate_texture_atlas(resource_pack: &mut ResourcePack, device: &Device, queue: &mut Queue) -> (Texture, HashMap<String, TextureAtlasIndex>, Sampler) {
+    pub fn generate_texture_atlas(resource_pack: &mut ResourcePack, device: &Device, queue: &mut Queue, settings: &SettingsService) -> (Texture, HashMap<String, TextureAtlasIndex>, Sampler) {
 
         let textures = sort_textures(&mut resource_pack.textures);
 
         let start_time = SystemTime::now();
 
-        let atlas_width = 4096;
-        let atlas_height = 4096 * 2;
-
         //Create buffer
         let diffuse_texture = device.create_texture(&wgpu::TextureDescriptor {
             size: wgpu::Extent3d {
-                width: atlas_width,
-                height: atlas_height,
+                width: ATLAS_WIDTH,
+                height: ATLAS_HEIGHT,
                 depth: 1,
             },
             array_layer_count: 1,
@@ -32,7 +36,8 @@ impl AssetService {
             usage: wgpu::TextureUsage::SAMPLED | wgpu::TextureUsage::COPY_DST,
         });
 
-        let mut atlas: ImageBuffer<Rgba<u8>, Vec<u8>> = image::ImageBuffer::new(atlas_width, atlas_height);
+        let mut atlas: ImageBuffer<Rgba<u8>, Vec<u8>> = image::ImageBuffer::new(ATLAS_WIDTH, ATLAS_HEIGHT);
+        let mut atlas_index: HashMap<String, TextureAtlasIndex> = HashMap::new();
 
         // Stores the ID of the lowest texture id on this row
         let mut texture_id = 0;
@@ -66,16 +71,15 @@ impl AssetService {
 
                 while textures.len() > (relative_texture_index + texture_id) {
                     // Add to row if theres space
-                    let width = textures.get(relative_texture_index + texture_id).unwrap().1.width();
+                    let (name, img) = textures.get(relative_texture_index + texture_id).unwrap();
+                    let width = img.width();
 
-                    if (row_width + width) <= atlas_width {
+                    if (row_width + width) <= ATLAS_WIDTH {
                         texture_numbers_x.push(row_width + width - 1);
+                        atlas_index.insert(name.clone(), ([(row_width as f32) / ATLAS_WIDTH as f32, (current_y as f32) / ATLAS_HEIGHT as f32],
+                                                          [((row_width + width) as f32) / ATLAS_WIDTH as f32, ((current_y + img.height()) as f32) / ATLAS_HEIGHT as f32]));
                     } else {
                         break;
-                    }
-
-                    if texture_id == 0 {
-                        println!("Name: {}", textures.get(relative_texture_index + texture_id).unwrap().0);
                     }
 
                     row_width += width;
@@ -85,7 +89,7 @@ impl AssetService {
                 // Update y
                 current_y += textures.get(texture_id).unwrap().1.height();
 
-                if current_y > atlas_height {
+                if current_y > ATLAS_HEIGHT {
                     log_error!("Atlas too small! Not all textures could fit in");
                     break;
                 }
@@ -115,7 +119,7 @@ impl AssetService {
 
             // Get the pixel
             match textures.get(texture_id + current_texture_id as usize) {
-                Some((name, image)) => {
+                Some((_, image)) => {
                     let tex_x = x - (texture_numbers_x.get(current_texture_id).unwrap() - (image.width() - 1));
                     let tex_y = image.height() - (current_y - y);
                     if tex_y <= image.height() {
@@ -130,7 +134,25 @@ impl AssetService {
             }
         }
 
-        //atlas.save("/home/darkzek/Documents/atlas.png");
+        if settings.atlas_cache_writing {
+            if let Err(e) = atlas.save(format!("{}resources/atlas.png", settings.path)) {
+                log_error!("Failed to cache atlas image: {}", e);
+            }
+
+            let result = serde_json::to_string(&atlas_index).unwrap();
+
+            match File::create(format!("{}resources/atlas_index.json", settings.path)) {
+                Ok(mut atlas_index_file) => {
+                    if let Err(e) = atlas_index_file.write_all(result.as_bytes()) {
+                        log_error!("Error writing texture atlas index: {}", e);
+                    }
+                }
+                Err(e) => {
+                    log_error!("Failed to cache atlas index: {}", e);
+                }
+            }
+
+        }
 
         let atlas_img = DynamicImage::ImageRgba8(atlas);
         let diffuse_rgba = atlas_img.as_rgba8().unwrap();
@@ -170,23 +192,6 @@ impl AssetService {
 
         queue.submit(&[encoder.finish()]);
 
-        let atlas_lookups: HashMap<String, TextureAtlasIndex> = HashMap::new();
-
-        // Calculate locations of textures
-        // for (i, _texture_name) in textures.iter().enumerate() {
-        //     let texture_x = i as f32 % atlas_width as f32;
-        //     let texture_y = (i as f32 / atlas_width as f32).floor();
-        //
-        //     // Calculate the starting point
-        //     let start_x = (1.0 / atlas_width as f32) * texture_x;
-        //     let start_y = (1.0 / atlas_height as f32) * texture_y;
-        //
-        //     let end_x = (1.0 / atlas_width as f32) * (texture_x + 1.0);
-        //     let end_y = (1.0 / atlas_height as f32) * (texture_y + 1.0);
-        //
-        //     atlas_lookups.push(([start_x, start_y], [end_x, end_y]));
-        // }
-
         log!(format!("Creating atlas map took: {}ms", start_time.elapsed().unwrap().as_millis()));
 
         let diffuse_sampler = device.create_sampler(&wgpu::SamplerDescriptor {
@@ -201,7 +206,7 @@ impl AssetService {
             compare_function: wgpu::CompareFunction::Always,
         });
 
-        (diffuse_texture, atlas_lookups, diffuse_sampler)
+        (diffuse_texture, atlas_index, diffuse_sampler)
     }
 }
 
@@ -245,4 +250,19 @@ fn sort_textures(textures: &mut HashMap<String, DynamicImage>) -> Vec<(String, D
         }
     }
     out
+}
+
+pub fn atlas_update_blocks(mapping: &HashMap<String, TextureAtlasIndex>, blocks: &mut Vec<Block>) {
+    for mut block in blocks.iter_mut() {
+        for (i, tex) in block.raw_texture_names.iter().enumerate() {
+            match mapping.get(*tex) {
+                Some(map) => {
+                    block.texture_atlas_lookups[i] = map.clone();
+                }
+                None => {
+                    log_error!("No mapping found for {}", tex);
+                }
+            }
+        }
+    }
 }

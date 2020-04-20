@@ -1,7 +1,8 @@
-use crate::world::chunk::{Chunk, ChunkData};
-use crate::render::mesh::ViewableDirectionBitMap;
 use crate::block::Block;
+use crate::services::chunk_service::mesh::ViewableDirectionBitMap;
+use crate::services::chunk_service::chunk::{Chunk, RawChunkData};
 
+#[derive(Copy, Clone)]
 pub struct ViewableDirection(pub u8);
 
 impl ViewableDirection {
@@ -41,7 +42,7 @@ pub fn calculate_viewable(chunk: &Chunk, pos: [usize; 3]) -> u8 {
     direction
 }
 
-fn is_offset_transparent(world: &ChunkData, pos: [usize; 3], blocks: &Vec<Block>, offset: [isize; 3]) -> bool {
+fn is_offset_transparent(world: &RawChunkData, pos: [usize; 3], blocks: &Vec<Block>, offset: [isize; 3]) -> bool {
     let block_id = world[(pos[0] as isize + offset[0]) as usize]
         [(pos[1] as isize + offset[1]) as usize]
         [(pos[2] as isize + offset[2]) as usize];

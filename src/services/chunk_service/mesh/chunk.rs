@@ -1,35 +1,10 @@
-use crate::world::chunk::Chunk;
-use crate::render::mesh::{Vertex};
-use crate::render::mesh::culling::{calculate_viewable, ViewableDirection};
-use crate::render::mesh::block::draw_block;
 use wgpu::{Device, BindGroupLayout};
 use cgmath::{Matrix4, Vector3};
+use crate::services::chunk_service::mesh::culling::{calculate_viewable, ViewableDirection};
+use crate::services::chunk_service::chunk::Chunk;
+use crate::services::settings_service::{CHUNK_SIZE, CHUNK_HEIGHT};
 
 impl Chunk {
-    pub fn generate_mesh(&mut self) {
-        let mut vertices: Vec<Vertex> = Vec::with_capacity(100_000);
-        let mut indices: Vec<u16> = Vec::with_capacity(100_000);
-        let world = self.world;
-
-        for x in 0..world.len() {
-            for z in 0..world[0][0].len() {
-                for y in 0..world[0].len() {
-                    let viewable = calculate_viewable(&self, [x, y, z]);
-
-                    //Isn't air
-                    if world[x][y][z] != 0 {
-                        let block = &self.blocks[world[x][y][z] as usize - 1];
-
-                        //Found it, draw vertices for it
-                        draw_block(x as f32, y as f32, z as f32, ViewableDirection(viewable), &mut vertices, &mut indices, block);
-                    }
-                }
-            }
-        }
-
-        self.vertices = Some(vertices);
-        self.indices = Some(indices);
-    }
 
     pub fn create_buffers(&mut self, device: &Device, model_bind_group_layout: &BindGroupLayout) {
         let vertices = self.vertices.as_ref().unwrap();
@@ -74,5 +49,23 @@ impl Chunk {
         });
 
         self.model_bind_group = Some(model_bind_group);
+    }
+
+    pub fn generate_viewable_map(&mut self) {
+
+        let mut data = [[[ViewableDirection(0); CHUNK_SIZE]; CHUNK_HEIGHT]; CHUNK_SIZE];
+        let world = self.world;
+
+        for x in 0..world.len() {
+            for z in 0..world[0][0].len() {
+                for y in 0..world[0].len() {
+                    let viewable = calculate_viewable(&self, [x, y, z]);
+
+                    data[x][y][z] = ViewableDirection(viewable);
+                }
+            }
+        }
+
+        self.viewable_map = Some(data);
     }
 }

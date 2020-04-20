@@ -1,26 +1,22 @@
 use winit::window::Window;
-use crate::render::mesh::Vertex;
 use crate::render::camera::Camera;
 use crate::render::pass::uniforms::Uniforms;
 use wgpu::{Texture, TextureView, Sampler, AdapterInfo, RenderPipeline, Device, BindGroupLayout, SwapChainDescriptor};
 use crate::block::{blocks, Block};
 use crate::render::shaders::load_shaders;
-use crate::world::generator::{World};
-use crate::render::font::Font;
 use std::time::Instant;
 use systemstat::{System, Platform};
-use crate::services::asset_service::atlas::TextureAtlasIndex;
-use crate::services::asset_service::binding::binding_layout;
+use crate::services::asset_service::atlas::{TextureAtlasIndex};
+use crate::services::asset_service::binding::{atlas_binding_layout, blocks_binding_layout};
 use crate::services::asset_service::depth_map::{create_depth_texture, DEPTH_FORMAT};
-use crate::services::Services;
+use crate::services::{Services, ServicesContext};
 use crate::render::loading::LoadingScreen;
 use std::collections::HashMap;
+use crate::services::chunk_service::mesh::Vertex;
 
-pub mod mesh;
 pub mod pass;
 pub mod camera;
 pub mod shaders;
-pub mod font;
 pub mod screens;
 pub mod device;
 pub mod loading;
@@ -36,8 +32,10 @@ pub struct RenderState {
 
     size: winit::dpi::PhysicalSize<u32>,
 
-    diffuse_sampler: wgpu::Sampler,
-    diffuse_bind_group: wgpu::BindGroup,
+    atlas_sampler: wgpu::Sampler,
+    atlas_bind_group: wgpu::BindGroup,
+
+    blocks_bind_group: wgpu::BindGroup,
 
     pub camera: Camera,
     pub uniforms: Uniforms,
@@ -48,15 +46,10 @@ pub struct RenderState {
 
     atlas_mapping: HashMap<String, TextureAtlasIndex>,
     blocks: Vec<Block>,
-    world: World,
-    font: Vec<u8>,
 
     fps: u32,
     fps_counter: Instant,
     frames: u32,
-
-    vertices_count: u32,
-    render_distance: u32,
 
     gpu_info: AdapterInfo,
     system_info: System,
@@ -84,8 +77,10 @@ impl RenderState {
         let mut loading = LoadingScreen::new(&device, &size);
         loading.render(&mut swap_chain, &device, &mut queue, 10);
 
+        let mut blocks = blocks::get_blocks();
+
         // Start the intensive job of loading services
-        let mut services = Services::load_services((&mut device, &mut queue));
+        let mut services = Services::load_services(ServicesContext::new(&mut device, &mut queue, &mut blocks));
 
         //Change to 50 %
         loading.render(&mut swap_chain, &device, &mut queue, 90);
@@ -96,35 +91,20 @@ impl RenderState {
         uniforms.update_view_proj(&camera);
         let (uniform_buffer, uniform_bind_group_layout, uniform_bind_group) = uniforms.create_uniform_buffers(&device);
 
-        let mut blocks = blocks::get_blocks();
-        let (sampler, atlas_texture, atlas_mapping) = (services.asset.texture_sampler.take().unwrap(),
+        // Hand the atlas to the renderer
+        let (atlas_sampler, atlas_texture, atlas_mapping) = (services.asset.texture_sampler.take().unwrap(),
                                                                                                 services.asset.texture_atlas.take().unwrap(),
                                                                                                 services.asset.texture_atlas_index.take().unwrap());
 
-        let (texture_bind_group_layout, diffuse_bind_group) = binding_layout(&device, &atlas_texture, &sampler);
-
-        //region Remove this garbage when we get networking setup
-        let seed: f32 = rand::random();
-
-        let render_distance = 5;
-        let mut world = World::new(&device, (seed * 1000.0) as u32, render_distance as u32);
-        let mut vertices_count = 0;
-
-        for x in -render_distance..render_distance {
-            for y in -render_distance..render_distance {
-                world.generate_chunk(x, y, &blocks, &device);
-                let chunk = world.chunks.get(world.chunks.len() - 1).unwrap();
-                vertices_count += chunk.vertices.as_ref().unwrap().len();
-            }
-        }
-        //endregion
+        let (atlas_bind_group_layout, atlas_bind_group) = atlas_binding_layout(&device, &atlas_texture, &atlas_sampler);
+        let (blocks_bind_group_layout, blocks_bind_group) = blocks_binding_layout(&device, services.asset.blocks_texture.as_ref().unwrap());
 
         let depth_texture = create_depth_texture(&device, &sc_desc);
 
-        let render_pipeline = generate_render_pipeline(&sc_desc, &device, &[&texture_bind_group_layout, &uniform_bind_group_layout, &world.model_bind_group_layout]);
+        let render_pipeline = generate_render_pipeline(&sc_desc, &device,
+                                                       &[&atlas_bind_group_layout, &uniform_bind_group_layout, &services.chunk.bind_group_layout, &blocks_bind_group_layout]);
 
         //Load font
-        let font = Font::from_path("/home/darkzek/Documents/Projects/AshLearning/assets/fonts");
 
         let system_info = System::new();
 
@@ -136,8 +116,9 @@ impl RenderState {
             swap_chain: Some(swap_chain),
             size,
             render_pipeline,
-            diffuse_sampler: sampler,
-            diffuse_bind_group,
+            atlas_sampler,
+            atlas_bind_group,
+            blocks_bind_group,
             camera,
             uniforms,
             uniform_buffer,
@@ -145,13 +126,9 @@ impl RenderState {
             depth_texture,
             atlas_mapping,
             blocks,
-            world,
-            font,
             fps: 0,
             fps_counter: Instant::now(),
             frames: 0,
-            vertices_count: vertices_count as u32,
-            render_distance: render_distance as u32,
             gpu_info,
             system_info,
             services

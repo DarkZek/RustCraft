@@ -6,6 +6,9 @@ edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[profile.release]
+debug = true
+
 [dependencies]
 wgpu = "0.4.0"
 winit = "0.21.0"
@@ -15,7 +18,12 @@ rand = "0.7.3"
 image = "0.23.3"
 glsl-to-spirv = "0.1"
 zerocopy = "0.2.8"
+# TODO: Remove as minecraft texture packs already contain fonts
 wgpu_glyph = "0.7.0"
 systemstat = "0.1.5"
 zip = "0.5.5"
 lazy_static = "1.4.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+log = "0.4"
+env_logger = "0.7"

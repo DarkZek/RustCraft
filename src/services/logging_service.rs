@@ -1,3 +1,7 @@
+//
+// Handles logging to console, log buffering and writing logs to files
+//
+
 use std::sync::{Arc, Mutex};
 use crate::services::settings_service::SettingsService;
 use std::fs::File;
@@ -27,8 +31,11 @@ macro_rules! log_error {
 #[macro_export]
 macro_rules! log {
     ( $str:expr ) => {
-
-    }
+        crate::services::logging_service::LOG_BUFFER.lock().unwrap().push((false, String::from($str)));
+    };
+    ( $str:expr, $data:expr ) => {
+        crate::services::logging_service::LOG_BUFFER.lock().unwrap().push((false, format!($str, $data)));
+    };
 }
 
 #[cfg(debug_assertions)]
@@ -36,7 +43,10 @@ macro_rules! log {
 macro_rules! log {
     ( $str:expr ) => {
         crate::services::logging_service::LOG_BUFFER.lock().unwrap().push((false, String::from($str)));
-    }
+    };
+    ( $str:expr, $data:expr ) => {
+        crate::services::logging_service::LOG_BUFFER.lock().unwrap().push((false, format!($str, $data)));
+    };
 }
 
 pub type LoggingQueue = Mutex<Vec<(bool, String)>>;

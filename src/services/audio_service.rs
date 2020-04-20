@@ -1,3 +1,7 @@
+//
+// Handles noise playback, audio buffering and noise propagation
+//
+
 pub struct AudioService {
 
 }

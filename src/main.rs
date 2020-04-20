@@ -9,10 +9,11 @@ use winit::event_loop::ControlFlow;
 use crate::render::RenderState;
 use crate::client::events::{GameChangesContext, GameChanges};
 use crate::game::game_state::GameState;
-use std::time::{SystemTime};
+use std::time::{SystemTime, Instant};
 use systemstat::Duration;
 
 extern crate zerocopy;
+extern crate log;
 
 #[macro_use]
 pub mod services;
@@ -25,6 +26,10 @@ pub mod entity;
 pub mod helpers;
 
 fn main() {
+
+    env_logger::init();
+
+    let start = Instant::now();
 
     let event_loop = EventLoop::new();
     let window = WindowBuilder::new().with_title("My First World - Rustcraft")
@@ -44,6 +49,8 @@ fn main() {
     let mut fps = 0;
     let mut fps_counter_frames = 0;
     let mut fps_counter_time = SystemTime::now();
+
+    log!("Took {}s to draw first frame", start.elapsed().as_secs_f32());
 
     event_loop.run(move |event, _, control_flow| {
         match event {
@@ -75,6 +82,7 @@ fn main() {
                 // Update fps counter
                 if fps_counter_time.elapsed().unwrap().as_secs() > 0 {
                     fps = fps_counter_frames;
+                    println!("FPS: {}", fps);
                     fps_counter_frames = 0;
                     fps_counter_time = SystemTime::now();
                 }

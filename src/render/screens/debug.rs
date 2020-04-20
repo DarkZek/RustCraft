@@ -11,11 +11,10 @@ pub fn draw_debug_screen(render: &mut RenderState, encoder: &mut CommandEncoder,
         .texture_filter_method(wgpu::FilterMode::Nearest)
         .build(&render.device, wgpu::TextureFormat::Bgra8UnormSrgb);
 
-    let stats_left: [(&str, String); 8] = [("Rustcraft {}", String::from("0.01.01")),
+    let stats_left: [(&str, String); 7] = [("Rustcraft {}", String::from("0.01.01")),
         ("{} FPS ", render.fps.to_string()),
-        ("{} MS per frame", String::from("?")),
-        ("Vertices {}", render.vertices_count.to_string()),
-        ("Render Distance {}", render.render_distance.to_string()),
+        ("{} Vertices", render.services.chunk.vertices.clone().to_string()),
+        ("Render Distance {}", render.services.settings.render_distance.to_string()),
         ("X: {}", render.camera.eye.x.to_string()),
         ("Y {}", render.camera.eye.y.to_string()),
         ("Z {}", render.camera.eye.z.to_string())];

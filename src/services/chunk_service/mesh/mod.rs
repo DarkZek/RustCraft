@@ -1,14 +1,15 @@
-pub mod generation;
 pub mod chunk;
 pub mod culling;
 pub mod block;
-pub mod model;
+pub mod debug;
+pub mod greedy_meshing;
 
 #[repr(C)]
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct Vertex {
     pub position: [f32; 3],
     pub tex_coords: [f32; 2],
+    /*pub relative_coords: [f32; 2],*/
     pub normals: [f32; 3],
 }
 

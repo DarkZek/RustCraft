@@ -158,3 +158,11 @@ Current Y: 6344
 Y: 6312
 Row Width: 1960
 Texture_Numbers_x: [31, 63, 95, 127, 159, 191, 223, 255, 287, 319, 351, 383, 415, 475, 535, 551, 567, 583, 599, 615, 631, 647, 663, 679, 695, 711, 727, 743, 759, 775, 791, 807, 823, 839, 855, 871, 887, 903, 919, 935, 951, 967, 983, 999, 1015, 1031, 1047, 1063, 1079, 1095, 1111, 1127, 1143, 1159, 1175, 1191, 1207, 1223, 1239, 1255, 1271, 1287, 1303, 1319, 1335, 1351, 1367, 1383, 1399, 1415, 1431, 1447, 1463, 1479, 1495, 1511, 1527, 1543, 1559, 1575, 1591, 1607, 1623, 1639, 1655, 1671, 1687, 1703, 1719, 1735, 1751, 1767, 1783, 1799, 1815, 1831, 1847, 1863, 1879, 1895, 1911, 1927, 1943, 1959]
+[INFO] Resource Packs: ["Faithful-1.15.zip"]
+[INFO] Took 0.6726441 seconds to load texture pack /home/darkzek/Documents/Projects/AshLearning/target/release/resources/Faithful-1.15.zip
+[INFO] Creating atlas map took: 1390ms
+[INFO] Took 2.433083s to draw first frame
+[INFO] Resource Packs: ["Faithful-1.15.zip"]
+[INFO] Took 0.5435762 seconds to load texture pack /home/darkzek/Documents/Projects/AshLearning/target/release/resources/Faithful-1.15.zip
+[INFO] Creating atlas map took: 1122ms
+[INFO] Took 1.9868999s to draw first frame

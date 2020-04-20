@@ -11,7 +11,6 @@ fn format_u32(mut count: u32) -> String {
         }
 
         count = count / 1000;
-
     }
 
     msg

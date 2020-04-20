@@ -1,6 +1,5 @@
 use crate::render::RenderState;
 use std::time::{Instant};
-use crate::render::screens::debug::draw_debug_screen;
 
 pub mod uniforms;
 
@@ -45,10 +44,11 @@ impl RenderState {
                 });
 
                 render_pass.set_pipeline(&self.render_pipeline);
-                render_pass.set_bind_group(0, &self.diffuse_bind_group, &[]);
+                render_pass.set_bind_group(0, &self.atlas_bind_group, &[]);
                 render_pass.set_bind_group(1, &self.uniform_bind_group, &[]);
+                render_pass.set_bind_group(3, &self.blocks_bind_group, &[]);
 
-                for chunk in &self.world.chunks {
+                for chunk in &self.services.chunk.chunks {
                     let indices_buffer = chunk.indices_buffer.as_ref().unwrap();
                     let vertices_buffer = chunk.vertices_buffer.as_ref().unwrap();
                     let model_bind_group = chunk.model_bind_group.as_ref().unwrap();
@@ -61,7 +61,7 @@ impl RenderState {
             }
 
             // Debug information
-            draw_debug_screen(self, &mut encoder, &frame);
+            //draw_debug_screen(self, &mut encoder, &frame);
 
             self.queue.submit(&[
                 encoder.finish()

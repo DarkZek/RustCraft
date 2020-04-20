@@ -11,3 +11,13 @@ pub struct Block {
     pub texture_atlas_lookups: [TextureAtlasIndex; 6],
     pub transparent: bool,
 }
+
+#[derive(Copy, Clone)]
+pub enum BlockDirection {
+    Up = 0,
+    Front = 1,
+    Back = 2,
+    Left = 3,
+    Right = 4,
+    Bottom = 5
+}

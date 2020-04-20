@@ -1,9 +1,13 @@
-use crate::render::mesh::{Vertex, ViewableDirectionBitMap};
-use crate::render::mesh::culling::ViewableDirection;
+//
+// This is a duplicate of block.rs, designed to show a random color per vertex for debugging
+//
+
 use crate::services::asset_service::atlas::TextureAtlasIndex;
 use crate::block::Block;
+use crate::services::chunk_service::mesh::culling::ViewableDirection;
+use crate::services::chunk_service::mesh::{ViewableDirectionBitMap, Vertex};
 
-pub fn draw_block(x: f32, y: f32, z: f32, viewable: ViewableDirection, vertices: &mut Vec<Vertex>, indices: &mut Vec<u16>, block: &Block) {
+pub fn draw_random_color_block(x: f32, y: f32, z: f32, viewable: ViewableDirection, vertices: &mut Vec<Vertex>, indices: &mut Vec<u16>, block: &Block) {
     if viewable.has_flag(ViewableDirectionBitMap::Top) {
         draw_y_face(x, y - 1.0, z, vertices, indices, true, block.texture_atlas_lookups[0]);
     }
@@ -30,7 +34,9 @@ pub fn draw_block(x: f32, y: f32, z: f32, viewable: ViewableDirection, vertices:
 }
 
 pub fn draw_y_face(x: f32, y: f32, z: f32, vertices: &mut Vec<Vertex>, indices: &mut Vec<u16>, top: bool, atlas: TextureAtlasIndex) {
+
     let (start_atlas, end_atlas) = atlas;
+
     let normals = if top { [0.0, 1.0, 0.0] } else { [0.0, -1.0, 0.0] };
 
     let starting_vertices = vertices.len() as u16;
