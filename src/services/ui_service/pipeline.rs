@@ -47,8 +47,8 @@ pub fn generate_render_pipeline(device: &Device, bind_group_layouts: &[&BindGrou
 }
 
 pub fn load_shaders(device: &Device) -> (ShaderModule, ShaderModule){
-    let vs_src = include_str!("../../render/shaders/ui.vert");
-    let fs_src = include_str!("../../render/shaders/ui.frag");
+    let vs_src = include_str!("../../../assets/shaders/ui.vert");
+    let fs_src = include_str!("../../../assets/shaders/ui.frag");
 
     let vs_spirv = glsl_to_spirv::compile(vs_src, glsl_to_spirv::ShaderType::Vertex).unwrap();
     let fs_spirv = glsl_to_spirv::compile(fs_src, glsl_to_spirv::ShaderType::Fragment).unwrap();

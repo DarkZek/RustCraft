@@ -1,5 +1,5 @@
 [package]
-name = "AshLearning"
+name = "RustCraft"
 version = "0.1.0"
 authors = ["Marshall Ashdowne <daarkzek@protonmail.com>"]
 edition = "2018"

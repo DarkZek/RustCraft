@@ -152,8 +152,8 @@ impl LoadingScreen {
 }
 
 pub fn load_shaders(device: &Device) -> (ShaderModule, ShaderModule){
-    let vs_src = include_str!("../render/shaders/loading.vert");
-    let fs_src = include_str!("../render/shaders/loading.frag");
+    let vs_src = include_str!("../../assets/shaders/loading.vert");
+    let fs_src = include_str!("../../assets/shaders/loading.frag");
 
     let vs_spirv = glsl_to_spirv::compile(vs_src, glsl_to_spirv::ShaderType::Vertex).unwrap();
     let fs_spirv = glsl_to_spirv::compile(fs_src, glsl_to_spirv::ShaderType::Fragment).unwrap();
