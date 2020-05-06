@@ -29,7 +29,7 @@ impl Camera {
             // position the camera one unit up and 2 units back
             eye: Point3 {x: 10.0, y: 51.0, z: 10.0},
             // have it look at the origin
-            yaw: 0.0,
+            yaw: 00.0,
             pitch: 0.0,
             // which way is "up"
             up: Vector3::unit_y(),

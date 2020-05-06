@@ -1,5 +1,6 @@
 use crate::render::RenderState;
 use std::time::{Instant};
+use crate::services::ui_service::UIService;
 
 pub mod uniforms;
 
@@ -9,6 +10,8 @@ impl RenderState {
         self.update();
 
         let mut swapchain = self.swap_chain.take().unwrap();
+        let mut services = self.services.take().unwrap();
+
         let frame = swapchain.get_next_texture();
 
         let mut encoder = self.device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
@@ -44,24 +47,24 @@ impl RenderState {
                 });
 
                 render_pass.set_pipeline(&self.render_pipeline);
-                render_pass.set_bind_group(0, &self.atlas_bind_group, &[]);
+                render_pass.set_bind_group(0, &services.asset.atlas_bind_group.as_ref().unwrap(), &[]);
                 render_pass.set_bind_group(1, &self.uniform_bind_group, &[]);
-                render_pass.set_bind_group(3, &self.blocks_bind_group, &[]);
 
-                for chunk in &self.services.chunk.chunks {
-                    let indices_buffer = chunk.indices_buffer.as_ref().unwrap();
-                    let vertices_buffer = chunk.vertices_buffer.as_ref().unwrap();
-                    let model_bind_group = chunk.model_bind_group.as_ref().unwrap();
+                for chunk in &services.chunk.chunks {
+                    let indices_buffer = chunk.1.indices_buffer.as_ref().unwrap();
+                    let vertices_buffer = chunk.1.vertices_buffer.as_ref().unwrap();
+                    let model_bind_group = chunk.1.model_bind_group.as_ref().unwrap();
 
                     render_pass.set_bind_group(2, model_bind_group, &[0]);
                     render_pass.set_vertex_buffers(0, &[(vertices_buffer, 0)]);
                     render_pass.set_index_buffer(indices_buffer, 0);
-                    render_pass.draw_indexed(0..chunk.indices_buffer_len, 0, 0..1);
+                    render_pass.draw_indexed(0..chunk.1.indices_buffer_len, 0, 0..1);
                 }
             }
 
             // Debug information
-            //draw_debug_screen(self, &mut encoder, &frame);
+
+            UIService::render(&frame, &mut encoder, &self.device, &mut services);
 
             self.queue.submit(&[
                 encoder.finish()
@@ -71,6 +74,7 @@ impl RenderState {
         std::mem::drop(frame);
 
         self.swap_chain = Some(swapchain);
+        self.services = Some(services);
     }
 
     pub fn update(&mut self) {

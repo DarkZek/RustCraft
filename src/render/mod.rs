@@ -6,12 +6,9 @@ use crate::block::{blocks, Block};
 use crate::render::shaders::load_shaders;
 use std::time::Instant;
 use systemstat::{System, Platform};
-use crate::services::asset_service::atlas::{TextureAtlasIndex};
-use crate::services::asset_service::binding::{atlas_binding_layout, blocks_binding_layout};
 use crate::services::asset_service::depth_map::{create_depth_texture, DEPTH_FORMAT};
 use crate::services::{Services, ServicesContext};
 use crate::render::loading::LoadingScreen;
-use std::collections::HashMap;
 use crate::services::chunk_service::mesh::Vertex;
 
 pub mod pass;
@@ -32,11 +29,6 @@ pub struct RenderState {
 
     size: winit::dpi::PhysicalSize<u32>,
 
-    atlas_sampler: wgpu::Sampler,
-    atlas_bind_group: wgpu::BindGroup,
-
-    blocks_bind_group: wgpu::BindGroup,
-
     pub camera: Camera,
     pub uniforms: Uniforms,
     pub uniform_buffer: wgpu::Buffer,
@@ -44,7 +36,6 @@ pub struct RenderState {
 
     depth_texture: (Texture, TextureView, Sampler),
 
-    atlas_mapping: HashMap<String, TextureAtlasIndex>,
     blocks: Vec<Block>,
 
     fps: u32,
@@ -54,7 +45,7 @@ pub struct RenderState {
     gpu_info: AdapterInfo,
     system_info: System,
 
-    pub(crate) services: Services
+    pub(crate) services: Option<Services>
 }
 
 impl RenderState {
@@ -80,29 +71,24 @@ impl RenderState {
         let mut blocks = blocks::get_blocks();
 
         // Start the intensive job of loading services
-        let mut services = Services::load_services(ServicesContext::new(&mut device, &mut queue, &mut blocks));
+        let mut services = Services::load_services(ServicesContext::new(&mut device, &mut queue, &mut blocks, &size));
 
         //Change to 50 %
         loading.render(&mut swap_chain, &device, &mut queue, 90);
 
+        // TODO: Combine uniforms into camera
         let camera = Camera::new(&size);
-
         let mut uniforms = Uniforms::new();
         uniforms.update_view_proj(&camera);
         let (uniform_buffer, uniform_bind_group_layout, uniform_bind_group) = uniforms.create_uniform_buffers(&device);
 
         // Hand the atlas to the renderer
-        let (atlas_sampler, atlas_texture, atlas_mapping) = (services.asset.texture_sampler.take().unwrap(),
-                                                                                                services.asset.texture_atlas.take().unwrap(),
-                                                                                                services.asset.texture_atlas_index.take().unwrap());
-
-        let (atlas_bind_group_layout, atlas_bind_group) = atlas_binding_layout(&device, &atlas_texture, &atlas_sampler);
-        let (blocks_bind_group_layout, blocks_bind_group) = blocks_binding_layout(&device, services.asset.blocks_texture.as_ref().unwrap());
+        //let (atlas_sampler, atlas_texture, atlas_mapping) = (services.asset.texture_sampler.take().unwrap(), services.asset.texture_atlas.take().unwrap(), services.asset.texture_atlas_index.take().unwrap());
 
         let depth_texture = create_depth_texture(&device, &sc_desc);
 
         let render_pipeline = generate_render_pipeline(&sc_desc, &device,
-                                                       &[&atlas_bind_group_layout, &uniform_bind_group_layout, &services.chunk.bind_group_layout, &blocks_bind_group_layout]);
+                                                       &[&services.asset.atlas_bind_group_layout.as_ref().unwrap(), &uniform_bind_group_layout, &services.chunk.bind_group_layout]);
 
         //Load font
 
@@ -116,22 +102,18 @@ impl RenderState {
             swap_chain: Some(swap_chain),
             size,
             render_pipeline,
-            atlas_sampler,
-            atlas_bind_group,
-            blocks_bind_group,
             camera,
             uniforms,
             uniform_buffer,
             uniform_bind_group,
             depth_texture,
-            atlas_mapping,
             blocks,
             fps: 0,
             fps_counter: Instant::now(),
             frames: 0,
             gpu_info,
             system_info,
-            services
+            services: Some(services)
         }
     }
 
@@ -142,6 +124,10 @@ impl RenderState {
         self.swap_chain = Some(self.device.create_swap_chain(&self.surface, &self.sc_desc));
         self.depth_texture = create_depth_texture(&self.device, &self.sc_desc);
         self.camera.aspect = new_size.width as f32 / new_size.height as f32;
+
+        let services = self.services.take().unwrap();
+        services.ui.update_ui_projection_matrix(self, new_size);
+        self.services = Some(services);
     }
 }
 

@@ -6,11 +6,11 @@ use cgmath::{Point3, Vector3};
 
 pub fn draw_block(point: Point3<f32>, viewable: ViewableDirection, vertices: &mut Vec<Vertex>, indices: &mut Vec<u16>, block: &Block) {
     if viewable.has_flag(ViewableDirectionBitMap::Top) {
-        //draw_y_face(point.x, point.y - 1.0, point.z, vertices, indices, true, block.texture_atlas_lookups[0]);
+        draw_y_face(point.x, point.y - 1.0, point.z, vertices, indices, true, block.texture_atlas_lookups[0]);
     }
 
     if viewable.has_flag(ViewableDirectionBitMap::Bottom) {
-        //draw_y_face(point.x, point.y - 2.0, point.z, vertices, indices, false, block.texture_atlas_lookups[5]);
+        draw_y_face(point.x, point.y - 2.0, point.z, vertices, indices, false, block.texture_atlas_lookups[5]);
     }
 
     if viewable.has_flag(ViewableDirectionBitMap::Front) {

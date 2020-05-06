@@ -5,7 +5,6 @@
 use std::ops::Add;
 
 pub const CHUNK_SIZE: usize = 16;
-pub const CHUNK_HEIGHT: usize = 256;
 
 pub struct SettingsService {
     pub(crate) path: String,
@@ -14,7 +13,8 @@ pub struct SettingsService {
     pub atlas_cache_writing: bool,
     pub render_distance: u32,
     /// Changes the texture atlas to generate random textures instead
-    pub debug_vertices: bool
+    pub debug_vertices: bool,
+    pub debug_atlas: bool
 }
 
 impl SettingsService {
@@ -29,7 +29,7 @@ impl SettingsService {
             path.iter().fold("".to_string(), | out, x| { out.add(&format!("{}/", x)) })
         };
 
-        let mut atlas_caching = false;
+        let mut atlas_caching = true;
         let debug_vertices = false;
 
         if debug_vertices {
@@ -41,7 +41,8 @@ impl SettingsService {
             atlas_cache_reading: false,
             atlas_cache_writing: true,
             render_distance: 1,
-            debug_vertices
+            debug_vertices,
+            debug_atlas: false
         }
     }
 }

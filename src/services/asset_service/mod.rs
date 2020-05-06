@@ -5,25 +5,24 @@
 use std::collections::HashMap;
 use crate::services::settings_service::SettingsService;
 use image::DynamicImage;
-use wgpu::{Texture, Sampler};
+use wgpu::{Texture, Sampler, BindGroupLayout, BindGroup};
 use crate::services::asset_service::atlas::TextureAtlasIndex;
 use crate::services::{ServicesContext};
-use crate::services::asset_service::blocks_array::generate_blocks_array;
 
 pub mod depth_map;
 pub mod binding;
 pub mod atlas;
 pub mod packs;
-pub mod blocks_array;
 
 pub struct AssetService {
     resource_packs: Vec<String>,
     selected_pack: Option<ResourcePack>,
-    pub texture_atlas: Option<Texture>,
-    pub texture_atlas_index: Option<HashMap<String, TextureAtlasIndex>>,
-    pub texture_sampler: Option<Sampler>,
-    pub blocks_texture: Option<Texture>,
-    pub blocks_sampler: Option<Sampler>
+    pub atlas: Option<Texture>,
+    pub atlas_index: Option<HashMap<String, TextureAtlasIndex>>,
+    pub atlas_sampler: Option<Sampler>,
+    pub atlas_bind_group_layout: Option<BindGroupLayout>,
+    pub atlas_bind_group: Option<BindGroup>,
+
 }
 
 pub struct ResourcePack {
@@ -47,19 +46,19 @@ impl AssetService {
             None
         };
 
-        let (texture_atlas, texture_atlas_index, texture_sampler) =
+        let (atlas, atlas_index, atlas_sampler) =
             AssetService::generate_texture_atlas(selected_pack.as_mut().unwrap(), context.device, context.queue, settings);
 
-        let (blocks_texture, blocks_sampler) = generate_blocks_array(context);
+        let (atlas_bind_group_layout, atlas_bind_group) = AssetService::generate_atlas_bindings(&mut context.device, &atlas, &atlas_sampler);
 
         AssetService {
             resource_packs,
             selected_pack,
-            texture_atlas: Some(texture_atlas),
-            texture_atlas_index: Some(texture_atlas_index),
-            texture_sampler: Some(texture_sampler),
-            blocks_texture: Some(blocks_texture),
-            blocks_sampler: Some(blocks_sampler)
+            atlas: Some(atlas),
+            atlas_index: Some(atlas_index),
+            atlas_sampler: Some(atlas_sampler),
+            atlas_bind_group_layout: Some(atlas_bind_group_layout),
+            atlas_bind_group: Some(atlas_bind_group)
         }
     }
 }

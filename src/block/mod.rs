@@ -2,7 +2,7 @@ use crate::services::asset_service::atlas::TextureAtlasIndex;
 
 pub mod blocks;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Block {
     pub id: u32,
     pub name: &'static str,

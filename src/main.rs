@@ -59,19 +59,16 @@ fn main() {
                 window_id,
             } if window_id == window.id() => {
                 match event {
-                    WindowEvent::CloseRequested => *control_flow = ControlFlow::Exit,
+                    WindowEvent::CloseRequested => {*control_flow = ControlFlow::Exit; return;},
                     WindowEvent::Resized(physical_size) => {
                         render_state.resize(*physical_size);
                         game_changes_context.update_mouse_home(window.inner_size());
-                        *control_flow = ControlFlow::Poll;
                     }
                     WindowEvent::ScaleFactorChanged { new_inner_size, .. } => {
                         render_state.resize(**new_inner_size);
-                        *control_flow = ControlFlow::Poll;
                     }
                     _ => {
                         changes.handle_event(event, &mut game_changes_context, &window);
-                        *control_flow = ControlFlow::Poll;
                     },
                 }
             }
@@ -96,10 +93,11 @@ fn main() {
                 *control_flow = ControlFlow::Poll;
                 delta_time = last_frame_time.elapsed().unwrap();
 
-                render_state.services.logging.flush_buffer();
+                render_state.services.as_ref().unwrap().logging.flush_buffer();
             }
-            _ => *control_flow = ControlFlow::Poll
+            _ => ()
         }
+        *control_flow = ControlFlow::Poll
     });
 
 }

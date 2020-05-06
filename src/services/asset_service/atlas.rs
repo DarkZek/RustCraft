@@ -1,4 +1,4 @@
-use image::{GenericImageView, DynamicImage, Rgba, ImageBuffer};
+use image::{GenericImageView, DynamicImage, Rgba, ImageBuffer, GenericImage};
 use std::time::SystemTime;
 use wgpu::{Device, Queue, Texture, Sampler};
 use crate::services::asset_service::{ResourcePack, AssetService};
@@ -11,7 +11,7 @@ use std::io::Write;
 pub type TextureAtlasIndex = ([f32; 2], [f32; 2]);
 
 const ATLAS_WIDTH: u32 = 4096;
-const ATLAS_HEIGHT: u32 = 4096 * 2;
+const ATLAS_HEIGHT: u32 = (4096.0 * 2.0) as u32;
 
 impl AssetService {
     /// Generate a a new texture atlas from a list of textures and a resources directory
@@ -65,6 +65,7 @@ impl AssetService {
 
                 // Stores the filled space of this atlas row
                 let mut row_width = 0;
+                let row_height = textures.get(texture_id).unwrap().1.height();
 
                 // Stores the texture relative we're looking at compared to the texture_id
                 let mut relative_texture_index = 0;
@@ -76,8 +77,10 @@ impl AssetService {
 
                     if (row_width + width) <= ATLAS_WIDTH {
                         texture_numbers_x.push(row_width + width - 1);
-                        atlas_index.insert(name.clone(), ([(row_width as f32) / ATLAS_WIDTH as f32, (current_y as f32) / ATLAS_HEIGHT as f32],
-                                                          [((row_width + width) as f32) / ATLAS_WIDTH as f32, ((current_y + img.height()) as f32) / ATLAS_HEIGHT as f32]));
+                        // atlas_index.insert(name.clone(), ([(row_width as f32) / ATLAS_WIDTH as f32, (current_y as f32) / ATLAS_HEIGHT as f32],
+                        //                                   [((row_width + width) as f32) / ATLAS_WIDTH as f32, ((current_y + img.height()) as f32) / ATLAS_HEIGHT as f32]));
+                        atlas_index.insert(name.clone(), ([(row_width as f32) / ATLAS_WIDTH as f32, ((current_y + row_height - img.height()) as f32) / ATLAS_HEIGHT as f32],
+                                                          [((row_width + width) as f32) / ATLAS_WIDTH as f32, ((current_y + row_height) as f32) / ATLAS_HEIGHT as f32]));
                     } else {
                         break;
                     }
@@ -87,7 +90,7 @@ impl AssetService {
                 }
 
                 // Update y
-                current_y += textures.get(texture_id).unwrap().1.height();
+                current_y += row_height;
 
                 if current_y > ATLAS_HEIGHT {
                     log_error!("Atlas too small! Not all textures could fit in");
@@ -121,11 +124,17 @@ impl AssetService {
             match textures.get(texture_id + current_texture_id as usize) {
                 Some((_, image)) => {
                     let tex_x = x - (texture_numbers_x.get(current_texture_id).unwrap() - (image.width() - 1));
-                    let tex_y = image.height() - (current_y - y);
-                    if tex_y <= image.height() {
-                        *pixel = image.get_pixel(tex_x, tex_y);
-                    } else {
+
+                    if current_y - image.height() > y {
                         *pixel = image::Rgba([255, 0, 0, 255]);
+                    } else {
+                        let tex_y = image.height() + y - current_y;
+
+                        if tex_y <= image.height() {
+                            *pixel = image.get_pixel(tex_x, tex_y);
+                        } else {
+                            *pixel = image::Rgba([255, 0, 0, 255]);
+                        }
                     }
                 }
                 None => {
@@ -133,6 +142,38 @@ impl AssetService {
                 }
             }
         }
+
+        if settings.debug_atlas {
+            for (name, coord) in atlas_index.iter() {
+
+                let x = (coord.0[0] * ATLAS_WIDTH as f32) as u32;
+                let y = (coord.0[1] * ATLAS_HEIGHT as f32) as u32;
+
+                atlas.put_pixel(x, y, image::Rgba([255, 255, 0, 255]));
+                atlas.put_pixel(x, y + 1, image::Rgba([255, 255, 0, 255]));
+                atlas.put_pixel(x + 1, y, image::Rgba([255, 255, 0, 255]));
+
+                let x = (coord.1[0] * ATLAS_WIDTH as f32) as u32;
+                let y = (coord.1[1] * ATLAS_HEIGHT as f32) as u32;
+
+                if atlas.dimensions().0 == x {
+                    continue;
+                }
+
+                atlas.put_pixel(x, y, image::Rgba([255, 255, 0, 255]));
+                atlas.put_pixel(x, y - 1, image::Rgba([255, 255, 0, 255]));
+                atlas.put_pixel(x - 1, y, image::Rgba([255, 255, 0, 255]));
+
+            }
+        }
+
+        //
+        // let ascii_atlas_coords = atlas_index
+        //     .get("textures/font/ascii")
+        //     .unwrap()
+        //     .clone();
+        //
+        // println!("COords: {} {}", , );
 
         if settings.atlas_cache_writing {
             if let Err(e) = atlas.save(format!("{}resources/atlas.png", settings.path)) {
@@ -151,12 +192,10 @@ impl AssetService {
                     log_error!("Failed to cache atlas index: {}", e);
                 }
             }
-
         }
 
         let atlas_img = DynamicImage::ImageRgba8(atlas);
         let diffuse_rgba = atlas_img.as_rgba8().unwrap();
-
         let dimensions = diffuse_rgba.dimensions();
 
         let size = wgpu::Extent3d {
@@ -194,7 +233,7 @@ impl AssetService {
 
         log!(format!("Creating atlas map took: {}ms", start_time.elapsed().unwrap().as_millis()));
 
-        let diffuse_sampler = device.create_sampler(&wgpu::SamplerDescriptor {
+        let diffuse_sampler_descriptor = wgpu::SamplerDescriptor {
             address_mode_u: wgpu::AddressMode::ClampToEdge,
             address_mode_v: wgpu::AddressMode::ClampToEdge,
             address_mode_w: wgpu::AddressMode::ClampToEdge,
@@ -204,7 +243,9 @@ impl AssetService {
             lod_min_clamp: -100.0,
             lod_max_clamp: 100.0,
             compare_function: wgpu::CompareFunction::Always,
-        });
+        };
+
+        let diffuse_sampler = device.create_sampler(&diffuse_sampler_descriptor);
 
         (diffuse_texture, atlas_index, diffuse_sampler)
     }

@@ -2,11 +2,20 @@ use wgpu::{Device, BindGroupLayout};
 use cgmath::{Matrix4, Vector3};
 use crate::services::chunk_service::mesh::culling::{calculate_viewable, ViewableDirection};
 use crate::services::chunk_service::chunk::Chunk;
-use crate::services::settings_service::{CHUNK_SIZE, CHUNK_HEIGHT};
+use crate::services::settings_service::{CHUNK_SIZE};
+use std::collections::HashMap;
+use crate::block::Block;
+use crate::services::chunk_service::mesh::{ViewableDirectionBitMap, Vertex};
 
-impl Chunk {
+pub struct ChunkMeshData {
+    pub viewable: [[[ViewableDirection; 16]; 16]; 16],
+    pub vertices: Vec<Vertex>,
+    pub indices: Vec<u16>
+}
 
-    pub fn create_buffers(&mut self, device: &Device, model_bind_group_layout: &BindGroupLayout) {
+impl<'a> Chunk {
+
+    pub fn create_buffers(&mut self, device: &Device, bind_group_layout: &BindGroupLayout) {
         let vertices = self.vertices.as_ref().unwrap();
 
         let vertex_buffer = device
@@ -26,9 +35,9 @@ impl Chunk {
 
         // Create model buffer
         let model: [[f32; 4]; 4] = Matrix4::from_translation(Vector3 {
-            x: self.x as f32 * 16.0,
-            y: 0.0,
-            z: self.z as f32 * 16.0
+            x: self.position.x as f32 * 16.0,
+            y: self.position.y as f32 * 16.0,
+            z: self.position.z as f32 * 16.0
         }).into();
 
         let model_buffer = device
@@ -36,7 +45,7 @@ impl Chunk {
             .fill_from_slice(&[(model)]);
 
         let model_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
-            layout: &model_bind_group_layout,
+            layout: &bind_group_layout,
             bindings: &[
                 wgpu::Binding {
                     binding: 0,
@@ -51,21 +60,78 @@ impl Chunk {
         self.model_bind_group = Some(model_bind_group);
     }
 
-    pub fn generate_viewable_map(&mut self) {
+    pub fn generate_viewable_map(&self, adjacent_chunks: HashMap<Vector3<i32>, Option<&Chunk>>) -> [[[ViewableDirection; 16]; 16]; 16] {
 
-        let mut data = [[[ViewableDirection(0); CHUNK_SIZE]; CHUNK_HEIGHT]; CHUNK_SIZE];
+        let mut data = [[[ViewableDirection(0); CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
         let world = self.world;
+
+        let directions: [Vector3<i32>; 6] = [Vector3 { x: 1, y: 0, z: 0 }, Vector3 { x: -1, y: 0, z: 0 }, Vector3 { x: 0, y: 1, z: 0 }, Vector3 { x: 0, y: -1, z: 0 }, Vector3 { x: 0, y: 0, z: 1 }, Vector3 { x: 0, y: 0, z: -1 }];
 
         for x in 0..world.len() {
             for z in 0..world[0][0].len() {
                 for y in 0..world[0].len() {
-                    let viewable = calculate_viewable(&self, [x, y, z]);
+                    let mut viewable = calculate_viewable(&self, [x, y, z]);
+                    //viewable = ViewableDirection(0);
 
-                    data[x][y][z] = ViewableDirection(viewable);
+                    for direction in directions.iter() {
+
+                        // Calculates if block is bordering on this direction
+                        if (direction.x == 1 && x == 15) || (direction.x == -1 && x == 0) ||
+                            (direction.y == 1 && y == 15) || (direction.y == -1 && y == 0) ||
+                            (direction.z == 1 && z == 15) || (direction.z == -1 && z == 0) {
+
+                            // Make it so we get the block on the other chunk closest to our block
+                            let block_pos: Vector3<usize> = Vector3 {
+                                x: if direction.x == -1 {x as usize} else if direction.x == -1 {0} else {15},
+                                y: if direction.y == -1 {y as usize} else if direction.y == -1 {0} else {15},
+                                z: if direction.z == -1 {z as usize} else if direction.z == -1 {0} else {15}
+                            };
+
+                            // Checks if the block in an adjacent chunk is transparent
+                            if adjacent_chunks.get(&direction).unwrap().is_some() {
+
+                                let chunk = adjacent_chunks.get(&direction).unwrap().unwrap();
+
+                                let block = {
+                                    let block_id = chunk.world[block_pos.x][block_pos.y][block_pos.z];
+                                    if block_id != 0 {
+                                        chunk.blocks.get(block_id as usize - 1)
+                                    } else {
+                                        None
+                                    }
+                                };
+
+                                // Check if face visible
+                                if block.map_or(true, |x| x.transparent) {
+                                    viewable.add_flag(ViewableDirectionBitMap::from(direction));
+                                }
+                            } else {
+                                viewable.add_flag(ViewableDirectionBitMap::from(direction));
+                            }
+                        }
+                    }
+
+                    data[x][y][z] = viewable;
                 }
             }
         }
 
-        self.viewable_map = Some(data);
+        // Check top faces
+        data
+    }
+
+    pub fn get_block(&self, pos: Vector3<usize>) -> Option<&Block> {
+        let block_id = self.world[pos.x][pos.y][pos.z];
+        if block_id == 0 {
+            self.blocks.get(block_id as usize - 1)
+        } else {
+            None
+        }
+    }
+
+    pub fn update_mesh(&mut self, data: ChunkMeshData) {
+        self.indices = Some(data.indices);
+        self.vertices= Some(data.vertices);
+        self.viewable_map = Some(data.viewable);
     }
 }

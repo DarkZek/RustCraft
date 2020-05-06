@@ -10,9 +10,13 @@ impl ViewableDirection {
         let target: u8 = flag as u8;
         return (self.0 & target) == target;
     }
+
+    pub fn add_flag(&mut self, flag: ViewableDirectionBitMap) {
+        self.0 += flag as u8;
+    }
 }
 
-pub fn calculate_viewable(chunk: &Chunk, pos: [usize; 3]) -> u8 {
+pub fn calculate_viewable(chunk: &Chunk, pos: [usize; 3]) -> ViewableDirection {
     let world = &chunk.world;
     let mut direction: u8 = 0;
 
@@ -39,7 +43,8 @@ pub fn calculate_viewable(chunk: &Chunk, pos: [usize; 3]) -> u8 {
     if pos[2] != 0 && is_offset_transparent(world, pos, &chunk.blocks, [0, 0, -1]) {
         direction += ViewableDirectionBitMap::Front as u8;
     }
-    direction
+
+    ViewableDirection(direction)
 }
 
 fn is_offset_transparent(world: &RawChunkData, pos: [usize; 3], blocks: &Vec<Block>, offset: [isize; 3]) -> bool {
