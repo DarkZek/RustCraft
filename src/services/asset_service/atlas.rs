@@ -10,12 +10,12 @@ use std::io::Write;
 
 pub type TextureAtlasIndex = ([f32; 2], [f32; 2]);
 
-const ATLAS_WIDTH: u32 = 4096;
-const ATLAS_HEIGHT: u32 = (4096.0 * 2.0) as u32;
+pub const ATLAS_WIDTH: u32 = 4096;
+pub const ATLAS_HEIGHT: u32 = (4096.0 * 2.0) as u32;
 
 impl AssetService {
     /// Generate a a new texture atlas from a list of textures and a resources directory
-    pub fn generate_texture_atlas(resource_pack: &mut ResourcePack, device: &Device, queue: &mut Queue, settings: &SettingsService) -> (Texture, HashMap<String, TextureAtlasIndex>, Sampler) {
+    pub fn generate_texture_atlas(resource_pack: &mut ResourcePack, device: &Device, queue: &mut Queue, settings: &SettingsService) -> (DynamicImage, Texture, HashMap<String, TextureAtlasIndex>, Sampler) {
 
         let textures = sort_textures(&mut resource_pack.textures);
 
@@ -167,14 +167,6 @@ impl AssetService {
             }
         }
 
-        //
-        // let ascii_atlas_coords = atlas_index
-        //     .get("textures/font/ascii")
-        //     .unwrap()
-        //     .clone();
-        //
-        // println!("COords: {} {}", , );
-
         if settings.atlas_cache_writing {
             if let Err(e) = atlas.save(format!("{}resources/atlas.png", settings.path)) {
                 log_error!("Failed to cache atlas image: {}", e);
@@ -247,7 +239,7 @@ impl AssetService {
 
         let diffuse_sampler = device.create_sampler(&diffuse_sampler_descriptor);
 
-        (diffuse_texture, atlas_index, diffuse_sampler)
+        (atlas_img, diffuse_texture, atlas_index, diffuse_sampler)
     }
 }
 

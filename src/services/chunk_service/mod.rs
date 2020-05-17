@@ -15,10 +15,10 @@ pub mod mesh;
 pub mod chunk;
 
 pub struct ChunkService {
-    pub(crate) bind_group_layout: BindGroupLayout,
-    pub(crate) chunks: HashMap<Vector3<i32>, Chunk>,
-    pub(crate) vertices_count: u64,
-    pub(crate) chunk_keys: Vec<Vector3<i32>>
+    pub bind_group_layout: BindGroupLayout,
+    pub chunks: HashMap<Vector3<i32>, Chunk>,
+    pub vertices_count: u64,
+    pub chunk_keys: Vec<Vector3<i32>>
 }
 
 impl ChunkService {
@@ -48,7 +48,7 @@ impl ChunkService {
         };
 
         //TODO: Remove this once we have networking
-        for x in -(settings.render_distance as i32)..(settings.render_distance as i32 * 8) {
+        for x in -(settings.render_distance as i32)..(settings.render_distance as i32) {
             for z in -(settings.render_distance as i32)..(settings.render_distance as i32) {
                 for y in 0..16 {
                     let data = ChunkService::generate_chunk(x, y, z, context.blocks);
@@ -67,7 +67,7 @@ impl ChunkService {
                     .get(chunk_key)
                     .unwrap();
 
-                chunk.generate_mesh(&service)
+                chunk.generate_mesh(&service, settings)
             };
 
             // Add new vertices to count

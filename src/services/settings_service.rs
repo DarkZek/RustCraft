@@ -7,14 +7,16 @@ use std::ops::Add;
 pub const CHUNK_SIZE: usize = 16;
 
 pub struct SettingsService {
-    pub(crate) path: String,
+    pub path: String,
     //TODO: Implement
     pub atlas_cache_reading: bool,
     pub atlas_cache_writing: bool,
     pub render_distance: u32,
     /// Changes the texture atlas to generate random textures instead
     pub debug_vertices: bool,
-    pub debug_atlas: bool
+    pub debug_atlas: bool,
+    pub backface_culling: bool,
+    pub chunk_edge_faces: bool
 }
 
 impl SettingsService {
@@ -40,9 +42,11 @@ impl SettingsService {
             path,
             atlas_cache_reading: false,
             atlas_cache_writing: true,
-            render_distance: 1,
+            render_distance: 32,
             debug_vertices,
-            debug_atlas: false
+            debug_atlas: false,
+            backface_culling: true,
+            chunk_edge_faces: false
         }
     }
 }

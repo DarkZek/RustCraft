@@ -45,7 +45,7 @@ pub struct RenderState {
     gpu_info: AdapterInfo,
     system_info: System,
 
-    pub(crate) services: Option<Services>
+    pub services: Option<Services>
 }
 
 impl RenderState {
@@ -71,7 +71,7 @@ impl RenderState {
         let mut blocks = blocks::get_blocks();
 
         // Start the intensive job of loading services
-        let mut services = Services::load_services(ServicesContext::new(&mut device, &mut queue, &mut blocks, &size));
+        let services = Services::load_services(ServicesContext::new(&mut device, &mut queue, &mut blocks, &size));
 
         //Change to 50 %
         loading.render(&mut swap_chain, &device, &mut queue, 90);
@@ -87,10 +87,8 @@ impl RenderState {
 
         let depth_texture = create_depth_texture(&device, &sc_desc);
 
-        let render_pipeline = generate_render_pipeline(&sc_desc, &device,
+        let render_pipeline = generate_render_pipeline(&sc_desc, &device, services.settings.backface_culling,
                                                        &[&services.asset.atlas_bind_group_layout.as_ref().unwrap(), &uniform_bind_group_layout, &services.chunk.bind_group_layout]);
-
-        //Load font
 
         let system_info = System::new();
 
@@ -125,13 +123,13 @@ impl RenderState {
         self.depth_texture = create_depth_texture(&self.device, &self.sc_desc);
         self.camera.aspect = new_size.width as f32 / new_size.height as f32;
 
-        let services = self.services.take().unwrap();
+        let mut services = self.services.take().unwrap();
         services.ui.update_ui_projection_matrix(self, new_size);
         self.services = Some(services);
     }
 }
 
-fn generate_render_pipeline(sc_desc: &SwapChainDescriptor, device: &Device, bind_group_layouts: &[&BindGroupLayout]) -> RenderPipeline{
+fn generate_render_pipeline(sc_desc: &SwapChainDescriptor, device: &Device, culling: bool, bind_group_layouts: &[&BindGroupLayout]) -> RenderPipeline{
 
     let (vs_module, fs_module) = load_shaders(device);
 
@@ -155,7 +153,7 @@ fn generate_render_pipeline(sc_desc: &SwapChainDescriptor, device: &Device, bind
         }),
         rasterization_state: Some(wgpu::RasterizationStateDescriptor {
             front_face: wgpu::FrontFace::Cw,
-            cull_mode: wgpu::CullMode::Back,
+            cull_mode: if culling {wgpu::CullMode::Back} else {wgpu::CullMode::None},
             depth_bias: 0,
             depth_bias_slope_scale: 0.0,
             depth_bias_clamp: 0.0,

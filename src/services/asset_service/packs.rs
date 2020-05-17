@@ -8,7 +8,7 @@ use std::io::Read;
 use std::time::Instant;
 
 impl AssetService {
-    pub(crate) fn get_resource_packs(path: &str) -> Vec<String> {
+    pub fn get_resource_packs(path: &str) -> Vec<String> {
         // Load a list of resource packs
         match fs::read_dir(path) {
             Ok(files) => {
@@ -30,7 +30,7 @@ impl AssetService {
         }
     }
 
-    pub(crate) fn load_resource_pack(path: &str) -> ResourcePack {
+    pub fn load_resource_pack(path: &str) -> ResourcePack {
         let start_time = Instant::now();
         let zipfile = std::fs::File::open(&path).unwrap();
 

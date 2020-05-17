@@ -24,10 +24,12 @@ impl GameState {
             let x_look_speed = 0.05;
             let y_look_speed = 0.05;
 
+            // Update Horizontal Rotation
             player.rot[0] -= events.look[0] as f32 * x_look_speed * delta_time as f32;
-            player.rot[0] = player.rot[0] % (std::f32::consts::PI * 2.0);
+            player.rot[0] %= (std::f32::consts::PI * 2.0);
             if player.rot[0] < 0.0 { player.rot[0] += std::f32::consts::PI * 2.0; }
 
+            // Handle Vertical Rotation
             player.rot[1] = (player.rot[1] + (events.look[1] as f32 * y_look_speed * delta_time as f32)).clamp(0.01, std::f32::consts::PI - 0.01);
 
             render.camera.yaw = player.rot[0];

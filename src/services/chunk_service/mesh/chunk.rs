@@ -60,7 +60,30 @@ impl<'a> Chunk {
         self.model_bind_group = Some(model_bind_group);
     }
 
-    pub fn generate_viewable_map(&self, adjacent_chunks: HashMap<Vector3<i32>, Option<&Chunk>>) -> [[[ViewableDirection; 16]; 16]; 16] {
+    /*
+        This is a complex function that needs to take the xyz of the block position and the direction to create a value
+
+        15, 15, 15  - 1, 0, 0   = 0, 15, 15
+        15, 15, 15  - 0, 0, 1   = 15, 15, 0
+        0, 0, 0     - -1, 0, 0  = 15, 0, 0
+        0, 0, 0     - 0, 0, -1  = 0, 0, 15
+        0, 3, 8     - -1, 0, 0  = 15, 3, 8
+        15, 3, 8    - 1, 0, 0   = 0, 3, 8
+        15, 8, 8    - 1, 0, 0   = 0, 8, 8
+
+        Here's some pseudo code I made up
+        If number equals zero
+            If any digits are negative
+                return 0
+            else
+                return corresponding number
+        else if number equals one
+            return 0
+        else if number equals negative one
+            return 15
+     */
+
+    pub fn generate_viewable_map(&self, adjacent_chunks: HashMap<Vector3<i32>, Option<&Chunk>>, chunk_edge_faces: bool) -> [[[ViewableDirection; 16]; 16]; 16] {
 
         let mut data = [[[ViewableDirection(0); CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
         let world = self.world;
@@ -71,6 +94,8 @@ impl<'a> Chunk {
             for z in 0..world[0][0].len() {
                 for y in 0..world[0].len() {
                     let mut viewable = calculate_viewable(&self, [x, y, z]);
+
+                    // Temp
                     //viewable = ViewableDirection(0);
 
                     for direction in directions.iter() {
@@ -82,10 +107,12 @@ impl<'a> Chunk {
 
                             // Make it so we get the block on the other chunk closest to our block
                             let block_pos: Vector3<usize> = Vector3 {
-                                x: if direction.x == -1 {x as usize} else if direction.x == -1 {0} else {15},
-                                y: if direction.y == -1 {y as usize} else if direction.y == -1 {0} else {15},
-                                z: if direction.z == -1 {z as usize} else if direction.z == -1 {0} else {15}
+                                x: if direction.x == 0 {x} else if direction.x == 1 {0} else { 15 },
+                                y: if direction.y == 0 {y} else if direction.y == 1 {0} else { 15 },
+                                z: if direction.z == 0 {z} else if direction.z == 1 {0} else { 15 },
                             };
+
+                            //println!("{:?} - {:?} = {:?}", (x,y,z), direction, block_pos);
 
                             // Checks if the block in an adjacent chunk is transparent
                             if adjacent_chunks.get(&direction).unwrap().is_some() {
@@ -94,6 +121,7 @@ impl<'a> Chunk {
 
                                 let block = {
                                     let block_id = chunk.world[block_pos.x][block_pos.y][block_pos.z];
+
                                     if block_id != 0 {
                                         chunk.blocks.get(block_id as usize - 1)
                                     } else {
@@ -102,10 +130,10 @@ impl<'a> Chunk {
                                 };
 
                                 // Check if face visible
-                                if block.map_or(true, |x| x.transparent) {
+                                if block.map_or(true, |block| block.transparent) {
                                     viewable.add_flag(ViewableDirectionBitMap::from(direction));
                                 }
-                            } else {
+                            } else if chunk_edge_faces {
                                 viewable.add_flag(ViewableDirectionBitMap::from(direction));
                             }
                         }

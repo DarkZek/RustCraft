@@ -1,5 +1,5 @@
 [package]
-name = "RustCraft"
+name = "rustcraft"
 version = "0.1.0"
 authors = ["Marshall Ashdowne <daarkzek@protonmail.com>"]
 edition = "2018"
@@ -21,8 +21,6 @@ rand = "0.7.3"
 image = "0.23.3"
 glsl-to-spirv = "0.1"
 zerocopy = "0.2.8"
-# TODO: Remove as minecraft texture packs already contain fonts
-wgpu_glyph = "0.7.0"
 systemstat = "0.1.5"
 zip = "0.5.5"
 lazy_static = "1.4.0"

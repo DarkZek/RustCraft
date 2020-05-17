@@ -11,6 +11,9 @@ use crate::client::events::{GameChangesContext, GameChanges};
 use crate::game::game_state::GameState;
 use std::time::{SystemTime, Instant};
 use systemstat::Duration;
+use crate::services::ui_service::fonts::TextView;
+use crate::services::ui_service::fonts::text_builder::TextBuilder;
+use crate::services::ui_service::ObjectAlignment;
 
 extern crate zerocopy;
 extern crate log;
@@ -49,6 +52,17 @@ fn main() {
     let mut fps = 0;
     let mut fps_counter_frames = 0;
     let mut fps_counter_time = SystemTime::now();
+    let fps_text = render_state.services.as_mut().unwrap()
+        .ui
+        .fonts
+        .create_text()
+        .set_text("FPS: ?")
+        .set_background(true)
+        .set_size(20.0)
+        .set_object_alignment(ObjectAlignment::TopLeft)
+        .set_text_alignment(ObjectAlignment::TopLeft)
+        .set_offset([0.0, 30.0])
+        .build();
 
     log!("Took {}s to draw first frame", start.elapsed().as_secs_f32());
 
@@ -79,7 +93,7 @@ fn main() {
                 // Update fps counter
                 if fps_counter_time.elapsed().unwrap().as_secs() > 0 {
                     fps = fps_counter_frames;
-                    println!("FPS: {}", fps);
+                    render_state.services.as_mut().unwrap().ui.fonts.edit_text(&fps_text, format!("FPS: {}", fps));
                     fps_counter_frames = 0;
                     fps_counter_time = SystemTime::now();
                 }

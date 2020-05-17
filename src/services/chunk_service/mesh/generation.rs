@@ -5,6 +5,7 @@ use cgmath::{Point3, Vector3};
 use crate::services::chunk_service::ChunkService;
 use std::collections::HashMap;
 use crate::services::chunk_service::mesh::chunk::ChunkMeshData;
+use crate::services::settings_service::SettingsService;
 
 //
 // Our greedy meshing system
@@ -12,18 +13,18 @@ use crate::services::chunk_service::mesh::chunk::ChunkMeshData;
 
 impl Chunk {
 
-    pub fn generate_mesh(&self, chunk_service: &ChunkService) -> ChunkMeshData {
+    pub fn generate_mesh(&self, chunk_service: &ChunkService, settings: &SettingsService) -> ChunkMeshData {
 
         // Get adjacent chunks
         let mut map = HashMap::new();
-        map.insert(Vector3 { x: 0, y: 1, z: 0 }, chunk_service.chunks.get(&(self.position + Vector3{x: 0, y: 1, z: 0})));
+        map.insert(Vector3 { x: 0, y: 1, z: 0 }, chunk_service.chunks.get(&(self.position + Vector3 {x: 0, y: 1, z: 0})));
         map.insert(Vector3 { x: 0, y: -1, z: 0 }, chunk_service.chunks.get(&(self.position + Vector3{x: 0, y: -1, z: 0})));
-        map.insert(Vector3 { x: 1, y: 0, z: 0 }, chunk_service.chunks.get(&(self.position + Vector3{x: 1, y: 0, z: 0})));
+        map.insert(Vector3 { x: 1, y: 0, z: 0 }, chunk_service.chunks.get(&(self.position + Vector3 {x: 1, y: 0, z: 0})));
         map.insert(Vector3 { x: -1, y: 0, z: 0 }, chunk_service.chunks.get(&(self.position + Vector3{x: -1, y: 0, z: 0})));
-        map.insert(Vector3 { x: 0, y: 0, z: 1 }, chunk_service.chunks.get(&(self.position + Vector3{x: 0, y: 1, z: 0})));
-        map.insert(Vector3 { x: 0, y: 0, z: -1 }, chunk_service.chunks.get(&(self.position + Vector3{x: 0, y: -1, z: 0})));
+        map.insert(Vector3 { x: 0, y: 0, z: 1 }, chunk_service.chunks.get(&(self.position + Vector3 {x: 0, y: 0, z: 1})));
+        map.insert(Vector3 { x: 0, y: 0, z: -1 }, chunk_service.chunks.get(&(self.position + Vector3{x: 0, y: 0, z: -1})));
 
-        let viewable = self.generate_viewable_map(map);
+        let viewable = self.generate_viewable_map(map, settings.chunk_edge_faces);
 
         let mut vertices = Vec::new();
         let mut indices = Vec::new();

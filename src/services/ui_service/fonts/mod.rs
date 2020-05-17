@@ -1,17 +1,26 @@
 use crate::services::chunk_service::mesh::{UIVertex};
-use cgmath::{Point2};
 use wgpu::{Buffer, Device};
 use crate::services::asset_service::atlas::TextureAtlasIndex;
 use crate::services::asset_service::AssetService;
+use crate::services::ui_service::fonts::variable_width::generate_variable_width_map;
+use crate::services::ui_service::fonts::text::{Text};
+use crate::services::ui_service::fonts::text_builder::TextBuilder;
+use winit::dpi::PhysicalSize;
+
+pub mod text;
+pub mod variable_width;
+pub mod text_builder;
 
 pub struct FontsManager {
     texts: Vec<Text>,
-    pub(crate) total_vertices: Vec<UIVertex>,
-    pub(crate) total_indices: Vec<u16>,
+    pub total_vertices: Vec<UIVertex>,
+    pub total_indices: Vec<u16>,
     changed: bool,
-    pub(crate) total_vertex_buffer: Option<Buffer>,
-    pub(crate) total_indices_buffer: Option<Buffer>,
-    atlas_coords: FontAtlasIndexs
+    pub total_vertex_buffer: Option<Buffer>,
+    pub total_indices_buffer: Option<Buffer>,
+    atlas_coords: FontAtlasIndexs,
+    character_widths: [u8; 127],
+    size: PhysicalSize<u32>
 }
 
 pub struct FontAtlasIndexs {
@@ -23,11 +32,11 @@ pub struct TextView {
 }
 
 // How many letters per row inside texture
-const FONT_TEXTURE_SIZE: f32 = 16.0;
-const LETTER_SPACING: f32 = 0.00;
+pub const FONT_TEXTURE_SIZE: f32 = 16.0;
+pub const LETTER_SPACING: f32 = 0.2;
 
 impl FontsManager {
-    pub fn new(assets: &AssetService) -> FontsManager {
+    pub fn new(assets: &AssetService, size: PhysicalSize<u32>) -> FontsManager {
 
         let ascii_atlas_coords = assets.atlas_index
             .as_ref()
@@ -36,7 +45,7 @@ impl FontsManager {
             .unwrap()
             .clone();
 
-        println!("{:?}", ascii_atlas_coords);
+        let character_widths = generate_variable_width_map(assets);
 
         FontsManager {
             texts: Vec::new(),
@@ -47,13 +56,18 @@ impl FontsManager {
             total_indices_buffer: None,
             atlas_coords: FontAtlasIndexs {
                 ascii: ascii_atlas_coords
-            }
+            },
+            character_widths,
+            size
         }
     }
 
-    pub fn add_text(&mut self, content: String, pos: Point2<f32>, size: f32) -> TextView {
-        let mut text = Text::new(content, pos, size);
-        text.generate_text_mesh(&self.atlas_coords);
+    pub fn create_text(&mut self) -> TextBuilder {
+        TextBuilder::new(self)
+    }
+
+    fn add_text(&mut self, mut text: Text) -> TextView {
+        text.generate_text_mesh((&self.atlas_coords, &self.character_widths), &self.size);
         self.texts.push(text);
 
         TextView {
@@ -61,11 +75,11 @@ impl FontsManager {
         }
     }
 
-    pub fn edit_text(&mut self, text: TextView, new_text: String) {
+    pub fn edit_text(&mut self, text: &TextView, new_text: String) {
         self.changed = true;
-
-        self.texts.get_mut(text.id).unwrap().text = new_text;
-        self.texts.get_mut(text.id).unwrap().generate_text_mesh(&self.atlas_coords);
+        let text = self.texts.get_mut(text.id - 1).unwrap();
+        text.text = new_text;
+        text.generate_text_mesh((&self.atlas_coords, &self.character_widths), &self.size);
     }
 
     // Totals the vertices if any of the text has changed
@@ -78,11 +92,12 @@ impl FontsManager {
             self.total_indices.clear();
 
             for text in &mut self.texts {
-                self.total_vertices.append(&mut text.vertices);
-                let starting_indices = self.total_indices.len();
+                let starting_vertices = self.total_vertices.len();
                 for index in &text.indices {
-                    self.total_indices.push(index + starting_indices as u16);
+                    self.total_indices.push(index + starting_vertices as u16);
                 }
+
+                self.total_vertices.append(&mut text.vertices.clone());
             }
 
             self.total_vertex_buffer = Some(device.create_buffer_mapped(self.total_vertices.len(), wgpu::BufferUsage::VERTEX)
@@ -93,98 +108,16 @@ impl FontsManager {
 
         }
     }
-}
 
-struct Text {
-    text: String,
-    vertices: Vec<UIVertex>,
-    indices: Vec<u16>,
-    position: Point2<f32>,
-    size: f32
-}
+    pub fn resized(&mut self, size: &PhysicalSize<u32>, device: &Device) {
 
-impl Text {
+        self.size = size.clone();
 
-    pub fn new(text: String, position: Point2<f32>, size: f32) -> Text {
-        Text {
-            text,
-            vertices: Vec::new(),
-            indices: Vec::new(),
-            position,
-            size
-        }
-    }
-
-    fn generate_text_mesh(&mut self, fonts: &FontAtlasIndexs) {
-        let mut vertices = Vec::new();
-        let mut indices: Vec<u16> = Vec::new();
-
-        let mut working_x = 0.0;
-
-        for (i, byte) in self.text.bytes().into_iter().enumerate() {
-
-            let (uv_top_left, uv_bottom_right) = calculate_texture_coords(byte, &fonts);
-
-            vertices.push(UIVertex {
-                position: [working_x + self.position.x, self.position.y],
-                tex_coords: uv_top_left.clone()
-            });
-            vertices.push(UIVertex {
-                position: [working_x + self.position.x, self.position.y + self.size],
-                tex_coords: [uv_top_left[0], uv_bottom_right[1]]
-            });
-            vertices.push(UIVertex {
-                position: [working_x + self.position.x + self.size, self.position.y],
-                tex_coords: [uv_bottom_right[0], uv_top_left[1]]
-            });
-            vertices.push(UIVertex {
-                position: [working_x + self.position.x + self.size, self.position.y + self.size],
-                tex_coords: uv_bottom_right
-            });
-
-            let vertices_count = 4;
-
-            indices.push(i as u16 * vertices_count);
-            indices.push((i as u16 * vertices_count) + 1);
-            indices.push((i as u16 * vertices_count) + 3);
-
-            indices.push(i as u16 * vertices_count);
-            indices.push((i as u16 * vertices_count) + 2);
-            indices.push((i as u16 * vertices_count) + 3);
-
-            working_x += self.size;
-
-            // Add spacing between letters
-            working_x += LETTER_SPACING;
+        for text in self.texts.iter_mut() {
+            text.generate_text_mesh((&self.atlas_coords, &self.character_widths), &size);
         }
 
-        self.vertices = vertices;
-        self.indices = indices;
+        self.changed = true;
+        self.total(device);
     }
-}
-
-pub fn calculate_texture_coords(byte: u8, fonts: &FontAtlasIndexs) -> TextureAtlasIndex {
-    let mut row = (byte as f32 / FONT_TEXTURE_SIZE).floor();
-
-    // Calculate the local offset of the character inside the character sheets
-    let local_top_left = [(byte as f32 % FONT_TEXTURE_SIZE as f32) / FONT_TEXTURE_SIZE, row / FONT_TEXTURE_SIZE];
-    let local_bottom_right = [local_top_left[0] + (1.0 / FONT_TEXTURE_SIZE), local_top_left[1] + (1.0 / FONT_TEXTURE_SIZE)];
-
-    // Get the position of the character sheet inside the texture atlas
-    let (character_sheet_top_left, character_sheet_bottom_right) = &fonts.ascii;
-
-    // Calculate the uv maps from both the local and the absolute
-    let uv_top_left = [
-        lerp(character_sheet_top_left[0], character_sheet_bottom_right[0], local_top_left[0]),
-        lerp(character_sheet_top_left[1], character_sheet_bottom_right[1], local_top_left[1])];
-
-    let uv_bottom_right = [
-        lerp(character_sheet_top_left[0], character_sheet_bottom_right[0], local_bottom_right[0]),
-        lerp(character_sheet_top_left[1], character_sheet_bottom_right[1], local_bottom_right[1])];
-
-    (uv_top_left, uv_bottom_right)
-}
-
-pub fn lerp(mut a: f32, mut b: f32, t: f32) -> f32 {
-    ((b - a) * t) + a
 }

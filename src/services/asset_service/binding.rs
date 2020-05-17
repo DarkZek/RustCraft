@@ -2,7 +2,7 @@ use wgpu::{Device, BindGroup, BindGroupLayout, Texture, Sampler};
 use crate::services::asset_service::AssetService;
 
 impl AssetService {
-    pub(crate) fn generate_atlas_bindings(device: &Device, diffuse_texture: &Texture, diffuse_sampler: &Sampler) -> (BindGroupLayout, BindGroup) {
+    pub fn generate_atlas_bindings(device: &Device, diffuse_texture: &Texture, diffuse_sampler: &Sampler) -> (BindGroupLayout, BindGroup) {
         let diffuse_texture_view = diffuse_texture.create_default_view();
 
         let texture_bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {

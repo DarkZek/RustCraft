@@ -51,6 +51,12 @@ impl RenderState {
                 render_pass.set_bind_group(1, &self.uniform_bind_group, &[]);
 
                 for chunk in &services.chunk.chunks {
+
+                    // If chunk is empty
+                    if chunk.1.indices_buffer_len == 0 {
+                        continue;
+                    }
+
                     let indices_buffer = chunk.1.indices_buffer.as_ref().unwrap();
                     let vertices_buffer = chunk.1.vertices_buffer.as_ref().unwrap();
                     let model_bind_group = chunk.1.model_bind_group.as_ref().unwrap();

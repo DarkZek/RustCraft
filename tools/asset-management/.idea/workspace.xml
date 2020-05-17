@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CargoProjects">
+    <cargoProject FILE="$PROJECT_DIR$/Cargo.toml" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="fc89dd40-61dc-4cb2-a880-861b32f94f71" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/../../.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../src/services/ui_service/draw.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../src/services/ui_service/fonts/text.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../src/services/ui_service/fonts/text_builder.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../src/services/ui_service/fonts/variable_width.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/asset-management.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../assets/shaders/ui.frag" beforeDir="false" afterPath="$PROJECT_DIR$/../../assets/shaders/ui.frag" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../assets/shaders/ui.vert" beforeDir="false" afterPath="$PROJECT_DIR$/../../assets/shaders/ui.vert" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../game.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../src/render/loading.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../../src/render/loading.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../src/render/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../../src/render/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../src/services/asset_service/atlas.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../../src/services/asset_service/atlas.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../src/services/asset_service/binding.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../../src/services/asset_service/binding.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../src/services/asset_service/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../../src/services/asset_service/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../src/services/asset_service/packs.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../../src/services/asset_service/packs.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../src/services/chunk_service/mesh/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../../src/services/chunk_service/mesh/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../src/services/chunk_service/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../../src/services/chunk_service/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../src/services/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../../src/services/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../src/services/settings_service.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../../src/services/settings_service.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../src/services/ui_service/fonts/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../../src/services/ui_service/fonts/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../src/services/ui_service/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../../src/services/ui_service/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../src/services/ui_service/pipeline.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../../src/services/ui_service/pipeline.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../src/services/ui_service/projection.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../../src/services/ui_service/projection.rs" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
+  </component>
+  <component name="MacroExpansionManager">
+    <option name="directoryName" value="862muu45" />
+  </component>
+  <component name="ProjectId" id="1bvbVkFSlGByHral5yPNQ8QGWJf" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="project.structure.last.edited" value="Libraries" />
+    <property name="project.structure.proportion" value="0.15" />
+    <property name="project.structure.side.proportion" value="0.2" />
+  </component>
+  <component name="RunManager">
+    <configuration name="Run Release" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
+      <option name="channel" value="DEFAULT" />
+      <option name="command" value="run --release" />
+      <option name="allFeatures" value="false" />
+      <option name="nocapture" value="false" />
+      <option name="emulateTerminal" value="false" />
+      <option name="backtrace" value="SHORT" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <envs />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="fc89dd40-61dc-4cb2-a880-861b32f94f71" name="Default Changelist" comment="" />
+      <created>1589515539030</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1589515539030</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="4233" y="241" key="#Run_Release" timestamp="1589515826068">
+      <screen x="3840" y="0" width="1920" height="1080" />
+    </state>
+    <state x="4233" y="241" key="#Run_Release/1920.0.1920.1080/38.0.1882.1080/3840.0.1920.1080@3840.0.1920.1080" timestamp="1589515826068" />
+    <state x="4233" y="241" key="#Unnamed" timestamp="1589515590191">
+      <screen x="3840" y="0" width="1920" height="1080" />
+    </state>
+    <state x="4233" y="241" key="#Unnamed/1920.0.1920.1080/38.0.1882.1080/3840.0.1920.1080@3840.0.1920.1080" timestamp="1589515590191" />
+    <state x="4283" y="197" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1589515717427">
+      <screen x="3840" y="0" width="1920" height="1080" />
+    </state>
+    <state x="4283" y="197" key="#com.intellij.execution.impl.EditConfigurationsDialog/1920.0.1920.1080/38.0.1882.1080/3840.0.1920.1080@3840.0.1920.1080" timestamp="1589515717427" />
+    <state x="4607" y="297" key="FileChooserDialogImpl" timestamp="1589515554584">
+      <screen x="3840" y="0" width="1920" height="1080" />
+    </state>
+    <state x="4607" y="297" key="FileChooserDialogImpl/1920.0.1920.1080/38.0.1882.1080/3840.0.1920.1080@3840.0.1920.1080" timestamp="1589515554584" />
+    <state x="4307" y="117" key="SettingsEditor" timestamp="1589515646538">
+      <screen x="3840" y="0" width="1920" height="1080" />
+    </state>
+    <state x="4307" y="117" key="SettingsEditor/1920.0.1920.1080/38.0.1882.1080/3840.0.1920.1080@3840.0.1920.1080" timestamp="1589515646538" />
+  </component>
+</project>

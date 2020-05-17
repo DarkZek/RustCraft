@@ -14,6 +14,7 @@ pub struct GameChanges {
     pub pause: bool,
     pub jump: bool,
     pub sneak: bool,
+    pub mouse: Option<PhysicalPosition<f64>>
 }
 
 pub struct GameChangesContext {

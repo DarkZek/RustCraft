@@ -53,6 +53,7 @@ fn is_offset_transparent(world: &RawChunkData, pos: [usize; 3], blocks: &Vec<Blo
         [(pos[2] as isize + offset[2]) as usize];
 
     if block_id == 0 {
+        //TODO: Change this back to true
         return true;
     }
 

@@ -6,8 +6,7 @@ use wgpu::{Device, Queue};
 use crate::services::chunk_service::ChunkService;
 use crate::block::Block;
 use crate::services::asset_service::atlas::atlas_update_blocks;
-use crate::services::ui_service::UIService;
-use cgmath::Point2;
+use crate::services::ui_service::{UIService, ObjectAlignment, Positioning};
 use winit::dpi::PhysicalSize;
 
 #[macro_use]
@@ -57,20 +56,25 @@ impl Services {
         let audio = AudioService::new();
         let mut ui = UIService::new(&mut context, &asset);
 
-        ui.fonts.add_text(String::from("MCv3 for lyfe"), Point2 {
-            x: -200.0,
-            y: 0.0
-        }, 100.0);
+        ui.fonts.create_text()
+            .set_text("Rustcraft V0.01 Alpha")
+            .set_size(20.0)
+            .set_text_alignment(ObjectAlignment::TopLeft)
+            .set_object_alignment(ObjectAlignment::TopLeft)
+            .set_positioning(Positioning::Relative)
+            .set_background(true)
+            .set_offset([0.0, 0.0])
+            .build();
 
-        // ui.fonts.add_text(String::from("please help its cold in here"), Point2 {
-        //     x: 0.0,
-        //     y: -100.0
-        // }, 10.0);
-
-        // ui.fonts.add_text(String::from("12345"), Point2 {
-        //     x: -0.8,
-        //     y: -0.8
-        // });
+        ui.fonts.create_text()
+            .set_text(&format!("Chunks: {}x16x{} ({} Total)", settings.render_distance * 2, settings.render_distance * 2, chunk.chunks.len()))
+            .set_size(20.0)
+            .set_text_alignment(ObjectAlignment::TopLeft)
+            .set_object_alignment(ObjectAlignment::TopLeft)
+            .set_positioning(Positioning::Relative)
+            .set_background(true)
+            .set_offset([0.0, 60.0])
+            .build();
 
         logging.flush_buffer();
 

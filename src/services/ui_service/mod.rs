@@ -6,11 +6,12 @@ use crate::services::asset_service::AssetService;
 
 pub mod fonts;
 pub mod render_pass;
+pub mod draw;
 mod pipeline;
 mod projection;
 
 pub struct UIService {
-    pub(crate) fonts: FontsManager,
+    pub fonts: FontsManager,
     pipeline: RenderPipeline,
     projection_buffer: Buffer,
     projection_bind_group: BindGroup,
@@ -25,7 +26,7 @@ impl UIService {
                                                 &[assets.atlas_bind_group_layout.as_ref().unwrap(),
                                                     &projection_bind_group_layout]);
 
-        let fonts = FontsManager::new(&assets);
+        let fonts = FontsManager::new(&assets, context.size.clone());
 
         UIService {
             fonts,
@@ -35,4 +36,30 @@ impl UIService {
             projection_bind_group_layout
         }
     }
+}
+
+#[derive(PartialEq, Clone)]
+pub enum TextAlignment {
+    Center,
+    Left,
+    Right,
+}
+
+#[derive(PartialEq, Clone)]
+pub enum ObjectAlignment {
+    Center,
+    Left,
+    Right,
+    Top,
+    Bottom,
+    TopLeft,
+    TopRight,
+    BottomLeft,
+    BottomRight
+}
+
+#[derive(PartialEq, Clone)]
+pub enum Positioning {
+    Absolute,
+    Relative
 }

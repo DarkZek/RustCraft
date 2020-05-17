@@ -18,7 +18,7 @@ impl Player {
 
     pub fn move_forwards(&mut self, axis: &[i32; 2], delta_time: f64) {
         let pos = &mut self.pos;
-        let movement_speed = 20.0;
+        let movement_speed = 60.0;
 
         let sideways = axis[1] as f32 * movement_speed as f32 * delta_time as f32;
         let forwards = axis[0] as f32 * movement_speed as f32 * delta_time as f32;

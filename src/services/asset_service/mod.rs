@@ -4,7 +4,7 @@
 
 use std::collections::HashMap;
 use crate::services::settings_service::SettingsService;
-use image::DynamicImage;
+use image::{DynamicImage};
 use wgpu::{Texture, Sampler, BindGroupLayout, BindGroup};
 use crate::services::asset_service::atlas::TextureAtlasIndex;
 use crate::services::{ServicesContext};
@@ -17,6 +17,7 @@ pub mod packs;
 pub struct AssetService {
     resource_packs: Vec<String>,
     selected_pack: Option<ResourcePack>,
+    pub atlas_image: Option<DynamicImage>,
     pub atlas: Option<Texture>,
     pub atlas_index: Option<HashMap<String, TextureAtlasIndex>>,
     pub atlas_sampler: Option<Sampler>,
@@ -46,7 +47,7 @@ impl AssetService {
             None
         };
 
-        let (atlas, atlas_index, atlas_sampler) =
+        let (atlas_image, atlas, atlas_index, atlas_sampler) =
             AssetService::generate_texture_atlas(selected_pack.as_mut().unwrap(), context.device, context.queue, settings);
 
         let (atlas_bind_group_layout, atlas_bind_group) = AssetService::generate_atlas_bindings(&mut context.device, &atlas, &atlas_sampler);
@@ -54,6 +55,7 @@ impl AssetService {
         AssetService {
             resource_packs,
             selected_pack,
+            atlas_image: Some(atlas_image),
             atlas: Some(atlas),
             atlas_index: Some(atlas_index),
             atlas_sampler: Some(atlas_sampler),

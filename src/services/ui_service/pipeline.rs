@@ -1,4 +1,4 @@
-use wgpu::{Device, BindGroupLayout, RenderPipeline, ShaderModule};
+use wgpu::{Device, BindGroupLayout, RenderPipeline, ShaderModule, BlendFactor, BlendOperation};
 use crate::services::chunk_service::mesh::UIVertex;
 
 pub fn generate_render_pipeline(device: &Device, bind_group_layouts: &[&BindGroupLayout]) -> RenderPipeline {
@@ -33,8 +33,16 @@ pub fn generate_render_pipeline(device: &Device, bind_group_layouts: &[&BindGrou
         color_states: &[
             wgpu::ColorStateDescriptor {
                 format: wgpu::TextureFormat::Bgra8UnormSrgb,
-                color_blend: wgpu::BlendDescriptor::REPLACE,
-                alpha_blend: wgpu::BlendDescriptor::REPLACE,
+                color_blend: wgpu::BlendDescriptor {
+                    src_factor: BlendFactor::SrcAlpha,
+                    dst_factor: BlendFactor::OneMinusSrcAlpha,
+                    operation: BlendOperation::Add,
+                },
+                alpha_blend: wgpu::BlendDescriptor {
+                    src_factor: BlendFactor::One,
+                    dst_factor: BlendFactor::One,
+                    operation: BlendOperation::Add,
+                },
                 write_mask: wgpu::ColorWrite::ALL,
             },
         ],

@@ -1,5 +1,5 @@
-use cgmath::{Ortho, Matrix4, Vector4};
-use wgpu::{Buffer, BindGroup, BindGroupLayout, Device};
+use cgmath::{Ortho, Matrix4};
+use wgpu::{Buffer, BindGroup, BindGroupLayout};
 use crate::services::ServicesContext;
 use crate::services::ui_service::UIService;
 use winit::dpi::PhysicalSize;
@@ -8,8 +8,9 @@ use crate::render::camera::OPENGL_TO_WGPU_MATRIX;
 
 impl UIService {
     pub fn setup_ui_projection_matrix(context: &mut ServicesContext) -> (Buffer, BindGroup, BindGroupLayout) {
-        println!("Width: {}", context.size.width);
-        println!("Height: {}", context.size.width);
+
+        log!("Setting up screen with size: {}", format!("{}x{}", context.size.width, context.size.height));
+
         let projection = Ortho {
             left: -(context.size.width as f32 / 2.0),
             right: context.size.width as f32 / 2.0,
@@ -33,7 +34,7 @@ impl UIService {
 
         let matrix: Matrix4<f32> = projection.into();
 
-        println!("Orthographic Matrix: {:?}", matrix);
+        log!("Orthographic Matrix: {:?}", matrix);
 
         let matrix_buffer = context.device
             .create_buffer_mapped(1, wgpu::BufferUsage::UNIFORM | wgpu::BufferUsage::COPY_DST | wgpu::BufferUsage::COPY_SRC)
@@ -59,7 +60,7 @@ impl UIService {
         (matrix_buffer, matrix_bind_group, matrix_bind_group_layout)
     }
 
-    pub fn update_ui_projection_matrix(&self, render: &mut RenderState, size: PhysicalSize<u32>) {
+    pub fn update_ui_projection_matrix(&mut self, render: &mut RenderState, size: PhysicalSize<u32>) {
         let projection = Ortho {
             left: -(size.width as f32 / 2.0),
             right: size.width as f32 / 2.0,
@@ -77,6 +78,8 @@ impl UIService {
         let matrix_buffer = render.device
             .create_buffer_mapped(1, wgpu::BufferUsage::UNIFORM | wgpu::BufferUsage::COPY_DST | wgpu::BufferUsage::COPY_SRC)
             .fill_from_slice(&[matrix]);
+
+        self.fonts.resized(&size, &render.device);
 
         encoder.copy_buffer_to_buffer(&matrix_buffer, 0x0, &self.projection_buffer, 0x0, std::mem::size_of_val(&matrix) as wgpu::BufferAddress);
 

@@ -19,7 +19,8 @@ pub struct Vertex {
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct UIVertex {
     pub position: [f32; 2],
-    pub tex_coords: [f32; 2]
+    pub tex_coords: [f32; 2],
+    pub color: [f32; 4]
 }
 
 pub enum ViewableDirectionBitMap {
@@ -52,7 +53,7 @@ impl ViewableDirectionBitMap {
 }
 
 impl Vertex {
-    pub(crate) fn desc<'a>() -> wgpu::VertexBufferDescriptor<'a> {
+    pub fn desc<'a>() -> wgpu::VertexBufferDescriptor<'a> {
         use std::mem;
         wgpu::VertexBufferDescriptor {
             stride: mem::size_of::<Vertex>() as wgpu::BufferAddress,
@@ -79,7 +80,7 @@ impl Vertex {
 }
 
 impl UIVertex {
-    pub(crate) fn desc<'a>() -> wgpu::VertexBufferDescriptor<'a> {
+    pub fn desc<'a>() -> wgpu::VertexBufferDescriptor<'a> {
         use std::mem;
         wgpu::VertexBufferDescriptor {
             stride: mem::size_of::<UIVertex>() as wgpu::BufferAddress,
@@ -94,6 +95,11 @@ impl UIVertex {
                     offset: mem::size_of::<[f32; 2]>() as wgpu::BufferAddress,
                     shader_location: 1,
                     format: wgpu::VertexFormat::Float2,
+                },
+                wgpu::VertexAttributeDescriptor {
+                    offset: (2 * mem::size_of::<[f32; 2]>()) as wgpu::BufferAddress,
+                    shader_location: 2,
+                    format: wgpu::VertexFormat::Float4,
                 },
             ]
         }

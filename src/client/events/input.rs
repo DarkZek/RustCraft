@@ -1,6 +1,7 @@
 use winit::event::{MouseButton, WindowEvent};
 use winit::window::Window;
 use crate::client::events::{GameChanges, GameChangesContext};
+use winit::dpi::{PhysicalSize, PhysicalPosition};
 
 impl GameChanges {
     pub fn new() -> GameChanges {
@@ -12,6 +13,7 @@ impl GameChanges {
             pause: false,
             jump: false,
             sneak: false,
+            mouse: None
         }
     }
 
@@ -45,6 +47,10 @@ impl GameChanges {
 
     fn pause_pressed(&mut self) {
         self.pause = true;
+    }
+
+    fn cursor_position(&mut self, new: PhysicalPosition<f64>) {
+        self.mouse = Some(new);
     }
 
     pub fn handle_event(&mut self, event: &WindowEvent, changes: &mut GameChangesContext, window: &Window) {
@@ -99,9 +105,12 @@ impl GameChanges {
             }
 
             WindowEvent::CursorMoved { device_id: _device_id, position, .. } => {
+
+                self.cursor_position(position);
+
                 if changes.grabbed {
-                    let raw_x = if position.x > changes.mouse_home.x as f64 { position.x.ceil() } else { position.x.floor() } as f64;
-                    let raw_y = if position.y > changes.mouse_home.y as f64 { position.y.ceil() } else { position.y.floor() } as f64;
+                    let raw_x = if position.x > changes.mouse_home.x as f64 { position.x } else { position.x } as f64;
+                    let raw_y = if position.y > changes.mouse_home.y as f64 { position.y } else { position.y } as f64;
 
                     let x = -1.0 * (raw_x - changes.mouse_home.x as f64);
                     let y = -1.0 * (raw_y - changes.mouse_home.y as f64);

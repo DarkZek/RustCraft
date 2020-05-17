@@ -17,7 +17,7 @@ pub struct LoadingVertices {
 }
 
 impl LoadingVertices {
-    pub(crate) fn desc<'a>() -> wgpu::VertexBufferDescriptor<'a> {
+    pub fn desc<'a>() -> wgpu::VertexBufferDescriptor<'a> {
         use std::mem;
         wgpu::VertexBufferDescriptor {
             stride: mem::size_of::<LoadingVertices>() as wgpu::BufferAddress,
