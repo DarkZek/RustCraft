@@ -1,6 +1,7 @@
 use crate::render::RenderState;
 use std::time::{Instant};
 use crate::services::ui_service::UIService;
+use crate::services::chunk_service::frustum_culling::calculate_frustum_culling;
 
 pub mod uniforms;
 
@@ -50,21 +51,18 @@ impl RenderState {
                 render_pass.set_bind_group(0, &services.asset.atlas_bind_group.as_ref().unwrap(), &[]);
                 render_pass.set_bind_group(1, &self.uniform_bind_group, &[]);
 
-                for chunk in &services.chunk.chunks {
+                for pos in &services.chunk.visible_chunks {
 
-                    // If chunk is empty
-                    if chunk.1.indices_buffer_len == 0 {
-                        continue;
-                    }
+                    let chunk = services.chunk.chunks.get(pos).unwrap();
 
-                    let indices_buffer = chunk.1.indices_buffer.as_ref().unwrap();
-                    let vertices_buffer = chunk.1.vertices_buffer.as_ref().unwrap();
-                    let model_bind_group = chunk.1.model_bind_group.as_ref().unwrap();
+                    let indices_buffer = chunk.indices_buffer.as_ref().unwrap();
+                    let vertices_buffer = chunk.vertices_buffer.as_ref().unwrap();
+                    let model_bind_group = chunk.model_bind_group.as_ref().unwrap();
 
                     render_pass.set_bind_group(2, model_bind_group, &[0]);
                     render_pass.set_vertex_buffers(0, &[(vertices_buffer, 0)]);
                     render_pass.set_index_buffer(indices_buffer, 0);
-                    render_pass.draw_indexed(0..chunk.1.indices_buffer_len, 0, 0..1);
+                    render_pass.draw_indexed(0..chunk.indices_buffer_len, 0, 0..1);
                 }
             }
 

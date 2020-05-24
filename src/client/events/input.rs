@@ -109,8 +109,8 @@ impl GameChanges {
                 self.cursor_position(position);
 
                 if changes.grabbed {
-                    let raw_x = if position.x > changes.mouse_home.x as f64 { position.x } else { position.x } as f64;
-                    let raw_y = if position.y > changes.mouse_home.y as f64 { position.y } else { position.y } as f64;
+                    let raw_x = position.x as f64;
+                    let raw_y = position.y as f64;
 
                     let x = -1.0 * (raw_x - changes.mouse_home.x as f64);
                     let y = -1.0 * (raw_y - changes.mouse_home.y as f64);

@@ -155,24 +155,21 @@ pub fn load_shaders(device: &Device) -> (ShaderModule, ShaderModule){
     let vs_src = include_str!("../../assets/shaders/loading.vert");
     let fs_src = include_str!("../../assets/shaders/loading.frag");
 
-    let vs_spirv = glsl_to_spirv::compile(vs_src, glsl_to_spirv::ShaderType::Vertex).unwrap();
-    let fs_spirv = glsl_to_spirv::compile(fs_src, glsl_to_spirv::ShaderType::Fragment).unwrap();
+    let mut compiler = shaderc::Compiler::new().unwrap();
 
-    let vs_data = wgpu::read_spirv(vs_spirv).unwrap();
-    let fs_data = wgpu::read_spirv(fs_spirv).unwrap();
+    let mut options = shaderc::CompileOptions::new().unwrap();
+    options.add_macro_definition("EP", Some("main"));
 
-    let vs_module = device.create_shader_module(&vs_data);
-    let fs_module = device.create_shader_module(&fs_data);
+    let vs_spirv = compiler.compile_into_spirv(
+        vs_src, shaderc::ShaderKind::Vertex,
+        "shader.glsl", "main", Some(&options)).unwrap();
+
+    let fs_spirv = compiler.compile_into_spirv(
+        fs_src, shaderc::ShaderKind::Fragment,
+        "shader.glsl", "main", Some(&options)).unwrap();
+
+    let vs_module = device.create_shader_module(vs_spirv.as_binary());
+    let fs_module = device.create_shader_module(fs_spirv.as_binary());
 
     (vs_module, fs_module)
 }
-
-// pub fn load_font<'a>(device: &Device, path: &str) -> GlyphBrush<'a, (), DefaultSectionHasher> {
-//     let mut buf = Vec::new();
-//     let mut file = File::open(format!("{}{}", path, "/resources/default.ttf")).expect(&format!("Font not found! {}{}", path, "/default.ttf"));
-//     file.read_to_end(&mut buf);
-//
-//     GlyphBrushBuilder::using_font_bytes(buf).expect("Error in font")
-//         .texture_filter_method(wgpu::FilterMode::Nearest)
-//         .build(device, wgpu::TextureFormat::Bgra8UnormSrgb)
-// }

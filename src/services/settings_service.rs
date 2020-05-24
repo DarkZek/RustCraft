@@ -40,9 +40,9 @@ impl SettingsService {
 
         SettingsService {
             path,
-            atlas_cache_reading: false,
+            atlas_cache_reading: true,
             atlas_cache_writing: true,
-            render_distance: 32,
+            render_distance: 24,
             debug_vertices,
             debug_atlas: false,
             backface_culling: true,

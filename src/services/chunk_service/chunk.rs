@@ -6,7 +6,7 @@ use crate::services::chunk_service::mesh::culling::ViewableDirection;
 use cgmath::Vector3;
 
 pub struct Chunk {
-    pub world: RawChunkData,
+    pub world: Option<RawChunkData>,
     pub blocks: Vec<Block>,
     pub vertices: Option<Vec<Vertex>>,
     pub indices:  Option<Vec<u16>>,
@@ -22,8 +22,22 @@ pub struct Chunk {
 impl Chunk {
     pub fn new(data: ChunkData, position: Vector3<i32>) -> Chunk {
         Chunk {
-            world: data.0,
+            world: Some(data.0),
             blocks: data.1,
+            vertices: None,
+            indices: None,
+            vertices_buffer: None,
+            indices_buffer: None,
+            indices_buffer_len: 0,
+            model_bind_group: None,
+            viewable_map: None,
+            position
+        }
+    }
+    pub fn new_empty(position: Vector3<i32>) -> Chunk {
+        Chunk {
+            world: None,
+            blocks: Vec::new(),
             vertices: None,
             indices: None,
             vertices_buffer: None,

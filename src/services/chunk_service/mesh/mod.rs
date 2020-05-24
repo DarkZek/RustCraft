@@ -6,6 +6,8 @@ pub mod block;
 pub mod debug;
 pub mod generation;
 
+//TODO: Maybe look into using some shader trickery to decrease VRAM usage by generating indices shader side since it never changes
+
 #[repr(C)]
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct Vertex {

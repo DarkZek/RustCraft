@@ -1,4 +1,4 @@
-use image::{GenericImageView, DynamicImage, Rgba, ImageBuffer, GenericImage};
+use image::{GenericImageView, DynamicImage, Rgba, ImageBuffer, GenericImage, ImageError};
 use std::time::SystemTime;
 use wgpu::{Device, Queue, Texture, Sampler};
 use crate::services::asset_service::{ResourcePack, AssetService};
@@ -6,7 +6,8 @@ use std::collections::HashMap;
 use crate::block::Block;
 use crate::services::settings_service::SettingsService;
 use std::fs::File;
-use std::io::Write;
+use std::io::{Write, Error, Read, BufReader};
+use std::collections::hash_map::RandomState;
 
 pub type TextureAtlasIndex = ([f32; 2], [f32; 2]);
 
@@ -36,157 +37,177 @@ impl AssetService {
             usage: wgpu::TextureUsage::SAMPLED | wgpu::TextureUsage::COPY_DST,
         });
 
-        let mut atlas: ImageBuffer<Rgba<u8>, Vec<u8>> = image::ImageBuffer::new(ATLAS_WIDTH, ATLAS_HEIGHT);
         let mut atlas_index: HashMap<String, TextureAtlasIndex> = HashMap::new();
+        let mut atlas_img = None;
 
-        // Stores the ID of the lowest texture id on this row
-        let mut texture_id = 0;
+        if settings.atlas_cache_reading {
+            match load_cached_atlas(&settings) {
+                Ok((img, index)) => {
+                    atlas_img = Some(img);
+                    atlas_index = index;
+                    log!("Loading cached texture atlas took: {}ms", start_time.elapsed().unwrap().as_millis());
+                },
+                Err(e) => log_error!("Error loading cached atlas info {}", e),
+            }
+        }
 
-        let mut current_texture_id = 0;
+        // If reading cache didnt work then remake it
+        if atlas_img.is_none() {
 
-        // Stores the x index that the textures start at
-        let mut texture_numbers_x = Vec::new();
+            let mut atlas: ImageBuffer<Rgba<u8>, Vec<u8>> = image::ImageBuffer::new(ATLAS_WIDTH, ATLAS_HEIGHT);
 
-        // Stores the working Y
-        let mut current_y = 0;
+            // Stores the ID of the lowest texture id on this row
+            let mut texture_id = 0;
 
-        for (x, y, pixel) in atlas.enumerate_pixels_mut() {
+            let mut current_texture_id = 0;
 
-            // Generate the row info
-            if current_y <= y {
+            // Stores the x index that the textures start at
+            let mut texture_numbers_x = Vec::new();
 
-                texture_id += texture_numbers_x.len();
-                texture_numbers_x.clear();
+            // Stores the working Y
+            let mut current_y = 0;
 
-                // We're done!
-                if textures.len() <= texture_id {
-                    break;
-                }
+            for (x, y, pixel) in atlas.enumerate_pixels_mut() {
 
-                // Stores the filled space of this atlas row
-                let mut row_width = 0;
-                let row_height = textures.get(texture_id).unwrap().1.height();
+                // Generate the row info
+                if current_y <= y {
 
-                // Stores the texture relative we're looking at compared to the texture_id
-                let mut relative_texture_index = 0;
+                    texture_id += texture_numbers_x.len();
+                    texture_numbers_x.clear();
 
-                while textures.len() > (relative_texture_index + texture_id) {
-                    // Add to row if theres space
-                    let (name, img) = textures.get(relative_texture_index + texture_id).unwrap();
-                    let width = img.width();
-
-                    if (row_width + width) <= ATLAS_WIDTH {
-                        texture_numbers_x.push(row_width + width - 1);
-                        // atlas_index.insert(name.clone(), ([(row_width as f32) / ATLAS_WIDTH as f32, (current_y as f32) / ATLAS_HEIGHT as f32],
-                        //                                   [((row_width + width) as f32) / ATLAS_WIDTH as f32, ((current_y + img.height()) as f32) / ATLAS_HEIGHT as f32]));
-                        atlas_index.insert(name.clone(), ([(row_width as f32) / ATLAS_WIDTH as f32, ((current_y + row_height - img.height()) as f32) / ATLAS_HEIGHT as f32],
-                                                          [((row_width + width) as f32) / ATLAS_WIDTH as f32, ((current_y + row_height) as f32) / ATLAS_HEIGHT as f32]));
-                    } else {
+                    // We're done!
+                    if textures.len() <= texture_id {
                         break;
                     }
 
-                    row_width += width;
-                    relative_texture_index += 1;
-                }
+                    // Stores the filled space of this atlas row
+                    let mut row_width = 0;
+                    let row_height = textures.get(texture_id).unwrap().1.height();
 
-                // Update y
-                current_y += row_height;
+                    // Stores the texture relative we're looking at compared to the texture_id
+                    let mut relative_texture_index = 0;
 
-                if current_y > ATLAS_HEIGHT {
-                    log_error!("Atlas too small! Not all textures could fit in");
-                    break;
-                }
-            }
+                    while textures.len() > (relative_texture_index + texture_id) {
+                        // Add to row if theres space
+                        let (name, img) = textures.get(relative_texture_index + texture_id).unwrap();
+                        let width = img.width();
 
-            // Reset current texture after x row
-            if x == 0 {
-                current_texture_id = 0;
-            }
-
-            // Check if there is any more textures to draw this row
-            if texture_numbers_x.len() <= current_texture_id {
-                *pixel = image::Rgba([0, 0, 0, 255]);
-                continue;
-            }
-
-            // Check if we can more to drawing the next texture yet
-            if texture_numbers_x.get(current_texture_id).unwrap() < &x {
-                current_texture_id += 1;
-            }
-
-            // Check if there is any more textures this row
-            if texture_numbers_x.len() <= current_texture_id {
-                *pixel = image::Rgba([255, 0, 255, 255]);
-                continue;
-            }
-
-            // Get the pixel
-            match textures.get(texture_id + current_texture_id as usize) {
-                Some((_, image)) => {
-                    let tex_x = x - (texture_numbers_x.get(current_texture_id).unwrap() - (image.width() - 1));
-
-                    if current_y - image.height() > y {
-                        *pixel = image::Rgba([255, 0, 0, 255]);
-                    } else {
-                        let tex_y = image.height() + y - current_y;
-
-                        if tex_y <= image.height() {
-                            *pixel = image.get_pixel(tex_x, tex_y);
+                        if (row_width + width) <= ATLAS_WIDTH {
+                            texture_numbers_x.push(row_width + width - 1);
+                            // atlas_index.insert(name.clone(), ([(row_width as f32) / ATLAS_WIDTH as f32, (current_y as f32) / ATLAS_HEIGHT as f32],
+                            //                                   [((row_width + width) as f32) / ATLAS_WIDTH as f32, ((current_y + img.height()) as f32) / ATLAS_HEIGHT as f32]));
+                            atlas_index.insert(name.clone(), ([(row_width as f32) / ATLAS_WIDTH as f32, ((current_y + row_height - img.height()) as f32) / ATLAS_HEIGHT as f32],
+                                                              [((row_width + width) as f32) / ATLAS_WIDTH as f32, ((current_y + row_height) as f32) / ATLAS_HEIGHT as f32]));
                         } else {
-                            *pixel = image::Rgba([255, 0, 0, 255]);
+                            break;
                         }
+
+                        row_width += width;
+                        relative_texture_index += 1;
+                    }
+
+                    // Update y
+                    current_y += row_height;
+
+                    if current_y > ATLAS_HEIGHT {
+                        log_error!("Atlas too small! Not all textures could fit in");
+                        break;
                     }
                 }
-                None => {
-                    *pixel = image::Rgba([255, 255, 0, 255]);
+
+                // Reset current texture after x row
+                if x == 0 {
+                    current_texture_id = 0;
                 }
-            }
-        }
 
-        if settings.debug_atlas {
-            for (name, coord) in atlas_index.iter() {
-
-                let x = (coord.0[0] * ATLAS_WIDTH as f32) as u32;
-                let y = (coord.0[1] * ATLAS_HEIGHT as f32) as u32;
-
-                atlas.put_pixel(x, y, image::Rgba([255, 255, 0, 255]));
-                atlas.put_pixel(x, y + 1, image::Rgba([255, 255, 0, 255]));
-                atlas.put_pixel(x + 1, y, image::Rgba([255, 255, 0, 255]));
-
-                let x = (coord.1[0] * ATLAS_WIDTH as f32) as u32;
-                let y = (coord.1[1] * ATLAS_HEIGHT as f32) as u32;
-
-                if atlas.dimensions().0 == x {
+                // Check if there is any more textures to draw this row
+                if texture_numbers_x.len() <= current_texture_id {
+                    *pixel = image::Rgba([0, 0, 0, 255]);
                     continue;
                 }
 
-                atlas.put_pixel(x, y, image::Rgba([255, 255, 0, 255]));
-                atlas.put_pixel(x, y - 1, image::Rgba([255, 255, 0, 255]));
-                atlas.put_pixel(x - 1, y, image::Rgba([255, 255, 0, 255]));
+                // Check if we can more to drawing the next texture yet
+                if texture_numbers_x.get(current_texture_id).unwrap() < &x {
+                    current_texture_id += 1;
+                }
 
-            }
-        }
+                // Check if there is any more textures this row
+                if texture_numbers_x.len() <= current_texture_id {
+                    *pixel = image::Rgba([255, 0, 255, 255]);
+                    continue;
+                }
 
-        if settings.atlas_cache_writing {
-            if let Err(e) = atlas.save(format!("{}resources/atlas.png", settings.path)) {
-                log_error!("Failed to cache atlas image: {}", e);
-            }
+                // Get the pixel
+                match textures.get(texture_id + current_texture_id as usize) {
+                    Some((_, image)) => {
+                        let tex_x = x - (texture_numbers_x.get(current_texture_id).unwrap() - (image.width() - 1));
 
-            let result = serde_json::to_string(&atlas_index).unwrap();
+                        if current_y - image.height() > y {
+                            *pixel = image::Rgba([255, 0, 0, 255]);
+                        } else {
+                            let tex_y = image.height() + y - current_y;
 
-            match File::create(format!("{}resources/atlas_index.json", settings.path)) {
-                Ok(mut atlas_index_file) => {
-                    if let Err(e) = atlas_index_file.write_all(result.as_bytes()) {
-                        log_error!("Error writing texture atlas index: {}", e);
+                            if tex_y <= image.height() {
+                                *pixel = image.get_pixel(tex_x, tex_y);
+                            } else {
+                                *pixel = image::Rgba([255, 0, 0, 255]);
+                            }
+                        }
+                    }
+                    None => {
+                        *pixel = image::Rgba([255, 255, 0, 255]);
                     }
                 }
-                Err(e) => {
-                    log_error!("Failed to cache atlas index: {}", e);
+            }
+
+            if settings.debug_atlas {
+                for (name, coord) in atlas_index.iter() {
+
+                    let x = (coord.0[0] * ATLAS_WIDTH as f32) as u32;
+                    let y = (coord.0[1] * ATLAS_HEIGHT as f32) as u32;
+
+                    atlas.put_pixel(x, y, image::Rgba([255, 255, 0, 255]));
+                    atlas.put_pixel(x, y + 1, image::Rgba([255, 255, 0, 255]));
+                    atlas.put_pixel(x + 1, y, image::Rgba([255, 255, 0, 255]));
+
+                    let x = (coord.1[0] * ATLAS_WIDTH as f32) as u32;
+                    let y = (coord.1[1] * ATLAS_HEIGHT as f32) as u32;
+
+                    if atlas.dimensions().0 == x {
+                        continue;
+                    }
+
+                    atlas.put_pixel(x, y, image::Rgba([255, 255, 0, 255]));
+                    atlas.put_pixel(x, y - 1, image::Rgba([255, 255, 0, 255]));
+                    atlas.put_pixel(x - 1, y, image::Rgba([255, 255, 0, 255]));
+
                 }
             }
+
+            if settings.atlas_cache_writing {
+                if let Err(e) = atlas.save(format!("{}resources/atlas.png", settings.path)) {
+                    log_error!("Failed to cache atlas image: {}", e);
+                }
+
+                let result = serde_json::to_string(&atlas_index).unwrap();
+
+                match File::create(format!("{}resources/atlas_index.json", settings.path)) {
+                    Ok(mut atlas_index_file) => {
+                        if let Err(e) = atlas_index_file.write_all(result.as_bytes()) {
+                            log_error!("Error writing texture atlas index: {}", e);
+                        }
+                    }
+                    Err(e) => {
+                        log_error!("Failed to cache atlas index: {}", e);
+                    }
+                }
+            }
+
+            atlas_img = Some(DynamicImage::ImageRgba8(atlas));
+            log!("Generating texture atlas took: {}ms", start_time.elapsed().unwrap().as_millis());
         }
 
-        let atlas_img = DynamicImage::ImageRgba8(atlas);
+        let atlas_img = atlas_img.unwrap();
         let diffuse_rgba = atlas_img.as_rgba8().unwrap();
         let dimensions = diffuse_rgba.dimensions();
 
@@ -222,8 +243,6 @@ impl AssetService {
         );
 
         queue.submit(&[encoder.finish()]);
-
-        log!(format!("Creating atlas map took: {}ms", start_time.elapsed().unwrap().as_millis()));
 
         let diffuse_sampler_descriptor = wgpu::SamplerDescriptor {
             address_mode_u: wgpu::AddressMode::ClampToEdge,
@@ -283,6 +302,18 @@ fn sort_textures(textures: &mut HashMap<String, DynamicImage>) -> Vec<(String, D
         }
     }
     out
+}
+
+pub fn load_cached_atlas(settings: &SettingsService) -> Result<(DynamicImage, HashMap<String, TextureAtlasIndex>), Box<dyn std::error::Error>> {
+    let img = image::open(format!("{}resources/atlas.png", settings.path))?;
+
+    let mut index_file = File::open(format!("{}resources/atlas_index.json", settings.path))?;
+    let mut data = Vec::new();
+    index_file.read_to_end(&mut data)?;
+
+    let index = serde_json::from_slice::<HashMap<String, TextureAtlasIndex>>(data.as_slice())?;
+
+    Ok((img, index))
 }
 
 pub fn atlas_update_blocks(mapping: &HashMap<String, TextureAtlasIndex>, blocks: &mut Vec<Block>) {

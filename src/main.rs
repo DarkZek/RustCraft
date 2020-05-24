@@ -17,6 +17,7 @@ use crate::services::ui_service::ObjectAlignment;
 
 extern crate zerocopy;
 extern crate log;
+extern crate shaderc;
 
 #[macro_use]
 pub mod services;
@@ -88,7 +89,7 @@ fn main() {
             }
             Event::MainEventsCleared => {
                 // Calculate delta time
-                last_frame_time = SystemTime::now();
+                delta_time = last_frame_time.elapsed().unwrap();
 
                 // Update fps counter
                 if fps_counter_time.elapsed().unwrap().as_secs() > 0 {
@@ -105,7 +106,7 @@ fn main() {
                 render_state.render();
 
                 *control_flow = ControlFlow::Poll;
-                delta_time = last_frame_time.elapsed().unwrap();
+                last_frame_time = SystemTime::now();
 
                 render_state.services.as_ref().unwrap().logging.flush_buffer();
             }

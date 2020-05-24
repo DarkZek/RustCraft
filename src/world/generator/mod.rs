@@ -9,8 +9,9 @@ pub struct World {
 
 impl World {
 
-    pub fn generate_chunk(chunk_pos: Vector3<i32>, blocks: &Vec<Block>) -> ChunkData {
+    pub fn generate_chunk(chunk_pos: Vector3<i32>, blocks: &Vec<Block>) -> Option<ChunkData> {
         let scale = 1.0 / CHUNK_SIZE as f64;
+        let mut chunk_nothing = true;
 
         let noise_map = Perlin::new();
         noise_map.set_seed(0);
@@ -28,13 +29,30 @@ impl World {
                     // Stone
                     if y < height {
                         chunk[x][y_offset][z] = 1;
-
+                        chunk_nothing = false;
                     // Dirt
                     } else if y <= (height + 1) {
                         chunk[x][y_offset][z] = 2;
+                        chunk_nothing = false;
                     } else if y == (height + 2) {
                         chunk[x][y_offset][z] = 3;
+                        chunk_nothing = false;
                     }
+
+                    // chunk[x][y_offset][z] = 0;
+                    // if ((x * 5) + (y_offset * 3) + (z * 2)) % 20 == 0 {
+                    //     chunk[x][y_offset][z] = 1;
+                    // }
+                    //
+                    // if chunk_pos.x == 0 && chunk_pos.z == 0 {
+                    //     chunk[x][y_offset][z] = 2;
+                    // }
+                    // if chunk_pos.x == 1 && chunk_pos.z == 0 {
+                    //     chunk[x][y_offset][z] = 3;
+                    // }
+                    // if chunk_pos.y == 15 {
+                    //     chunk[x][y_offset][z] = 0;
+                    // }
                 }
             }
         }
@@ -49,7 +67,10 @@ impl World {
         // chunk[0][0][1] = 2;
         // chunk[0][0][1] = 2;
         // chunk[0][0][1] = 2;
-
-        (chunk, blocks)
+        if chunk_nothing {
+            None
+        } else {
+            Some((chunk, blocks))
+        }
     }
 }

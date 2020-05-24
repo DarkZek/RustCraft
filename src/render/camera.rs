@@ -42,18 +42,12 @@ impl Camera {
 
     pub fn build_view_projection_matrix(&self) -> cgmath::Matrix4<f32> {
         let view_vector = Vector3 {
-            x: ((self.yaw - PI / 2.0).cos() * -self.pitch.cos()) as f32,
-            y: (-self.pitch.sin()) as f32,
+            x: ((self.yaw - PI / 2.0).cos() * self.pitch.cos()) as f32,
+            y: self.pitch.sin() as f32,
             z: (-(self.yaw - PI / 2.0).sin() * -self.pitch.cos()) as f32
         };
 
-        let direction = Vector3 {
-            x: -view_vector.x,
-            y: -view_vector.y,
-            z: view_vector.z
-        };
-
-        let view = cgmath::Matrix4::look_at_dir(self.eye, direction, self.up);
+        let view = cgmath::Matrix4::look_at_dir(self.eye, view_vector, self.up);
 
         let proj = cgmath::perspective(cgmath::Deg(self.fovy), self.aspect, self.znear, self.zfar);
 

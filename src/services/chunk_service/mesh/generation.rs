@@ -15,6 +15,15 @@ impl Chunk {
 
     pub fn generate_mesh(&self, chunk_service: &ChunkService, settings: &SettingsService) -> ChunkMeshData {
 
+        // Make sure to generate viewable map before returning null mesh data
+        if self.world.is_none() {
+            return ChunkMeshData {
+                viewable: None,
+                vertices: vec![],
+                indices: vec![]
+            };
+        }
+
         // Get adjacent chunks
         let mut map = HashMap::new();
         map.insert(Vector3 { x: 0, y: 1, z: 0 }, chunk_service.chunks.get(&(self.position + Vector3 {x: 0, y: 1, z: 0})));
@@ -30,7 +39,7 @@ impl Chunk {
         let mut indices = Vec::new();
 
         // Create the buffers to add the mesh data into
-        let chunk = self.world;
+        let chunk = self.world.as_ref().unwrap();
 
         for x in 0..chunk.len() {
             for z in 0..chunk[0][0].len() {
@@ -55,7 +64,7 @@ impl Chunk {
         ChunkMeshData {
             vertices,
             indices,
-            viewable
+            viewable: Some(viewable)
         }
     }
 

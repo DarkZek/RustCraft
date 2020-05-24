@@ -8,7 +8,7 @@ use crate::block::Block;
 use crate::services::chunk_service::mesh::{ViewableDirectionBitMap, Vertex};
 
 pub struct ChunkMeshData {
-    pub viewable: [[[ViewableDirection; 16]; 16]; 16],
+    pub viewable: Option<[[[ViewableDirection; 16]; 16]; 16]>,
     pub vertices: Vec<Vertex>,
     pub indices: Vec<u16>
 }
@@ -85,8 +85,12 @@ impl<'a> Chunk {
 
     pub fn generate_viewable_map(&self, adjacent_chunks: HashMap<Vector3<i32>, Option<&Chunk>>, chunk_edge_faces: bool) -> [[[ViewableDirection; 16]; 16]; 16] {
 
+        if self.world.is_none() {
+            return [[[ViewableDirection(0); CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
+        }
+
         let mut data = [[[ViewableDirection(0); CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
-        let world = self.world;
+        let world = self.world.as_ref().unwrap();
 
         let directions: [Vector3<i32>; 6] = [Vector3 { x: 1, y: 0, z: 0 }, Vector3 { x: -1, y: 0, z: 0 }, Vector3 { x: 0, y: 1, z: 0 }, Vector3 { x: 0, y: -1, z: 0 }, Vector3 { x: 0, y: 0, z: 1 }, Vector3 { x: 0, y: 0, z: -1 }];
 
@@ -120,13 +124,22 @@ impl<'a> Chunk {
                                 let chunk = adjacent_chunks.get(&direction).unwrap().unwrap();
 
                                 let block = {
-                                    let block_id = chunk.world[block_pos.x][block_pos.y][block_pos.z];
-
-                                    if block_id != 0 {
-                                        chunk.blocks.get(block_id as usize - 1)
-                                    } else {
+                                    let world = chunk.world.as_ref();
+                                    if world.is_none() {
                                         None
+                                    } else {
+                                        let block_id = world.unwrap()
+                                            [block_pos.x]
+                                            [block_pos.y]
+                                            [block_pos.z];
+
+                                        if block_id != 0 {
+                                            chunk.blocks.get(block_id as usize - 1)
+                                        } else {
+                                            None
+                                        }
                                     }
+
                                 };
 
                                 // Check if face visible
@@ -149,7 +162,7 @@ impl<'a> Chunk {
     }
 
     pub fn get_block(&self, pos: Vector3<usize>) -> Option<&Block> {
-        let block_id = self.world[pos.x][pos.y][pos.z];
+        let block_id = self.world.as_ref().unwrap()[pos.x][pos.y][pos.z];
         if block_id == 0 {
             self.blocks.get(block_id as usize - 1)
         } else {
@@ -160,6 +173,6 @@ impl<'a> Chunk {
     pub fn update_mesh(&mut self, data: ChunkMeshData) {
         self.indices = Some(data.indices);
         self.vertices= Some(data.vertices);
-        self.viewable_map = Some(data.viewable);
+        self.viewable_map = data.viewable;
     }
 }
