@@ -10,6 +10,9 @@ mod pipeline;
 mod projection;
 pub mod render_pass;
 
+/// Stores all info related on on screen user interfaces.
+/// Contains sub services named "Managers" to manage specific tasks, like font rendering.
+#[allow(dead_code)]
 pub struct UIService {
     pub fonts: FontsManager,
     pipeline: RenderPipeline,
@@ -19,6 +22,8 @@ pub struct UIService {
 }
 
 impl UIService {
+
+    /// Initializes service, creating gpu bind groups, uploading fonts to the gpu etc.
     pub fn new(context: &mut ServicesContext, assets: &AssetService) -> UIService {
         let (projection_buffer, projection_bind_group, projection_bind_group_layout) =
             UIService::setup_ui_projection_matrix(context);

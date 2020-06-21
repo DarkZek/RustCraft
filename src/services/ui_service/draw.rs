@@ -5,6 +5,7 @@
 use crate::services::asset_service::atlas::TextureAtlasIndex;
 use crate::services::chunk_service::mesh::UIVertex;
 
+/// Draw sprite from texture atlas. This is used for things like inventory screens and icons.
 pub fn draw_sprite<'a>(
     vertices: &'a mut Vec<UIVertex>,
     indices: &'a mut Vec<u16>,
@@ -46,6 +47,7 @@ pub fn draw_sprite<'a>(
     indices.push(vertices_count + 3);
 }
 
+/// Draw rectangle. This is used for things like backgrounds for text.
 pub fn draw_rect<'a>(
     vertices: &'a mut Vec<UIVertex>,
     indices: &'a mut Vec<u16>,

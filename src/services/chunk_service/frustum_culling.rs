@@ -5,12 +5,12 @@ use nalgebra::Vector3;
 use std::collections::HashMap;
 
 pub fn calculate_frustum_culling(
-    cam: &Camera,
+    _cam: &Camera,
     viewable_chunks: &Vec<Vector3<i32>>,
     chunks: &HashMap<Vector3<i32>, Chunk>,
 ) -> Vec<Vector3<i32>> {
     // (Normal, d)
-    let mut faces: [(Vector3<f32>, f32); 3] = [
+    let faces: [(Vector3<f32>, f32); 3] = [
         (Vector3::new(1.0, 0.0, -1.0), 8.0),
         (Vector3::new(1.0, 0.0, 1.0), 8.0),
         (Vector3::new(1.0, -1.0, 0.0), 8.0),
@@ -30,7 +30,7 @@ pub fn calculate_frustum_culling(
         let chunk = chunks.get(pos).unwrap();
 
         let relative_pos = chunk.position * CHUNK_SIZE as i32;
-        let mut relative_pos = Vector3::new(
+        let relative_pos = Vector3::new(
             relative_pos.x as f32,
             relative_pos.y as f32,
             relative_pos.z as f32,

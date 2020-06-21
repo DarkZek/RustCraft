@@ -3,6 +3,8 @@ use crate::services::Services;
 use wgpu::{CommandEncoder, Device, SwapChainOutput};
 
 impl UIService {
+
+    /// Renders the user interface. This also runs all of the sub managers render functions.
     pub fn render(
         frame: &SwapChainOutput,
         encoder: &mut CommandEncoder,

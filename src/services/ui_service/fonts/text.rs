@@ -157,7 +157,7 @@ impl Text {
 }
 
 pub fn calculate_texture_coords(byte: u8, fonts: &FontAtlasIndexs) -> TextureAtlasIndex {
-    let mut row = (byte as f32 / FONT_TEXTURE_SIZE).floor();
+    let row = (byte as f32 / FONT_TEXTURE_SIZE).floor();
 
     // Calculate the local offset of the character inside the character sheets
     let local_top_left = [
@@ -202,6 +202,6 @@ pub fn calculate_texture_coords(byte: u8, fonts: &FontAtlasIndexs) -> TextureAtl
     (uv_top_left, uv_bottom_right)
 }
 
-pub fn lerp(mut a: f32, mut b: f32, t: f32) -> f32 {
+pub fn lerp(a: f32,  b: f32, t: f32) -> f32 {
     ((b - a) * t) + a
 }

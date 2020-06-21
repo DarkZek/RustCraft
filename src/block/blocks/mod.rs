@@ -6,6 +6,9 @@ mod sand;
 mod sandstone;
 mod stone;
 
+//TODO: Remove this and load blocks dynamically
+
+/// To be removed
 pub fn get_blocks() -> Vec<Block> {
     let mut blocks = Vec::new();
 

@@ -1,13 +1,9 @@
-//
-// This file is in charge of generating the variable width look of characters in the fonts
-//
-
 use crate::services::asset_service::atlas::{ATLAS_HEIGHT, ATLAS_WIDTH};
 use crate::services::asset_service::AssetService;
 use crate::services::ui_service::fonts::FONT_TEXTURE_SIZE;
 use image::GenericImageView;
 
-// Stores the
+/// Create a map of the widths of each character so we can display them nicely on the screen without them being monospaced.
 pub fn generate_variable_width_map(assets: &AssetService) -> [u8; 127] {
     let ascii_atlas_uv_index = assets
         .atlas_index

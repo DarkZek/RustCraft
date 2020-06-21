@@ -1,5 +1,8 @@
 use winit::event::VirtualKeyCode;
 
+//TODO: Move this to settings service
+
+/// Stores configurable key mappings
 pub struct KeyMapping {
     pub forwards: VirtualKeyCode,
     pub backwards: VirtualKeyCode,

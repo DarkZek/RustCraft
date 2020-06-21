@@ -91,12 +91,12 @@ impl ChunkService {
 
     pub fn load_chunk(
         &mut self,
-        device: &Device,
+        _device: &Device,
         data: Option<ChunkData>,
         chunk_coords: Vector3<i32>,
-        settings: &SettingsService,
+        _settings: &SettingsService,
     ) {
-        let mut chunk = if data.is_some() {
+        let chunk = if data.is_some() {
             Chunk::new(data.unwrap(), chunk_coords)
         } else {
             Chunk::new_empty(chunk_coords)

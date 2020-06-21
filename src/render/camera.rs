@@ -1,6 +1,7 @@
 use nalgebra::{Isometry3, Matrix4, Perspective3, Point3, Vector3};
 use winit::dpi::PhysicalSize;
 
+/// Stores information about the camera.
 pub struct Camera {
     pub eye: Point3<f32>,
     pub yaw: f32,
@@ -16,12 +17,14 @@ const FIRST_PERSON_OFFSET: [f32; 3] = [0.0, 1.0, 0.0];
 const PI: f32 = std::f32::consts::PI;
 
 impl Camera {
+
+    /// Creates new camera with default settings. We'll need to hook this up to the settings service
     pub fn new(size: &PhysicalSize<u32>) -> Camera {
         Camera {
             // position the camera one unit up and 2 units back
             eye: Point3::new(10.0, 51.0, 10.0),
             // have it look at the origin
-            yaw: 00.0,
+            yaw: 0.0,
             pitch: 0.0,
             // which way is "up"
             up: Vector3::y(),
@@ -32,9 +35,13 @@ impl Camera {
         }
     }
 
+    /// Builds the view projection matrix with flipped axis for wgpu using Camera settings
     pub fn build_view_projection_matrix(&self) -> Matrix4<f32> {
         let opengl_to_wgpu_matrix: Matrix4<f32> = Matrix4::new(
-            1.0, 0.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5, 1.0,
+            1.0, 0.0, 0.0, 0.0,
+            0.0, -1.0, 0.0, 0.0,
+            0.0, 0.0, 0.5, 0.0,
+            0.0, 0.0, 0.5, 1.0,
         );
 
         let view_vector = Vector3::new(
@@ -53,6 +60,7 @@ impl Camera {
         return (opengl_to_wgpu_matrix * proj.as_matrix()) * view.to_homogeneous();
     }
 
+    /// Move camera in direction based off current rotation
     pub fn move_first_person(&mut self, pos: &Point3<f32>) {
         let x = pos.x + FIRST_PERSON_OFFSET[0];
         let y = pos.y + FIRST_PERSON_OFFSET[1];

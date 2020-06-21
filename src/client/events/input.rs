@@ -53,6 +53,9 @@ impl GameChanges {
         self.mouse = Some(new);
     }
 
+    //TODO: Eventually move this into a separate class so its easier to hook in controller events
+
+    /// Converts keyboard input events into the different actions they perform.
     pub fn handle_event(
         &mut self,
         event: &WindowEvent,

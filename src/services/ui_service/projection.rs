@@ -6,6 +6,8 @@ use wgpu::{BindGroup, BindGroupLayout, Buffer};
 use winit::dpi::PhysicalSize;
 
 impl UIService {
+
+    /// Sets up the orthographic projection matrix for the UI render pipeline. This sets the size of the projection to be the same as the window dimensions.
     pub fn setup_ui_projection_matrix(
         context: &mut ServicesContext,
     ) -> (Buffer, BindGroup, BindGroupLayout) {

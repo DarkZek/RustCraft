@@ -1,5 +1,9 @@
 use nalgebra::Vector3;
 
+//
+// If you find this file, it's probably all just going to be ripped out and replaced in the future so go ahead and ignore this is here.
+//
+
 #[allow(dead_code)]
 pub struct Hitbox {
     start: [f32; 2],

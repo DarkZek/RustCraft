@@ -4,6 +4,8 @@ use crate::services::settings_service::CHUNK_SIZE;
 use nalgebra::Vector3;
 use noise::{NoiseFn, Perlin, Seedable};
 
+// This file is temporary, until we can connect to a server I need to have chunk generation client side
+
 pub struct World {}
 
 impl World {

@@ -1,5 +1,6 @@
 use wgpu::{Device, ShaderModule};
 
+/// Load shaders using shaderc
 pub fn load_shaders(device: &Device) -> (ShaderModule, ShaderModule) {
     let vs_src = include_str!("../../../assets/shaders/shader.vert");
     let fs_src = include_str!("../../../assets/shaders/shader.frag");

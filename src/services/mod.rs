@@ -1,11 +1,13 @@
+use crate::services::{
+    asset_service::atlas::atlas_update_blocks,
+    asset_service::AssetService,
+    audio_service::AudioService,
+    chunk_service::ChunkService,
+    logging_service::LoggingService,
+    settings_service::SettingsService,
+    ui_service::{ObjectAlignment, Positioning, UIService}
+};
 use crate::block::Block;
-use crate::services::asset_service::atlas::atlas_update_blocks;
-use crate::services::asset_service::AssetService;
-use crate::services::audio_service::AudioService;
-use crate::services::chunk_service::ChunkService;
-use crate::services::logging_service::LoggingService;
-use crate::services::settings_service::SettingsService;
-use crate::services::ui_service::{ObjectAlignment, Positioning, UIService};
 use wgpu::{Device, Queue};
 use winit::dpi::PhysicalSize;
 
@@ -17,6 +19,7 @@ pub mod chunk_service;
 pub mod settings_service;
 pub mod ui_service;
 
+/// Stores all of the engines services
 pub struct Services {
     pub asset: AssetService,
     pub audio: AudioService,
@@ -26,6 +29,7 @@ pub struct Services {
     pub ui: UIService,
 }
 
+/// Stores references to important devices needed during initialization of the services.
 pub struct ServicesContext<'a> {
     pub device: &'a mut Device,
     pub queue: &'a mut Queue,
@@ -50,6 +54,8 @@ impl<'a> ServicesContext<'_> {
 }
 
 impl Services {
+
+    /// Tells all of the services to load in order.
     pub fn load_services(mut context: ServicesContext) -> Services {
         let settings = SettingsService::new();
         let logging = LoggingService::new(&settings);
@@ -60,6 +66,7 @@ impl Services {
         let audio = AudioService::new();
         let mut ui = UIService::new(&mut context, &asset);
 
+        //TEMP
         ui.fonts
             .create_text()
             .set_text("Rustcraft V0.01 Alpha")

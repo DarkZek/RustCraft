@@ -1,34 +1,12 @@
-//
-// This file is a self contained render pipeline responsible for showing the loading screen before other assets are loaded.
-// This is separate so it can be ran before the other services are setup
-//
-
 use wgpu::{Device, Queue, RenderPipeline, ShaderModule, SwapChain};
 use winit::dpi::PhysicalSize;
 
+///
+/// This is a self contained render pipeline responsible for showing the loading screen before other assets are loaded.
+/// This is separate so it can be ran before the other services are setup
+///
 pub struct LoadingScreen {
     pipeline: RenderPipeline,
-}
-
-#[repr(C)]
-#[derive(Copy, Clone, Debug, PartialEq)]
-pub struct LoadingVertices {
-    pub position: [f32; 2],
-}
-
-impl LoadingVertices {
-    pub fn desc<'a>() -> wgpu::VertexBufferDescriptor<'a> {
-        use std::mem;
-        wgpu::VertexBufferDescriptor {
-            stride: mem::size_of::<LoadingVertices>() as wgpu::BufferAddress,
-            step_mode: wgpu::InputStepMode::Vertex,
-            attributes: &[wgpu::VertexAttributeDescriptor {
-                offset: 0,
-                shader_location: 0,
-                format: wgpu::VertexFormat::Float2,
-            }],
-        }
-    }
 }
 
 impl LoadingScreen {
@@ -186,4 +164,25 @@ pub fn load_shaders(device: &Device) -> (ShaderModule, ShaderModule) {
     let fs_module = device.create_shader_module(fs_spirv.as_binary());
 
     (vs_module, fs_module)
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub struct LoadingVertices {
+    pub position: [f32; 2],
+}
+
+impl LoadingVertices {
+    pub fn desc<'a>() -> wgpu::VertexBufferDescriptor<'a> {
+        use std::mem;
+        wgpu::VertexBufferDescriptor {
+            stride: mem::size_of::<LoadingVertices>() as wgpu::BufferAddress,
+            step_mode: wgpu::InputStepMode::Vertex,
+            attributes: &[wgpu::VertexAttributeDescriptor {
+                offset: 0,
+                shader_location: 0,
+                format: wgpu::VertexFormat::Float2,
+            }],
+        }
+    }
 }

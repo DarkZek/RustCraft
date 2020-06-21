@@ -14,6 +14,7 @@ pub mod binding;
 pub mod depth_map;
 pub mod packs;
 
+#[allow(dead_code)]
 pub struct AssetService {
     resource_packs: Vec<String>,
     selected_pack: Option<ResourcePack>,
@@ -25,6 +26,7 @@ pub struct AssetService {
     pub atlas_bind_group: Option<BindGroup>,
 }
 
+#[allow(dead_code)]
 pub struct ResourcePack {
     name: String,
     author: String,

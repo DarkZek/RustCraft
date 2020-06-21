@@ -1,7 +1,3 @@
-//
-// Handles logging to console, log buffering and writing logs to files
-//
-
 use crate::services::settings_service::SettingsService;
 use std::fs::File;
 use std::io::Write;
@@ -13,6 +9,8 @@ lazy_static! {
     pub static ref LOG_BUFFER: LoggingQueue = Mutex::new(Vec::new());
 }
 
+/// Handles logging to console, log buffering and writing logs to files
+/// Running the log macros add item to this log file list, which gets flushed to the log file and at the end of the frame.
 pub struct LoggingService {
     log_file: Arc<Mutex<File>>,
 }

@@ -1,11 +1,11 @@
 use winit::dpi::{PhysicalPosition, PhysicalSize};
 
-use crate::client::events::key_mappings::KeyMapping;
+use crate::services::settings_service::key_mappings::KeyMapping;
 
 pub mod input;
-pub mod key_mappings;
 
-// Tracks user input's since the last frame
+/// Tracks user input's since the last frame.
+/// Naming them things like movement instead of WASD keys makes it easier to support multiple input device types.
 pub struct GameChanges {
     pub movement: [i32; 2],
     pub look: [f64; 2],
@@ -17,6 +17,8 @@ pub struct GameChanges {
     pub mouse: Option<PhysicalPosition<f64>>,
 }
 
+/// Stores related info of the game changes
+#[doc(inline)]
 pub struct GameChangesContext {
     pub mappings: KeyMapping,
     pub mouse_home: PhysicalPosition<u32>,

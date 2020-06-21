@@ -11,6 +11,8 @@ pub mod text;
 pub mod text_builder;
 pub mod variable_width;
 
+/// Fonts Manager is a subsystem of the User Interface Service.
+/// It's job is to manage fonts and allow other services to easily create new fonts on the screen as well as update and delete them.
 pub struct FontsManager {
     texts: Vec<Text>,
     pub total_vertices: Vec<UIVertex>,
@@ -27,6 +29,7 @@ pub struct FontAtlasIndexs {
     ascii: TextureAtlasIndex,
 }
 
+/// The struct given to the service from the font manager. It's easier with lifetimes if we don't directly give them access to the object.
 pub struct TextView {
     id: usize,
 }
@@ -36,6 +39,8 @@ pub const FONT_TEXTURE_SIZE: f32 = 16.0;
 pub const LETTER_SPACING: f32 = 0.2;
 
 impl FontsManager {
+
+    /// Sets up the font manager, including getting font asset locations inside the texture atlas and calculating the variable width font distancing.
     pub fn new(assets: &AssetService, size: PhysicalSize<u32>) -> FontsManager {
         let ascii_atlas_coords = assets
             .atlas_index
@@ -82,7 +87,7 @@ impl FontsManager {
         text.generate_text_mesh((&self.atlas_coords, &self.character_widths), &self.size);
     }
 
-    // Totals the vertices if any of the text has changed
+    /// Totals the vertices if any of the text has changed
     pub fn total(&mut self, device: &Device) {
         if self.changed {
             self.changed = false;
@@ -113,6 +118,7 @@ impl FontsManager {
         }
     }
 
+    /// Recreate on resize
     pub fn resized(&mut self, size: &PhysicalSize<u32>, device: &Device) {
         self.size = size.clone();
 

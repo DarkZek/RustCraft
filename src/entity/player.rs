@@ -1,6 +1,7 @@
 use crate::game::physics::{Hitbox, PhysicsObject};
 use nalgebra::{Point3, Vector3};
 
+/// Stores info about the current local player.
 pub struct Player {
     pub pos: Point3<f32>,
     pub rot: [f32; 2],
@@ -16,7 +17,7 @@ impl Player {
         }
     }
 
-    pub fn move_forwards(&mut self, axis: &[i32; 2], delta_time: f64) {
+    pub fn move_forwards(&mut self, axis: &[i32; 2]) {
         let pos = &mut self.pos;
         let movement_speed = 2.0;
 

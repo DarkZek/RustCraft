@@ -2,6 +2,8 @@ use crate::services::asset_service::AssetService;
 use wgpu::{BindGroup, BindGroupLayout, Device, Sampler, Texture};
 
 impl AssetService {
+
+    /// Create the information for the gpu to know how to deal with the atlas
     pub fn generate_atlas_bindings(
         device: &Device,
         diffuse_texture: &Texture,

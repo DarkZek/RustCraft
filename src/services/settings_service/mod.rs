@@ -1,11 +1,18 @@
-//
-// Handles the state of settings, loading settings from json and automatically updating settings when necessary
-//
-
 use std::ops::Add;
+
+pub mod key_mappings;
 
 pub const CHUNK_SIZE: usize = 16;
 
+//TODO: Make it actually load from a text file
+
+/// Responsible for loading settings from environment variables, loading settings file and saving the settings file. Giving us persistent storage for variables.
+/// This is separate from the loading of world files, it only operates in text.
+///
+/// ## Loading
+///
+/// Loads settings file from only the local directory the executable is ran from.
+///
 pub struct SettingsService {
     pub path: String,
     //TODO: Implement
@@ -20,6 +27,13 @@ pub struct SettingsService {
 }
 
 impl SettingsService {
+
+    /// Creates a new instance of settings, loading the variables from the environment variables as well as settings file
+    ///
+    /// # Returns
+    ///
+    /// A new initialized `SettingsService`
+    ///
     pub fn new() -> SettingsService {
         // Load resources directory
         let path: String = {
@@ -42,7 +56,7 @@ impl SettingsService {
         SettingsService {
             path,
             atlas_cache_reading: true,
-            atlas_cache_writing: true,
+            atlas_cache_writing: atlas_caching,
             render_distance: 24,
             debug_vertices,
             debug_atlas: false,

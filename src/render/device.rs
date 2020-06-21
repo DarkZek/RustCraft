@@ -4,6 +4,8 @@ use winit::dpi::PhysicalSize;
 use winit::window::Window;
 
 impl RenderState {
+
+    /// Gets a gpu devices we will use
     pub fn get_devices(
         window: &Window,
     ) -> (PhysicalSize<u32>, Surface, AdapterInfo, Device, Queue) {

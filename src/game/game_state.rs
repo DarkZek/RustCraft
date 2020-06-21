@@ -1,9 +1,9 @@
 use crate::client::events::GameChanges;
 use crate::entity::player::Player;
 use crate::render::RenderState;
-use nalgebra::Point3;
 use std::f32::consts::PI;
 
+/// Stores the current state of the game. Currently this is mostly just looking after player movement.
 pub struct GameState {
     player: Player,
 }
@@ -15,7 +15,7 @@ impl GameState {
         }
     }
 
-    pub fn frame(&mut self, render: &mut RenderState, events: &GameChanges, delta_time: f64) {
+    pub fn frame(&mut self, render: &mut RenderState, events: &GameChanges, _delta_time: f64) {
         let mut encoder = render
             .device
             .create_command_encoder(&wgpu::CommandEncoderDescriptor { todo: 0 });
@@ -47,7 +47,7 @@ impl GameState {
 
         if events.movement != [0, 0] {
             self.player
-                .move_forwards(&events.movement, delta_time.clone());
+                .move_forwards(&events.movement);
 
             // Update camera with change (assumes first person for now)
             render.camera.move_first_person(&self.player.pos);

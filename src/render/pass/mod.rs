@@ -5,6 +5,8 @@ use std::time::Instant;
 pub mod uniforms;
 
 impl RenderState {
+
+    /// Renders all visible chunks
     pub fn render(&mut self) {
         self.update();
 
@@ -80,6 +82,7 @@ impl RenderState {
         self.services = Some(services);
     }
 
+    /// Update fps
     pub fn update(&mut self) {
         // Update fps
         if Instant::now()

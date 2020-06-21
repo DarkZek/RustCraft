@@ -21,6 +21,8 @@ pub mod pass;
 pub mod screens;
 pub mod shaders;
 
+/// Stores the current state of the rendering side of the game. This includes all of the vulkan attributes, fps, gpu info and currently the services which need to be moved.
+#[allow(dead_code)]
 pub struct RenderState {
     surface: wgpu::Surface,
     pub device: wgpu::Device,
@@ -80,7 +82,7 @@ impl RenderState {
             &size,
         ));
 
-        //Change to 50 %
+        // Update loading screen
         loading.render(&mut swap_chain, &device, &mut queue, 90);
 
         // TODO: Combine uniforms into camera

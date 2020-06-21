@@ -2,6 +2,7 @@ use crate::services::ui_service::fonts::text::Text;
 use crate::services::ui_service::fonts::{FontsManager, TextView};
 use crate::services::ui_service::{ObjectAlignment, Positioning};
 
+/// A simple builder class for creating new texts on the screen.
 pub struct TextBuilder<'a> {
     text: Option<Text>,
     fonts: &'a mut FontsManager,

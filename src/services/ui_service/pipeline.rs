@@ -1,6 +1,8 @@
 use crate::services::chunk_service::mesh::UIVertex;
 use wgpu::{BindGroupLayout, BlendFactor, BlendOperation, Device, RenderPipeline, ShaderModule};
 
+/// Creates the user inferace render pipeline. This includes things like loading shaders.
+/// This happens because we have one render pass for the chunks, and a seperate for user interfaces. This lets us use 2d vertices for UI as well as have more control over depth and perspective.
 pub fn generate_render_pipeline(
     device: &Device,
     bind_group_layouts: &[&BindGroupLayout],

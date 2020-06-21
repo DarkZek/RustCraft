@@ -3,6 +3,8 @@ use wgpu::{CommandEncoder, SwapChainOutput};
 use wgpu_glyph::{Section, GlyphBrushBuilder, Scale, Layout, HorizontalAlign, VerticalAlign, BuiltInLineBreaker};
 use systemstat::Platform;
 
+// Not currently used
+
 pub fn draw_debug_screen(render: &mut RenderState, encoder: &mut CommandEncoder, frame: &SwapChainOutput) {
 
     let ui_scale = ((render.size.width as f32 / render.size.height as f32) / 2.0) * (0.04 * render.size.height as f32);

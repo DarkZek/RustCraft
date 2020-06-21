@@ -104,8 +104,8 @@ impl AssetService {
 
                         if (row_width + width) <= ATLAS_WIDTH {
                             texture_numbers_x.push(row_width + width - 1);
-                            // atlas_index.insert(name.clone(), ([(row_width as f32) / ATLAS_WIDTH as f32, (current_y as f32) / ATLAS_HEIGHT as f32],
-                            //                                   [((row_width + width) as f32) / ATLAS_WIDTH as f32, ((current_y + img.height()) as f32) / ATLAS_HEIGHT as f32]));
+
+                            // Generate a list of locations that our textures exist inside of the main atlas texture. These are in the form 1/(X POS) because this is how it's expected in the shaders.
                             atlas_index.insert(
                                 name.clone(),
                                 (
@@ -185,7 +185,7 @@ impl AssetService {
             }
 
             if settings.debug_atlas {
-                for (name, coord) in atlas_index.iter() {
+                for (_, coord) in atlas_index.iter() {
                     let x = (coord.0[0] * ATLAS_WIDTH as f32) as u32;
                     let y = (coord.0[1] * ATLAS_HEIGHT as f32) as u32;
 
@@ -286,6 +286,7 @@ impl AssetService {
     }
 }
 
+#[allow(dead_code)]
 fn invalid_texture(x: u32, y: u32, texture_size: u32) -> Rgba<u8> {
     let relative_x = ((x as f32 + 1.0) / (texture_size as f32 / 2.0)).ceil();
     let relative_y = ((y as f32 + 1.0) / (texture_size as f32 / 2.0)).ceil();
