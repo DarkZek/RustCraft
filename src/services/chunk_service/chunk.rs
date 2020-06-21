@@ -1,22 +1,22 @@
 use crate::block::Block;
-use wgpu::{Buffer, BindGroup};
-use crate::services::chunk_service::mesh::Vertex;
-use crate::services::settings_service::{CHUNK_SIZE};
 use crate::services::chunk_service::mesh::culling::ViewableDirection;
+use crate::services::chunk_service::mesh::Vertex;
+use crate::services::settings_service::CHUNK_SIZE;
 use nalgebra::Vector3;
+use wgpu::{BindGroup, Buffer};
 
 pub struct Chunk {
     pub world: Option<RawChunkData>,
     pub blocks: Vec<Block>,
     pub vertices: Option<Vec<Vertex>>,
-    pub indices:  Option<Vec<u16>>,
+    pub indices: Option<Vec<u16>>,
     pub vertices_buffer: Option<Buffer>,
     pub indices_buffer: Option<Buffer>,
     pub indices_buffer_len: u32,
     pub model_bind_group: Option<BindGroup>,
     //TODO: Investigate if caching this is even faster
     pub viewable_map: Option<[[[ViewableDirection; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE]>,
-    pub position: Vector3<i32>
+    pub position: Vector3<i32>,
 }
 
 impl Chunk {
@@ -31,7 +31,7 @@ impl Chunk {
             indices_buffer_len: 0,
             model_bind_group: None,
             viewable_map: None,
-            position
+            position,
         }
     }
     pub fn new_empty(position: Vector3<i32>) -> Chunk {
@@ -45,7 +45,7 @@ impl Chunk {
             indices_buffer_len: 0,
             model_bind_group: None,
             viewable_map: None,
-            position
+            position,
         }
     }
 }

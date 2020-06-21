@@ -1,8 +1,8 @@
 use nalgebra::Vector3;
 
+pub mod block;
 pub mod chunk;
 pub mod culling;
-pub mod block;
 pub mod debug;
 pub mod generation;
 
@@ -21,16 +21,16 @@ pub struct Vertex {
 pub struct UIVertex {
     pub position: [f32; 2],
     pub tex_coords: [f32; 2],
-    pub color: [f32; 4]
+    pub color: [f32; 4],
 }
 
 pub enum ViewableDirectionBitMap {
-    Top     = 0b00000001,
-    Bottom  = 0b00000010,
-    Left    = 0b00000100,
-    Right   = 0b00001000,
-    Front   = 0b00010000,
-    Back    = 0b00100000,
+    Top = 0b00000001,
+    Bottom = 0b00000010,
+    Left = 0b00000100,
+    Right = 0b00001000,
+    Front = 0b00010000,
+    Back = 0b00100000,
 }
 
 impl ViewableDirectionBitMap {
@@ -71,11 +71,12 @@ impl Vertex {
                     format: wgpu::VertexFormat::Float2,
                 },
                 wgpu::VertexAttributeDescriptor {
-                    offset: (mem::size_of::<[f32; 3]>() + mem::size_of::<[f32; 2]>()) as wgpu::BufferAddress,
+                    offset: (mem::size_of::<[f32; 3]>() + mem::size_of::<[f32; 2]>())
+                        as wgpu::BufferAddress,
                     shader_location: 2,
                     format: wgpu::VertexFormat::Float3,
                 },
-            ]
+            ],
         }
     }
 }
@@ -102,7 +103,7 @@ impl UIVertex {
                     shader_location: 2,
                     format: wgpu::VertexFormat::Float4,
                 },
-            ]
+            ],
         }
     }
 }

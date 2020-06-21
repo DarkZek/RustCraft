@@ -1,10 +1,10 @@
-use crate::game::physics::{PhysicsObject, Hitbox};
-use nalgebra::{Vector3, Point3};
+use crate::game::physics::{Hitbox, PhysicsObject};
+use nalgebra::{Point3, Vector3};
 
 pub struct Player {
     pub pos: Point3<f32>,
     pub rot: [f32; 2],
-    pub velocity: Vector3<f32>
+    pub velocity: Vector3<f32>,
 }
 
 impl Player {

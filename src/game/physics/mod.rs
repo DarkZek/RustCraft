@@ -3,7 +3,7 @@ use nalgebra::Vector3;
 #[allow(dead_code)]
 pub struct Hitbox {
     start: [f32; 2],
-    end: [f32; 2]
+    end: [f32; 2],
 }
 
 pub trait PhysicsObject {
@@ -32,9 +32,15 @@ pub fn process_physics(objects: &mut Vec<Box<dyn PhysicsObject>>, delta_time: f6
         }
 
         // Apply threshold
-        if velocity.x < VELOCITY_THRESHOLD { velocity.x = 0.0; }
-        if velocity.y < VELOCITY_THRESHOLD { velocity.y = 0.0; }
-        if velocity.z < VELOCITY_THRESHOLD { velocity.z = 0.0; }
+        if velocity.x < VELOCITY_THRESHOLD {
+            velocity.x = 0.0;
+        }
+        if velocity.y < VELOCITY_THRESHOLD {
+            velocity.y = 0.0;
+        }
+        if velocity.z < VELOCITY_THRESHOLD {
+            velocity.z = 0.0;
+        }
 
         let movement = velocity * delta_time as f32;
         object.translate(movement);

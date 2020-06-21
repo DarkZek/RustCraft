@@ -1,11 +1,11 @@
 use crate::services::asset_service::{AssetService, ResourcePack};
-use std::fs;
-use zip::ZipArchive;
-use std::fs::File;
-use image::{ImageFormat, DynamicImage};
+use image::{DynamicImage, ImageFormat};
 use std::collections::HashMap;
+use std::fs;
+use std::fs::File;
 use std::io::Read;
 use std::time::Instant;
+use zip::ZipArchive;
 
 impl AssetService {
     pub fn get_resource_packs(path: &str) -> Vec<String> {
@@ -15,8 +15,9 @@ impl AssetService {
                 let mut packs = Vec::new();
                 for file in files {
                     if let Ok(file) = file {
-                        if file.file_type().unwrap().is_file() &&
-                            file.file_name().to_str().unwrap().ends_with("zip") {
+                        if file.file_type().unwrap().is_file()
+                            && file.file_name().to_str().unwrap().ends_with("zip")
+                        {
                             packs.push(file.file_name().to_str().unwrap().to_string());
                         }
                     }
@@ -43,13 +44,17 @@ impl AssetService {
             Some(path) => path,
         };
 
-        log!(format!("Took {} seconds to load texture pack {}", Instant::now().duration_since(start_time).as_secs_f32(), name));
+        log!(format!(
+            "Took {} seconds to load texture pack {}",
+            Instant::now().duration_since(start_time).as_secs_f32(),
+            name
+        ));
 
         ResourcePack {
             name: "".to_string(),
             author: "".to_string(),
             version: "".to_string(),
-            textures
+            textures,
         }
     }
 }
@@ -70,7 +75,7 @@ fn load_resources(archive: &mut ZipArchive<File>) -> HashMap<String, DynamicImag
             match image::load_from_memory_with_format(data.as_slice(), ImageFormat::Png) {
                 Ok(img) => {
                     out.insert(format_file_name(item.name()), img);
-                },
+                }
                 Err(e) => {
                     println!("Error reading resource {} - {}", item.name(), e);
                 }
@@ -85,7 +90,9 @@ fn format_file_name(name: &str) -> String {
     // Remove the first three directories, usually RESOURCE_PACK_NAME/assets/minecraft/
     let mut slash_count = 0;
     let mut out = String::new();
-    if name.contains("pack.png") { return String::from("pack.png"); }
+    if name.contains("pack.png") {
+        return String::from("pack.png");
+    }
 
     for char in name.chars() {
         if slash_count == 3 {

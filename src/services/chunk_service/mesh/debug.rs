@@ -2,42 +2,109 @@
 // This is a duplicate of block.rs, designed to show a random color per vertex for debugging
 //
 
-use crate::services::asset_service::atlas::TextureAtlasIndex;
 use crate::block::Block;
+use crate::services::asset_service::atlas::TextureAtlasIndex;
 use crate::services::chunk_service::mesh::culling::ViewableDirection;
-use crate::services::chunk_service::mesh::{ViewableDirectionBitMap, Vertex};
+use crate::services::chunk_service::mesh::{Vertex, ViewableDirectionBitMap};
 
-pub fn draw_random_color_block(x: f32, y: f32, z: f32, viewable: ViewableDirection, vertices: &mut Vec<Vertex>, indices: &mut Vec<u16>, block: &Block) {
+pub fn draw_random_color_block(
+    x: f32,
+    y: f32,
+    z: f32,
+    viewable: ViewableDirection,
+    vertices: &mut Vec<Vertex>,
+    indices: &mut Vec<u16>,
+    block: &Block,
+) {
     if viewable.has_flag(ViewableDirectionBitMap::Top) {
-        draw_y_face(x, y - 1.0, z, vertices, indices, true, block.texture_atlas_lookups[0]);
+        draw_y_face(
+            x,
+            y - 1.0,
+            z,
+            vertices,
+            indices,
+            true,
+            block.texture_atlas_lookups[0],
+        );
     }
 
     if viewable.has_flag(ViewableDirectionBitMap::Bottom) {
-        draw_y_face(x, y - 2.0, z, vertices, indices, false, block.texture_atlas_lookups[5]);
+        draw_y_face(
+            x,
+            y - 2.0,
+            z,
+            vertices,
+            indices,
+            false,
+            block.texture_atlas_lookups[5],
+        );
     }
 
     if viewable.has_flag(ViewableDirectionBitMap::Front) {
-        draw_x_face(x, y - 2.0, z, vertices, indices, true, block.texture_atlas_lookups[1]);
+        draw_x_face(
+            x,
+            y - 2.0,
+            z,
+            vertices,
+            indices,
+            true,
+            block.texture_atlas_lookups[1],
+        );
     }
 
     if viewable.has_flag(ViewableDirectionBitMap::Back) {
-        draw_x_face(x, y - 2.0, z + 1.0, vertices, indices, false, block.texture_atlas_lookups[3]);
+        draw_x_face(
+            x,
+            y - 2.0,
+            z + 1.0,
+            vertices,
+            indices,
+            false,
+            block.texture_atlas_lookups[3],
+        );
     }
 
     if viewable.has_flag(ViewableDirectionBitMap::Left) {
-        draw_z_face(x, y - 2.0, z, vertices, indices, true, block.texture_atlas_lookups[2]);
+        draw_z_face(
+            x,
+            y - 2.0,
+            z,
+            vertices,
+            indices,
+            true,
+            block.texture_atlas_lookups[2],
+        );
     }
 
     if viewable.has_flag(ViewableDirectionBitMap::Right) {
-        draw_z_face(x + 1.0, y - 2.0, z as f32, vertices, indices, false, block.texture_atlas_lookups[4]);
+        draw_z_face(
+            x + 1.0,
+            y - 2.0,
+            z as f32,
+            vertices,
+            indices,
+            false,
+            block.texture_atlas_lookups[4],
+        );
     }
 }
 
-pub fn draw_y_face(x: f32, y: f32, z: f32, vertices: &mut Vec<Vertex>, indices: &mut Vec<u16>, top: bool, atlas: TextureAtlasIndex) {
-
+pub fn draw_y_face(
+    x: f32,
+    y: f32,
+    z: f32,
+    vertices: &mut Vec<Vertex>,
+    indices: &mut Vec<u16>,
+    top: bool,
+    atlas: TextureAtlasIndex,
+) {
     let (start_atlas, end_atlas) = atlas;
 
-    let normals = if top { [0.0, 1.0, 0.0] } else { [0.0, -1.0, 0.0] };
+    let normals = if top {
+        [0.0, 1.0, 0.0]
+    } else {
+        [0.0, -1.0, 0.0]
+    };
 
     let starting_vertices = vertices.len() as u16;
 
@@ -58,7 +125,7 @@ pub fn draw_y_face(x: f32, y: f32, z: f32, vertices: &mut Vec<Vertex>, indices: 
     });
     vertices.push(Vertex {
         position: [x + 1.0, y, z + 1.0],
-        tex_coords: [ end_atlas[0], start_atlas[1]],
+        tex_coords: [end_atlas[0], start_atlas[1]],
         normals,
     });
 
@@ -81,9 +148,21 @@ pub fn draw_y_face(x: f32, y: f32, z: f32, vertices: &mut Vec<Vertex>, indices: 
     }
 }
 
-pub fn draw_x_face(x: f32, y: f32, z: f32, vertices: &mut Vec<Vertex>, indices: &mut Vec<u16>, forwards: bool, atlas: TextureAtlasIndex) {
+pub fn draw_x_face(
+    x: f32,
+    y: f32,
+    z: f32,
+    vertices: &mut Vec<Vertex>,
+    indices: &mut Vec<u16>,
+    forwards: bool,
+    atlas: TextureAtlasIndex,
+) {
     let (start_atlas, end_atlas) = atlas;
-    let normals = if forwards { [1.0, 0.0, 0.0] } else { [-1.0, 0.0, 0.0] };
+    let normals = if forwards {
+        [1.0, 0.0, 0.0]
+    } else {
+        [-1.0, 0.0, 0.0]
+    };
 
     let starting_vertices = vertices.len() as u16;
 
@@ -104,7 +183,7 @@ pub fn draw_x_face(x: f32, y: f32, z: f32, vertices: &mut Vec<Vertex>, indices: 
     });
     vertices.push(Vertex {
         position: [x + 1.0, y + 1.0, z],
-        tex_coords: [ end_atlas[0], start_atlas[1]],
+        tex_coords: [end_atlas[0], start_atlas[1]],
         normals,
     });
 
@@ -127,9 +206,21 @@ pub fn draw_x_face(x: f32, y: f32, z: f32, vertices: &mut Vec<Vertex>, indices: 
     }
 }
 
-pub fn draw_z_face(x: f32, y: f32, z: f32, vertices: &mut Vec<Vertex>, indices: &mut Vec<u16>, left: bool, atlas: TextureAtlasIndex) {
+pub fn draw_z_face(
+    x: f32,
+    y: f32,
+    z: f32,
+    vertices: &mut Vec<Vertex>,
+    indices: &mut Vec<u16>,
+    left: bool,
+    atlas: TextureAtlasIndex,
+) {
     let (start_atlas, end_atlas) = atlas;
-    let normals = if left { [0.0, 0.0, 1.0] } else { [0.0, 0.0, -1.0] };
+    let normals = if left {
+        [0.0, 0.0, 1.0]
+    } else {
+        [0.0, 0.0, -1.0]
+    };
 
     let starting_vertices = vertices.len() as u16;
 
@@ -150,7 +241,7 @@ pub fn draw_z_face(x: f32, y: f32, z: f32, vertices: &mut Vec<Vertex>, indices: 
     });
     vertices.push(Vertex {
         position: [x, y + 1.0, z + 1.0],
-        tex_coords: [ end_atlas[0], start_atlas[1]],
+        tex_coords: [end_atlas[0], start_atlas[1]],
         normals,
     });
 

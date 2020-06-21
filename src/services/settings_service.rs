@@ -16,7 +16,7 @@ pub struct SettingsService {
     pub debug_vertices: bool,
     pub debug_atlas: bool,
     pub backface_culling: bool,
-    pub chunk_edge_faces: bool
+    pub chunk_edge_faces: bool,
 }
 
 impl SettingsService {
@@ -28,7 +28,8 @@ impl SettingsService {
             let mut path: Vec<&str> = (path.to_str().unwrap()).split("/").collect();
 
             path.remove(path.len() - 1);
-            path.iter().fold("".to_string(), | out, x| { out.add(&format!("{}/", x)) })
+            path.iter()
+                .fold("".to_string(), |out, x| out.add(&format!("{}/", x)))
         };
 
         let mut atlas_caching = true;
@@ -46,7 +47,7 @@ impl SettingsService {
             debug_vertices,
             debug_atlas: false,
             backface_culling: false,
-            chunk_edge_faces: false
+            chunk_edge_faces: false,
         }
     }
 }

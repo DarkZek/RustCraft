@@ -19,5 +19,5 @@ pub enum BlockDirection {
     Back = 2,
     Left = 3,
     Right = 4,
-    Bottom = 5
+    Bottom = 5,
 }

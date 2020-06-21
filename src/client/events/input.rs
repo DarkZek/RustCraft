@@ -1,7 +1,7 @@
+use crate::client::events::{GameChanges, GameChangesContext};
+use winit::dpi::PhysicalPosition;
 use winit::event::{MouseButton, WindowEvent};
 use winit::window::Window;
-use crate::client::events::{GameChanges, GameChangesContext};
-use winit::dpi::{PhysicalPosition};
 
 impl GameChanges {
     pub fn new() -> GameChanges {
@@ -13,7 +13,7 @@ impl GameChanges {
             pause: false,
             jump: false,
             sneak: false,
-            mouse: None
+            mouse: None,
         }
     }
 
@@ -53,9 +53,19 @@ impl GameChanges {
         self.mouse = Some(new);
     }
 
-    pub fn handle_event(&mut self, event: &WindowEvent, changes: &mut GameChangesContext, window: &Window) {
+    pub fn handle_event(
+        &mut self,
+        event: &WindowEvent,
+        changes: &mut GameChangesContext,
+        window: &Window,
+    ) {
         match *event.clone() {
-            WindowEvent::MouseInput { device_id: _, state: _, button, .. } => {
+            WindowEvent::MouseInput {
+                device_id: _,
+                state: _,
+                button,
+                ..
+            } => {
                 if button == MouseButton::Left {
                     self.item_used();
                 } else if button == MouseButton::Right {
@@ -68,7 +78,11 @@ impl GameChanges {
                 }
             }
 
-            WindowEvent::KeyboardInput { device_id: _device_id, input, is_synthetic: _ } => {
+            WindowEvent::KeyboardInput {
+                device_id: _device_id,
+                input,
+                is_synthetic: _,
+            } => {
                 if input.virtual_keycode != None && changes.grabbed {
                     let key = input.virtual_keycode.unwrap();
 
@@ -104,8 +118,11 @@ impl GameChanges {
                 }
             }
 
-            WindowEvent::CursorMoved { device_id: _device_id, position, .. } => {
-
+            WindowEvent::CursorMoved {
+                device_id: _device_id,
+                position,
+                ..
+            } => {
                 self.cursor_position(position);
 
                 if changes.grabbed {
@@ -129,11 +146,15 @@ impl GameChanges {
 }
 
 fn capture_mouse(window: &Window) {
-    if let Err(e) = window.set_cursor_grab(true) { println!("Error grabbing cursor: {}", e); }
+    if let Err(e) = window.set_cursor_grab(true) {
+        println!("Error grabbing cursor: {}", e);
+    }
     window.set_cursor_visible(false);
 }
 
 fn uncapture_mouse(window: &Window) {
-    if let Err(e) = window.set_cursor_grab(false) { println!("Error releasing cursor: {}", e); }
+    if let Err(e) = window.set_cursor_grab(false) {
+        println!("Error releasing cursor: {}", e);
+    }
     window.set_cursor_visible(true);
 }

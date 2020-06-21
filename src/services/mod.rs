@@ -1,20 +1,20 @@
-use crate::services::asset_service::AssetService;
-use crate::services::audio_service::AudioService;
-use crate::services::settings_service::SettingsService;
-use crate::services::logging_service::LoggingService;
-use wgpu::{Device, Queue};
-use crate::services::chunk_service::ChunkService;
 use crate::block::Block;
 use crate::services::asset_service::atlas::atlas_update_blocks;
-use crate::services::ui_service::{UIService, ObjectAlignment, Positioning};
+use crate::services::asset_service::AssetService;
+use crate::services::audio_service::AudioService;
+use crate::services::chunk_service::ChunkService;
+use crate::services::logging_service::LoggingService;
+use crate::services::settings_service::SettingsService;
+use crate::services::ui_service::{ObjectAlignment, Positioning, UIService};
+use wgpu::{Device, Queue};
 use winit::dpi::PhysicalSize;
 
 #[macro_use]
 pub mod logging_service;
 pub mod asset_service;
 pub mod audio_service;
-pub mod settings_service;
 pub mod chunk_service;
+pub mod settings_service;
 pub mod ui_service;
 
 pub struct Services {
@@ -23,30 +23,34 @@ pub struct Services {
     pub settings: SettingsService,
     pub logging: LoggingService,
     pub chunk: ChunkService,
-    pub ui: UIService
+    pub ui: UIService,
 }
 
 pub struct ServicesContext<'a> {
     pub device: &'a mut Device,
     pub queue: &'a mut Queue,
     pub blocks: &'a mut Vec<Block>,
-    pub size: &'a PhysicalSize<u32>
+    pub size: &'a PhysicalSize<u32>,
 }
 
 impl<'a> ServicesContext<'_> {
-    pub fn new(device: &'a mut Device, queue: &'a mut Queue, blocks: &'a mut Vec<Block>, size: &'a PhysicalSize<u32>) -> ServicesContext<'a> {
+    pub fn new(
+        device: &'a mut Device,
+        queue: &'a mut Queue,
+        blocks: &'a mut Vec<Block>,
+        size: &'a PhysicalSize<u32>,
+    ) -> ServicesContext<'a> {
         ServicesContext {
             device,
             queue,
             blocks,
-            size
+            size,
         }
     }
 }
 
 impl Services {
     pub fn load_services(mut context: ServicesContext) -> Services {
-
         let settings = SettingsService::new();
         let logging = LoggingService::new(&settings);
         let asset = AssetService::new(&settings, &mut context);
@@ -56,7 +60,8 @@ impl Services {
         let audio = AudioService::new();
         let mut ui = UIService::new(&mut context, &asset);
 
-        ui.fonts.create_text()
+        ui.fonts
+            .create_text()
             .set_text("Rustcraft V0.01 Alpha")
             .set_size(20.0)
             .set_text_alignment(ObjectAlignment::TopLeft)
@@ -66,8 +71,14 @@ impl Services {
             .set_offset([0.0, 0.0])
             .build();
 
-        ui.fonts.create_text()
-            .set_text(&format!("Chunks: {}x16x{} ({} Total)", settings.render_distance * 2, settings.render_distance * 2, chunk.chunks.len()))
+        ui.fonts
+            .create_text()
+            .set_text(&format!(
+                "Chunks: {}x16x{} ({} Total)",
+                settings.render_distance * 2,
+                settings.render_distance * 2,
+                chunk.chunks.len()
+            ))
             .set_size(20.0)
             .set_text_alignment(ObjectAlignment::TopLeft)
             .set_object_alignment(ObjectAlignment::TopLeft)
@@ -84,8 +95,7 @@ impl Services {
             settings,
             logging,
             chunk,
-            ui
+            ui,
         }
     }
 }
-

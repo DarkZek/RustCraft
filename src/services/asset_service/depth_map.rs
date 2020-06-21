@@ -1,9 +1,11 @@
-use wgpu::{Texture, TextureView, Sampler};
+use wgpu::{Sampler, Texture, TextureView};
 
 pub const DEPTH_FORMAT: wgpu::TextureFormat = wgpu::TextureFormat::Depth32Float;
 
-pub fn create_depth_texture(device: &wgpu::Device, sc_desc: &wgpu::SwapChainDescriptor) -> (Texture, TextureView, Sampler) {
-
+pub fn create_depth_texture(
+    device: &wgpu::Device,
+    sc_desc: &wgpu::SwapChainDescriptor,
+) -> (Texture, TextureView, Sampler) {
     let sampler_descriptor = wgpu::SamplerDescriptor {
         address_mode_u: wgpu::AddressMode::ClampToEdge,
         address_mode_v: wgpu::AddressMode::ClampToEdge,
@@ -26,5 +28,5 @@ pub fn create_depth_texture(device: &wgpu::Device, sc_desc: &wgpu::SwapChainDesc
     let view = texture.create_default_view();
     let sampler = device.create_sampler(&sampler_descriptor);
 
-    ( texture, view, sampler )
+    (texture, view, sampler)
 }

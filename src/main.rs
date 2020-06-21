@@ -2,39 +2,39 @@
 #![feature(fixed_size_array)]
 #![feature(clamp)]
 
-use winit::window::WindowBuilder;
-use winit::event_loop::EventLoop;
-use winit::event::{WindowEvent, Event};
-use winit::event_loop::ControlFlow;
-use crate::render::RenderState;
-use crate::client::events::{GameChangesContext, GameChanges};
+use crate::client::events::{GameChanges, GameChangesContext};
 use crate::game::game_state::GameState;
-use std::time::{SystemTime, Instant};
-use systemstat::Duration;
+use crate::render::RenderState;
 use crate::services::ui_service::ObjectAlignment;
+use std::time::{Instant, SystemTime};
+use systemstat::Duration;
+use winit::event::{Event, WindowEvent};
+use winit::event_loop::ControlFlow;
+use winit::event_loop::EventLoop;
+use winit::window::WindowBuilder;
 
-extern crate zerocopy;
 extern crate log;
 extern crate shaderc;
+extern crate zerocopy;
 
 #[macro_use]
 pub mod services;
-pub mod render;
 pub mod block;
-pub mod world;
 pub mod client;
-pub mod game;
 pub mod entity;
+pub mod game;
 pub mod helpers;
+pub mod render;
+pub mod world;
 
 fn main() {
-
     env_logger::init();
 
     let start = Instant::now();
 
     let event_loop = EventLoop::new();
-    let window = WindowBuilder::new().with_title("My First World - Rustcraft")
+    let window = WindowBuilder::new()
+        .with_title("My First World - Rustcraft")
         .build(&event_loop)
         .unwrap();
 
@@ -51,7 +51,10 @@ fn main() {
     let mut fps = 0;
     let mut fps_counter_frames = 0;
     let mut fps_counter_time = SystemTime::now();
-    let fps_text = render_state.services.as_mut().unwrap()
+    let fps_text = render_state
+        .services
+        .as_mut()
+        .unwrap()
         .ui
         .fonts
         .create_text()
@@ -63,28 +66,32 @@ fn main() {
         .set_offset([0.0, 30.0])
         .build();
 
-    log!("Took {}s to draw first frame", start.elapsed().as_secs_f32());
+    log!(
+        "Took {}s to draw first frame",
+        start.elapsed().as_secs_f32()
+    );
 
     event_loop.run(move |event, _, control_flow| {
         match event {
             Event::WindowEvent {
                 ref event,
                 window_id,
-            } if window_id == window.id() => {
-                match event {
-                    WindowEvent::CloseRequested => {*control_flow = ControlFlow::Exit; return;},
-                    WindowEvent::Resized(physical_size) => {
-                        render_state.resize(*physical_size);
-                        game_changes_context.update_mouse_home(window.inner_size());
-                    }
-                    WindowEvent::ScaleFactorChanged { new_inner_size, .. } => {
-                        render_state.resize(**new_inner_size);
-                    }
-                    _ => {
-                        changes.handle_event(event, &mut game_changes_context, &window);
-                    },
+            } if window_id == window.id() => match event {
+                WindowEvent::CloseRequested => {
+                    *control_flow = ControlFlow::Exit;
+                    return;
                 }
-            }
+                WindowEvent::Resized(physical_size) => {
+                    render_state.resize(*physical_size);
+                    game_changes_context.update_mouse_home(window.inner_size());
+                }
+                WindowEvent::ScaleFactorChanged { new_inner_size, .. } => {
+                    render_state.resize(**new_inner_size);
+                }
+                _ => {
+                    changes.handle_event(event, &mut game_changes_context, &window);
+                }
+            },
             Event::MainEventsCleared => {
                 // Calculate delta time
                 delta_time = last_frame_time.elapsed().unwrap();
@@ -92,7 +99,13 @@ fn main() {
                 // Update fps counter
                 if fps_counter_time.elapsed().unwrap().as_secs() > 0 {
                     fps = fps_counter_frames;
-                    render_state.services.as_mut().unwrap().ui.fonts.edit_text(&fps_text, format!("FPS: {}", fps));
+                    render_state
+                        .services
+                        .as_mut()
+                        .unwrap()
+                        .ui
+                        .fonts
+                        .edit_text(&fps_text, format!("FPS: {}", fps));
                     fps_counter_frames = 0;
                     fps_counter_time = SystemTime::now();
                 }
@@ -106,11 +119,15 @@ fn main() {
                 *control_flow = ControlFlow::Poll;
                 last_frame_time = SystemTime::now();
 
-                render_state.services.as_ref().unwrap().logging.flush_buffer();
+                render_state
+                    .services
+                    .as_ref()
+                    .unwrap()
+                    .logging
+                    .flush_buffer();
             }
-            _ => ()
+            _ => (),
         }
         *control_flow = ControlFlow::Poll
     });
-
 }

@@ -1,30 +1,34 @@
-use crate::services::ui_service::fonts::FontsManager;
-use crate::services::ServicesContext;
-use crate::services::ui_service::pipeline::generate_render_pipeline;
-use wgpu::{RenderPipeline, BindGroupLayout, BindGroup, Buffer};
 use crate::services::asset_service::AssetService;
+use crate::services::ui_service::fonts::FontsManager;
+use crate::services::ui_service::pipeline::generate_render_pipeline;
+use crate::services::ServicesContext;
+use wgpu::{BindGroup, BindGroupLayout, Buffer, RenderPipeline};
 
-pub mod fonts;
-pub mod render_pass;
 pub mod draw;
+pub mod fonts;
 mod pipeline;
 mod projection;
+pub mod render_pass;
 
 pub struct UIService {
     pub fonts: FontsManager,
     pipeline: RenderPipeline,
     projection_buffer: Buffer,
     projection_bind_group: BindGroup,
-    projection_bind_group_layout: BindGroupLayout
+    projection_bind_group_layout: BindGroupLayout,
 }
 
 impl UIService {
     pub fn new(context: &mut ServicesContext, assets: &AssetService) -> UIService {
-
-        let (projection_buffer, projection_bind_group, projection_bind_group_layout) = UIService::setup_ui_projection_matrix(context);
-        let pipeline = generate_render_pipeline(context.device,
-                                                &[assets.atlas_bind_group_layout.as_ref().unwrap(),
-                                                    &projection_bind_group_layout]);
+        let (projection_buffer, projection_bind_group, projection_bind_group_layout) =
+            UIService::setup_ui_projection_matrix(context);
+        let pipeline = generate_render_pipeline(
+            context.device,
+            &[
+                assets.atlas_bind_group_layout.as_ref().unwrap(),
+                &projection_bind_group_layout,
+            ],
+        );
 
         let fonts = FontsManager::new(&assets, context.size.clone());
 
@@ -33,7 +37,7 @@ impl UIService {
             pipeline,
             projection_buffer,
             projection_bind_group,
-            projection_bind_group_layout
+            projection_bind_group_layout,
         }
     }
 }
@@ -55,11 +59,11 @@ pub enum ObjectAlignment {
     TopLeft,
     TopRight,
     BottomLeft,
-    BottomRight
+    BottomRight,
 }
 
 #[derive(PartialEq, Clone)]
 pub enum Positioning {
     Absolute,
-    Relative
+    Relative,
 }

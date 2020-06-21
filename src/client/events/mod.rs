@@ -2,8 +2,8 @@ use winit::dpi::{PhysicalPosition, PhysicalSize};
 
 use crate::client::events::key_mappings::KeyMapping;
 
-pub mod key_mappings;
 pub mod input;
+pub mod key_mappings;
 
 // Tracks user input's since the last frame
 pub struct GameChanges {
@@ -14,7 +14,7 @@ pub struct GameChanges {
     pub pause: bool,
     pub jump: bool,
     pub sneak: bool,
-    pub mouse: Option<PhysicalPosition<f64>>
+    pub mouse: Option<PhysicalPosition<f64>>,
 }
 
 pub struct GameChangesContext {
@@ -28,14 +28,14 @@ impl GameChangesContext {
         GameChangesContext {
             mappings: KeyMapping::default(),
             mouse_home: PhysicalPosition::new(0, 0),
-            grabbed: false
+            grabbed: false,
         }
     }
 
     pub fn update_mouse_home(&mut self, size: PhysicalSize<u32>) {
         self.mouse_home = PhysicalPosition {
             x: size.width / 2,
-            y: size.height / 2
+            y: size.height / 2,
         };
     }
 }

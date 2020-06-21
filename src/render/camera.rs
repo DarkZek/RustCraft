@@ -1,5 +1,5 @@
+use nalgebra::{Isometry3, Matrix4, Perspective3, Point3, Vector3};
 use winit::dpi::PhysicalSize;
-use nalgebra::{Vector3, Matrix4, Perspective3, Isometry3, Point3};
 
 pub struct Camera {
     pub eye: Point3<f32>,
@@ -9,14 +9,13 @@ pub struct Camera {
     pub aspect: f32,
     pub fovy: f32,
     pub znear: f32,
-    pub zfar: f32
+    pub zfar: f32,
 }
 
 const FIRST_PERSON_OFFSET: [f32; 3] = [0.0, 1.0, 0.0];
 const PI: f32 = std::f32::consts::PI;
 
 impl Camera {
-
     pub fn new(size: &PhysicalSize<u32>) -> Camera {
         Camera {
             // position the camera one unit up and 2 units back
@@ -29,23 +28,19 @@ impl Camera {
             aspect: size.width as f32 / size.height as f32,
             fovy: 70.0,
             znear: 0.1,
-            zfar: 2000.0
+            zfar: 2000.0,
         }
     }
 
     pub fn build_view_projection_matrix(&self) -> Matrix4<f32> {
-
         let opengl_to_wgpu_matrix: Matrix4<f32> = Matrix4::new(
-            1.0, 0.0, 0.0, 0.0,
-            0.0, -1.0, 0.0, 0.0,
-            0.0, 0.0, 0.5, 0.0,
-            0.0, 0.0, 0.5, 1.0,
+            1.0, 0.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5, 1.0,
         );
 
         let view_vector = Vector3::new(
             ((self.yaw - PI / 2.0).cos() * self.pitch.cos()) as f32,
             self.pitch.sin() as f32,
-            (-(self.yaw - PI / 2.0).sin() * -self.pitch.cos()) as f32
+            (-(self.yaw - PI / 2.0).sin() * -self.pitch.cos()) as f32,
         );
 
         // No look_at_direction function so I need to do this grr

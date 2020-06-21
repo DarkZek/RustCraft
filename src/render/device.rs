@@ -1,10 +1,12 @@
 use crate::render::RenderState;
-use winit::window::Window;
 use wgpu::{AdapterInfo, Device, Queue, Surface};
 use winit::dpi::PhysicalSize;
+use winit::window::Window;
 
 impl RenderState {
-    pub fn get_devices(window: &Window) -> (PhysicalSize<u32>, Surface, AdapterInfo, Device, Queue) {
+    pub fn get_devices(
+        window: &Window,
+    ) -> (PhysicalSize<u32>, Surface, AdapterInfo, Device, Queue) {
         let size = window.inner_size();
 
         let surface = wgpu::Surface::create(window);
@@ -12,7 +14,8 @@ impl RenderState {
         let adapter = wgpu::Adapter::request(&wgpu::RequestAdapterOptions {
             power_preference: wgpu::PowerPreference::HighPerformance,
             backends: wgpu::BackendBit::all(),
-        }).unwrap();
+        })
+        .unwrap();
 
         let gpu_info = adapter.get_info();
 

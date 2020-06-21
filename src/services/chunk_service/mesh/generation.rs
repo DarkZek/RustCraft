@@ -1,37 +1,69 @@
 use crate::services::chunk_service::chunk::Chunk;
-use crate::services::chunk_service::mesh::culling::{ViewableDirection};
-use crate::services::chunk_service::mesh::block::{draw_block};
-use crate::services::chunk_service::ChunkService;
-use std::collections::HashMap;
+use crate::services::chunk_service::mesh::block::draw_block;
 use crate::services::chunk_service::mesh::chunk::ChunkMeshData;
+use crate::services::chunk_service::mesh::culling::ViewableDirection;
+use crate::services::chunk_service::ChunkService;
 use crate::services::settings_service::SettingsService;
-use nalgebra::{Vector3, Point3};
+use nalgebra::{Point3, Vector3};
+use std::collections::HashMap;
 
 //
 // Our greedy meshing system
 //
 
 impl Chunk {
-
-    pub fn generate_mesh(&self, chunk_service: &ChunkService, settings: &SettingsService) -> ChunkMeshData {
-
+    pub fn generate_mesh(
+        &self,
+        chunk_service: &ChunkService,
+        settings: &SettingsService,
+    ) -> ChunkMeshData {
         // Make sure to generate viewable map before returning null mesh data
         if self.world.is_none() {
             return ChunkMeshData {
                 viewable: None,
                 vertices: vec![],
-                indices: vec![]
+                indices: vec![],
             };
         }
 
         // Get adjacent chunks
         let mut map = HashMap::new();
-        map.insert(Vector3::new(0, 1, 0), chunk_service.chunks.get(&(self.position + Vector3::new (0, 1, 0))));
-        map.insert(Vector3::new(0, -1, 0), chunk_service.chunks.get(&(self.position + Vector3::new(0, -1, 0))));
-        map.insert(Vector3::new(1, 0, 0), chunk_service.chunks.get(&(self.position + Vector3::new (1, 0, 0))));
-        map.insert(Vector3::new(-1, 0, 0), chunk_service.chunks.get(&(self.position + Vector3::new(-1, 0, 0))));
-        map.insert(Vector3::new(0, 0, 1), chunk_service.chunks.get(&(self.position + Vector3::new (0, 0, 1))));
-        map.insert(Vector3::new(0, 0, -1), chunk_service.chunks.get(&(self.position + Vector3::new(0, 0, -1))));
+        map.insert(
+            Vector3::new(0, 1, 0),
+            chunk_service
+                .chunks
+                .get(&(self.position + Vector3::new(0, 1, 0))),
+        );
+        map.insert(
+            Vector3::new(0, -1, 0),
+            chunk_service
+                .chunks
+                .get(&(self.position + Vector3::new(0, -1, 0))),
+        );
+        map.insert(
+            Vector3::new(1, 0, 0),
+            chunk_service
+                .chunks
+                .get(&(self.position + Vector3::new(1, 0, 0))),
+        );
+        map.insert(
+            Vector3::new(-1, 0, 0),
+            chunk_service
+                .chunks
+                .get(&(self.position + Vector3::new(-1, 0, 0))),
+        );
+        map.insert(
+            Vector3::new(0, 0, 1),
+            chunk_service
+                .chunks
+                .get(&(self.position + Vector3::new(0, 0, 1))),
+        );
+        map.insert(
+            Vector3::new(0, 0, -1),
+            chunk_service
+                .chunks
+                .get(&(self.position + Vector3::new(0, 0, -1))),
+        );
 
         let viewable = self.generate_viewable_map(map, settings.chunk_edge_faces);
 
@@ -51,7 +83,13 @@ impl Chunk {
                         let block = &self.blocks[chunk[x][y][z] as usize - 1];
 
                         //Found it, draw vertices for it
-                        draw_block(Point3::new(x as f32, y as f32, z as f32), ViewableDirection(viewable), &mut vertices, &mut indices, block);
+                        draw_block(
+                            Point3::new(x as f32, y as f32, z as f32),
+                            ViewableDirection(viewable),
+                            &mut vertices,
+                            &mut indices,
+                            block,
+                        );
                     }
                 }
             }
@@ -60,8 +98,7 @@ impl Chunk {
         ChunkMeshData {
             vertices,
             indices,
-            viewable: Some(viewable)
+            viewable: Some(viewable),
         }
     }
-
 }

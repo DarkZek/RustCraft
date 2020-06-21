@@ -1,24 +1,27 @@
 use crate::services::ui_service::UIService;
-use wgpu::{SwapChainOutput, CommandEncoder, Device};
 use crate::services::Services;
+use wgpu::{CommandEncoder, Device, SwapChainOutput};
 
 impl UIService {
-    pub fn render(frame: &SwapChainOutput, encoder: &mut CommandEncoder, device: &Device, services: &mut Services) {
+    pub fn render(
+        frame: &SwapChainOutput,
+        encoder: &mut CommandEncoder,
+        device: &Device,
+        services: &mut Services,
+    ) {
         let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-            color_attachments: &[
-                wgpu::RenderPassColorAttachmentDescriptor {
-                    attachment: &frame.view,
-                    resolve_target: None,
-                    load_op: wgpu::LoadOp::Load,
-                    store_op: wgpu::StoreOp::Store,
-                    clear_color: wgpu::Color {
-                        r: 1.0,
-                        g: 1.0,
-                        b: 1.0,
-                        a: 1.0,
-                    },
-                }
-            ],
+            color_attachments: &[wgpu::RenderPassColorAttachmentDescriptor {
+                attachment: &frame.view,
+                resolve_target: None,
+                load_op: wgpu::LoadOp::Load,
+                store_op: wgpu::StoreOp::Store,
+                clear_color: wgpu::Color {
+                    r: 1.0,
+                    g: 1.0,
+                    b: 1.0,
+                    a: 1.0,
+                },
+            }],
             depth_stencil_attachment: None,
         });
 

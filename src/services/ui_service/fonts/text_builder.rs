@@ -1,10 +1,10 @@
+use crate::services::ui_service::fonts::text::Text;
 use crate::services::ui_service::fonts::{FontsManager, TextView};
 use crate::services::ui_service::{ObjectAlignment, Positioning};
-use crate::services::ui_service::fonts::text::Text;
 
 pub struct TextBuilder<'a> {
     text: Option<Text>,
-    fonts: &'a mut FontsManager
+    fonts: &'a mut FontsManager,
 }
 
 impl<'a> TextBuilder<'a> {
@@ -22,9 +22,9 @@ impl<'a> TextBuilder<'a> {
                 background: true,
                 background_color: [0.3, 0.3, 0.3, 0.3],
                 positioning: Positioning::Relative,
-                absolute_position: [0.0, 0.0]
+                absolute_position: [0.0, 0.0],
             }),
-            fonts
+            fonts,
         }
     }
 
@@ -81,5 +81,4 @@ impl<'a> TextBuilder<'a> {
     pub fn build(mut self) -> TextView {
         self.fonts.add_text(self.text.take().unwrap())
     }
-
 }

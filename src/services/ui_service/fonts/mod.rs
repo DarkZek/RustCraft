@@ -1,15 +1,15 @@
-use crate::services::chunk_service::mesh::{UIVertex};
-use wgpu::{Buffer, Device};
 use crate::services::asset_service::atlas::TextureAtlasIndex;
 use crate::services::asset_service::AssetService;
-use crate::services::ui_service::fonts::variable_width::generate_variable_width_map;
-use crate::services::ui_service::fonts::text::{Text};
+use crate::services::chunk_service::mesh::UIVertex;
+use crate::services::ui_service::fonts::text::Text;
 use crate::services::ui_service::fonts::text_builder::TextBuilder;
+use crate::services::ui_service::fonts::variable_width::generate_variable_width_map;
+use wgpu::{Buffer, Device};
 use winit::dpi::PhysicalSize;
 
 pub mod text;
-pub mod variable_width;
 pub mod text_builder;
+pub mod variable_width;
 
 pub struct FontsManager {
     texts: Vec<Text>,
@@ -20,15 +20,15 @@ pub struct FontsManager {
     pub total_indices_buffer: Option<Buffer>,
     atlas_coords: FontAtlasIndexs,
     character_widths: [u8; 127],
-    size: PhysicalSize<u32>
+    size: PhysicalSize<u32>,
 }
 
 pub struct FontAtlasIndexs {
-    ascii: TextureAtlasIndex
+    ascii: TextureAtlasIndex,
 }
 
 pub struct TextView {
-    id: usize
+    id: usize,
 }
 
 // How many letters per row inside texture
@@ -37,8 +37,8 @@ pub const LETTER_SPACING: f32 = 0.2;
 
 impl FontsManager {
     pub fn new(assets: &AssetService, size: PhysicalSize<u32>) -> FontsManager {
-
-        let ascii_atlas_coords = assets.atlas_index
+        let ascii_atlas_coords = assets
+            .atlas_index
             .as_ref()
             .unwrap()
             .get("textures/font/ascii")
@@ -55,10 +55,10 @@ impl FontsManager {
             total_vertex_buffer: None,
             total_indices_buffer: None,
             atlas_coords: FontAtlasIndexs {
-                ascii: ascii_atlas_coords
+                ascii: ascii_atlas_coords,
             },
             character_widths,
-            size
+            size,
         }
     }
 
@@ -71,7 +71,7 @@ impl FontsManager {
         self.texts.push(text);
 
         TextView {
-            id: self.texts.len()
+            id: self.texts.len(),
         }
     }
 
@@ -84,7 +84,6 @@ impl FontsManager {
 
     // Totals the vertices if any of the text has changed
     pub fn total(&mut self, device: &Device) {
-
         if self.changed {
             self.changed = false;
 
@@ -100,17 +99,21 @@ impl FontsManager {
                 self.total_vertices.append(&mut text.vertices.clone());
             }
 
-            self.total_vertex_buffer = Some(device.create_buffer_mapped(self.total_vertices.len(), wgpu::BufferUsage::VERTEX)
-                .fill_from_slice(self.total_vertices.as_mut_slice()));
+            self.total_vertex_buffer = Some(
+                device
+                    .create_buffer_mapped(self.total_vertices.len(), wgpu::BufferUsage::VERTEX)
+                    .fill_from_slice(self.total_vertices.as_mut_slice()),
+            );
 
-            self.total_indices_buffer = Some(device.create_buffer_mapped(self.total_indices.len(), wgpu::BufferUsage::INDEX)
-                .fill_from_slice(self.total_indices.as_mut_slice()));
-
+            self.total_indices_buffer = Some(
+                device
+                    .create_buffer_mapped(self.total_indices.len(), wgpu::BufferUsage::INDEX)
+                    .fill_from_slice(self.total_indices.as_mut_slice()),
+            );
         }
     }
 
     pub fn resized(&mut self, size: &PhysicalSize<u32>, device: &Device) {
-
         self.size = size.clone();
 
         for text in self.texts.iter_mut() {

@@ -1,15 +1,12 @@
-use noise::{NoiseFn, Perlin, Seedable};
 use crate::block::Block;
-use crate::services::settings_service::{CHUNK_SIZE};
-use crate::services::chunk_service::chunk::{ChunkData};
+use crate::services::chunk_service::chunk::ChunkData;
+use crate::services::settings_service::CHUNK_SIZE;
 use nalgebra::Vector3;
+use noise::{NoiseFn, Perlin, Seedable};
 
-pub struct World {
-
-}
+pub struct World {}
 
 impl World {
-
     pub fn generate_chunk(chunk_pos: Vector3<i32>, blocks: &Vec<Block>) -> Option<ChunkData> {
         let scale = 1.0 / CHUNK_SIZE as f64;
         let mut chunk_nothing = true;
@@ -24,7 +21,10 @@ impl World {
             for z in 0..chunk[0][0].len() {
                 for y_offset in 0..CHUNK_SIZE {
                     let y = (chunk_pos.y * CHUNK_SIZE as i32) + y_offset as i32;
-                    let height_map = noise_map.get([(x as f64 * scale) + chunk_pos.x as f64, (z as f64 * scale) + chunk_pos.z as f64]);
+                    let height_map = noise_map.get([
+                        (x as f64 * scale) + chunk_pos.x as f64,
+                        (z as f64 * scale) + chunk_pos.z as f64,
+                    ]);
                     let height = (height_map * 20.0).round() as i32 + 50;
 
                     // Stone

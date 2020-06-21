@@ -2,9 +2,9 @@ use crate::block::Block;
 
 mod dirt;
 mod grass;
-mod stone;
 mod sand;
 mod sandstone;
+mod stone;
 
 pub fn get_blocks() -> Vec<Block> {
     let mut blocks = Vec::new();

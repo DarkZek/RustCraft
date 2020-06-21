@@ -2,20 +2,20 @@
 // Handles chunk loading, chunk unloading and chunk animations
 //
 
+use crate::block::Block;
+use crate::render::camera::Camera;
+use crate::services::chunk_service::chunk::{Chunk, ChunkData};
+use crate::services::chunk_service::frustum_culling::calculate_frustum_culling;
 use crate::services::settings_service::{SettingsService, CHUNK_SIZE};
 use crate::services::ServicesContext;
-use wgpu::{BindGroupLayout, Device};
 use crate::world::generator::World;
-use crate::services::chunk_service::chunk::{Chunk, ChunkData};
-use crate::block::Block;
-use std::collections::HashMap;
-use crate::services::chunk_service::frustum_culling::calculate_frustum_culling;
-use crate::render::camera::Camera;
 use nalgebra::Vector3;
+use std::collections::HashMap;
+use wgpu::{BindGroupLayout, Device};
 
-pub mod mesh;
 pub mod chunk;
 pub mod frustum_culling;
+pub mod mesh;
 
 pub struct ChunkService {
     pub bind_group_layout: BindGroupLayout,
@@ -23,27 +23,23 @@ pub struct ChunkService {
     pub viewable_chunks: Vec<Vector3<i32>>,
     pub visible_chunks: Vec<Vector3<i32>>,
     pub vertices_count: u64,
-    pub chunk_keys: Vec<Vector3<i32>>
+    pub chunk_keys: Vec<Vector3<i32>>,
 }
 
 impl ChunkService {
-
     pub fn new(settings: &SettingsService, context: &mut ServicesContext) -> ChunkService {
-
         let bind_group_layout_descriptor = wgpu::BindGroupLayoutDescriptor {
-            bindings: &[
-                wgpu::BindGroupLayoutBinding {
-                    binding: 0,
-                    visibility: wgpu::ShaderStage::VERTEX,
-                    ty: wgpu::BindingType::UniformBuffer {
-                        dynamic: true
-                    },
-                }
-            ]
+            bindings: &[wgpu::BindGroupLayoutBinding {
+                binding: 0,
+                visibility: wgpu::ShaderStage::VERTEX,
+                ty: wgpu::BindingType::UniformBuffer { dynamic: true },
+            }],
         };
 
         // Create the chunk bind group layout
-        let bind_group_layout = context.device.create_bind_group_layout(&bind_group_layout_descriptor);
+        let bind_group_layout = context
+            .device
+            .create_bind_group_layout(&bind_group_layout_descriptor);
 
         let mut service = ChunkService {
             bind_group_layout,
@@ -51,7 +47,7 @@ impl ChunkService {
             viewable_chunks: vec![],
             visible_chunks: vec![],
             vertices_count: 0,
-            chunk_keys: Vec::new()
+            chunk_keys: Vec::new(),
         };
 
         //TODO: Remove this once we have networking
@@ -59,20 +55,16 @@ impl ChunkService {
             for z in -(settings.render_distance as i32)..(settings.render_distance as i32) {
                 for y in 0..16 {
                     let data = ChunkService::generate_chunk(x, y, z, context.blocks);
-                    service.load_chunk(context.device, data, Vector3::new( x, y, z ), &settings);
+                    service.load_chunk(context.device, data, Vector3::new(x, y, z), &settings);
                 }
             }
         }
 
         for i in 0..service.chunks.len() {
-            let chunk_key = service.chunk_keys
-                .get(i)
-                .unwrap();
+            let chunk_key = service.chunk_keys.get(i).unwrap();
 
             let mesh_data = {
-                let chunk = service.chunks
-                    .get(chunk_key)
-                    .unwrap();
+                let chunk = service.chunks.get(chunk_key).unwrap();
 
                 chunk.generate_mesh(&service, settings)
             };
@@ -80,9 +72,7 @@ impl ChunkService {
             // Add new vertices to count
             service.vertices_count += mesh_data.vertices.len() as u64;
 
-            let chunk = service.chunks
-                .get_mut(chunk_key)
-                .unwrap();
+            let chunk = service.chunks.get_mut(chunk_key).unwrap();
 
             chunk.update_mesh(mesh_data);
             chunk.create_buffers(&context.device, &service.bind_group_layout);
@@ -99,7 +89,13 @@ impl ChunkService {
         return World::generate_chunk(Vector3::new(x, y, z), blocks);
     }
 
-    pub fn load_chunk(&mut self, device: &Device, data: Option<ChunkData>, chunk_coords: Vector3<i32>, settings: &SettingsService) {
+    pub fn load_chunk(
+        &mut self,
+        device: &Device,
+        data: Option<ChunkData>,
+        chunk_coords: Vector3<i32>,
+        settings: &SettingsService,
+    ) {
         let mut chunk = if data.is_some() {
             Chunk::new(data.unwrap(), chunk_coords)
         } else {
@@ -119,6 +115,7 @@ impl ChunkService {
     }
 
     pub fn update_frustum_culling(&mut self, camera: &Camera) {
-        self.visible_chunks = calculate_frustum_culling(camera, &self.viewable_chunks, &self.chunks);
+        self.visible_chunks =
+            calculate_frustum_culling(camera, &self.viewable_chunks, &self.chunks);
     }
 }
