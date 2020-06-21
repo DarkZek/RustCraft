@@ -13,11 +13,11 @@ impl RenderState {
         let mut swapchain = self.swap_chain.take().unwrap();
         let mut services = self.services.take().unwrap();
 
-        let frame = swapchain.get_next_texture();
+        let frame = swapchain.get_next_texture().unwrap();
 
         let mut encoder = self
             .device
-            .create_command_encoder(&wgpu::CommandEncoderDescriptor { todo: 0 });
+            .create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
 
         {
             {
@@ -63,8 +63,8 @@ impl RenderState {
                     let model_bind_group = chunk.model_bind_group.as_ref().unwrap();
 
                     render_pass.set_bind_group(2, model_bind_group, &[0]);
-                    render_pass.set_vertex_buffers(0, &[(vertices_buffer, 0)]);
-                    render_pass.set_index_buffer(indices_buffer, 0);
+                    render_pass.set_vertex_buffer(0, &vertices_buffer, 0, 0);
+                    render_pass.set_index_buffer(indices_buffer, 0, 0);
                     render_pass.draw_indexed(0..chunk.indices_buffer_len, 0, 0..1);
                 }
             }

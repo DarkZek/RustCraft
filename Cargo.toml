@@ -14,7 +14,7 @@ debug = true
 overflow-checks = true
 
 [dependencies]
-wgpu = "0.4.0"
+wgpu = "0.5.0"
 winit = "0.21.0"
 nalgebra = "0.21.0"
 noise = "0.6.0"
@@ -29,3 +29,5 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 log = "0.4"
 env_logger = "0.7"
+bytemuck = "1.2.0"
+futures = { version = "0.3", features = ["compat"] }

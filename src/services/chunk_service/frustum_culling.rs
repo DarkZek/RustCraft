@@ -44,7 +44,9 @@ pub fn calculate_frustum_culling(
          */
 
         if is_visible(relative_pos, 20.0, &faces) || true {
-            loaded_chunks.push(pos.clone());
+            if chunk.vertices_buffer.is_some() && chunk.indices_buffer.is_some() {
+                loaded_chunks.push(pos.clone());
+            }
         }
     }
 

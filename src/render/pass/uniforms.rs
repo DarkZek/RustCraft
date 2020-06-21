@@ -9,6 +9,9 @@ pub struct Uniforms {
     pub view_proj: [[f32; 4]; 4],
 }
 
+unsafe impl bytemuck::Zeroable for Uniforms {}
+unsafe impl bytemuck::Pod for Uniforms {}
+
 impl Uniforms {
     pub fn new() -> Self {
         Self {
@@ -22,21 +25,18 @@ impl Uniforms {
 
     pub fn create_uniform_buffers(self, device: &Device) -> (Buffer, BindGroupLayout, BindGroup) {
         let uniform_buffer = device
-            .create_buffer_mapped(
-                1,
-                wgpu::BufferUsage::UNIFORM
-                    | wgpu::BufferUsage::COPY_DST
-                    | wgpu::BufferUsage::COPY_SRC,
-            )
-            .fill_from_slice(&[self]);
+            .create_buffer_with_data(bytemuck::cast_slice(&self.view_proj), wgpu::BufferUsage::UNIFORM
+                | wgpu::BufferUsage::COPY_DST
+                | wgpu::BufferUsage::COPY_SRC);
 
         let uniform_bind_group_layout =
             device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-                bindings: &[wgpu::BindGroupLayoutBinding {
+                bindings: &[wgpu::BindGroupLayoutEntry {
                     binding: 0,
                     visibility: wgpu::ShaderStage::VERTEX,
                     ty: wgpu::BindingType::UniformBuffer { dynamic: false },
                 }],
+                label: None
             });
 
         let uniform_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
@@ -48,6 +48,7 @@ impl Uniforms {
                     range: 0..std::mem::size_of_val(&self) as wgpu::BufferAddress,
                 },
             }],
+            label: None
         });
 
         (

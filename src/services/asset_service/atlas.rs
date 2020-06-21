@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::io::{Read, Write};
 use std::time::SystemTime;
-use wgpu::{Device, Queue, Sampler, Texture};
+use wgpu::{Device, Queue, Sampler, Texture, BufferUsage, CompareFunction};
 
 pub type TextureAtlasIndex = ([f32; 2], [f32; 2]);
 
@@ -32,6 +32,7 @@ impl AssetService {
 
         //Create buffer
         let diffuse_texture = device.create_texture(&wgpu::TextureDescriptor {
+            label: None,
             size: wgpu::Extent3d {
                 width: ATLAS_WIDTH,
                 height: ATLAS_HEIGHT,
@@ -242,20 +243,19 @@ impl AssetService {
             depth: 1,
         };
 
-        let diffuse_buffer = device
-            .create_buffer_mapped(diffuse_rgba.len(), wgpu::BufferUsage::COPY_SRC)
-            .fill_from_slice(&diffuse_rgba);
+        let diffuse_buffer =
+            device.create_buffer_with_data(&diffuse_rgba, BufferUsage::COPY_SRC);
 
         let mut encoder =
-            device.create_command_encoder(&wgpu::CommandEncoderDescriptor { todo: 0 });
+            device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
 
         // Add it to buffer
         encoder.copy_buffer_to_texture(
             wgpu::BufferCopyView {
                 buffer: &diffuse_buffer,
                 offset: 0,
-                row_pitch: 4 * size.width,
-                image_height: size.height,
+                bytes_per_row: 4 * size.width,
+                rows_per_image: size.height
             },
             wgpu::TextureCopyView {
                 texture: &diffuse_texture,
@@ -277,7 +277,7 @@ impl AssetService {
             mipmap_filter: wgpu::FilterMode::Nearest,
             lod_min_clamp: -100.0,
             lod_max_clamp: 100.0,
-            compare_function: wgpu::CompareFunction::Always,
+            compare: CompareFunction::Always
         };
 
         let diffuse_sampler = device.create_sampler(&diffuse_sampler_descriptor);

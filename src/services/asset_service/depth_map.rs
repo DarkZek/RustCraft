@@ -1,4 +1,4 @@
-use wgpu::{Sampler, Texture, TextureView};
+use wgpu::{Sampler, Texture, TextureView, Extent3d, TextureDimension};
 
 pub const DEPTH_FORMAT: wgpu::TextureFormat = wgpu::TextureFormat::Depth32Float;
 
@@ -15,13 +15,22 @@ pub fn create_depth_texture(
         mipmap_filter: wgpu::FilterMode::Nearest,
         lod_min_clamp: -100.0,
         lod_max_clamp: 100.0,
-        compare_function: wgpu::CompareFunction::Always,
+        compare: wgpu::CompareFunction::Always,
     };
 
     let texture_descriptor = wgpu::TextureDescriptor {
+        label: None,
+        size: Extent3d {
+            width: sc_desc.width,
+            height: sc_desc.height,
+            depth: 1
+        },
+        array_layer_count: 1,
+        mip_level_count: 1,
+        sample_count: 1,
+        dimension: TextureDimension::D2,
         format: DEPTH_FORMAT,
         usage: wgpu::TextureUsage::OUTPUT_ATTACHMENT,
-        ..sc_desc.to_texture_desc()
     };
 
     let texture = device.create_texture(&texture_descriptor);

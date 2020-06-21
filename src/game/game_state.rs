@@ -18,7 +18,7 @@ impl GameState {
     pub fn frame(&mut self, render: &mut RenderState, events: &GameChanges, _delta_time: f64) {
         let mut encoder = render
             .device
-            .create_command_encoder(&wgpu::CommandEncoderDescriptor { todo: 0 });
+            .create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
 
         if events.look != [0.0, 0.0] {
             // They changed look
@@ -67,13 +67,9 @@ impl GameState {
 
         let uniform_buffer = render
             .device
-            .create_buffer_mapped(
-                1,
-                wgpu::BufferUsage::UNIFORM
-                    | wgpu::BufferUsage::COPY_DST
-                    | wgpu::BufferUsage::COPY_SRC,
-            )
-            .fill_from_slice(&[render.uniforms]);
+            .create_buffer_with_data(bytemuck::cast_slice(&render.uniforms.view_proj), wgpu::BufferUsage::UNIFORM
+                | wgpu::BufferUsage::COPY_DST
+                | wgpu::BufferUsage::COPY_SRC);
 
         encoder.copy_buffer_to_buffer(
             &uniform_buffer,

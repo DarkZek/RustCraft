@@ -1,5 +1,5 @@
 use crate::services::asset_service::AssetService;
-use wgpu::{BindGroup, BindGroupLayout, Device, Sampler, Texture};
+use wgpu::{BindGroup, BindGroupLayout, Device, Sampler, Texture, TextureComponentType};
 
 impl AssetService {
 
@@ -14,20 +14,22 @@ impl AssetService {
         let texture_bind_group_layout =
             device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
                 bindings: &[
-                    wgpu::BindGroupLayoutBinding {
+                    wgpu::BindGroupLayoutEntry {
                         binding: 0,
                         visibility: wgpu::ShaderStage::FRAGMENT,
                         ty: wgpu::BindingType::SampledTexture {
                             multisampled: false,
                             dimension: wgpu::TextureViewDimension::D2Array,
+                            component_type: TextureComponentType::Float
                         },
                     },
-                    wgpu::BindGroupLayoutBinding {
+                    wgpu::BindGroupLayoutEntry {
                         binding: 1,
                         visibility: wgpu::ShaderStage::FRAGMENT,
-                        ty: wgpu::BindingType::Sampler,
+                        ty: wgpu::BindingType::Sampler { comparison: false },
                     },
                 ],
+                label: None
             });
 
         let texture_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
@@ -42,6 +44,7 @@ impl AssetService {
                     resource: wgpu::BindingResource::Sampler(diffuse_sampler),
                 },
             ],
+            label: None
         });
 
         (texture_bind_group_layout, texture_bind_group)

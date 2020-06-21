@@ -1,4 +1,4 @@
-use nalgebra::Vector3;
+use nalgebra::{Vector3};
 
 pub mod block;
 pub mod chunk;
@@ -16,12 +16,29 @@ pub struct Vertex {
     pub normals: [f32; 3],
 }
 
+unsafe impl bytemuck::Zeroable for Vertex {}
+unsafe impl bytemuck::Pod for Vertex {}
+
 #[repr(C)]
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct UIVertex {
     pub position: [f32; 2],
     pub tex_coords: [f32; 2],
     pub color: [f32; 4],
+}
+
+unsafe impl bytemuck::Zeroable for UIVertex {}
+unsafe impl bytemuck::Pod for UIVertex {}
+
+pub struct WGPU4x4Matrix {
+    pub x: [f32; 4],
+    pub y: [f32; 4],
+    pub z: [f32; 4],
+    pub w: [f32; 4],
+}
+
+impl WGPU4x4Matrix {
+
 }
 
 pub enum ViewableDirectionBitMap {

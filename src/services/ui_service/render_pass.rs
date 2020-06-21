@@ -37,8 +37,8 @@ impl UIService {
         let indices_len = services.ui.fonts.total_indices.len() as u32;
         let indices = services.ui.fonts.total_indices_buffer.as_ref().unwrap();
 
-        render_pass.set_vertex_buffers(0, &[(vertices, 0)]);
-        render_pass.set_index_buffer(indices, 0);
+        render_pass.set_vertex_buffer(0, &vertices, 0, 0);
+        render_pass.set_index_buffer(indices, 0, 0);
         render_pass.draw_indexed(0..indices_len, 0, 0..1);
     }
 }

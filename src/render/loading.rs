@@ -1,4 +1,4 @@
-use wgpu::{Device, Queue, RenderPipeline, ShaderModule, SwapChain};
+use wgpu::{Device, Queue, RenderPipeline, ShaderModule, SwapChain, BufferUsage, VertexStateDescriptor};
 use winit::dpi::PhysicalSize;
 
 ///
@@ -35,7 +35,7 @@ impl LoadingScreen {
         let bottom_right = LoadingVertices { position: [x, 0.7] };
 
         // Create loading
-        let mut vertices = vec![
+        let vertices = vec![
             top_left,
             bottom_right,
             bottom_left,
@@ -44,14 +44,12 @@ impl LoadingScreen {
             bottom_right,
         ];
 
-        let vertices_buffer = device
-            .create_buffer_mapped(vertices.len(), wgpu::BufferUsage::VERTEX)
-            .fill_from_slice(vertices.as_mut_slice());
+        let vertices_buffer = device.create_buffer_with_data(bytemuck::cast_slice(vertices.as_slice()), BufferUsage::VERTEX);
 
-        let frame = swapchain.get_next_texture();
+        let frame = swapchain.get_next_texture().unwrap();
 
         let mut encoder =
-            device.create_command_encoder(&wgpu::CommandEncoderDescriptor { todo: 0 });
+            device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
 
         {
             let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
@@ -71,7 +69,7 @@ impl LoadingScreen {
             });
 
             render_pass.set_pipeline(&self.pipeline);
-            render_pass.set_vertex_buffers(0, &[(&vertices_buffer, 0)]);
+            render_pass.set_vertex_buffer(0, &vertices_buffer, 0, 0);
             render_pass.draw(0..vertices.len() as u32, 0..1)
         }
 
@@ -87,7 +85,7 @@ impl LoadingScreen {
             format: wgpu::TextureFormat::Bgra8UnormSrgb,
             width: size.width,
             height: size.height,
-            present_mode: wgpu::PresentMode::Vsync,
+            present_mode: wgpu::PresentMode::Fifo,
         };
 
         let render_pipeline_layout =
@@ -98,8 +96,6 @@ impl LoadingScreen {
         let (vs_module, fs_module) = load_shaders(&device);
 
         device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-            index_format: wgpu::IndexFormat::Uint16,
-            vertex_buffers: &[LoadingVertices::desc()],
             layout: &render_pipeline_layout,
             vertex_stage: wgpu::ProgrammableStageDescriptor {
                 module: &vs_module,
@@ -124,6 +120,10 @@ impl LoadingScreen {
             }],
             primitive_topology: wgpu::PrimitiveTopology::TriangleList,
             depth_stencil_state: None,
+            vertex_state: VertexStateDescriptor {
+                index_format: wgpu::IndexFormat::Uint16,
+                vertex_buffers: &[LoadingVertices::desc()],
+            },
             sample_count: 1,
             sample_mask: !0,
             alpha_to_coverage_enabled: false,
@@ -171,6 +171,9 @@ pub fn load_shaders(device: &Device) -> (ShaderModule, ShaderModule) {
 pub struct LoadingVertices {
     pub position: [f32; 2],
 }
+
+unsafe impl bytemuck::Zeroable for LoadingVertices {}
+unsafe impl bytemuck::Pod for LoadingVertices {}
 
 impl LoadingVertices {
     pub fn desc<'a>() -> wgpu::VertexBufferDescriptor<'a> {

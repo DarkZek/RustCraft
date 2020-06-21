@@ -105,15 +105,11 @@ impl FontsManager {
             }
 
             self.total_vertex_buffer = Some(
-                device
-                    .create_buffer_mapped(self.total_vertices.len(), wgpu::BufferUsage::VERTEX)
-                    .fill_from_slice(self.total_vertices.as_mut_slice()),
+                device.create_buffer_with_data(bytemuck::cast_slice(&self.total_vertices), wgpu::BufferUsage::VERTEX)
             );
 
             self.total_indices_buffer = Some(
-                device
-                    .create_buffer_mapped(self.total_indices.len(), wgpu::BufferUsage::INDEX)
-                    .fill_from_slice(self.total_indices.as_mut_slice()),
+                device.create_buffer_with_data(bytemuck::cast_slice(&self.total_indices), wgpu::BufferUsage::INDEX)
             );
         }
     }

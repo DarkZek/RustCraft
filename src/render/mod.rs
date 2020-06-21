@@ -8,10 +8,7 @@ use crate::services::chunk_service::mesh::Vertex;
 use crate::services::{Services, ServicesContext};
 use std::time::Instant;
 use systemstat::{Platform, System};
-use wgpu::{
-    AdapterInfo, BindGroupLayout, Device, RenderPipeline, Sampler, SwapChainDescriptor, Texture,
-    TextureView,
-};
+use wgpu::{AdapterInfo, BindGroupLayout, Device, RenderPipeline, Sampler, SwapChainDescriptor, Texture, TextureView, VertexStateDescriptor};
 use winit::window::Window;
 
 pub mod camera;
@@ -63,7 +60,7 @@ impl RenderState {
             format: wgpu::TextureFormat::Bgra8UnormSrgb,
             width: size.width,
             height: size.height,
-            present_mode: wgpu::PresentMode::Vsync,
+            present_mode: wgpu::PresentMode::Fifo,
         };
 
         let mut swap_chain = device.create_swap_chain(&surface, &sc_desc);
@@ -159,8 +156,6 @@ fn generate_render_pipeline(
         device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor { bind_group_layouts });
 
     device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-        index_format: wgpu::IndexFormat::Uint16,
-        vertex_buffers: &[Vertex::desc()],
         layout: &render_pipeline_layout,
         vertex_stage: wgpu::ProgrammableStageDescriptor {
             module: &vs_module,
@@ -197,6 +192,10 @@ fn generate_render_pipeline(
             stencil_read_mask: 0,
             stencil_write_mask: 0,
         }),
+        vertex_state: VertexStateDescriptor {
+            index_format: wgpu::IndexFormat::Uint16,
+            vertex_buffers: &[Vertex::desc()],
+        },
         sample_count: 1,
         sample_mask: !0,
         alpha_to_coverage_enabled: false,

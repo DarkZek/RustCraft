@@ -26,24 +26,21 @@ impl UIService {
         );
 
         let matrix_binding_layout_descriptor = wgpu::BindGroupLayoutDescriptor {
-            bindings: &[wgpu::BindGroupLayoutBinding {
+            bindings: &[wgpu::BindGroupLayoutEntry {
                 binding: 0,
                 visibility: wgpu::ShaderStage::VERTEX,
                 ty: wgpu::BindingType::UniformBuffer { dynamic: false },
             }],
+            label: None
         };
 
         let matrix: Matrix4<f32> = projection.into();
 
         let matrix_buffer = context
             .device
-            .create_buffer_mapped(
-                1,
-                wgpu::BufferUsage::UNIFORM
-                    | wgpu::BufferUsage::COPY_DST
-                    | wgpu::BufferUsage::COPY_SRC,
-            )
-            .fill_from_slice(&[matrix]);
+            .create_buffer_with_data(bytemuck::cast_slice(matrix.as_slice()), wgpu::BufferUsage::UNIFORM
+                | wgpu::BufferUsage::COPY_DST
+                | wgpu::BufferUsage::COPY_SRC);
 
         let matrix_bind_group_layout = context
             .device
@@ -58,6 +55,7 @@ impl UIService {
                     range: 0..std::mem::size_of_val(&matrix) as wgpu::BufferAddress,
                 },
             }],
+            label: None
         };
 
         let matrix_bind_group = context
@@ -82,7 +80,10 @@ impl UIService {
         );
 
         let opengl_to_wgpu_matrix: Matrix4<f32> = Matrix4::new(
-            1.0, 0.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5, 1.0,
+            1.0, 0.0, 0.0, 0.0,
+            0.0, 1.0, 0.0, 0.0,
+            0.0, 0.0, 0.5, 0.0,
+            0.0, 0.0, 0.5, 1.0,
         );
 
         let mut matrix: Matrix4<f32> = projection.into();
@@ -90,17 +91,13 @@ impl UIService {
         matrix = matrix * opengl_to_wgpu_matrix;
         let mut encoder = render
             .device
-            .create_command_encoder(&wgpu::CommandEncoderDescriptor { todo: 0 });
+            .create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
 
         let matrix_buffer = render
             .device
-            .create_buffer_mapped(
-                1,
-                wgpu::BufferUsage::UNIFORM
-                    | wgpu::BufferUsage::COPY_DST
-                    | wgpu::BufferUsage::COPY_SRC,
-            )
-            .fill_from_slice(&[matrix]);
+            .create_buffer_with_data(bytemuck::cast_slice(matrix.as_slice()), wgpu::BufferUsage::UNIFORM
+                | wgpu::BufferUsage::COPY_DST
+                | wgpu::BufferUsage::COPY_SRC);
 
         self.fonts.resized(&size, &render.device);
 

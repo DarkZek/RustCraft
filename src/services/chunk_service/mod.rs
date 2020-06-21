@@ -29,11 +29,12 @@ pub struct ChunkService {
 impl ChunkService {
     pub fn new(settings: &SettingsService, context: &mut ServicesContext) -> ChunkService {
         let bind_group_layout_descriptor = wgpu::BindGroupLayoutDescriptor {
-            bindings: &[wgpu::BindGroupLayoutBinding {
+            bindings: &[wgpu::BindGroupLayoutEntry {
                 binding: 0,
                 visibility: wgpu::ShaderStage::VERTEX,
                 ty: wgpu::BindingType::UniformBuffer { dynamic: true },
             }],
+            label: None
         };
 
         // Create the chunk bind group layout
@@ -77,9 +78,6 @@ impl ChunkService {
             chunk.update_mesh(mesh_data);
             chunk.create_buffers(&context.device, &service.bind_group_layout);
         }
-
-        // Set all chunks to visible so that we dont get a blank screen before we wiggle the mouse
-        service.visible_chunks = service.viewable_chunks.clone();
 
         service
     }

@@ -1,7 +1,8 @@
 use crate::render::RenderState;
-use wgpu::{AdapterInfo, Device, Queue, Surface};
+use wgpu::{AdapterInfo, Device, Queue, Surface, BackendBit, Adapter};
 use winit::dpi::PhysicalSize;
 use winit::window::Window;
+use futures::executor::block_on;
 
 impl RenderState {
 
@@ -11,22 +12,21 @@ impl RenderState {
     ) -> (PhysicalSize<u32>, Surface, AdapterInfo, Device, Queue) {
         let size = window.inner_size();
 
-        let surface = wgpu::Surface::create(window);
+        let surface = Surface::create(window);
 
-        let adapter = wgpu::Adapter::request(&wgpu::RequestAdapterOptions {
+        let adapter = block_on(Adapter::request(&wgpu::RequestAdapterOptions {
             power_preference: wgpu::PowerPreference::HighPerformance,
-            backends: wgpu::BackendBit::all(),
-        })
-        .unwrap();
+            compatible_surface: None
+        }, BackendBit::BROWSER_WEBGPU | BackendBit::VULKAN)).unwrap();
 
         let gpu_info = adapter.get_info();
 
-        let (device, queue) = adapter.request_device(&wgpu::DeviceDescriptor {
+        let (device, queue) = block_on(adapter.request_device(&wgpu::DeviceDescriptor {
             extensions: wgpu::Extensions {
                 anisotropic_filtering: true,
             },
             limits: Default::default(),
-        });
+        }));
 
         (size, surface, gpu_info, device, queue)
     }

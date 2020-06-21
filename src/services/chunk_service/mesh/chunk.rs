@@ -17,20 +17,18 @@ impl<'a> Chunk {
     pub fn create_buffers(&mut self, device: &Device, bind_group_layout: &BindGroupLayout) {
         let vertices = self.vertices.as_ref().unwrap();
 
-        let vertex_buffer = device
-            .create_buffer_mapped(vertices.len(), wgpu::BufferUsage::VERTEX)
-            .fill_from_slice(vertices.as_slice());
-
-        self.vertices_buffer = Some(vertex_buffer);
+        if vertices.len() != 0 {
+            let vertex_buffer = device.create_buffer_with_data(bytemuck::cast_slice(&vertices), wgpu::BufferUsage::VERTEX);
+            self.vertices_buffer = Some(vertex_buffer);
+        }
 
         let indices = self.indices.take().unwrap();
         self.indices_buffer_len = indices.len() as u32;
 
-        let indices_buffer = device
-            .create_buffer_mapped(indices.len(), wgpu::BufferUsage::INDEX)
-            .fill_from_slice(indices.as_slice());
-
-        self.indices_buffer = Some(indices_buffer);
+        if self.indices_buffer_len != 0 {
+            let indices_buffer = device.create_buffer_with_data(bytemuck::cast_slice(&indices), wgpu::BufferUsage::INDEX);
+            self.indices_buffer = Some(indices_buffer);
+        }
 
         // Create model buffer
         let model: [[f32; 4]; 4] = Matrix4::new_translation(&Vector3::new(
@@ -40,14 +38,9 @@ impl<'a> Chunk {
         ))
         .into();
 
-        let model_buffer = device
-            .create_buffer_mapped(
-                1,
-                wgpu::BufferUsage::UNIFORM
-                    | wgpu::BufferUsage::COPY_DST
-                    | wgpu::BufferUsage::COPY_SRC,
-            )
-            .fill_from_slice(&[(model)]);
+        let model_buffer = device.create_buffer_with_data(bytemuck::cast_slice(&[model]), wgpu::BufferUsage::UNIFORM
+            | wgpu::BufferUsage::COPY_DST
+            | wgpu::BufferUsage::COPY_SRC);
 
         let model_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
             layout: &bind_group_layout,
@@ -58,6 +51,7 @@ impl<'a> Chunk {
                     range: 0..std::mem::size_of::<[[f32; 4]; 4]>() as wgpu::BufferAddress,
                 },
             }],
+            label: None
         });
 
         self.model_bind_group = Some(model_bind_group);

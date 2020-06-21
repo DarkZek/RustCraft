@@ -1,5 +1,5 @@
 use crate::services::chunk_service::mesh::UIVertex;
-use wgpu::{BindGroupLayout, BlendFactor, BlendOperation, Device, RenderPipeline, ShaderModule};
+use wgpu::{BindGroupLayout, BlendFactor, BlendOperation, Device, RenderPipeline, ShaderModule, VertexStateDescriptor};
 
 /// Creates the user inferace render pipeline. This includes things like loading shaders.
 /// This happens because we have one render pass for the chunks, and a seperate for user interfaces. This lets us use 2d vertices for UI as well as have more control over depth and perspective.
@@ -13,8 +13,6 @@ pub fn generate_render_pipeline(
         device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor { bind_group_layouts });
 
     device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-        index_format: wgpu::IndexFormat::Uint16,
-        vertex_buffers: &[UIVertex::desc()],
         layout: &render_pipeline_layout,
         vertex_stage: wgpu::ProgrammableStageDescriptor {
             module: &vs_module,
@@ -47,6 +45,10 @@ pub fn generate_render_pipeline(
         }],
         primitive_topology: wgpu::PrimitiveTopology::TriangleList,
         depth_stencil_state: None,
+        vertex_state: VertexStateDescriptor {
+            index_format: wgpu::IndexFormat::Uint16,
+            vertex_buffers: &[UIVertex::desc()]
+        },
         sample_count: 1,
         sample_mask: !0,
         alpha_to_coverage_enabled: false,
