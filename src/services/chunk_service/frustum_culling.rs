@@ -1,38 +1,37 @@
-use cgmath::{Vector3, Quaternion, InnerSpace, Euler, Rad, Rotation3};
 use crate::render::camera::Camera;
 use crate::services::chunk_service::chunk::Chunk;
 use crate::services::settings_service::CHUNK_SIZE;
 use std::collections::HashMap;
-use std::f32::consts::PI;
+use nalgebra::Vector3;
 
 pub fn calculate_frustum_culling(cam: &Camera, viewable_chunks: &Vec<Vector3<i32>>, chunks: &HashMap<Vector3<i32>, Chunk>) -> Vec<Vector3<i32>> {
 
     // (Normal, d)
     let mut faces: [(Vector3<f32>, f32); 3] = [
-        (Vector3 {
-            x: 1.0,
-            y: 0.0,
-            z: -1.0
-        }, 8.0),
-        (Vector3 {
-            x: 1.0,
-            y: 0.0,
-            z: 1.0
-        }, 8.0),
-        (Vector3 {
-            x: 1.0,
-            y: -1.0,
-            z: 0.0
-        }, 8.0)
+        (Vector3::new(
+            1.0,
+            0.0,
+            -1.0
+        ), 8.0),
+        (Vector3::new(
+            1.0,
+            0.0,
+            1.0
+        ), 8.0),
+        (Vector3::new(
+            1.0,
+            -1.0,
+            0.0
+        ), 8.0)
     ];
 
     //let view: Quaternion<f32> = Quaternion::from(Euler::new(((cam.yaw - PI / 2.0).cos() * cam.pitch.cos()), 0.0, -(cam.yaw - PI / 2.0).sin() * -cam.pitch.cos()).into());
 
     //cam.pitch.sin() as f32,
 
-    // for (normal, distance) in faces.iter_mut() {
-    //     *normal = &view * &normal.clone();
-    // }
+    // for (nomal, distance) in faces.iter_mut() {
+    //     //     *normal = &view * &normal.clone();
+    //     // }r
 
     let mut loaded_chunks = Vec::new();
 
@@ -40,12 +39,12 @@ pub fn calculate_frustum_culling(cam: &Camera, viewable_chunks: &Vec<Vector3<i32
 
         let chunk = chunks.get(pos).unwrap();
 
-        let relative_pos = (chunk.position * CHUNK_SIZE as i32);
-        let mut relative_pos = Vector3 {
-            x: relative_pos.x as f32,
-            y: relative_pos.y as f32,
-            z: relative_pos.z as f32
-        };
+        let relative_pos = chunk.position * CHUNK_SIZE as i32;
+        let mut relative_pos = Vector3::new(
+            relative_pos.x as f32,
+            relative_pos.y as f32,
+            relative_pos.z as f32
+        );
         /*
         let mut relative_pos = Vector3 {
             x: relative_pos.x as f32 - cam.eye.x,
@@ -54,7 +53,7 @@ pub fn calculate_frustum_culling(cam: &Camera, viewable_chunks: &Vec<Vector3<i32
         };
          */
 
-        if is_visible(relative_pos, 20.0, &faces) {
+        if is_visible(relative_pos, 20.0, &faces) || true {
             loaded_chunks.push(pos.clone());
         }
     }

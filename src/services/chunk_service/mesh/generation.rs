@@ -1,11 +1,11 @@
 use crate::services::chunk_service::chunk::Chunk;
 use crate::services::chunk_service::mesh::culling::{ViewableDirection};
 use crate::services::chunk_service::mesh::block::{draw_block};
-use cgmath::{Point3, Vector3};
 use crate::services::chunk_service::ChunkService;
 use std::collections::HashMap;
 use crate::services::chunk_service::mesh::chunk::ChunkMeshData;
 use crate::services::settings_service::SettingsService;
+use nalgebra::{Vector3, Point3};
 
 //
 // Our greedy meshing system
@@ -26,12 +26,12 @@ impl Chunk {
 
         // Get adjacent chunks
         let mut map = HashMap::new();
-        map.insert(Vector3 { x: 0, y: 1, z: 0 }, chunk_service.chunks.get(&(self.position + Vector3 {x: 0, y: 1, z: 0})));
-        map.insert(Vector3 { x: 0, y: -1, z: 0 }, chunk_service.chunks.get(&(self.position + Vector3{x: 0, y: -1, z: 0})));
-        map.insert(Vector3 { x: 1, y: 0, z: 0 }, chunk_service.chunks.get(&(self.position + Vector3 {x: 1, y: 0, z: 0})));
-        map.insert(Vector3 { x: -1, y: 0, z: 0 }, chunk_service.chunks.get(&(self.position + Vector3{x: -1, y: 0, z: 0})));
-        map.insert(Vector3 { x: 0, y: 0, z: 1 }, chunk_service.chunks.get(&(self.position + Vector3 {x: 0, y: 0, z: 1})));
-        map.insert(Vector3 { x: 0, y: 0, z: -1 }, chunk_service.chunks.get(&(self.position + Vector3{x: 0, y: 0, z: -1})));
+        map.insert(Vector3::new(0, 1, 0), chunk_service.chunks.get(&(self.position + Vector3::new (0, 1, 0))));
+        map.insert(Vector3::new(0, -1, 0), chunk_service.chunks.get(&(self.position + Vector3::new(0, -1, 0))));
+        map.insert(Vector3::new(1, 0, 0), chunk_service.chunks.get(&(self.position + Vector3::new (1, 0, 0))));
+        map.insert(Vector3::new(-1, 0, 0), chunk_service.chunks.get(&(self.position + Vector3::new(-1, 0, 0))));
+        map.insert(Vector3::new(0, 0, 1), chunk_service.chunks.get(&(self.position + Vector3::new (0, 0, 1))));
+        map.insert(Vector3::new(0, 0, -1), chunk_service.chunks.get(&(self.position + Vector3::new(0, 0, -1))));
 
         let viewable = self.generate_viewable_map(map, settings.chunk_edge_faces);
 
@@ -51,11 +51,7 @@ impl Chunk {
                         let block = &self.blocks[chunk[x][y][z] as usize - 1];
 
                         //Found it, draw vertices for it
-                        draw_block(Point3 {
-                            x: x as f32,
-                            y: y as f32,
-                            z: z as f32
-                        }, ViewableDirection(viewable), &mut vertices, &mut indices, block);
+                        draw_block(Point3::new(x as f32, y as f32, z as f32), ViewableDirection(viewable), &mut vertices, &mut indices, block);
                     }
                 }
             }

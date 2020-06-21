@@ -1,4 +1,4 @@
-use image::{GenericImageView, DynamicImage, Rgba, ImageBuffer, GenericImage, ImageError};
+use image::{GenericImageView, DynamicImage, Rgba, ImageBuffer};
 use std::time::SystemTime;
 use wgpu::{Device, Queue, Texture, Sampler};
 use crate::services::asset_service::{ResourcePack, AssetService};
@@ -6,8 +6,7 @@ use std::collections::HashMap;
 use crate::block::Block;
 use crate::services::settings_service::SettingsService;
 use std::fs::File;
-use std::io::{Write, Error, Read, BufReader};
-use std::collections::hash_map::RandomState;
+use std::io::{Write, Read};
 
 pub type TextureAtlasIndex = ([f32; 2], [f32; 2]);
 

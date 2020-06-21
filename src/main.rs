@@ -11,8 +11,6 @@ use crate::client::events::{GameChangesContext, GameChanges};
 use crate::game::game_state::GameState;
 use std::time::{SystemTime, Instant};
 use systemstat::Duration;
-use crate::services::ui_service::fonts::TextView;
-use crate::services::ui_service::fonts::text_builder::TextBuilder;
 use crate::services::ui_service::ObjectAlignment;
 
 extern crate zerocopy;

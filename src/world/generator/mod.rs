@@ -2,9 +2,10 @@ use noise::{NoiseFn, Perlin, Seedable};
 use crate::block::Block;
 use crate::services::settings_service::{CHUNK_SIZE};
 use crate::services::chunk_service::chunk::{ChunkData};
-use cgmath::Vector3;
+use nalgebra::Vector3;
 
 pub struct World {
+
 }
 
 impl World {

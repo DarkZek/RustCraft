@@ -1,11 +1,11 @@
 use wgpu::{Device, BindGroupLayout};
-use cgmath::{Matrix4, Vector3};
 use crate::services::chunk_service::mesh::culling::{calculate_viewable, ViewableDirection};
 use crate::services::chunk_service::chunk::Chunk;
 use crate::services::settings_service::{CHUNK_SIZE};
 use std::collections::HashMap;
 use crate::block::Block;
 use crate::services::chunk_service::mesh::{ViewableDirectionBitMap, Vertex};
+use nalgebra::{Matrix4, Vector3};
 
 pub struct ChunkMeshData {
     pub viewable: Option<[[[ViewableDirection; 16]; 16]; 16]>,
@@ -34,11 +34,9 @@ impl<'a> Chunk {
         self.indices_buffer = Some(indices_buffer);
 
         // Create model buffer
-        let model: [[f32; 4]; 4] = Matrix4::from_translation(Vector3 {
-            x: self.position.x as f32 * 16.0,
-            y: self.position.y as f32 * 16.0,
-            z: self.position.z as f32 * 16.0
-        }).into();
+        let model: [[f32; 4]; 4] = Matrix4::new_translation(&Vector3::new(self.position.x as f32 * 16.0,
+                                                              self.position.y as f32 * 16.0,
+                                                              self.position.z as f32 * 16.0)).into();
 
         let model_buffer = device
             .create_buffer_mapped(1, wgpu::BufferUsage::UNIFORM | wgpu::BufferUsage::COPY_DST | wgpu::BufferUsage::COPY_SRC)
@@ -92,7 +90,13 @@ impl<'a> Chunk {
         let mut data = [[[ViewableDirection(0); CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
         let world = self.world.as_ref().unwrap();
 
-        let directions: [Vector3<i32>; 6] = [Vector3 { x: 1, y: 0, z: 0 }, Vector3 { x: -1, y: 0, z: 0 }, Vector3 { x: 0, y: 1, z: 0 }, Vector3 { x: 0, y: -1, z: 0 }, Vector3 { x: 0, y: 0, z: 1 }, Vector3 { x: 0, y: 0, z: -1 }];
+        let directions: [Vector3<i32>; 6] = [
+            Vector3::new(1, 0, 0),
+            Vector3::new(-1, 0, 0),
+            Vector3::new(0, 1, 0),
+            Vector3::new(0, -1, 0),
+            Vector3::new(0, 0, 1),
+            Vector3::new(0, 0, -1)];
 
         for x in 0..world.len() {
             for z in 0..world[0][0].len() {
@@ -110,11 +114,11 @@ impl<'a> Chunk {
                             (direction.z == 1 && z == 15) || (direction.z == -1 && z == 0) {
 
                             // Make it so we get the block on the other chunk closest to our block
-                            let block_pos: Vector3<usize> = Vector3 {
-                                x: if direction.x == 0 {x} else if direction.x == 1 {0} else { 15 },
-                                y: if direction.y == 0 {y} else if direction.y == 1 {0} else { 15 },
-                                z: if direction.z == 0 {z} else if direction.z == 1 {0} else { 15 },
-                            };
+                            let block_pos: Vector3<usize> = Vector3::new(
+                                if direction.x == 0 {x} else if direction.x == 1 {0} else { 15 },
+                                if direction.y == 0 {y} else if direction.y == 1 {0} else { 15 },
+                                if direction.z == 0 {z} else if direction.z == 1 {0} else { 15 },
+                            );
 
                             //println!("{:?} - {:?} = {:?}", (x,y,z), direction, block_pos);
 

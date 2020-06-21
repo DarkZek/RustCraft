@@ -2,7 +2,7 @@ use crate::services::asset_service::atlas::TextureAtlasIndex;
 use crate::block::Block;
 use crate::services::chunk_service::mesh::culling::ViewableDirection;
 use crate::services::chunk_service::mesh::{ViewableDirectionBitMap, Vertex};
-use cgmath::{Point3, Vector3};
+use nalgebra::{Point3, Vector3};
 
 pub fn draw_block(point: Point3<f32>, viewable: ViewableDirection, vertices: &mut Vec<Vertex>, indices: &mut Vec<u16>, block: &Block) {
     if viewable.has_flag(ViewableDirectionBitMap::Top) {

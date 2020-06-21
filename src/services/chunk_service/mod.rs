@@ -8,11 +8,10 @@ use wgpu::{BindGroupLayout, Device};
 use crate::world::generator::World;
 use crate::services::chunk_service::chunk::{Chunk, ChunkData};
 use crate::block::Block;
-use cgmath::{Vector3};
 use std::collections::HashMap;
 use crate::services::chunk_service::frustum_culling::calculate_frustum_culling;
 use crate::render::camera::Camera;
-use crate::render::RenderState;
+use nalgebra::Vector3;
 
 pub mod mesh;
 pub mod chunk;
@@ -60,7 +59,7 @@ impl ChunkService {
             for z in -(settings.render_distance as i32)..(settings.render_distance as i32) {
                 for y in 0..16 {
                     let data = ChunkService::generate_chunk(x, y, z, context.blocks);
-                    service.load_chunk(context.device, data, Vector3 { x, y, z }, &settings);
+                    service.load_chunk(context.device, data, Vector3::new( x, y, z ), &settings);
                 }
             }
         }
@@ -97,7 +96,7 @@ impl ChunkService {
 
     //TODO: Remove this once we have networking setup
     fn generate_chunk(x: i32, y: i32, z: i32, blocks: &Vec<Block>) -> Option<ChunkData> {
-        return World::generate_chunk(Vector3 { x, y, z }, blocks);
+        return World::generate_chunk(Vector3::new(x, y, z), blocks);
     }
 
     pub fn load_chunk(&mut self, device: &Device, data: Option<ChunkData>, chunk_coords: Vector3<i32>, settings: &SettingsService) {

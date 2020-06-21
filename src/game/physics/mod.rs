@@ -1,4 +1,4 @@
-use cgmath::Vector3;
+use nalgebra::Vector3;
 
 #[allow(dead_code)]
 pub struct Hitbox {
@@ -27,7 +27,7 @@ pub fn process_physics(objects: &mut Vec<Box<dyn PhysicsObject>>, delta_time: f6
         object.set_velocity(velocity);
 
         // Dont do anything to non moving objects
-        if velocity == [0.0, 0.0, 0.0].into() {
+        if velocity == Vector3::new(0.0, 0.0, 0.0) {
             continue;
         }
 

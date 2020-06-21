@@ -1,15 +1,8 @@
 use winit::dpi::PhysicalSize;
-use cgmath::{Vector3, Point3};
-
-pub const OPENGL_TO_WGPU_MATRIX: cgmath::Matrix4<f32> = cgmath::Matrix4::new(
-    1.0, 0.0, 0.0, 0.0,
-    0.0, -1.0, 0.0, 0.0,
-    0.0, 0.0, 0.5, 0.0,
-    0.0, 0.0, 0.5, 1.0,
-);
+use nalgebra::{Vector3, Matrix4, Perspective3, Isometry3, Point3};
 
 pub struct Camera {
-    pub eye: cgmath::Point3<f32>,
+    pub eye: Point3<f32>,
     pub yaw: f32,
     pub pitch: f32,
     pub up: Vector3<f32>,
@@ -27,12 +20,12 @@ impl Camera {
     pub fn new(size: &PhysicalSize<u32>) -> Camera {
         Camera {
             // position the camera one unit up and 2 units back
-            eye: Point3 {x: 10.0, y: 51.0, z: 10.0},
+            eye: Point3::new(10.0, 51.0, 10.0),
             // have it look at the origin
             yaw: 00.0,
             pitch: 0.0,
             // which way is "up"
-            up: Vector3::unit_y(),
+            up: Vector3::y(),
             aspect: size.width as f32 / size.height as f32,
             fovy: 70.0,
             znear: 0.1,
@@ -40,24 +33,35 @@ impl Camera {
         }
     }
 
-    pub fn build_view_projection_matrix(&self) -> cgmath::Matrix4<f32> {
-        let view_vector = Vector3 {
-            x: ((self.yaw - PI / 2.0).cos() * self.pitch.cos()) as f32,
-            y: self.pitch.sin() as f32,
-            z: (-(self.yaw - PI / 2.0).sin() * -self.pitch.cos()) as f32
-        };
+    pub fn build_view_projection_matrix(&self) -> Matrix4<f32> {
 
-        let view = cgmath::Matrix4::look_at_dir(self.eye, view_vector, self.up);
+        let opengl_to_wgpu_matrix: Matrix4<f32> = Matrix4::new(
+            1.0, 0.0, 0.0, 0.0,
+            0.0, -1.0, 0.0, 0.0,
+            0.0, 0.0, 0.5, 0.0,
+            0.0, 0.0, 0.5, 1.0,
+        );
 
-        let proj = cgmath::perspective(cgmath::Deg(self.fovy), self.aspect, self.znear, self.zfar);
+        let view_vector = Vector3::new(
+            ((self.yaw - PI / 2.0).cos() * self.pitch.cos()) as f32,
+            self.pitch.sin() as f32,
+            (-(self.yaw - PI / 2.0).sin() * -self.pitch.cos()) as f32
+        );
 
-        return OPENGL_TO_WGPU_MATRIX * proj * view;
+        // No look_at_direction function so I need to do this grr
+        let target = Point3::from(view_vector) + self.eye.coords;
+
+        let view = Isometry3::look_at_rh(&self.eye, &target, &Vector3::y());
+
+        let proj = Perspective3::new(self.aspect, self.fovy, self.znear, self.zfar);
+
+        return (opengl_to_wgpu_matrix * proj.as_matrix()) * view.to_homogeneous();
     }
 
-    pub fn move_first_person(&mut self, pos: &Vector3<f32>) {
+    pub fn move_first_person(&mut self, pos: &Point3<f32>) {
         let x = pos.x + FIRST_PERSON_OFFSET[0];
         let y = pos.y + FIRST_PERSON_OFFSET[1];
         let z = pos.z + FIRST_PERSON_OFFSET[2];
-        self.eye = (x, y, z).into();
+        self.eye = Point3::new(x, y, z);
     }
 }

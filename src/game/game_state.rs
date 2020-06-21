@@ -2,6 +2,7 @@ use crate::render::RenderState;
 use crate::client::events::GameChanges;
 use crate::entity::player::Player;
 use std::f32::consts::PI;
+use nalgebra::Point3;
 
 pub struct GameState {
     player: Player
@@ -26,7 +27,7 @@ impl GameState {
 
             // Update Horizontal Rotation
             player.rot[0] -= events.look[0] as f32 * x_look_speed;
-            player.rot[0] %= (std::f32::consts::PI * 2.0);
+            player.rot[0] %= std::f32::consts::PI * 2.0;
             if player.rot[0] < 0.0 { player.rot[0] += std::f32::consts::PI * 2.0; }
 
             // Handle Vertical Rotation

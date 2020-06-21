@@ -1,7 +1,7 @@
 use winit::event::{MouseButton, WindowEvent};
 use winit::window::Window;
 use crate::client::events::{GameChanges, GameChangesContext};
-use winit::dpi::{PhysicalSize, PhysicalPosition};
+use winit::dpi::{PhysicalPosition};
 
 impl GameChanges {
     pub fn new() -> GameChanges {

@@ -38,7 +38,12 @@ impl AssetService {
 
         let textures = load_resources(&mut archive);
 
-        log!(format!("Took {} seconds to load texture pack {}", Instant::now().duration_since(start_time).as_secs_f32(), path));
+        let name = match path.split("/").last() {
+            None => path,
+            Some(path) => path,
+        };
+
+        log!(format!("Took {} seconds to load texture pack {}", Instant::now().duration_since(start_time).as_secs_f32(), name));
 
         ResourcePack {
             name: "".to_string(),

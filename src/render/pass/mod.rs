@@ -1,7 +1,6 @@
 use crate::render::RenderState;
 use std::time::{Instant};
 use crate::services::ui_service::UIService;
-use crate::services::chunk_service::frustum_culling::calculate_frustum_culling;
 
 pub mod uniforms;
 

@@ -3,7 +3,7 @@ use wgpu::{Buffer, BindGroup};
 use crate::services::chunk_service::mesh::Vertex;
 use crate::services::settings_service::{CHUNK_SIZE};
 use crate::services::chunk_service::mesh::culling::ViewableDirection;
-use cgmath::Vector3;
+use nalgebra::Vector3;
 
 pub struct Chunk {
     pub world: Option<RawChunkData>,

@@ -11,11 +11,11 @@ pub fn load_shaders(device: &Device) -> (ShaderModule, ShaderModule){
 
     let vs_spirv = compiler.compile_into_spirv(
         vs_src, shaderc::ShaderKind::Vertex,
-        "shader.glsl", "main", Some(&options)).unwrap();
+        "shader.vert", "main", Some(&options)).unwrap();
 
     let fs_spirv = compiler.compile_into_spirv(
         fs_src, shaderc::ShaderKind::Fragment,
-        "shader.glsl", "main", Some(&options)).unwrap();
+        "shader.frag", "main", Some(&options)).unwrap();
 
     let vs_module = device.create_shader_module(vs_spirv.as_binary());
     let fs_module = device.create_shader_module(fs_spirv.as_binary());

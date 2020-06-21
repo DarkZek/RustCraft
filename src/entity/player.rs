@@ -1,8 +1,8 @@
-use cgmath::{Vector3};
 use crate::game::physics::{PhysicsObject, Hitbox};
+use nalgebra::{Vector3, Point3};
 
 pub struct Player {
-    pub pos: Vector3<f32>,
+    pub pos: Point3<f32>,
     pub rot: [f32; 2],
     pub velocity: Vector3<f32>
 }
@@ -10,9 +10,9 @@ pub struct Player {
 impl Player {
     pub fn new() -> Player {
         Player {
-            pos: Vector3 {x: 10.0, y: 50.0, z: 10.0 },
+            pos: Point3::new(10.0, 50.0, 10.0),
             rot: [0.0, 0.0],
-            velocity: Vector3 {x: 0.0, y: 0.0, z: 0.0 },
+            velocity: Vector3::new(0.0, 0.0, 0.0),
         }
     }
 

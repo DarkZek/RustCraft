@@ -1,7 +1,7 @@
 use crate::render::camera::Camera;
 use wgpu::{Device, BindGroupLayout, Buffer, BindGroup};
 use zerocopy::{AsBytes, FromBytes};
-use cgmath::SquareMatrix;
+use nalgebra::Matrix4;
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone, AsBytes, FromBytes)]
@@ -12,7 +12,7 @@ pub struct Uniforms {
 impl Uniforms {
     pub fn new() -> Self {
         Self {
-            view_proj: cgmath::Matrix4::identity().into(),
+            view_proj: Matrix4::zeros().into(),
         }
     }
 

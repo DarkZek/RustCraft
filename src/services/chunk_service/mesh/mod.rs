@@ -1,4 +1,4 @@
-use cgmath::Vector3;
+use nalgebra::Vector3;
 
 pub mod chunk;
 pub mod culling;
@@ -13,7 +13,6 @@ pub mod generation;
 pub struct Vertex {
     pub position: [f32; 3],
     pub tex_coords: [f32; 2],
-    /*pub relative_coords: [f32; 2],*/
     pub normals: [f32; 3],
 }
 

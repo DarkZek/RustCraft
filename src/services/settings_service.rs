@@ -45,7 +45,7 @@ impl SettingsService {
             render_distance: 24,
             debug_vertices,
             debug_atlas: false,
-            backface_culling: true,
+            backface_culling: false,
             chunk_edge_faces: false
         }
     }

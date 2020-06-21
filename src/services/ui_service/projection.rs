@@ -1,24 +1,23 @@
-use cgmath::{Ortho, Matrix4};
 use wgpu::{Buffer, BindGroup, BindGroupLayout};
 use crate::services::ServicesContext;
 use crate::services::ui_service::UIService;
 use winit::dpi::PhysicalSize;
 use crate::render::RenderState;
-use crate::render::camera::OPENGL_TO_WGPU_MATRIX;
+use nalgebra::{Orthographic3, Matrix4};
 
 impl UIService {
     pub fn setup_ui_projection_matrix(context: &mut ServicesContext) -> (Buffer, BindGroup, BindGroupLayout) {
 
         log!("Setting up screen with size: {}", format!("{}x{}", context.size.width, context.size.height));
 
-        let projection = Ortho {
-            left: -(context.size.width as f32 / 2.0),
-            right: context.size.width as f32 / 2.0,
-            bottom: context.size.height as f32 / 2.0,
-            top: -(context.size.height as f32 / 2.0),
-            near: 0.1,
-            far: 10.0
-        };
+        let projection = Orthographic3::new(
+            -(context.size.width as f32 / 2.0),
+            context.size.width as f32 / 2.0,
+            context.size.height as f32 / 2.0,
+            -(context.size.height as f32 / 2.0),
+            0.1,
+            10.0
+        );
 
         let matrix_binding_layout_descriptor = wgpu::BindGroupLayoutDescriptor {
             bindings: &[
@@ -33,8 +32,6 @@ impl UIService {
         };
 
         let matrix: Matrix4<f32> = projection.into();
-
-        log!("Orthographic Matrix: {:?}", matrix);
 
         let matrix_buffer = context.device
             .create_buffer_mapped(1, wgpu::BufferUsage::UNIFORM | wgpu::BufferUsage::COPY_DST | wgpu::BufferUsage::COPY_SRC)
@@ -61,18 +58,26 @@ impl UIService {
     }
 
     pub fn update_ui_projection_matrix(&mut self, render: &mut RenderState, size: PhysicalSize<u32>) {
-        let projection = Ortho {
-            left: -(size.width as f32 / 2.0),
-            right: size.width as f32 / 2.0,
-            bottom: size.height as f32 / 2.0,
-            top: -(size.height as f32 / 2.0),
-            near: 0.1,
-            far: 10.0
-        };
+
+        let projection = Orthographic3::new(
+            -(size.width as f32 / 2.0),
+            size.width as f32 / 2.0,
+            size.height as f32 / 2.0,
+            -(size.height as f32 / 2.0),
+            0.1,
+            10.0
+        );
+
+        let opengl_to_wgpu_matrix: Matrix4<f32> = Matrix4::new(
+            1.0, 0.0, 0.0, 0.0,
+            0.0, -1.0, 0.0, 0.0,
+            0.0, 0.0, 0.5, 0.0,
+            0.0, 0.0, 0.5, 1.0,
+        );
 
         let mut matrix: Matrix4<f32> = projection.into();
         //TODO: Remove this when WGPU switches its axis
-        matrix = matrix * OPENGL_TO_WGPU_MATRIX;
+        matrix = matrix * opengl_to_wgpu_matrix;
         let mut encoder = render.device.create_command_encoder(&wgpu::CommandEncoderDescriptor { todo: 0 });
 
         let matrix_buffer = render.device
