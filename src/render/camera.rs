@@ -68,3 +68,9 @@ impl Camera {
         self.eye = Point3::new(x, y, z);
     }
 }
+
+impl Default for Camera {
+    fn default() -> Self {
+        unimplemented!()
+    }
+}

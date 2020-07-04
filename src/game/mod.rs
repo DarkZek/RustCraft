@@ -1,4 +1,4 @@
-use crate::game::game_state::GameState;
+use crate::game::game_state::{GameState, PlayerMovementSystem};
 use crate::render::RenderState;
 use std::time::{Instant};
 use systemstat::Duration;
@@ -12,6 +12,11 @@ use crate::game::systems::DeltaTime;
 use crate::render::pass::prepass::{PreFrame, PostFrame};
 use crate::services::input_service::input::GameChanges;
 use crate::render::pass::RenderSystem;
+use crate::services::chunk_service::FrustumCullingUpdateService;
+use crate::render::camera::Camera;
+use crate::services::ui_service::fonts::system::{FontComputingSystem};
+use crate::services::ui_service::fps_system::{FpsDisplayingSystem};
+use crate::services::logging_service::LoggingSystem;
 
 pub mod game_state;
 pub mod physics;
@@ -73,6 +78,7 @@ impl Game {
                         let render_state: &mut RenderState = self.universe.get_mut().unwrap();
                         render_state.resize(*physical_size);
                         self.universe.write_resource::<GameChanges>().resized(physical_size);
+                        self.universe.write_resource::<Camera>().aspect = physical_size.width as f32 / physical_size.height as f32;
                     }
                     WindowEvent::ScaleFactorChanged { new_inner_size, .. } => {
                         let render_state: &mut RenderState = self.universe.get_mut().unwrap();
@@ -83,37 +89,31 @@ impl Game {
                     }
                 },
                 Event::MainEventsCleared => {
-                    // Update fps counter
-                    // if fps_counter_time.elapsed().unwrap().as_secs() > 0 {
-                    //     fps = fps_counter_frames;
-                    //     (universe.get_mut().unwrap() as &mut UIService)
-                    //         .fonts
-                    //         .edit_text(&fps_text, format!("FPS: {}", fps));
-                    //     fps_counter_frames = 0;
-                    //     fps_counter_time = SystemTime::now();
-                    // }
-
                     // Preframe
                     // This does things like updates the DeltaTime states and logs FPS
-                    let mut pre_framme_dispatcher = DispatcherBuilder::new()
+                    let mut pre_frame_dispatcher = DispatcherBuilder::new()
                         .with(PreFrame, "pre_frame", &[])
                         .build();
-                    pre_framme_dispatcher.dispatch(&mut self.universe);
+                    pre_frame_dispatcher.dispatch(&mut self.universe);
 
-                    // let mut frame_dispatcher = DispatcherBuilder::new()
-                    //     .with(PreFrame, "pre_frame", &[])
-                    //     .build();
-                    // frame_dispatcher.dispatch(&mut self.universe);
+                    // Mid Frame
+                    // This does stuff like frustum culling, movement, font processing and text displaying
+                    let mut frame_dispatcher = DispatcherBuilder::new()
+                        .with(FrustumCullingUpdateService, "frustum_culling", &[])
+                        .with(PlayerMovementSystem, "player_movement", &[])
+                        .with(FontComputingSystem, "font_computing", &[])
+                        .with(FpsDisplayingSystem, "fps_displayer", &[])
+                        .with(LoggingSystem, "logging_system", &[])
+                        .build();
+                    frame_dispatcher.dispatch(&mut self.universe);
 
-                    //game_state.frame(&mut render_state, &changes, delta_time.as_secs_f64());
-                    //changes = GameChanges::new();
-                    //render_state.render();
-
-                    let mut post_framme_dispatcher = DispatcherBuilder::new()
+                    // Post Frame
+                    // This does stuff like rendering the frame to the screen, post processing & frame time calculations
+                    let mut post_frame_dispatcher = DispatcherBuilder::new()
                         .with(RenderSystem, "render_frame", &[])
                         .with(PostFrame, "post_frame", &[])
                         .build();
-                    post_framme_dispatcher.dispatch(&mut self.universe);
+                    post_frame_dispatcher.dispatch(&mut self.universe);
 
                     *control_flow = ControlFlow::Poll;
 

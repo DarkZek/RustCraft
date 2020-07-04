@@ -12,6 +12,7 @@ use crate::world::generator::World;
 use nalgebra::Vector3;
 use std::collections::HashMap;
 use wgpu::{BindGroupLayout, Device};
+use specs::{System, Write, Read};
 
 pub mod chunk;
 pub mod frustum_culling;
@@ -121,5 +122,16 @@ impl ChunkService {
 impl Default for ChunkService {
     fn default() -> Self {
         unimplemented!()
+    }
+}
+
+pub struct FrustumCullingUpdateService;
+
+impl<'a> System<'a> for FrustumCullingUpdateService {
+    type SystemData = (Write<'a, ChunkService>,
+                        Read<'a, Camera>);
+
+    fn run(&mut self, (mut chunk_service, camera): Self::SystemData) {
+        chunk_service.update_frustum_culling(&camera);
     }
 }

@@ -19,7 +19,7 @@ impl<'a> System<'a> for PreFrame {
         delta_time.0 = render_state.delta_time.as_secs_f32();
 
         if render_state.frame_capture_time.elapsed().as_millis() > 1000 {
-            println!("FPS: {}", render_state.frames as f32 / render_state.frame_capture_time.elapsed().as_secs_f32());
+            render_state.fps = (render_state.frames as f32 / render_state.frame_capture_time.elapsed().as_secs_f32()) as u32;
 
             render_state.frame_capture_time = Instant::now();
             render_state.frames = 0;

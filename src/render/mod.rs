@@ -39,7 +39,6 @@ pub struct RenderState {
 
     size: winit::dpi::PhysicalSize<u32>,
 
-    pub camera: Camera,
     pub uniforms: Uniforms,
     pub uniform_buffer: wgpu::Buffer,
     uniform_bind_group: wgpu::BindGroup,
@@ -48,8 +47,8 @@ pub struct RenderState {
 
     blocks: Vec<Block>,
 
-    fps: u32,
-    frames: u32,
+    pub fps: u32,
+    pub frames: u32,
     frame_capture_time: Instant,
 
     gpu_info: AdapterInfo,
@@ -108,6 +107,8 @@ impl RenderState {
         let (uniform_buffer, uniform_bind_group_layout, uniform_bind_group) =
             uniforms.create_uniform_buffers(&device);
 
+        universe.insert(camera);
+
         // Hand the atlas to the renderer
         //let (atlas_sampler, atlas_texture, atlas_mapping) = (services.asset.texture_sampler.take().unwrap(), services.asset.texture_atlas.take().unwrap(), services.asset.texture_atlas_index.take().unwrap());
 
@@ -135,7 +136,6 @@ impl RenderState {
             swap_chain: Some(swap_chain),
             size,
             render_pipeline,
-            camera,
             uniforms,
             uniform_buffer,
             uniform_bind_group,
@@ -157,7 +157,6 @@ impl RenderState {
         self.sc_desc.height = new_size.height;
         self.swap_chain = Some(self.device.create_swap_chain(&self.surface, &self.sc_desc));
         self.depth_texture = create_depth_texture(&self.device, &self.sc_desc);
-        self.camera.aspect = new_size.width as f32 / new_size.height as f32;
 
         // let mut services = self.services.take().unwrap();
         // services.ui.update_ui_projection_matrix(self, new_size);

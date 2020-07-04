@@ -24,16 +24,6 @@ pub mod settings_service;
 pub mod ui_service;
 pub mod input_service;
 
-/// Stores all of the engines services
-pub struct Services {
-    pub asset: AssetService,
-    pub audio: AudioService,
-    pub settings: SettingsService,
-    pub logging: LoggingService,
-    pub chunk: ChunkService,
-    pub ui: UIService,
-}
-
 /// Stores references to important devices needed during initialization of the services.
 pub struct ServicesContext<'a> {
     pub device: &'a mut Device,
@@ -70,7 +60,7 @@ pub fn load_services(mut context: ServicesContext, universe: &mut World) {
     atlas_update_blocks(asset.atlas_index.as_ref().unwrap(), &mut context.blocks);
     let chunk = ChunkService::new(&settings, &mut context);
     let audio = AudioService::new();
-    let mut ui = UIService::new(&mut context, &asset);
+    let mut ui = UIService::new(&mut context, &asset, universe);
     let input = InputService::new(&mut context, universe);
 
     //TEMP

@@ -2,6 +2,7 @@ use crate::render::RenderState;
 use crate::services::chunk_service::ChunkService;
 use specs::{System, Read, Write};
 use crate::services::asset_service::AssetService;
+use crate::services::ui_service::UIService;
 
 pub mod uniforms;
 pub mod prepass;
@@ -12,10 +13,11 @@ impl<'a> System<'a> for RenderSystem {
 
     type SystemData = (Write<'a, RenderState>,
                         Read<'a, AssetService>,
-                        Read<'a, ChunkService>);
+                        Read<'a, ChunkService>,
+                        Read<'a, UIService>);
 
     /// Renders all visible chunks
-    fn run(&mut self, (mut render_state, asset_service, chunk_service): Self::SystemData) {
+    fn run(&mut self, (mut render_state, asset_service, chunk_service, ui_service): Self::SystemData) {
 
         let frame = render_state.swap_chain.as_mut().unwrap().get_next_texture().unwrap();
 
@@ -75,7 +77,7 @@ impl<'a> System<'a> for RenderSystem {
 
             // Debug information
 
-            //UIService::render(&frame, &mut encoder, &self.device, &mut services);
+            ui_service.render(&frame, &mut encoder, &render_state.device, &asset_service);
 
             render_state.queue.submit(&[encoder.finish()]);
         }
