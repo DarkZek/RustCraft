@@ -117,3 +117,9 @@ impl ChunkService {
             calculate_frustum_culling(camera, &self.viewable_chunks, &self.chunks);
     }
 }
+
+impl Default for ChunkService {
+    fn default() -> Self {
+        unimplemented!()
+    }
+}

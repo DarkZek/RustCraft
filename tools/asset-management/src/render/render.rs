@@ -6,9 +6,10 @@ use imgui::{FontSource, Context};
 use imgui_wgpu::Renderer;
 use wgpu::{SwapChain, Queue, Device, SwapChainDescriptor, Surface};
 use imgui_winit_support::WinitPlatform;
+use std::cell::RefCell;
 
 pub struct RenderState {
-    pub window: Window,
+    pub window: RefCell<Window>,
     pub window_size: PhysicalSize<u32>,
     pub device: Device,
     pub queue: Queue,
@@ -38,7 +39,7 @@ impl RenderState {
 
             let surface = wgpu::Surface::create(&window);
 
-            (window, size, surface)
+            (RefCell::new(window), size, surface)
         };
 
         let adapter = block_on(wgpu::Adapter::request(
@@ -55,7 +56,6 @@ impl RenderState {
             },
             limits: wgpu::Limits::default(),
         }));
-
 
         // Set up swap chain
         let sc_desc = wgpu::SwapChainDescriptor {

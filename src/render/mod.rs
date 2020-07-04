@@ -5,11 +5,17 @@ use crate::render::pass::uniforms::Uniforms;
 use crate::render::shaders::load_shaders;
 use crate::services::asset_service::depth_map::{create_depth_texture, DEPTH_FORMAT};
 use crate::services::chunk_service::mesh::Vertex;
-use crate::services::{Services, ServicesContext};
-use std::time::Instant;
+use crate::services::{ServicesContext, load_services};
+use std::time::{SystemTime, Duration, Instant};
 use systemstat::{Platform, System};
 use wgpu::{AdapterInfo, BindGroupLayout, Device, RenderPipeline, Sampler, SwapChainDescriptor, Texture, TextureView, VertexStateDescriptor};
-use winit::window::Window;
+use winit::window::{Window, WindowBuilder};
+use specs::{World, WorldExt};
+use winit::event_loop::EventLoop;
+use crate::services::asset_service::AssetService;
+use crate::services::chunk_service::ChunkService;
+use std::sync::Arc;
+use std::borrow::Borrow;
 
 pub mod camera;
 pub mod device;
@@ -24,6 +30,8 @@ pub struct RenderState {
     surface: wgpu::Surface,
     pub device: wgpu::Device,
     pub queue: wgpu::Queue,
+    pub window: Arc<Window>,
+
     sc_desc: wgpu::SwapChainDescriptor,
     swap_chain: Option<wgpu::SwapChain>,
 
@@ -41,19 +49,29 @@ pub struct RenderState {
     blocks: Vec<Block>,
 
     fps: u32,
-    fps_counter: Instant,
     frames: u32,
+    frame_capture_time: Instant,
 
     gpu_info: AdapterInfo,
     system_info: System,
 
-    pub services: Option<Services>,
+    last_frame_time: SystemTime,
+    delta_time: Duration
 }
 
 impl RenderState {
-    pub fn new(window: &Window) -> Self {
+    pub fn new(universe: &mut World, event_loop: &EventLoop<()>) -> Self {
+
+        let last_frame_time = SystemTime::now();
+        let delta_time = Duration::from_millis(0);
+
+        let window = Arc::new(WindowBuilder::new()
+            .with_title("Loading - Rustcraft")
+            .build(&event_loop)
+            .unwrap());
+
         // Get the window setup ASAP so we can show loading screen
-        let (size, surface, gpu_info, mut device, mut queue) = RenderState::get_devices(&window);
+        let (size, surface, gpu_info, mut device, mut queue) = RenderState::get_devices(window.borrow());
 
         let sc_desc = wgpu::SwapChainDescriptor {
             usage: wgpu::TextureUsage::OUTPUT_ATTACHMENT,
@@ -72,12 +90,13 @@ impl RenderState {
         let mut blocks = blocks::get_blocks();
 
         // Start the intensive job of loading services
-        let services = Services::load_services(ServicesContext::new(
+        load_services(ServicesContext::new(
             &mut device,
             &mut queue,
             &mut blocks,
             &size,
-        ));
+            window.clone()
+        ), universe);
 
         // Update loading screen
         loading.render(&mut swap_chain, &device, &mut queue, 90);
@@ -97,11 +116,11 @@ impl RenderState {
         let render_pipeline = generate_render_pipeline(
             &sc_desc,
             &device,
-            services.settings.backface_culling,
+            true,
             &[
-                &services.asset.atlas_bind_group_layout.as_ref().unwrap(),
+                &universe.read_resource::<AssetService>().atlas_bind_group_layout.as_ref().unwrap(),
                 &uniform_bind_group_layout,
-                &services.chunk.bind_group_layout,
+                &universe.read_resource::<ChunkService>().bind_group_layout,
             ],
         );
 
@@ -111,6 +130,7 @@ impl RenderState {
             surface,
             device,
             queue,
+            window,
             sc_desc,
             swap_chain: Some(swap_chain),
             size,
@@ -122,11 +142,12 @@ impl RenderState {
             depth_texture,
             blocks,
             fps: 0,
-            fps_counter: Instant::now(),
             frames: 0,
+            frame_capture_time: Instant::now(),
             gpu_info,
             system_info,
-            services: Some(services),
+            last_frame_time,
+            delta_time
         }
     }
 
@@ -138,9 +159,15 @@ impl RenderState {
         self.depth_texture = create_depth_texture(&self.device, &self.sc_desc);
         self.camera.aspect = new_size.width as f32 / new_size.height as f32;
 
-        let mut services = self.services.take().unwrap();
-        services.ui.update_ui_projection_matrix(self, new_size);
-        self.services = Some(services);
+        // let mut services = self.services.take().unwrap();
+        // services.ui.update_ui_projection_matrix(self, new_size);
+        // self.services = Some(services);
+    }
+}
+
+impl Default for RenderState {
+    fn default() -> Self {
+        unimplemented!()
     }
 }
 

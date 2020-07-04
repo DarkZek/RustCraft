@@ -1,7 +1,7 @@
-use crate::client::events::GameChanges;
 use crate::entity::player::Player;
 use crate::render::RenderState;
 use std::f32::consts::PI;
+use crate::services::input_service::input::GameChanges;
 
 /// Stores the current state of the game. Currently this is mostly just looking after player movement.
 pub struct GameState {
@@ -40,9 +40,9 @@ impl GameState {
             render.camera.yaw = player.rot[0];
             render.camera.pitch = player.rot[1] - (PI / 2.0);
 
-            let mut services = render.services.take().unwrap();
-            services.chunk.update_frustum_culling(&render.camera);
-            render.services = Some(services);
+            // let mut services = render.services.take().unwrap();
+            // services.chunk.update_frustum_culling(&render.camera);
+            // render.services = Some(services);
         }
 
         if events.movement != [0, 0] {

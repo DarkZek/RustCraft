@@ -75,3 +75,9 @@ impl AssetService {
         }
     }
 }
+
+impl Default for AssetService {
+    fn default() -> Self {
+        unimplemented!()
+    }
+}
