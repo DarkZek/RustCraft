@@ -12,11 +12,11 @@ use crate::game::systems::DeltaTime;
 use crate::render::pass::prepass::{PreFrame, PostFrame};
 use crate::services::input_service::input::GameChanges;
 use crate::render::pass::RenderSystem;
-use crate::services::chunk_service::FrustumCullingUpdateService;
 use crate::render::camera::Camera;
 use crate::services::ui_service::fonts::system::{FontComputingSystem};
 use crate::services::ui_service::fps_system::{FpsDisplayingSystem};
 use crate::services::logging_service::LoggingSystem;
+use crate::services::chunk_service::frustum_culling::FrustumCullingSystem;
 
 pub mod game_state;
 pub mod physics;
@@ -99,11 +99,11 @@ impl Game {
                     // Mid Frame
                     // This does stuff like frustum culling, movement, font processing and text displaying
                     let mut frame_dispatcher = DispatcherBuilder::new()
-                        .with(FrustumCullingUpdateService, "frustum_culling", &[])
                         .with(PlayerMovementSystem, "player_movement", &[])
                         .with(FontComputingSystem, "font_computing", &[])
                         .with(FpsDisplayingSystem, "fps_displayer", &[])
                         .with(LoggingSystem, "logging_system", &[])
+                        .with(FrustumCullingSystem, "frustum_culling", &[])
                         .build();
                     frame_dispatcher.dispatch(&mut self.universe);
 

@@ -25,6 +25,8 @@ pub struct ChunkService {
     pub visible_chunks: Vec<Vector3<i32>>,
     pub vertices_count: u64,
     pub chunk_keys: Vec<Vector3<i32>>,
+
+    previous_player_rot: f32
 }
 
 impl ChunkService {
@@ -52,6 +54,7 @@ impl ChunkService {
             visible_chunks: vec![],
             vertices_count: 0,
             chunk_keys: Vec::new(),
+            previous_player_rot: 0.0
         };
 
         //TODO: Remove this once we have networking
@@ -116,6 +119,14 @@ impl ChunkService {
     }
 
     pub fn update_frustum_culling(&mut self, camera: &Camera) {
+
+        // To 3 dp
+        if (camera.yaw * 100.0).round() == self.previous_player_rot {
+            return;
+        }
+
+        self.previous_player_rot = (camera.yaw * 100.0).round();
+
         self.visible_chunks =
             calculate_frustum_culling(camera, &self.viewable_chunks, &self.chunks);
     }
@@ -124,16 +135,5 @@ impl ChunkService {
 impl Default for ChunkService {
     fn default() -> Self {
         unimplemented!()
-    }
-}
-
-pub struct FrustumCullingUpdateService;
-
-impl<'a> System<'a> for FrustumCullingUpdateService {
-    type SystemData = (Write<'a, ChunkService>,
-                        Read<'a, Camera>);
-
-    fn run(&mut self, (mut chunk_service, camera): Self::SystemData) {
-        chunk_service.update_frustum_culling(&camera);
     }
 }

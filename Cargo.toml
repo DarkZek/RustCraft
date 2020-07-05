@@ -33,3 +33,4 @@ env_logger = "0.7"
 bytemuck = "1.2.0"
 futures = { version = "0.3", features = ["compat"] }
 specs = "0.16.1"
+frustum_query = "0.1.2"
