@@ -1,21 +1,28 @@
 use crate::render::RenderState;
+use crate::services::chunk_service::ChunkService;
+use specs::{System, Read, Write};
+use crate::services::asset_service::AssetService;
 use crate::services::ui_service::UIService;
-use std::time::Instant;
+use wgpu::{Operations, LoadOp, Color};
 
 pub mod uniforms;
+pub mod prepass;
 
-impl RenderState {
+pub struct RenderSystem;
+
+impl<'a> System<'a> for RenderSystem {
+
+    type SystemData = (Write<'a, RenderState>,
+                        Read<'a, AssetService>,
+                        Read<'a, ChunkService>,
+                        Read<'a, UIService>);
 
     /// Renders all visible chunks
-    pub fn render(&mut self) {
-        self.update();
+    fn run(&mut self, (mut render_state, asset_service, chunk_service, ui_service): Self::SystemData) {
 
-        let mut swapchain = self.swap_chain.take().unwrap();
-        let mut services = self.services.take().unwrap();
+        let frame = render_state.swap_chain.as_mut().unwrap().get_next_frame().unwrap();
 
-        let frame = swapchain.get_next_texture().unwrap();
-
-        let mut encoder = self
+        let mut encoder = render_state
             .device
             .create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
 
@@ -23,77 +30,51 @@ impl RenderState {
             {
                 let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
                     color_attachments: &[wgpu::RenderPassColorAttachmentDescriptor {
-                        attachment: &frame.view,
+                        attachment: &frame.output.view,
                         resolve_target: None,
-                        load_op: wgpu::LoadOp::Clear,
-                        store_op: wgpu::StoreOp::Store,
-                        clear_color: wgpu::Color {
-                            r: 0.1,
-                            g: 0.2,
-                            b: 0.3,
-                            a: 1.0,
-                        },
+                        ops: Operations { load: LoadOp::Clear(Color::BLUE), store: true }
                     }],
                     depth_stencil_attachment: Some(
                         wgpu::RenderPassDepthStencilAttachmentDescriptor {
-                            attachment: &self.depth_texture.1,
-                            depth_load_op: wgpu::LoadOp::Clear,
-                            depth_store_op: wgpu::StoreOp::Store,
-                            clear_depth: 1.0,
-                            stencil_load_op: wgpu::LoadOp::Load,
-                            stencil_store_op: wgpu::StoreOp::Store,
-                            clear_stencil: 0,
+                            attachment: &render_state.depth_texture.1,
+                            depth_ops: Some(Operations {
+                                load: LoadOp::Clear(1.0),
+                                store: true
+                            }),
+                            stencil_ops: None
                         },
                     ),
                 });
 
-                render_pass.set_pipeline(&self.render_pipeline);
+                render_pass.set_pipeline(&render_state.render_pipeline);
                 render_pass.set_bind_group(
                     0,
-                    &services.asset.atlas_bind_group.as_ref().unwrap(),
+                    &asset_service.atlas_bind_group.as_ref().unwrap().clone(),
                     &[],
                 );
-                render_pass.set_bind_group(1, &self.uniform_bind_group, &[]);
+                render_pass.set_bind_group(1, &render_state.uniform_bind_group, &[]);
 
-                for pos in &services.chunk.visible_chunks {
-                    let chunk = services.chunk.chunks.get(pos).unwrap();
+                for pos in &chunk_service.visible_chunks {
+                    let chunk = chunk_service.chunks.get(pos).unwrap();
 
                     let indices_buffer = chunk.indices_buffer.as_ref().unwrap();
                     let vertices_buffer = chunk.vertices_buffer.as_ref().unwrap();
                     let model_bind_group = chunk.model_bind_group.as_ref().unwrap();
 
                     render_pass.set_bind_group(2, model_bind_group, &[0]);
-                    render_pass.set_vertex_buffer(0, &vertices_buffer, 0, 0);
-                    render_pass.set_index_buffer(indices_buffer, 0, 0);
+                    render_pass.set_vertex_buffer(0, vertices_buffer.slice(..));
+                    render_pass.set_index_buffer(indices_buffer.slice(..));
                     render_pass.draw_indexed(0..chunk.indices_buffer_len, 0, 0..1);
                 }
             }
 
             // Debug information
 
-            UIService::render(&frame, &mut encoder, &self.device, &mut services);
+            ui_service.render(&frame, &mut encoder, &render_state.device, &asset_service);
 
-            self.queue.submit(&[encoder.finish()]);
+            render_state.queue.submit(Some(encoder.finish()));
         }
 
         std::mem::drop(frame);
-
-        self.swap_chain = Some(swapchain);
-        self.services = Some(services);
-    }
-
-    /// Update fps
-    pub fn update(&mut self) {
-        // Update fps
-        if Instant::now()
-            .duration_since(self.fps_counter)
-            .as_secs_f32()
-            >= 1.0
-        {
-            self.fps = self.frames;
-            self.frames = 0;
-            self.fps_counter = Instant::now();
-        }
-        self.frames += 1;
     }
 }

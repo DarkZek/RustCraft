@@ -10,6 +10,7 @@ use winit::dpi::PhysicalSize;
 pub mod text;
 pub mod text_builder;
 pub mod variable_width;
+pub mod system;
 
 /// Fonts Manager is a subsystem of the User Interface Service.
 /// It's job is to manage fonts and allow other services to easily create new fonts on the screen as well as update and delete them.
@@ -71,7 +72,7 @@ impl FontsManager {
         TextBuilder::new(self)
     }
 
-    fn add_text(&mut self, mut text: Text) -> TextView {
+    fn add_text(&mut self, mut text: Text) -> TextView {self.changed = true;
         text.generate_text_mesh((&self.atlas_coords, &self.character_widths), &self.size);
         self.texts.push(text);
 

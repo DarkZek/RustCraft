@@ -12,6 +12,7 @@ use crate::world::generator::World;
 use nalgebra::Vector3;
 use std::collections::HashMap;
 use wgpu::{BindGroupLayout, Device};
+use specs::{System, Write, Read};
 
 pub mod chunk;
 pub mod frustum_culling;
@@ -24,6 +25,8 @@ pub struct ChunkService {
     pub visible_chunks: Vec<Vector3<i32>>,
     pub vertices_count: u64,
     pub chunk_keys: Vec<Vector3<i32>>,
+
+    previous_player_rot: f32
 }
 
 impl ChunkService {
@@ -32,7 +35,9 @@ impl ChunkService {
             bindings: &[wgpu::BindGroupLayoutEntry {
                 binding: 0,
                 visibility: wgpu::ShaderStage::VERTEX,
-                ty: wgpu::BindingType::UniformBuffer { dynamic: true },
+                ty: wgpu::BindingType::UniformBuffer { dynamic: true, min_binding_size: None },
+                count: None,
+                _non_exhaustive: Default::default()
             }],
             label: None
         };
@@ -49,6 +54,7 @@ impl ChunkService {
             visible_chunks: vec![],
             vertices_count: 0,
             chunk_keys: Vec::new(),
+            previous_player_rot: 0.0
         };
 
         //TODO: Remove this once we have networking
@@ -113,7 +119,21 @@ impl ChunkService {
     }
 
     pub fn update_frustum_culling(&mut self, camera: &Camera) {
+
+        // To 3 dp
+        if (camera.yaw * 100.0).round() == self.previous_player_rot {
+            return;
+        }
+
+        self.previous_player_rot = (camera.yaw * 100.0).round();
+
         self.visible_chunks =
             calculate_frustum_culling(camera, &self.viewable_chunks, &self.chunks);
+    }
+}
+
+impl Default for ChunkService {
+    fn default() -> Self {
+        unimplemented!()
     }
 }

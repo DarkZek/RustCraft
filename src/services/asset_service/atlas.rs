@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::io::{Read, Write};
 use std::time::SystemTime;
-use wgpu::{Device, Queue, Sampler, Texture, BufferUsage, CompareFunction};
+use wgpu::{Device, Queue, Sampler, Texture, BufferUsage, CompareFunction, TextureDataLayout};
 
 pub type TextureAtlasIndex = ([f32; 2], [f32; 2]);
 
@@ -38,7 +38,6 @@ impl AssetService {
                 height: ATLAS_HEIGHT,
                 depth: 1,
             },
-            array_layer_count: 1,
             mip_level_count: 1,
             sample_count: 1,
             dimension: wgpu::TextureDimension::D2,
@@ -253,22 +252,24 @@ impl AssetService {
         encoder.copy_buffer_to_texture(
             wgpu::BufferCopyView {
                 buffer: &diffuse_buffer,
-                offset: 0,
-                bytes_per_row: 4 * size.width,
-                rows_per_image: size.height
+                layout: TextureDataLayout {
+                    offset: 0,
+                    bytes_per_row: 4 * size.width,
+                    rows_per_image: size.height,
+                }
             },
             wgpu::TextureCopyView {
                 texture: &diffuse_texture,
                 mip_level: 0,
-                array_layer: 0,
                 origin: wgpu::Origin3d::ZERO,
             },
             size,
         );
 
-        queue.submit(&[encoder.finish()]);
+        queue.submit(Some(encoder.finish()));
 
         let diffuse_sampler_descriptor = wgpu::SamplerDescriptor {
+            label: None,
             address_mode_u: wgpu::AddressMode::ClampToEdge,
             address_mode_v: wgpu::AddressMode::ClampToEdge,
             address_mode_w: wgpu::AddressMode::ClampToEdge,
@@ -277,7 +278,9 @@ impl AssetService {
             mipmap_filter: wgpu::FilterMode::Nearest,
             lod_min_clamp: -100.0,
             lod_max_clamp: 100.0,
-            compare: CompareFunction::Always
+            compare: Some(CompareFunction::Always),
+            anisotropy_clamp: None,
+            _non_exhaustive: Default::default()
         };
 
         let diffuse_sampler = device.create_sampler(&diffuse_sampler_descriptor);

@@ -81,8 +81,8 @@ pub fn load_shaders(device: &Device) -> (ShaderModule, ShaderModule) {
         )
         .unwrap();
 
-    let vs_module = device.create_shader_module(vs_spirv.as_binary());
-    let fs_module = device.create_shader_module(fs_spirv.as_binary());
+    let vs_module = device.create_shader_module(wgpu::ShaderModuleSource::SpirV(vs_spirv.as_binary()));
+    let fs_module = device.create_shader_module(wgpu::ShaderModuleSource::SpirV(fs_spirv.as_binary()));
 
     (vs_module, fs_module)
 }

@@ -29,7 +29,9 @@ impl UIService {
             bindings: &[wgpu::BindGroupLayoutEntry {
                 binding: 0,
                 visibility: wgpu::ShaderStage::VERTEX,
-                ty: wgpu::BindingType::UniformBuffer { dynamic: false },
+                ty: wgpu::BindingType::UniformBuffer { dynamic: false, min_binding_size: None },
+                count: None,
+                _non_exhaustive: Default::default()
             }],
             label: None
         };
@@ -50,10 +52,7 @@ impl UIService {
             layout: &matrix_bind_group_layout,
             bindings: &[wgpu::Binding {
                 binding: 0,
-                resource: wgpu::BindingResource::Buffer {
-                    buffer: &matrix_buffer,
-                    range: 0..std::mem::size_of_val(&matrix) as wgpu::BufferAddress,
-                },
+                resource: wgpu::BindingResource::Buffer(matrix_buffer.slice(0..std::mem::size_of_val(&matrix) as wgpu::BufferAddress)),
             }],
             label: None
         };
@@ -109,6 +108,6 @@ impl UIService {
             std::mem::size_of_val(&matrix) as wgpu::BufferAddress,
         );
 
-        render.queue.submit(&[encoder.finish()]);
+        render.queue.submit(Some(encoder.finish()));
     }
 }

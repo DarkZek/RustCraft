@@ -14,7 +14,8 @@ debug = true
 overflow-checks = true
 
 [dependencies]
-wgpu = "0.5.0"
+wgpu = { git = "https://github.com/gfx-rs/wgpu-rs.git", rev = "0c7c3afebb12bf411d6964887b85e5fd152057f5" }
+gfx-hal = "0.5.3"
 winit = "0.21.0"
 nalgebra = "0.21.0"
 noise = "0.6.0"
@@ -31,3 +32,5 @@ log = "0.4"
 env_logger = "0.7"
 bytemuck = "1.2.0"
 futures = { version = "0.3", features = ["compat"] }
+specs = "0.16.1"
+frustum_query = "0.1.2"

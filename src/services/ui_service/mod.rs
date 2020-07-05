@@ -3,12 +3,15 @@ use crate::services::ui_service::fonts::FontsManager;
 use crate::services::ui_service::pipeline::generate_render_pipeline;
 use crate::services::ServicesContext;
 use wgpu::{BindGroup, BindGroupLayout, Buffer, RenderPipeline};
+use specs::World;
+use crate::services::ui_service::fps_system::{FpsDisplayingSystemContext};
 
 pub mod draw;
 pub mod fonts;
 mod pipeline;
 mod projection;
 pub mod render_pass;
+pub mod fps_system;
 
 /// Stores all info related on on screen user interfaces.
 /// Contains sub services named "Managers" to manage specific tasks, like font rendering.
@@ -24,7 +27,7 @@ pub struct UIService {
 impl UIService {
 
     /// Initializes service, creating gpu bind groups, uploading fonts to the gpu etc.
-    pub fn new(context: &mut ServicesContext, assets: &AssetService) -> UIService {
+    pub fn new(context: &mut ServicesContext, assets: &AssetService, universe: &mut World) -> UIService {
         let (projection_buffer, projection_bind_group, projection_bind_group_layout) =
             UIService::setup_ui_projection_matrix(context);
         let pipeline = generate_render_pipeline(
@@ -37,6 +40,8 @@ impl UIService {
 
         let fonts = FontsManager::new(&assets, context.size.clone());
 
+        universe.insert(FpsDisplayingSystemContext::new());
+
         UIService {
             fonts,
             pipeline,
@@ -44,6 +49,12 @@ impl UIService {
             projection_bind_group,
             projection_bind_group_layout,
         }
+    }
+}
+
+impl Default for UIService {
+    fn default() -> Self {
+        unimplemented!()
     }
 }
 

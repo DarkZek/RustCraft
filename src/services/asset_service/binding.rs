@@ -22,11 +22,15 @@ impl AssetService {
                             dimension: wgpu::TextureViewDimension::D2Array,
                             component_type: TextureComponentType::Float
                         },
+                        count: None,
+                        _non_exhaustive: Default::default()
                     },
                     wgpu::BindGroupLayoutEntry {
                         binding: 1,
                         visibility: wgpu::ShaderStage::FRAGMENT,
-                        ty: wgpu::BindingType::Sampler { comparison: false },
+                        ty: wgpu::BindingType::Sampler { comparison: true },
+                        count: None,
+                        _non_exhaustive: Default::default()
                     },
                 ],
                 label: None
