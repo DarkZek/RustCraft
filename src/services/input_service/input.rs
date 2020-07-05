@@ -42,7 +42,6 @@ impl GameChanges {
     }
 
     pub fn clear(&mut self) {
-        //TODO
         self.movement = [0; 2];
         self.look = [0.0; 2];
         self.use_item = false;

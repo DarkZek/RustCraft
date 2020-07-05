@@ -4,7 +4,7 @@ use crate::services::ui_service::pipeline::generate_render_pipeline;
 use crate::services::ServicesContext;
 use wgpu::{BindGroup, BindGroupLayout, Buffer, RenderPipeline};
 use specs::World;
-use crate::services::ui_service::fps_system::{FpsDisplayingSystem, FpsDisplayingSystemContext};
+use crate::services::ui_service::fps_system::{FpsDisplayingSystemContext};
 
 pub mod draw;
 pub mod fonts;

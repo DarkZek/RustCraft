@@ -1,4 +1,4 @@
-use wgpu::{Device, Queue, RenderPipeline, ShaderModule, SwapChain, BufferUsage, VertexStateDescriptor};
+use wgpu::{Device, Queue, RenderPipeline, ShaderModule, SwapChain, BufferUsage, VertexStateDescriptor, Operations, LoadOp, Color};
 use winit::dpi::PhysicalSize;
 
 ///
@@ -46,7 +46,7 @@ impl LoadingScreen {
 
         let vertices_buffer = device.create_buffer_with_data(bytemuck::cast_slice(vertices.as_slice()), BufferUsage::VERTEX);
 
-        let frame = swapchain.get_next_texture().unwrap();
+        let frame = swapchain.get_next_frame().unwrap();
 
         let mut encoder =
             device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
@@ -54,26 +54,19 @@ impl LoadingScreen {
         {
             let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
                 color_attachments: &[wgpu::RenderPassColorAttachmentDescriptor {
-                    attachment: &frame.view,
+                    attachment: &frame.output.view,
                     resolve_target: None,
-                    load_op: wgpu::LoadOp::Clear,
-                    store_op: wgpu::StoreOp::Store,
-                    clear_color: wgpu::Color {
-                        r: 1.0,
-                        g: 1.0,
-                        b: 1.0,
-                        a: 1.0,
-                    },
+                    ops: Operations { load: LoadOp::Clear(Color::WHITE), store: true }
                 }],
                 depth_stencil_attachment: None,
             });
 
             render_pass.set_pipeline(&self.pipeline);
-            render_pass.set_vertex_buffer(0, &vertices_buffer, 0, 0);
+            render_pass.set_vertex_buffer(0, vertices_buffer.slice(..));
             render_pass.draw(0..vertices.len() as u32, 0..1)
         }
 
-        queue.submit(&[encoder.finish()]);
+        queue.submit(Some(encoder.finish()));
     }
 
     fn generate_loading_render_pipeline(
@@ -160,8 +153,8 @@ pub fn load_shaders(device: &Device) -> (ShaderModule, ShaderModule) {
         )
         .unwrap();
 
-    let vs_module = device.create_shader_module(vs_spirv.as_binary());
-    let fs_module = device.create_shader_module(fs_spirv.as_binary());
+    let vs_module = device.create_shader_module(wgpu::ShaderModuleSource::SpirV(vs_spirv.as_binary()));
+    let fs_module = device.create_shader_module(wgpu::ShaderModuleSource::SpirV(fs_spirv.as_binary()));
 
     (vs_module, fs_module)
 }

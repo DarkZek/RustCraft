@@ -1,28 +1,21 @@
 use crate::services::ui_service::UIService;
-use wgpu::{CommandEncoder, Device, SwapChainOutput};
+use wgpu::{CommandEncoder, Device, Operations, LoadOp, SwapChainFrame};
 use crate::services::asset_service::AssetService;
 
 impl UIService {
 
     /// Renders the user interface. This also runs all of the sub managers render functions.
     pub fn render(&self,
-                  frame: &SwapChainOutput,
+                  frame: &SwapChainFrame,
                   encoder: &mut CommandEncoder,
                   device: &Device,
                   asset_service: &AssetService
     ) {
         let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
             color_attachments: &[wgpu::RenderPassColorAttachmentDescriptor {
-                attachment: &frame.view,
+                attachment: &frame.output.view,
                 resolve_target: None,
-                load_op: wgpu::LoadOp::Load,
-                store_op: wgpu::StoreOp::Store,
-                clear_color: wgpu::Color {
-                    r: 1.0,
-                    g: 1.0,
-                    b: 1.0,
-                    a: 1.0,
-                },
+                ops: Operations { load: LoadOp::Load, store: true }
             }],
             depth_stencil_attachment: None,
         });
@@ -36,8 +29,8 @@ impl UIService {
         let indices_len = self.fonts.total_indices.len() as u32;
         let indices = self.fonts.total_indices_buffer.as_ref().unwrap();
 
-        render_pass.set_vertex_buffer(0, &vertices, 0, 0);
-        render_pass.set_index_buffer(indices, 0, 0);
+        render_pass.set_vertex_buffer(0, vertices.slice(..));
+        render_pass.set_index_buffer(indices.slice(..));
         render_pass.draw_indexed(0..indices_len, 0, 0..1);
     }
 }

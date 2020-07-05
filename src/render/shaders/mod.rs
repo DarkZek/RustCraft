@@ -1,4 +1,4 @@
-use wgpu::{Device, ShaderModule};
+use wgpu::{Device, ShaderModule, ShaderModuleSource};
 
 /// Load shaders using shaderc
 pub fn load_shaders(device: &Device) -> (ShaderModule, ShaderModule) {
@@ -30,8 +30,8 @@ pub fn load_shaders(device: &Device) -> (ShaderModule, ShaderModule) {
         )
         .unwrap();
 
-    let vs_module = device.create_shader_module(vs_spirv.as_binary());
-    let fs_module = device.create_shader_module(fs_spirv.as_binary());
+    let vs_module = device.create_shader_module(ShaderModuleSource::SpirV(vs_spirv.as_binary()));
+    let fs_module = device.create_shader_module(ShaderModuleSource::SpirV(fs_spirv.as_binary()));
 
     (vs_module, fs_module)
 }

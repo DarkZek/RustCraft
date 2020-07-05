@@ -33,7 +33,9 @@ impl ChunkService {
             bindings: &[wgpu::BindGroupLayoutEntry {
                 binding: 0,
                 visibility: wgpu::ShaderStage::VERTEX,
-                ty: wgpu::BindingType::UniformBuffer { dynamic: true },
+                ty: wgpu::BindingType::UniformBuffer { dynamic: true, min_binding_size: None },
+                count: None,
+                _non_exhaustive: Default::default()
             }],
             label: None
         };

@@ -14,6 +14,7 @@ use specs::World;
 use crate::services::input_service::InputService;
 use winit::window::Window;
 use std::sync::Arc;
+use crate::services::networking_service::NetworkingService;
 
 #[macro_use]
 pub mod logging_service;
@@ -23,6 +24,7 @@ pub mod chunk_service;
 pub mod settings_service;
 pub mod ui_service;
 pub mod input_service;
+pub mod networking_service;
 
 /// Stores references to important devices needed during initialization of the services.
 pub struct ServicesContext<'a> {
@@ -62,6 +64,7 @@ pub fn load_services(mut context: ServicesContext, universe: &mut World) {
     let audio = AudioService::new();
     let mut ui = UIService::new(&mut context, &asset, universe);
     let input = InputService::new(&mut context, universe);
+    let mut networking_service = NetworkingService::new();
 
     //TEMP
     //region
@@ -93,6 +96,8 @@ pub fn load_services(mut context: ServicesContext, universe: &mut World) {
         .build();
     //endregion
 
+    networking_service.update_servers();
+
     logging.flush_buffer();
 
     universe.insert(asset);
@@ -102,4 +107,5 @@ pub fn load_services(mut context: ServicesContext, universe: &mut World) {
     universe.insert(chunk);
     universe.insert(ui);
     universe.insert(input);
+    universe.insert(networking_service);
 }

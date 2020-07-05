@@ -46,10 +46,7 @@ impl<'a> Chunk {
             layout: &bind_group_layout,
             bindings: &[wgpu::Binding {
                 binding: 0,
-                resource: wgpu::BindingResource::Buffer {
-                    buffer: &model_buffer,
-                    range: 0..std::mem::size_of::<[[f32; 4]; 4]>() as wgpu::BufferAddress,
-                },
+                resource: wgpu::BindingResource::Buffer(model_buffer.slice(0..std::mem::size_of::<[[f32; 4]; 4]>() as wgpu::BufferAddress)),
             }],
             label: None
         });

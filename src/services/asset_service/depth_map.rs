@@ -7,6 +7,7 @@ pub fn create_depth_texture(
     sc_desc: &wgpu::SwapChainDescriptor,
 ) -> (Texture, TextureView, Sampler) {
     let sampler_descriptor = wgpu::SamplerDescriptor {
+        label: None,
         address_mode_u: wgpu::AddressMode::ClampToEdge,
         address_mode_v: wgpu::AddressMode::ClampToEdge,
         address_mode_w: wgpu::AddressMode::ClampToEdge,
@@ -15,7 +16,9 @@ pub fn create_depth_texture(
         mipmap_filter: wgpu::FilterMode::Nearest,
         lod_min_clamp: -100.0,
         lod_max_clamp: 100.0,
-        compare: wgpu::CompareFunction::Always,
+        compare: Some(wgpu::CompareFunction::Always),
+        anisotropy_clamp: None,
+        _non_exhaustive: Default::default()
     };
 
     let texture_descriptor = wgpu::TextureDescriptor {
@@ -25,7 +28,6 @@ pub fn create_depth_texture(
             height: sc_desc.height,
             depth: 1
         },
-        array_layer_count: 1,
         mip_level_count: 1,
         sample_count: 1,
         dimension: TextureDimension::D2,

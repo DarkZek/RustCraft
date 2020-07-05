@@ -34,7 +34,9 @@ impl Uniforms {
                 bindings: &[wgpu::BindGroupLayoutEntry {
                     binding: 0,
                     visibility: wgpu::ShaderStage::VERTEX,
-                    ty: wgpu::BindingType::UniformBuffer { dynamic: false },
+                    ty: wgpu::BindingType::UniformBuffer { dynamic: false, min_binding_size: None },
+                    count: None,
+                    _non_exhaustive: Default::default()
                 }],
                 label: None
             });
@@ -43,10 +45,7 @@ impl Uniforms {
             layout: &uniform_bind_group_layout,
             bindings: &[wgpu::Binding {
                 binding: 0,
-                resource: wgpu::BindingResource::Buffer {
-                    buffer: &uniform_buffer,
-                    range: 0..std::mem::size_of_val(&self) as wgpu::BufferAddress,
-                },
+                resource: wgpu::BindingResource::Buffer(uniform_buffer.slice(0..std::mem::size_of_val(&self) as wgpu::BufferAddress)),
             }],
             label: None
         });

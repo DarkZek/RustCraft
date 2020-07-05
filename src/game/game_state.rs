@@ -100,7 +100,7 @@ impl<'a> System<'a> for PlayerMovementSystem {
             std::mem::size_of_val(&render.uniforms) as wgpu::BufferAddress,
         );
 
-        render.queue.submit(&[encoder.finish()]);
+        render.queue.submit(Some(encoder.finish()));
     }
 
 }

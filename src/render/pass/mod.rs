@@ -3,6 +3,7 @@ use crate::services::chunk_service::ChunkService;
 use specs::{System, Read, Write};
 use crate::services::asset_service::AssetService;
 use crate::services::ui_service::UIService;
+use wgpu::{Operations, LoadOp, Color};
 
 pub mod uniforms;
 pub mod prepass;
@@ -19,7 +20,7 @@ impl<'a> System<'a> for RenderSystem {
     /// Renders all visible chunks
     fn run(&mut self, (mut render_state, asset_service, chunk_service, ui_service): Self::SystemData) {
 
-        let frame = render_state.swap_chain.as_mut().unwrap().get_next_texture().unwrap();
+        let frame = render_state.swap_chain.as_mut().unwrap().get_next_frame().unwrap();
 
         let mut encoder = render_state
             .device
@@ -29,26 +30,18 @@ impl<'a> System<'a> for RenderSystem {
             {
                 let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
                     color_attachments: &[wgpu::RenderPassColorAttachmentDescriptor {
-                        attachment: &frame.view,
+                        attachment: &frame.output.view,
                         resolve_target: None,
-                        load_op: wgpu::LoadOp::Clear,
-                        store_op: wgpu::StoreOp::Store,
-                        clear_color: wgpu::Color {
-                            r: 0.1,
-                            g: 0.2,
-                            b: 0.3,
-                            a: 1.0,
-                        },
+                        ops: Operations { load: LoadOp::Clear(Color::BLUE), store: true }
                     }],
                     depth_stencil_attachment: Some(
                         wgpu::RenderPassDepthStencilAttachmentDescriptor {
                             attachment: &render_state.depth_texture.1,
-                            depth_load_op: wgpu::LoadOp::Clear,
-                            depth_store_op: wgpu::StoreOp::Store,
-                            clear_depth: 1.0,
-                            stencil_load_op: wgpu::LoadOp::Load,
-                            stencil_store_op: wgpu::StoreOp::Store,
-                            clear_stencil: 0,
+                            depth_ops: Some(Operations {
+                                load: LoadOp::Clear(1.0),
+                                store: true
+                            }),
+                            stencil_ops: None
                         },
                     ),
                 });
@@ -69,8 +62,8 @@ impl<'a> System<'a> for RenderSystem {
                     let model_bind_group = chunk.model_bind_group.as_ref().unwrap();
 
                     render_pass.set_bind_group(2, model_bind_group, &[0]);
-                    render_pass.set_vertex_buffer(0, &vertices_buffer, 0, 0);
-                    render_pass.set_index_buffer(indices_buffer, 0, 0);
+                    render_pass.set_vertex_buffer(0, vertices_buffer.slice(..));
+                    render_pass.set_index_buffer(indices_buffer.slice(..));
                     render_pass.draw_indexed(0..chunk.indices_buffer_len, 0, 0..1);
                 }
             }
@@ -79,7 +72,7 @@ impl<'a> System<'a> for RenderSystem {
 
             ui_service.render(&frame, &mut encoder, &render_state.device, &asset_service);
 
-            render_state.queue.submit(&[encoder.finish()]);
+            render_state.queue.submit(Some(encoder.finish()));
         }
 
         std::mem::drop(frame);
