@@ -1,4 +1,4 @@
-use nalgebra::{Vector3};
+use nalgebra::Vector3;
 
 pub mod block;
 pub mod chunk;
@@ -37,9 +37,7 @@ pub struct WGPU4x4Matrix {
     pub w: [f32; 4],
 }
 
-impl WGPU4x4Matrix {
-
-}
+impl WGPU4x4Matrix {}
 
 pub enum ViewableDirectionBitMap {
     Top = 0b00000001,

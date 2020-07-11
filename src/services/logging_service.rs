@@ -4,9 +4,9 @@ use std::io::Write;
 use std::sync::{Arc, Mutex};
 use std::thread;
 
-use lazy_static::lazy_static;
-use specs::{System, Read};
 use crate::render::RenderState;
+use lazy_static::lazy_static;
+use specs::{Read, System};
 lazy_static! {
     pub static ref LOG_BUFFER: LoggingQueue = Mutex::new(Vec::new());
 }
@@ -113,11 +113,9 @@ impl Default for LoggingService {
 pub struct LoggingSystem;
 
 impl<'a> System<'a> for LoggingSystem {
-    type SystemData = (Read<'a, LoggingService>,
-                       Read<'a, RenderState>);
+    type SystemData = (Read<'a, LoggingService>, Read<'a, RenderState>);
 
     fn run(&mut self, (logging_service, render_state): Self::SystemData) {
-
         // Frames counter is at 0 once per second
         if render_state.frames != 0 {
             return;

@@ -6,7 +6,6 @@ use wgpu::{BindGroup, BindGroupLayout, Buffer};
 use winit::dpi::PhysicalSize;
 
 impl UIService {
-
     /// Sets up the orthographic projection matrix for the UI render pipeline. This sets the size of the projection to be the same as the window dimensions.
     pub fn setup_ui_projection_matrix(
         context: &mut ServicesContext,
@@ -29,20 +28,22 @@ impl UIService {
             bindings: &[wgpu::BindGroupLayoutEntry {
                 binding: 0,
                 visibility: wgpu::ShaderStage::VERTEX,
-                ty: wgpu::BindingType::UniformBuffer { dynamic: false, min_binding_size: None },
+                ty: wgpu::BindingType::UniformBuffer {
+                    dynamic: false,
+                    min_binding_size: None,
+                },
                 count: None,
-                _non_exhaustive: Default::default()
+                _non_exhaustive: Default::default(),
             }],
-            label: None
+            label: None,
         };
 
         let matrix: Matrix4<f32> = projection.into();
 
-        let matrix_buffer = context
-            .device
-            .create_buffer_with_data(bytemuck::cast_slice(matrix.as_slice()), wgpu::BufferUsage::UNIFORM
-                | wgpu::BufferUsage::COPY_DST
-                | wgpu::BufferUsage::COPY_SRC);
+        let matrix_buffer = context.device.create_buffer_with_data(
+            bytemuck::cast_slice(matrix.as_slice()),
+            wgpu::BufferUsage::UNIFORM | wgpu::BufferUsage::COPY_DST | wgpu::BufferUsage::COPY_SRC,
+        );
 
         let matrix_bind_group_layout = context
             .device
@@ -52,9 +53,11 @@ impl UIService {
             layout: &matrix_bind_group_layout,
             bindings: &[wgpu::Binding {
                 binding: 0,
-                resource: wgpu::BindingResource::Buffer(matrix_buffer.slice(0..std::mem::size_of_val(&matrix) as wgpu::BufferAddress)),
+                resource: wgpu::BindingResource::Buffer(
+                    matrix_buffer.slice(0..std::mem::size_of_val(&matrix) as wgpu::BufferAddress),
+                ),
             }],
-            label: None
+            label: None,
         };
 
         let matrix_bind_group = context
@@ -64,11 +67,7 @@ impl UIService {
         (matrix_buffer, matrix_bind_group, matrix_bind_group_layout)
     }
 
-    pub fn update_ui_projection_matrix(
-        &mut self,
-        render: &mut RenderState,
-        size: PhysicalSize<u32>,
-    ) {
+    pub fn update_ui_projection_matrix(&mut self, render: &RenderState, size: &PhysicalSize<u32>) {
         let projection = Orthographic3::new(
             -(size.width as f32 / 2.0),
             size.width as f32 / 2.0,
@@ -79,10 +78,7 @@ impl UIService {
         );
 
         let opengl_to_wgpu_matrix: Matrix4<f32> = Matrix4::new(
-            1.0, 0.0, 0.0, 0.0,
-            0.0, 1.0, 0.0, 0.0,
-            0.0, 0.0, 0.5, 0.0,
-            0.0, 0.0, 0.5, 1.0,
+            1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5, 1.0,
         );
 
         let mut matrix: Matrix4<f32> = projection.into();
@@ -92,11 +88,10 @@ impl UIService {
             .device
             .create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
 
-        let matrix_buffer = render
-            .device
-            .create_buffer_with_data(bytemuck::cast_slice(matrix.as_slice()), wgpu::BufferUsage::UNIFORM
-                | wgpu::BufferUsage::COPY_DST
-                | wgpu::BufferUsage::COPY_SRC);
+        let matrix_buffer = render.device.create_buffer_with_data(
+            bytemuck::cast_slice(matrix.as_slice()),
+            wgpu::BufferUsage::UNIFORM | wgpu::BufferUsage::COPY_DST | wgpu::BufferUsage::COPY_SRC,
+        );
 
         self.fonts.resized(&size, &render.device);
 

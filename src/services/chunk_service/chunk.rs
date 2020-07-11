@@ -1,4 +1,5 @@
 use crate::block::Block;
+use crate::game::physics::collider::BoxCollider;
 use crate::services::chunk_service::mesh::culling::ViewableDirection;
 use crate::services::chunk_service::mesh::Vertex;
 use crate::services::settings_service::CHUNK_SIZE;
@@ -17,6 +18,7 @@ pub struct Chunk {
     //TODO: Investigate if caching this is even faster
     pub viewable_map: Option<[[[ViewableDirection; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE]>,
     pub position: Vector3<i32>,
+    pub collision_map: Vec<BoxCollider>,
 }
 
 impl Chunk {
@@ -32,6 +34,7 @@ impl Chunk {
             model_bind_group: None,
             viewable_map: None,
             position,
+            collision_map: vec![],
         }
     }
     pub fn new_empty(position: Vector3<i32>) -> Chunk {
@@ -46,6 +49,7 @@ impl Chunk {
             model_bind_group: None,
             viewable_map: None,
             position,
+            collision_map: vec![],
         }
     }
 }

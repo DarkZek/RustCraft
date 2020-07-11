@@ -1,26 +1,34 @@
 use crate::render::RenderState;
-use crate::services::chunk_service::ChunkService;
-use specs::{System, Read, Write};
 use crate::services::asset_service::AssetService;
+use crate::services::chunk_service::ChunkService;
 use crate::services::ui_service::UIService;
-use wgpu::{Operations, LoadOp, Color};
+use specs::{Read, System, Write};
+use wgpu::{Color, LoadOp, Operations};
 
-pub mod uniforms;
 pub mod prepass;
+pub mod uniforms;
 
 pub struct RenderSystem;
 
 impl<'a> System<'a> for RenderSystem {
-
-    type SystemData = (Write<'a, RenderState>,
-                        Read<'a, AssetService>,
-                        Read<'a, ChunkService>,
-                        Read<'a, UIService>);
+    type SystemData = (
+        Write<'a, RenderState>,
+        Read<'a, AssetService>,
+        Read<'a, ChunkService>,
+        Read<'a, UIService>,
+    );
 
     /// Renders all visible chunks
-    fn run(&mut self, (mut render_state, asset_service, chunk_service, ui_service): Self::SystemData) {
-
-        let frame = render_state.swap_chain.as_mut().unwrap().get_next_frame().unwrap();
+    fn run(
+        &mut self,
+        (mut render_state, asset_service, chunk_service, ui_service): Self::SystemData,
+    ) {
+        let frame = render_state
+            .swap_chain
+            .as_mut()
+            .unwrap()
+            .get_next_frame()
+            .unwrap();
 
         let mut encoder = render_state
             .device
@@ -32,16 +40,19 @@ impl<'a> System<'a> for RenderSystem {
                     color_attachments: &[wgpu::RenderPassColorAttachmentDescriptor {
                         attachment: &frame.output.view,
                         resolve_target: None,
-                        ops: Operations { load: LoadOp::Clear(Color::BLUE), store: true }
+                        ops: Operations {
+                            load: LoadOp::Clear(Color::BLUE),
+                            store: true,
+                        },
                     }],
                     depth_stencil_attachment: Some(
                         wgpu::RenderPassDepthStencilAttachmentDescriptor {
                             attachment: &render_state.depth_texture.1,
                             depth_ops: Some(Operations {
                                 load: LoadOp::Clear(1.0),
-                                store: true
+                                store: true,
                             }),
-                            stencil_ops: None
+                            stencil_ops: None,
                         },
                     ),
                 });

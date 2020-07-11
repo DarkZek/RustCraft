@@ -1,4 +1,4 @@
-use wgpu::{Sampler, Texture, TextureView, Extent3d, TextureDimension};
+use wgpu::{Extent3d, Sampler, Texture, TextureDimension, TextureView};
 
 pub const DEPTH_FORMAT: wgpu::TextureFormat = wgpu::TextureFormat::Depth32Float;
 
@@ -18,7 +18,7 @@ pub fn create_depth_texture(
         lod_max_clamp: 100.0,
         compare: Some(wgpu::CompareFunction::Always),
         anisotropy_clamp: None,
-        _non_exhaustive: Default::default()
+        _non_exhaustive: Default::default(),
     };
 
     let texture_descriptor = wgpu::TextureDescriptor {
@@ -26,7 +26,7 @@ pub fn create_depth_texture(
         size: Extent3d {
             width: sc_desc.width,
             height: sc_desc.height,
-            depth: 1
+            depth: 1,
         },
         mip_level_count: 1,
         sample_count: 1,

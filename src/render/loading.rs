@@ -1,4 +1,8 @@
-use wgpu::{Device, Queue, RenderPipeline, ShaderModule, SwapChain, BufferUsage, VertexStateDescriptor, Operations, LoadOp, Color};
+use crate::render::shaders::bytes_to_shader;
+use wgpu::{
+    BufferUsage, Color, Device, LoadOp, Operations, Queue, RenderPipeline, ShaderModule, SwapChain,
+    VertexStateDescriptor,
+};
 use winit::dpi::PhysicalSize;
 
 ///
@@ -44,7 +48,10 @@ impl LoadingScreen {
             bottom_right,
         ];
 
-        let vertices_buffer = device.create_buffer_with_data(bytemuck::cast_slice(vertices.as_slice()), BufferUsage::VERTEX);
+        let vertices_buffer = device.create_buffer_with_data(
+            bytemuck::cast_slice(vertices.as_slice()),
+            BufferUsage::VERTEX,
+        );
 
         let frame = swapchain.get_next_frame().unwrap();
 
@@ -56,7 +63,10 @@ impl LoadingScreen {
                 color_attachments: &[wgpu::RenderPassColorAttachmentDescriptor {
                     attachment: &frame.output.view,
                     resolve_target: None,
-                    ops: Operations { load: LoadOp::Clear(Color::WHITE), store: true }
+                    ops: Operations {
+                        load: LoadOp::Clear(Color::WHITE),
+                        store: true,
+                    },
                 }],
                 depth_stencil_attachment: None,
             });
@@ -125,36 +135,15 @@ impl LoadingScreen {
 }
 
 pub fn load_shaders(device: &Device) -> (ShaderModule, ShaderModule) {
-    let vs_src = include_str!("../../assets/shaders/loading.vert");
-    let fs_src = include_str!("../../assets/shaders/loading.frag");
+    let vs_src = include_bytes!("../../assets/shaders/loading_vert.spv");
+    let fs_src = include_bytes!("../../assets/shaders/loading_frag.spv");
 
-    let mut compiler = shaderc::Compiler::new().unwrap();
-
-    let mut options = shaderc::CompileOptions::new().unwrap();
-    options.add_macro_definition("EP", Some("main"));
-
-    let vs_spirv = compiler
-        .compile_into_spirv(
-            vs_src,
-            shaderc::ShaderKind::Vertex,
-            "shader.glsl",
-            "main",
-            Some(&options),
-        )
-        .unwrap();
-
-    let fs_spirv = compiler
-        .compile_into_spirv(
-            fs_src,
-            shaderc::ShaderKind::Fragment,
-            "shader.glsl",
-            "main",
-            Some(&options),
-        )
-        .unwrap();
-
-    let vs_module = device.create_shader_module(wgpu::ShaderModuleSource::SpirV(vs_spirv.as_binary()));
-    let fs_module = device.create_shader_module(wgpu::ShaderModuleSource::SpirV(fs_spirv.as_binary()));
+    let vs_module = device.create_shader_module(wgpu::ShaderModuleSource::SpirV(
+        bytes_to_shader(vs_src).as_slice(),
+    ));
+    let fs_module = device.create_shader_module(wgpu::ShaderModuleSource::SpirV(
+        bytes_to_shader(fs_src).as_slice(),
+    ));
 
     (vs_module, fs_module)
 }

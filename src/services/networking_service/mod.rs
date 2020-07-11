@@ -1,12 +1,8 @@
-pub struct NetworkingService {
-
-}
+pub struct NetworkingService {}
 
 impl NetworkingService {
     pub fn new() -> NetworkingService {
-        NetworkingService {
-
-        }
+        NetworkingService {}
     }
 
     pub fn update_servers(&mut self) {
@@ -26,11 +22,4 @@ impl NetworkingService {
         //     println!("{:b} ", ret);
         // }
     }
-
-    pub fn le_to_be(input: &mut [u8]) {
-        for (i, item) in input.iter_mut().enumerate() {
-            *item = u8::from_be(*item);
-        }
-    }
-
 }

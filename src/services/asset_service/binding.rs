@@ -2,7 +2,6 @@ use crate::services::asset_service::AssetService;
 use wgpu::{BindGroup, BindGroupLayout, Device, Sampler, Texture, TextureComponentType};
 
 impl AssetService {
-
     /// Create the information for the gpu to know how to deal with the atlas
     pub fn generate_atlas_bindings(
         device: &Device,
@@ -20,20 +19,20 @@ impl AssetService {
                         ty: wgpu::BindingType::SampledTexture {
                             multisampled: false,
                             dimension: wgpu::TextureViewDimension::D2Array,
-                            component_type: TextureComponentType::Float
+                            component_type: TextureComponentType::Float,
                         },
                         count: None,
-                        _non_exhaustive: Default::default()
+                        _non_exhaustive: Default::default(),
                     },
                     wgpu::BindGroupLayoutEntry {
                         binding: 1,
                         visibility: wgpu::ShaderStage::FRAGMENT,
                         ty: wgpu::BindingType::Sampler { comparison: true },
                         count: None,
-                        _non_exhaustive: Default::default()
+                        _non_exhaustive: Default::default(),
                     },
                 ],
-                label: None
+                label: None,
             });
 
         let texture_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
@@ -48,7 +47,7 @@ impl AssetService {
                     resource: wgpu::BindingResource::Sampler(diffuse_sampler),
                 },
             ],
-            label: None
+            label: None,
         });
 
         (texture_bind_group_layout, texture_bind_group)

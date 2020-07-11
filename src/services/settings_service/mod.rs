@@ -27,7 +27,6 @@ pub struct SettingsService {
 }
 
 impl SettingsService {
-
     /// Creates a new instance of settings, loading the variables from the environment variables as well as settings file
     ///
     /// # Returns
@@ -57,7 +56,7 @@ impl SettingsService {
             path,
             atlas_cache_reading: true,
             atlas_cache_writing: atlas_caching,
-            render_distance: 32,
+            render_distance: 6,
             debug_vertices,
             debug_atlas: false,
             backface_culling: false,

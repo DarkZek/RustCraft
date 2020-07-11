@@ -63,7 +63,7 @@ impl RenderState {
             format: wgpu::TextureFormat::Bgra8Unorm,
             width: window_size.width as u32,
             height: window_size.height as u32,
-            present_mode: wgpu::PresentMode::Mailbox,
+            present_mode: wgpu::PresentMode::Fifo,
         };
 
 

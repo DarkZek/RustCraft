@@ -7,10 +7,10 @@ use crate::services::ui_service::fonts::variable_width::generate_variable_width_
 use wgpu::{Buffer, Device};
 use winit::dpi::PhysicalSize;
 
+pub mod system;
 pub mod text;
 pub mod text_builder;
 pub mod variable_width;
-pub mod system;
 
 /// Fonts Manager is a subsystem of the User Interface Service.
 /// It's job is to manage fonts and allow other services to easily create new fonts on the screen as well as update and delete them.
@@ -40,7 +40,6 @@ pub const FONT_TEXTURE_SIZE: f32 = 16.0;
 pub const LETTER_SPACING: f32 = 0.2;
 
 impl FontsManager {
-
     /// Sets up the font manager, including getting font asset locations inside the texture atlas and calculating the variable width font distancing.
     pub fn new(assets: &AssetService, size: PhysicalSize<u32>) -> FontsManager {
         let ascii_atlas_coords = assets
@@ -72,7 +71,8 @@ impl FontsManager {
         TextBuilder::new(self)
     }
 
-    fn add_text(&mut self, mut text: Text) -> TextView {self.changed = true;
+    fn add_text(&mut self, mut text: Text) -> TextView {
+        self.changed = true;
         text.generate_text_mesh((&self.atlas_coords, &self.character_widths), &self.size);
         self.texts.push(text);
 
@@ -105,13 +105,15 @@ impl FontsManager {
                 self.total_vertices.append(&mut text.vertices.clone());
             }
 
-            self.total_vertex_buffer = Some(
-                device.create_buffer_with_data(bytemuck::cast_slice(&self.total_vertices), wgpu::BufferUsage::VERTEX)
-            );
+            self.total_vertex_buffer = Some(device.create_buffer_with_data(
+                bytemuck::cast_slice(&self.total_vertices),
+                wgpu::BufferUsage::VERTEX,
+            ));
 
-            self.total_indices_buffer = Some(
-                device.create_buffer_with_data(bytemuck::cast_slice(&self.total_indices), wgpu::BufferUsage::INDEX)
-            );
+            self.total_indices_buffer = Some(device.create_buffer_with_data(
+                bytemuck::cast_slice(&self.total_indices),
+                wgpu::BufferUsage::INDEX,
+            ));
         }
     }
 

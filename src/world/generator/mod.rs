@@ -19,17 +19,17 @@ impl World {
         let mut chunk = [[[0 as u32; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
         let blocks: Vec<Block> = (*blocks).to_vec();
 
-        for x in 0..chunk.len() {
-            for z in 0..chunk[0][0].len() {
+        for x in 0..CHUNK_SIZE {
+            for z in 0..CHUNK_SIZE {
                 for y_offset in 0..CHUNK_SIZE {
                     let y = (chunk_pos.y * CHUNK_SIZE as i32) + y_offset as i32;
                     let height_map = noise_map.get([
                         (x as f64 * scale) + chunk_pos.x as f64,
                         (z as f64 * scale) + chunk_pos.z as f64,
                     ]);
-                    let height = (height_map * 20.0).round() as i32 + 50;
+                    let height = (height_map * 5.0).round() as i32 + 50;
 
-                    // Stone
+                    //Stone
                     if y < height {
                         chunk[x][y_offset][z] = 1;
                         chunk_nothing = false;

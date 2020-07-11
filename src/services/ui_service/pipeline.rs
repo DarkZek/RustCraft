@@ -1,5 +1,9 @@
+use crate::render::shaders::bytes_to_shader;
 use crate::services::chunk_service::mesh::UIVertex;
-use wgpu::{BindGroupLayout, BlendFactor, BlendOperation, Device, RenderPipeline, ShaderModule, VertexStateDescriptor};
+use wgpu::{
+    BindGroupLayout, BlendFactor, BlendOperation, Device, RenderPipeline, ShaderModule,
+    VertexStateDescriptor,
+};
 
 /// Creates the user inferace render pipeline. This includes things like loading shaders.
 /// This happens because we have one render pass for the chunks, and a seperate for user interfaces. This lets us use 2d vertices for UI as well as have more control over depth and perspective.
@@ -47,7 +51,7 @@ pub fn generate_render_pipeline(
         depth_stencil_state: None,
         vertex_state: VertexStateDescriptor {
             index_format: wgpu::IndexFormat::Uint16,
-            vertex_buffers: &[UIVertex::desc()]
+            vertex_buffers: &[UIVertex::desc()],
         },
         sample_count: 1,
         sample_mask: !0,
@@ -56,33 +60,15 @@ pub fn generate_render_pipeline(
 }
 
 pub fn load_shaders(device: &Device) -> (ShaderModule, ShaderModule) {
-    let vs_src = include_str!("../../../assets/shaders/ui.vert");
-    let fs_src = include_str!("../../../assets/shaders/ui.frag");
+    let vs_src = include_bytes!("../../../assets/shaders/ui_vert.spv");
+    let fs_src = include_bytes!("../../../assets/shaders/ui_frag.spv");
 
-    let mut compiler = shaderc::Compiler::new().unwrap();
-
-    let vs_spirv = compiler
-        .compile_into_spirv(
-            vs_src,
-            shaderc::ShaderKind::Vertex,
-            "shader.glsl",
-            "main",
-            None,
-        )
-        .unwrap();
-
-    let fs_spirv = compiler
-        .compile_into_spirv(
-            fs_src,
-            shaderc::ShaderKind::Fragment,
-            "shader.glsl",
-            "main",
-            None,
-        )
-        .unwrap();
-
-    let vs_module = device.create_shader_module(wgpu::ShaderModuleSource::SpirV(vs_spirv.as_binary()));
-    let fs_module = device.create_shader_module(wgpu::ShaderModuleSource::SpirV(fs_spirv.as_binary()));
+    let vs_module = device.create_shader_module(wgpu::ShaderModuleSource::SpirV(
+        bytes_to_shader(vs_src).as_slice(),
+    ));
+    let fs_module = device.create_shader_module(wgpu::ShaderModuleSource::SpirV(
+        bytes_to_shader(fs_src).as_slice(),
+    ));
 
     (vs_module, fs_module)
 }

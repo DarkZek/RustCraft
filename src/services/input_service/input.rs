@@ -1,9 +1,9 @@
-use winit::dpi::{PhysicalPosition, PhysicalSize};
-use winit::event::{MouseButton, WindowEvent};
-use winit::window::Window;
 use crate::services::settings_service::key_mappings::KeyMapping;
-use std::sync::Arc;
 use std::borrow::Borrow;
+use std::sync::Arc;
+use winit::dpi::{PhysicalPosition, PhysicalSize};
+use winit::event::{ElementState, MouseButton, VirtualKeyCode, WindowEvent};
+use winit::window::Window;
 
 /// Tracks user input_service's since the last frame.
 /// Naming them things like movement instead of WASD keys makes it easier to support multiple input_service device types.
@@ -20,7 +20,7 @@ pub struct GameChanges {
     pub mappings: KeyMapping,
     pub mouse_home: PhysicalPosition<u32>,
     pub grabbed: bool,
-    window: Arc<Window>
+    window: Arc<Window>,
 }
 
 impl GameChanges {
@@ -37,35 +37,12 @@ impl GameChanges {
             mappings: KeyMapping::default(),
             mouse_home: PhysicalPosition::new(0, 0),
             grabbed: false,
-            window
+            window,
         }
     }
 
     pub fn clear(&mut self) {
-        self.movement = [0; 2];
         self.look = [0.0; 2];
-        self.use_item = false;
-        self.activate_item = false;
-        self.pause = false;
-        self.jump = false;
-        self.sneak = false;
-        self.mouse = None;
-    }
-
-    fn set_jump(&mut self) {
-        self.jump = true;
-    }
-
-    fn set_sneak(&mut self) {
-        self.sneak = true;
-    }
-
-    fn add_forward_movement_changes(&mut self, change: i32) {
-        self.movement[0] += change;
-    }
-
-    fn add_horizontal_movement_changes(&mut self, change: i32) {
-        self.movement[1] += change;
     }
 
     fn item_used(&mut self) {
@@ -76,10 +53,6 @@ impl GameChanges {
         self.activate_item = true;
     }
 
-    fn pause_pressed(&mut self) {
-        self.pause = true;
-    }
-
     fn cursor_position(&mut self, new: PhysicalPosition<f64>) {
         self.mouse = Some(new);
     }
@@ -87,27 +60,24 @@ impl GameChanges {
     pub fn resized(&mut self, size: &PhysicalSize<u32>) {
         self.mouse_home = PhysicalPosition {
             x: size.width / 2,
-            y: size.height / 2
+            y: size.height / 2,
         };
     }
 
     //TODO: Eventually move this into a separate class so its easier to hook in controller game_changes
 
     /// Converts keyboard input_service game_changes into the different actions they perform.
-    pub fn handle_event(
-        &mut self,
-        event: &WindowEvent,
-    ) {
-        match *event.clone() {
+    pub fn handle_event(&mut self, event: &WindowEvent) {
+        match event {
             WindowEvent::MouseInput {
                 device_id: _,
                 state: _,
                 button,
                 ..
             } => {
-                if button == MouseButton::Left {
+                if button == &MouseButton::Left {
                     self.item_used();
-                } else if button == MouseButton::Right {
+                } else if button == &MouseButton::Right {
                     self.item_activated();
                 }
 
@@ -125,35 +95,7 @@ impl GameChanges {
                 if input.virtual_keycode != None && self.grabbed {
                     let key = input.virtual_keycode.unwrap();
 
-                    if key == self.mappings.pause {
-                        self.pause_pressed();
-                        self.grabbed = false;
-                        uncapture_mouse(&*self.window.borrow());
-                    }
-
-                    if key == self.mappings.forwards {
-                        self.add_forward_movement_changes(1);
-                    }
-
-                    if key == self.mappings.backwards {
-                        self.add_forward_movement_changes(-1);
-                    }
-
-                    if key == self.mappings.left {
-                        self.add_horizontal_movement_changes(1);
-                    }
-
-                    if key == self.mappings.right {
-                        self.add_horizontal_movement_changes(-1);
-                    }
-
-                    if key == self.mappings.jump {
-                        self.set_jump();
-                    }
-
-                    if key == self.mappings.sneak {
-                        self.set_sneak();
-                    }
+                    self.handle_keyboard_input(input.state == ElementState::Pressed, key);
                 }
             }
 
@@ -162,7 +104,7 @@ impl GameChanges {
                 position,
                 ..
             } => {
-                self.cursor_position(position);
+                self.cursor_position(*position);
 
                 if self.grabbed {
                     let raw_x = position.x as f64;
@@ -174,12 +116,68 @@ impl GameChanges {
                     self.look[0] += x;
                     self.look[1] += y;
 
-                    if let Err(e) = (self.window.borrow() as &Window).set_cursor_position(self.mouse_home) {
+                    if let Err(e) =
+                        (self.window.borrow() as &Window).set_cursor_position(self.mouse_home)
+                    {
                         log_error!("Error setting cursor position: {}", e);
                     }
                 }
             }
             _ => {}
+        }
+    }
+
+    fn handle_keyboard_input(&mut self, pressed: bool, key: VirtualKeyCode) {
+        if pressed {
+            if key == self.mappings.pause {
+                self.pause = true;
+                self.grabbed = false;
+                uncapture_mouse(&*self.window.borrow());
+            }
+
+            if key == self.mappings.forwards {
+                self.movement[0] = 1;
+            }
+
+            if key == self.mappings.backwards {
+                self.movement[0] = -1;
+            }
+
+            if key == self.mappings.left {
+                self.movement[1] = 1;
+            }
+
+            if key == self.mappings.right {
+                self.movement[1] = -1;
+            }
+
+            if key == self.mappings.jump {
+                self.jump = true;
+            }
+
+            if key == self.mappings.sneak {
+                self.sneak = true;
+            }
+        } else {
+            if key == self.mappings.pause {
+                self.pause = false;
+            }
+
+            if key == self.mappings.forwards || key == self.mappings.backwards {
+                self.movement[0] = 0;
+            }
+
+            if key == self.mappings.left || key == self.mappings.right {
+                self.movement[1] = 0;
+            }
+
+            if key == self.mappings.jump {
+                self.jump = false;
+            }
+
+            if key == self.mappings.sneak {
+                self.sneak = false;
+            }
         }
     }
 }

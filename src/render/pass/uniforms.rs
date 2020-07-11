@@ -24,30 +24,35 @@ impl Uniforms {
     }
 
     pub fn create_uniform_buffers(self, device: &Device) -> (Buffer, BindGroupLayout, BindGroup) {
-        let uniform_buffer = device
-            .create_buffer_with_data(bytemuck::cast_slice(&self.view_proj), wgpu::BufferUsage::UNIFORM
-                | wgpu::BufferUsage::COPY_DST
-                | wgpu::BufferUsage::COPY_SRC);
+        let uniform_buffer = device.create_buffer_with_data(
+            bytemuck::cast_slice(&self.view_proj),
+            wgpu::BufferUsage::UNIFORM | wgpu::BufferUsage::COPY_DST | wgpu::BufferUsage::COPY_SRC,
+        );
 
         let uniform_bind_group_layout =
             device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
                 bindings: &[wgpu::BindGroupLayoutEntry {
                     binding: 0,
                     visibility: wgpu::ShaderStage::VERTEX,
-                    ty: wgpu::BindingType::UniformBuffer { dynamic: false, min_binding_size: None },
+                    ty: wgpu::BindingType::UniformBuffer {
+                        dynamic: false,
+                        min_binding_size: None,
+                    },
                     count: None,
-                    _non_exhaustive: Default::default()
+                    _non_exhaustive: Default::default(),
                 }],
-                label: None
+                label: None,
             });
 
         let uniform_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
             layout: &uniform_bind_group_layout,
             bindings: &[wgpu::Binding {
                 binding: 0,
-                resource: wgpu::BindingResource::Buffer(uniform_buffer.slice(0..std::mem::size_of_val(&self) as wgpu::BufferAddress)),
+                resource: wgpu::BindingResource::Buffer(
+                    uniform_buffer.slice(0..std::mem::size_of_val(&self) as wgpu::BufferAddress),
+                ),
             }],
-            label: None
+            label: None,
         });
 
         (

@@ -21,3 +21,8 @@ pub fn format_u32(mut count: u32) -> String {
 
     msg
 }
+
+pub fn lerp(a: f32, b: f32, t: f32) -> f32 {
+    ((b - a) * t) + a
+}
+

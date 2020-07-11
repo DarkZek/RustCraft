@@ -1,3 +1,6 @@
+use crate::block::Block;
+use crate::services::input_service::InputService;
+use crate::services::networking_service::NetworkingService;
 use crate::services::{
     asset_service::atlas::atlas_update_blocks,
     asset_service::AssetService,
@@ -5,26 +8,23 @@ use crate::services::{
     chunk_service::ChunkService,
     logging_service::LoggingService,
     settings_service::SettingsService,
-    ui_service::{ObjectAlignment, Positioning, UIService}
+    ui_service::{ObjectAlignment, Positioning, UIService},
 };
-use crate::block::Block;
+use specs::World;
+use std::sync::Arc;
 use wgpu::{Device, Queue};
 use winit::dpi::PhysicalSize;
-use specs::World;
-use crate::services::input_service::InputService;
 use winit::window::Window;
-use std::sync::Arc;
-use crate::services::networking_service::NetworkingService;
 
 #[macro_use]
 pub mod logging_service;
 pub mod asset_service;
 pub mod audio_service;
 pub mod chunk_service;
-pub mod settings_service;
-pub mod ui_service;
 pub mod input_service;
 pub mod networking_service;
+pub mod settings_service;
+pub mod ui_service;
 
 /// Stores references to important devices needed during initialization of the services.
 pub struct ServicesContext<'a> {
@@ -32,7 +32,7 @@ pub struct ServicesContext<'a> {
     pub queue: &'a mut Queue,
     pub blocks: &'a mut Vec<Block>,
     pub size: &'a PhysicalSize<u32>,
-    pub window: Arc<Window>
+    pub window: Arc<Window>,
 }
 
 impl<'a> ServicesContext<'_> {
@@ -48,7 +48,7 @@ impl<'a> ServicesContext<'_> {
             queue,
             blocks,
             size,
-            window
+            window,
         }
     }
 }

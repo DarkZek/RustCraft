@@ -4,6 +4,7 @@ use crate::services::ui_service::draw::{draw_rect, draw_sprite};
 use crate::services::ui_service::fonts::{FontAtlasIndexs, FONT_TEXTURE_SIZE, LETTER_SPACING};
 use crate::services::ui_service::{ObjectAlignment, Positioning};
 use winit::dpi::PhysicalSize;
+use crate::helpers::lerp;
 
 pub struct Text {
     pub text: String,
@@ -200,8 +201,4 @@ pub fn calculate_texture_coords(byte: u8, fonts: &FontAtlasIndexs) -> TextureAtl
     ];
 
     (uv_top_left, uv_bottom_right)
-}
-
-pub fn lerp(a: f32,  b: f32, t: f32) -> f32 {
-    ((b - a) * t) + a
 }

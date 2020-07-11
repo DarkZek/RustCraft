@@ -13,19 +13,17 @@ pub struct Camera {
     pub zfar: f32,
 }
 
-const FIRST_PERSON_OFFSET: [f32; 3] = [0.0, 1.0, 0.0];
+const FIRST_PERSON_OFFSET: [f32; 3] = [0.0, 0.0, 0.0];
 const PI: f32 = std::f32::consts::PI;
 
 impl Camera {
-
     /// Creates new camera with default settings. We'll need to hook this up to the settings service
     pub fn new(size: &PhysicalSize<u32>) -> Camera {
         Camera {
-            // position the camera one unit up and 2 units back
-            eye: Point3::new(10.0, 51.0, 10.0),
+            eye: Point3::new(0.0, 0.0, 0.0),
             // have it look at the origin
             yaw: 0.0,
-            pitch: 0.0,
+            pitch: 3.14,
             // which way is "up"
             up: Vector3::y(),
             aspect: size.width as f32 / size.height as f32,
@@ -38,10 +36,7 @@ impl Camera {
     /// Builds the view projection matrix with flipped axis for wgpu using Camera settings
     pub fn build_view_projection_matrix(&self) -> Matrix4<f32> {
         let opengl_to_wgpu_matrix: Matrix4<f32> = Matrix4::new(
-            1.0, 0.0, 0.0, 0.0,
-            0.0, 1.0, 0.0, 0.0,
-            0.0, 0.0, 0.5, 0.0,
-            0.0, 0.0, 0.5, 1.0,
+            1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5, 1.0,
         );
 
         let view_vector = Vector3::new(

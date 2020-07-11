@@ -12,9 +12,9 @@ use crate::world::generator::World;
 use nalgebra::Vector3;
 use std::collections::HashMap;
 use wgpu::{BindGroupLayout, Device};
-use specs::{System, Write, Read};
 
 pub mod chunk;
+pub mod collider;
 pub mod frustum_culling;
 pub mod mesh;
 
@@ -26,7 +26,7 @@ pub struct ChunkService {
     pub vertices_count: u64,
     pub chunk_keys: Vec<Vector3<i32>>,
 
-    previous_player_rot: f32
+    previous_player_rot: f32,
 }
 
 impl ChunkService {
@@ -35,11 +35,14 @@ impl ChunkService {
             bindings: &[wgpu::BindGroupLayoutEntry {
                 binding: 0,
                 visibility: wgpu::ShaderStage::VERTEX,
-                ty: wgpu::BindingType::UniformBuffer { dynamic: true, min_binding_size: None },
+                ty: wgpu::BindingType::UniformBuffer {
+                    dynamic: true,
+                    min_binding_size: None,
+                },
                 count: None,
-                _non_exhaustive: Default::default()
+                _non_exhaustive: Default::default(),
             }],
-            label: None
+            label: None,
         };
 
         // Create the chunk bind group layout
@@ -54,7 +57,7 @@ impl ChunkService {
             visible_chunks: vec![],
             vertices_count: 0,
             chunk_keys: Vec::new(),
-            previous_player_rot: 0.0
+            previous_player_rot: 0.0,
         };
 
         //TODO: Remove this once we have networking
@@ -100,11 +103,13 @@ impl ChunkService {
         chunk_coords: Vector3<i32>,
         _settings: &SettingsService,
     ) {
-        let chunk = if data.is_some() {
+        let mut chunk = if data.is_some() {
             Chunk::new(data.unwrap(), chunk_coords)
         } else {
             Chunk::new_empty(chunk_coords)
         };
+
+        chunk.calculate_colliders();
 
         // chunk.generate_mesh(&self);
         // self.vertices += chunk.vertices.as_ref().unwrap().len() as u64;
@@ -119,7 +124,6 @@ impl ChunkService {
     }
 
     pub fn update_frustum_culling(&mut self, camera: &Camera) {
-
         // To 3 dp
         if (camera.yaw * 100.0).round() == self.previous_player_rot {
             return;

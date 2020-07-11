@@ -4,18 +4,21 @@ use crate::render::loading::LoadingScreen;
 use crate::render::pass::uniforms::Uniforms;
 use crate::render::shaders::load_shaders;
 use crate::services::asset_service::depth_map::{create_depth_texture, DEPTH_FORMAT};
-use crate::services::chunk_service::mesh::Vertex;
-use crate::services::{ServicesContext, load_services};
-use std::time::{SystemTime, Duration, Instant};
-use systemstat::{Platform, System};
-use wgpu::{AdapterInfo, BindGroupLayout, Device, RenderPipeline, Sampler, SwapChainDescriptor, Texture, TextureView, VertexStateDescriptor};
-use winit::window::{Window, WindowBuilder};
-use specs::{World, WorldExt};
-use winit::event_loop::EventLoop;
 use crate::services::asset_service::AssetService;
+use crate::services::chunk_service::mesh::Vertex;
 use crate::services::chunk_service::ChunkService;
-use std::sync::Arc;
+use crate::services::{load_services, ServicesContext};
+use specs::{World, WorldExt};
 use std::borrow::Borrow;
+use std::sync::Arc;
+use std::time::{Duration, Instant, SystemTime};
+use systemstat::{Platform, System};
+use wgpu::{
+    AdapterInfo, BindGroupLayout, Device, RenderPipeline, Sampler, SwapChainDescriptor, Texture,
+    TextureView, VertexStateDescriptor,
+};
+use winit::event_loop::EventLoop;
+use winit::window::{Window, WindowBuilder};
 
 pub mod camera;
 pub mod device;
@@ -55,22 +58,24 @@ pub struct RenderState {
     system_info: System,
 
     last_frame_time: SystemTime,
-    delta_time: Duration
+    delta_time: Duration,
 }
 
 impl RenderState {
     pub fn new(universe: &mut World, event_loop: &EventLoop<()>) -> Self {
-
         let last_frame_time = SystemTime::now();
         let delta_time = Duration::from_millis(0);
 
-        let window = Arc::new(WindowBuilder::new()
-            .with_title("Loading - Rustcraft")
-            .build(&event_loop)
-            .unwrap());
+        let window = Arc::new(
+            WindowBuilder::new()
+                .with_title("Loading - Rustcraft")
+                .build(&event_loop)
+                .unwrap(),
+        );
 
         // Get the window setup ASAP so we can show loading screen
-        let (size, surface, gpu_info, mut device, mut queue) = RenderState::get_devices(window.borrow());
+        let (size, surface, gpu_info, mut device, mut queue) =
+            RenderState::get_devices(window.borrow());
 
         let sc_desc = wgpu::SwapChainDescriptor {
             usage: wgpu::TextureUsage::OUTPUT_ATTACHMENT,
@@ -89,13 +94,10 @@ impl RenderState {
         let mut blocks = blocks::get_blocks();
 
         // Start the intensive job of loading services
-        load_services(ServicesContext::new(
-            &mut device,
-            &mut queue,
-            &mut blocks,
-            &size,
-            window.clone()
-        ), universe);
+        load_services(
+            ServicesContext::new(&mut device, &mut queue, &mut blocks, &size, window.clone()),
+            universe,
+        );
 
         // Update loading screen
         loading.render(&mut swap_chain, &device, &mut queue, 90);
@@ -107,6 +109,9 @@ impl RenderState {
         let (uniform_buffer, uniform_bind_group_layout, uniform_bind_group) =
             uniforms.create_uniform_buffers(&device);
 
+        universe
+            .write_resource::<ChunkService>()
+            .update_frustum_culling(&camera);
         universe.insert(camera);
 
         // Hand the atlas to the renderer
@@ -119,7 +124,11 @@ impl RenderState {
             &device,
             true,
             &[
-                &universe.read_resource::<AssetService>().atlas_bind_group_layout.as_ref().unwrap(),
+                &universe
+                    .read_resource::<AssetService>()
+                    .atlas_bind_group_layout
+                    .as_ref()
+                    .unwrap(),
                 &uniform_bind_group_layout,
                 &universe.read_resource::<ChunkService>().bind_group_layout,
             ],
@@ -147,7 +156,7 @@ impl RenderState {
             gpu_info,
             system_info,
             last_frame_time,
-            delta_time
+            delta_time,
         }
     }
 
