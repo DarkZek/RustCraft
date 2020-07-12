@@ -1,6 +1,5 @@
 use crate::entity::player::{move_forwards, Player, PlayerEntity};
 use crate::game::physics::PhysicsObject;
-use crate::game::systems::DeltaTime;
 use crate::render::camera::Camera;
 use crate::render::RenderState;
 use crate::services::input_service::input::GameChanges;
@@ -93,10 +92,10 @@ impl<'a> System<'a> for PlayerMovementSystem {
 
         if events.jump { actionsheet.set_jump();}
 
-        if actionsheet.get_jump() {println!("yeet");
+        if actionsheet.get_jump() {
             let (_, player_physics) = (&player_entity, &mut player_physics).join().last().unwrap();
             if player_physics.touching_ground {
-                player_physics.velocity.y += 0.42;println!("heh");
+                player_physics.velocity.y += 0.42;
             }
         }
 

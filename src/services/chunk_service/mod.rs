@@ -65,7 +65,7 @@ impl ChunkService {
             for z in -(settings.render_distance as i32)..(settings.render_distance as i32) {
                 for y in 0..16 {
                     let data = ChunkService::generate_chunk(x, y, z, context.blocks);
-                    service.load_chunk(context.device, data, Vector3::new(x, y, z), &settings);
+                    service.load_chunk(context.device.as_ref(), data, Vector3::new(x, y, z), &settings);
                 }
             }
         }

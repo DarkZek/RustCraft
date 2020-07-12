@@ -10,15 +10,13 @@ use crate::services::chunk_service::ChunkService;
 use crate::services::{load_services, ServicesContext};
 use specs::{World, WorldExt};
 use std::borrow::Borrow;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant, SystemTime};
 use systemstat::{Platform, System};
-use wgpu::{
-    AdapterInfo, BindGroupLayout, Device, RenderPipeline, Sampler, SwapChainDescriptor, Texture,
-    TextureView, VertexStateDescriptor,
-};
+use wgpu::{AdapterInfo, BindGroupLayout, Device, RenderPipeline, Sampler, SwapChainDescriptor, Texture, TextureView, VertexStateDescriptor, SwapChain};
 use winit::event_loop::EventLoop;
 use winit::window::{Window, WindowBuilder};
+use std::thread;
 
 pub mod camera;
 pub mod device;
@@ -74,8 +72,12 @@ impl RenderState {
         );
 
         // Get the window setup ASAP so we can show loading screen
-        let (size, surface, gpu_info, mut device, mut queue) =
+        let (size, surface, gpu_info, device, queue) =
             RenderState::get_devices(window.borrow());
+
+        // Convert to forms that can be used in multiple places
+        let device = Arc::new(device);
+        let queue = Arc::new(Mutex::new(queue));
 
         let sc_desc = wgpu::SwapChainDescriptor {
             usage: wgpu::TextureUsage::OUTPUT_ATTACHMENT,
@@ -85,39 +87,35 @@ impl RenderState {
             present_mode: wgpu::PresentMode::Fifo,
         };
 
-        let mut swap_chain = device.create_swap_chain(&surface, &sc_desc);
+        let swap_chain = device.create_swap_chain(&surface, &sc_desc);
+        let swap_chain = Arc::new(Mutex::new(swap_chain));
 
         // Start showing loading screen
-        let mut loading = LoadingScreen::new(&device, &size);
-        loading.render(&mut swap_chain, &device, &mut queue, 10);
+        let loading = LoadingScreen::new(&size, swap_chain.clone(), device.clone(), queue.clone());
+        loading.start_loop();
 
         let mut blocks = blocks::get_blocks();
 
         // Start the intensive job of loading services
         load_services(
-            ServicesContext::new(&mut device, &mut queue, &mut blocks, &size, window.clone()),
+            ServicesContext::new(device.clone(), queue.clone(), &mut blocks, &size, window.clone()),
             universe,
         );
-
-        // Update loading screen
-        loading.render(&mut swap_chain, &device, &mut queue, 90);
+        LoadingScreen::update_state(95.0);
 
         // TODO: Combine uniforms into camera
         let camera = Camera::new(&size);
         let mut uniforms = Uniforms::new();
         uniforms.update_view_proj(&camera);
         let (uniform_buffer, uniform_bind_group_layout, uniform_bind_group) =
-            uniforms.create_uniform_buffers(&device);
+            uniforms.create_uniform_buffers(&device.clone());
 
         universe
             .write_resource::<ChunkService>()
             .update_frustum_culling(&camera);
         universe.insert(camera);
 
-        // Hand the atlas to the renderer
-        //let (atlas_sampler, atlas_texture, atlas_mapping) = (services.asset.texture_sampler.take().unwrap(), services.asset.texture_atlas.take().unwrap(), services.asset.texture_atlas_index.take().unwrap());
-
-        let depth_texture = create_depth_texture(&device, &sc_desc);
+        let depth_texture = create_depth_texture(&device.clone(), &sc_desc);
 
         let render_pipeline = generate_render_pipeline(
             &sc_desc,
@@ -135,6 +133,16 @@ impl RenderState {
         );
 
         let system_info = System::new();
+
+        // Send the notice to shut the loading screen down
+        LoadingScreen::update_state(100.0);
+
+        // Spin lock until the background loading thread shuts down
+        let swap_chain = LoadingScreen::wait_for_swapchain(swap_chain);
+
+        let queue = Arc::try_unwrap(queue).ok().unwrap().into_inner().unwrap();
+
+        let device = Arc::try_unwrap(device).ok().unwrap();
 
         Self {
             surface,
@@ -166,10 +174,6 @@ impl RenderState {
         self.sc_desc.height = new_size.height;
         self.swap_chain = Some(self.device.create_swap_chain(&self.surface, &self.sc_desc));
         self.depth_texture = create_depth_texture(&self.device, &self.sc_desc);
-
-        // let mut services = self.services.take().unwrap();
-        // services.ui.update_ui_projection_matrix(self, new_size);
-        // self.services = Some(services);
     }
 }
 

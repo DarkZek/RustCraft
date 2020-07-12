@@ -1,4 +1,3 @@
-use specs::{System, Write};
 use instant::Instant;
 
 // The u8 is the timeout until it can next be activated in ticks. The bool tells us if its triggered

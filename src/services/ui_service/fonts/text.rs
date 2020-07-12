@@ -4,7 +4,7 @@ use crate::services::ui_service::draw::{draw_rect, draw_sprite};
 use crate::services::ui_service::fonts::{FontAtlasIndexs, FONT_TEXTURE_SIZE, LETTER_SPACING};
 use crate::services::ui_service::{ObjectAlignment, Positioning};
 use winit::dpi::PhysicalSize;
-use crate::helpers::lerp;
+use crate::helpers::Lerp;
 
 pub struct Text {
     pub text: String,
@@ -175,26 +175,22 @@ pub fn calculate_texture_coords(byte: u8, fonts: &FontAtlasIndexs) -> TextureAtl
 
     // Calculate the uv maps from both the local and the absolute
     let uv_top_left = [
-        lerp(
-            character_sheet_top_left[0],
+        character_sheet_top_left[0].lerp(
             character_sheet_bottom_right[0],
-            local_top_left[0],
+            local_top_left[0]
         ),
-        lerp(
-            character_sheet_top_left[1],
+        character_sheet_top_left[1].lerp(
             character_sheet_bottom_right[1],
             local_top_left[1],
         ),
     ];
 
     let uv_bottom_right = [
-        lerp(
-            character_sheet_top_left[0],
+        character_sheet_top_left[0].lerp(
             character_sheet_bottom_right[0],
             local_bottom_right[0],
         ),
-        lerp(
-            character_sheet_top_left[1],
+        character_sheet_top_left[1].lerp(
             character_sheet_bottom_right[1],
             local_bottom_right[1],
         ),

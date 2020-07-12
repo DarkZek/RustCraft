@@ -11,10 +11,11 @@ use crate::services::{
     ui_service::{ObjectAlignment, Positioning, UIService},
 };
 use specs::World;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use wgpu::{Device, Queue};
 use winit::dpi::PhysicalSize;
 use winit::window::Window;
+use crate::render::loading::LoadingScreen;
 
 #[macro_use]
 pub mod logging_service;
@@ -28,8 +29,8 @@ pub mod ui_service;
 
 /// Stores references to important devices needed during initialization of the services.
 pub struct ServicesContext<'a> {
-    pub device: &'a mut Device,
-    pub queue: &'a mut Queue,
+    pub device: Arc<Device>,
+    pub queue: Arc<Mutex<Queue>>,
     pub blocks: &'a mut Vec<Block>,
     pub size: &'a PhysicalSize<u32>,
     pub window: Arc<Window>,
@@ -37,8 +38,8 @@ pub struct ServicesContext<'a> {
 
 impl<'a> ServicesContext<'_> {
     pub fn new(
-        device: &'a mut Device,
-        queue: &'a mut Queue,
+        device: Arc<Device>,
+        queue: Arc<Mutex<Queue>>,
         blocks: &'a mut Vec<Block>,
         size: &'a PhysicalSize<u32>,
         window: Arc<Window>,
@@ -57,14 +58,20 @@ impl<'a> ServicesContext<'_> {
 pub fn load_services(mut context: ServicesContext, universe: &mut World) {
     let settings = SettingsService::new();
     let logging = LoggingService::new(&settings);
+    LoadingScreen::update_state(10.0);
+
     let asset = AssetService::new(&settings, &mut context);
+    LoadingScreen::update_state(60.0);
+
     //TODO: Remove this once we have networking
     atlas_update_blocks(asset.atlas_index.as_ref().unwrap(), &mut context.blocks);
     let chunk = ChunkService::new(&settings, &mut context);
+    LoadingScreen::update_state(80.0);
     let audio = AudioService::new();
     let mut ui = UIService::new(&mut context, &asset, universe);
     let input = InputService::new(&mut context, universe);
     let mut networking_service = NetworkingService::new();
+    LoadingScreen::update_state(90.0);
 
     //TEMP
     //region

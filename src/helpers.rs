@@ -1,4 +1,4 @@
-use std::ops::Add;
+use std::ops::{Add, Sub, Mul};
 
 /// Formats a u32 with American comma placement.
 ///
@@ -22,7 +22,19 @@ pub fn format_u32(mut count: u32) -> String {
     msg
 }
 
-pub fn lerp(a: f32, b: f32, t: f32) -> f32 {
-    ((b - a) * t) + a
+pub trait Lerp {
+    fn lerp(self, b: Self, t: f32) -> f32;
+}
+
+impl Lerp for f32 {
+    fn lerp(self, b: Self, t: f32) -> f32 {
+        ((b - self) * t) + self
+    }
+}
+
+impl Lerp for u8 {
+    fn lerp(self, b: Self, t: f32) -> f32 {
+        ((b as f32 - self as f32) * t as f32) + self as f32
+    }
 }
 

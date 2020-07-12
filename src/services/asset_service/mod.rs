@@ -8,6 +8,7 @@ use crate::services::ServicesContext;
 use image::DynamicImage;
 use std::collections::HashMap;
 use wgpu::{BindGroup, BindGroupLayout, Sampler, Texture};
+use std::ops::DerefMut;
 
 pub mod atlas;
 pub mod binding;
@@ -55,8 +56,8 @@ impl AssetService {
 
         let (atlas_image, atlas, atlas_index, atlas_sampler) = AssetService::generate_texture_atlas(
             selected_pack.as_mut().unwrap(),
-            context.device,
-            context.queue,
+            context.device.as_ref(),
+            context.queue.lock().unwrap().deref_mut(),
             settings,
         );
 

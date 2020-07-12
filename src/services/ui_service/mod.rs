@@ -34,7 +34,7 @@ impl UIService {
         let (projection_buffer, projection_bind_group, projection_bind_group_layout) =
             UIService::setup_ui_projection_matrix(context);
         let pipeline = generate_render_pipeline(
-            context.device,
+            context.device.as_ref(),
             &[
                 assets.atlas_bind_group_layout.as_ref().unwrap(),
                 &projection_bind_group_layout,
