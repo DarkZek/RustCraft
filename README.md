@@ -20,23 +20,8 @@ To run for WASM you need to install [cargo web](https://github.com/koute/cargo-w
 
 `cargo web start --target=wasm32-unknown-unknown`
 
-## Features
-
-Golden ratio viewer has many features planned, such as 
-
-- The ability to zoom in and out on the canvas
-- Inputs for distance and rotation per step
-- Start & End color customization
-- Being able to plot multiple graphs at the same time
-- Exporting the graph
-- Keyboard shortcuts
-- Allowing the formula to be changed
-- Allowing expressions in the input (eg 3/4) 
-
 ## Contributing
-Issues are welcome to discuss and report issues, because this is for a school assessment no pull requests will be accepted however.
-
-Thanks for your understanding :)
+Issues are welcome, as are pull requests and any code contributions.
 
 ## License
 [GNUv3](https://www.gnu.org/licenses/gpl-3.0.en.html)
