@@ -8,8 +8,6 @@ impl ChunkData {
 
         let mut lights = Vec::new();
 
-        println!("Lights: {}", lights.len());
-
         for x in 0..CHUNK_SIZE {
             for y in 0..CHUNK_SIZE {
                 for z in 0..CHUNK_SIZE {
@@ -25,7 +23,6 @@ impl ChunkData {
         }
 
         for light in lights {
-            println!("Pos: {:?}", light.2);
             flood_fill(&mut self.light_levels, &self.world, light.2, light.0, light.1);
         }
     }

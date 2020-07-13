@@ -50,7 +50,7 @@ pub fn lerp_color(c1: Color, c2: Color, t: f32) -> Color {
 }
 
 pub fn distance(p1: &Point3<usize>, p2: &Point3<usize>) -> u32 {
-    ((p1.x as isize - p2.x as isize) +
-        (p1.y as isize - p2.y as isize) +
-        (p1.z as isize - p2.z as isize)) as u32
+    ((p1.x as isize - p2.x as isize).abs() +
+        (p1.y as isize - p2.y as isize).abs() +
+        (p1.z as isize - p2.z as isize).abs()).abs() as u32
 }
