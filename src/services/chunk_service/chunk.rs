@@ -6,11 +6,16 @@ use crate::services::settings_service::CHUNK_SIZE;
 use nalgebra::Vector3;
 use wgpu::{BindGroup, Buffer};
 
-pub struct Chunk {
-    pub world: Option<RawChunkData>,
+pub enum Chunk {
+    Tangible(ChunkData),
+    Intangible
+}
+
+pub struct ChunkData {
+    pub world: RawChunkData,
     pub blocks: Vec<Block>,
-    pub vertices: Option<Vec<Vertex>>,
-    pub indices: Option<Vec<u16>>,
+    pub vertices: Vec<Vertex>,
+    pub indices: Vec<u16>,
     pub vertices_buffer: Option<Buffer>,
     pub indices_buffer: Option<Buffer>,
     pub indices_buffer_len: u32,
@@ -19,15 +24,18 @@ pub struct Chunk {
     pub viewable_map: Option<[[[ViewableDirection; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE]>,
     pub position: Vector3<i32>,
     pub collision_map: Vec<BoxCollider>,
+    pub light_levels: [[[Color; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE],
 }
 
-impl Chunk {
-    pub fn new(data: ChunkData, position: Vector3<i32>) -> Chunk {
-        Chunk {
-            world: Some(data.0),
+pub type Color = [f32; 4];
+
+impl ChunkData {
+    pub fn new(data: ChunkBlockData, position: Vector3<i32>) -> ChunkData {
+        ChunkData {
+            world: data.0,
             blocks: data.1,
-            vertices: None,
-            indices: None,
+            vertices: vec![],
+            indices: vec![],
             vertices_buffer: None,
             indices_buffer: None,
             indices_buffer_len: 0,
@@ -35,24 +43,11 @@ impl Chunk {
             viewable_map: None,
             position,
             collision_map: vec![],
-        }
-    }
-    pub fn new_empty(position: Vector3<i32>) -> Chunk {
-        Chunk {
-            world: None,
-            blocks: Vec::new(),
-            vertices: None,
-            indices: None,
-            vertices_buffer: None,
-            indices_buffer: None,
-            indices_buffer_len: 0,
-            model_bind_group: None,
-            viewable_map: None,
-            position,
-            collision_map: vec![],
+            light_levels: [[[[0.0, 0.0, 0.0, 0.0]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE],
         }
     }
 }
 
 pub type RawChunkData = [[[u32; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
-pub type ChunkData = (RawChunkData, Vec<Block>);
+pub type RawLightingData = [[[Color; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
+pub type ChunkBlockData = (RawChunkData, Vec<Block>);

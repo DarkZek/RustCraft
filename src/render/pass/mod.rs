@@ -4,9 +4,11 @@ use crate::services::chunk_service::ChunkService;
 use crate::services::ui_service::UIService;
 use specs::{Read, System, Write};
 use wgpu::{Color, LoadOp, Operations};
+use crate::services::chunk_service::chunk::Chunk;
 
 pub mod prepass;
 pub mod uniforms;
+pub mod buffer;
 
 pub struct RenderSystem;
 
@@ -66,16 +68,16 @@ impl<'a> System<'a> for RenderSystem {
                 render_pass.set_bind_group(1, &render_state.uniform_bind_group, &[]);
 
                 for pos in &chunk_service.visible_chunks {
-                    let chunk = chunk_service.chunks.get(pos).unwrap();
+                    if let Chunk::Tangible(chunk) = chunk_service.chunks.get(pos).unwrap() {
+                        let indices_buffer = chunk.indices_buffer.as_ref().unwrap();
+                        let vertices_buffer = chunk.vertices_buffer.as_ref().unwrap();
+                        let model_bind_group = chunk.model_bind_group.as_ref().unwrap();
 
-                    let indices_buffer = chunk.indices_buffer.as_ref().unwrap();
-                    let vertices_buffer = chunk.vertices_buffer.as_ref().unwrap();
-                    let model_bind_group = chunk.model_bind_group.as_ref().unwrap();
-
-                    render_pass.set_bind_group(2, model_bind_group, &[0]);
-                    render_pass.set_vertex_buffer(0, vertices_buffer.slice(..));
-                    render_pass.set_index_buffer(indices_buffer.slice(..));
-                    render_pass.draw_indexed(0..chunk.indices_buffer_len, 0, 0..1);
+                        render_pass.set_bind_group(2, model_bind_group, &[0]);
+                        render_pass.set_vertex_buffer(0, vertices_buffer.slice(..));
+                        render_pass.set_index_buffer(indices_buffer.slice(..));
+                        render_pass.draw_indexed(0..chunk.indices_buffer_len, 0, 0..1);
+                    }
                 }
             }
 

@@ -55,22 +55,22 @@ impl LoadingScreen {
         let x = ((percentage as f32 / 100.0) * 1.2) - 0.6;
 
         let top_left = UIVertex {
-            position: [-0.7, -0.52],
+            position: [-0.7, -0.51],
             tex_coords: [-1.0, -1.0],
             color: [1.0, 1.0, 1.0, 1.0]
         };
         let top_right = UIVertex {
-            position: [x, -0.52],
+            position: [x, -0.51],
             tex_coords: [-1.0, -1.0],
             color: [1.0, 1.0, 1.0, 1.0]
         };
         let bottom_left = UIVertex {
-            position: [-0.7, -0.58],
+            position: [-0.7, -0.59],
             tex_coords: [-1.0, -1.0],
             color: [1.0, 1.0, 1.0, 1.0]
         };
         let bottom_right = UIVertex {
-            position: [x, -0.58],
+            position: [x, -0.59],
             tex_coords: [-1.0, -1.0],
             color: [1.0, 1.0, 1.0, 1.0]
         };

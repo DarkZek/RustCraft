@@ -36,16 +36,18 @@ pub fn calculate_frustum_culling(
     for pos in viewable_chunks {
         let chunk = chunks.get(pos).unwrap();
 
-        let relative_pos = chunk.position * CHUNK_SIZE as i32;
-        let relative_pos = Vector3::new(
-            relative_pos.x as f32 - _cam.eye.x,
-            relative_pos.y as f32 - _cam.eye.y,
-            relative_pos.z as f32 - _cam.eye.z,
-        );
+        if let Chunk::Tangible(chunk) = chunk {
+            let relative_pos = chunk.position * CHUNK_SIZE as i32;
+            let relative_pos = Vector3::new(
+                relative_pos.x as f32 - _cam.eye.x,
+                relative_pos.y as f32 - _cam.eye.y,
+                relative_pos.z as f32 - _cam.eye.z,
+            );
 
-        if chunk.vertices_buffer.is_some() && chunk.indices_buffer.is_some() {
-            if is_visible(relative_pos, 20.0, &faces) {
-                visible_chunks.push(pos.clone());
+            if chunk.vertices_buffer.is_some() && chunk.indices_buffer.is_some() {
+                if is_visible(relative_pos, 23.0, &faces) {
+                    visible_chunks.push(pos.clone());
+                }
             }
         }
     }

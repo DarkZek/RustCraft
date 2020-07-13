@@ -3,7 +3,6 @@ use nalgebra::Vector3;
 pub mod block;
 pub mod chunk;
 pub mod culling;
-pub mod debug;
 pub mod generation;
 
 //TODO: Maybe look into using some shader trickery to decrease VRAM usage by generating indices shader side since it never changes
@@ -14,6 +13,7 @@ pub struct Vertex {
     pub position: [f32; 3],
     pub tex_coords: [f32; 2],
     pub normals: [f32; 3],
+    pub applied_color: [f32; 4],
 }
 
 unsafe impl bytemuck::Zeroable for Vertex {}
@@ -90,6 +90,12 @@ impl Vertex {
                         as wgpu::BufferAddress,
                     shader_location: 2,
                     format: wgpu::VertexFormat::Float3,
+                },
+                wgpu::VertexAttributeDescriptor {
+                    offset: (mem::size_of::<[f32; 3]>() + mem::size_of::<[f32; 2]>() + mem::size_of::<[f32; 4]>())
+                        as wgpu::BufferAddress,
+                    shader_location: 3,
+                    format: wgpu::VertexFormat::Float4,
                 },
             ],
         }

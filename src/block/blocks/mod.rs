@@ -5,6 +5,7 @@ mod grass;
 mod sand;
 mod sandstone;
 mod stone;
+mod glowstone;
 
 //TODO: Remove this and load blocks dynamically
 
@@ -17,6 +18,7 @@ pub fn get_blocks() -> Vec<Block> {
     blocks.push(grass::GRASS_BLOCK);
     blocks.push(sand::SAND_BLOCK);
     blocks.push(sandstone::SANDSTONE_BLOCK);
+    blocks.push(glowstone::GLOWSTONE_BLOCK);
 
     blocks
 }

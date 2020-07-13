@@ -18,6 +18,7 @@ impl<'a> System<'a> for PhysicsInterpolationSystem {
     type SystemData = (WriteStorage<'a, PhysicsObject>, Read<'a, PhysicsInterpolationFactor>);
 
     fn run(&mut self, (mut physics_objects, interpolation_factor): Self::SystemData) {
+        // Loop over each entity in parallel and lerp between positions
         (&mut physics_objects).par_join()
             .for_each(|entity| {
                 entity.position = lerp_vec3(&entity.old_position, &entity.new_position, interpolation_factor.0);

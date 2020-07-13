@@ -3,6 +3,7 @@ use crate::services::asset_service::atlas::TextureAtlasIndex;
 use crate::services::chunk_service::mesh::culling::ViewableDirection;
 use crate::services::chunk_service::mesh::{Vertex, ViewableDirectionBitMap};
 use nalgebra::{Point3, Vector3};
+use crate::services::chunk_service::chunk::Color;
 
 pub fn draw_block(
     point: Point3<f32>,
@@ -10,6 +11,7 @@ pub fn draw_block(
     vertices: &mut Vec<Vertex>,
     indices: &mut Vec<u16>,
     block: &Block,
+    applied_color: Color
 ) {
     if viewable.has_flag(ViewableDirectionBitMap::Top) {
         draw_y_face(
@@ -20,6 +22,7 @@ pub fn draw_block(
             indices,
             true,
             block.texture_atlas_lookups[0],
+            applied_color
         );
     }
 
@@ -32,6 +35,7 @@ pub fn draw_block(
             indices,
             false,
             block.texture_atlas_lookups[5],
+            applied_color
         );
     }
 
@@ -44,6 +48,7 @@ pub fn draw_block(
             indices,
             true,
             block.texture_atlas_lookups[1],
+            applied_color
         );
     }
 
@@ -56,6 +61,7 @@ pub fn draw_block(
             indices,
             false,
             block.texture_atlas_lookups[3],
+            applied_color
         );
     }
 
@@ -68,6 +74,7 @@ pub fn draw_block(
             indices,
             true,
             block.texture_atlas_lookups[2],
+            applied_color
         );
     }
 
@@ -80,6 +87,7 @@ pub fn draw_block(
             indices,
             false,
             block.texture_atlas_lookups[4],
+            applied_color
         );
     }
 }
@@ -92,6 +100,7 @@ pub fn draw_y_face(
     indices: &mut Vec<u16>,
     top: bool,
     atlas: TextureAtlasIndex,
+    applied_color: Color
 ) {
     let (start_atlas, end_atlas) = atlas;
     let normals = if top {
@@ -106,21 +115,25 @@ pub fn draw_y_face(
         position: [x, y, z],
         tex_coords: [start_atlas[0], end_atlas[1]],
         normals,
+        applied_color
     });
     vertices.push(Vertex {
         position: [x + 1.0, y, z],
         tex_coords: end_atlas,
         normals,
+        applied_color
     });
     vertices.push(Vertex {
         position: [x, y, z + 1.0],
         tex_coords: start_atlas,
         normals,
+        applied_color
     });
     vertices.push(Vertex {
         position: [x + 1.0, y, z + 1.0],
         tex_coords: [end_atlas[0], start_atlas[1]],
         normals,
+        applied_color
     });
 
     if top {
@@ -150,6 +163,7 @@ pub fn draw_x_face(
     indices: &mut Vec<u16>,
     forwards: bool,
     atlas: TextureAtlasIndex,
+    applied_color: Color
 ) {
     let (start_atlas, end_atlas) = atlas;
     let normals = if forwards {
@@ -164,21 +178,25 @@ pub fn draw_x_face(
         position: [x, y, z],
         tex_coords: [start_atlas[0], end_atlas[1]],
         normals,
+        applied_color
     });
     vertices.push(Vertex {
         position: [x + 1.0, y, z],
         tex_coords: end_atlas,
         normals,
+        applied_color
     });
     vertices.push(Vertex {
         position: [x, y + 1.0, z],
         tex_coords: start_atlas,
         normals,
+        applied_color
     });
     vertices.push(Vertex {
         position: [x + 1.0, y + 1.0, z],
         tex_coords: [end_atlas[0], start_atlas[1]],
         normals,
+        applied_color
     });
 
     if forwards {
@@ -208,6 +226,7 @@ pub fn draw_z_face(
     indices: &mut Vec<u16>,
     left: bool,
     atlas: TextureAtlasIndex,
+    applied_color: Color
 ) {
     let (start_atlas, end_atlas) = atlas;
     let normals = if left {
@@ -222,21 +241,25 @@ pub fn draw_z_face(
         position: [x, y, z],
         tex_coords: [start_atlas[0], end_atlas[1]],
         normals,
+        applied_color
     });
     vertices.push(Vertex {
         position: [x, y + 1.0, z],
         tex_coords: start_atlas,
         normals,
+        applied_color
     });
     vertices.push(Vertex {
         position: [x, y, z + 1.0],
         tex_coords: end_atlas,
         normals,
+        applied_color
     });
     vertices.push(Vertex {
         position: [x, y + 1.0, z + 1.0],
         tex_coords: [end_atlas[0], start_atlas[1]],
         normals,
+        applied_color
     });
 
     if left {
@@ -265,6 +288,7 @@ pub fn draw_vertical_face(
     indices: &mut Vec<u16>,
     top: bool,
     atlas: TextureAtlasIndex,
+    applied_color: Color
 ) {
     let (start_atlas, end_atlas) = atlas;
     let normals = if top {
@@ -279,6 +303,7 @@ pub fn draw_vertical_face(
         position: [start_position.x, start_position.y, start_position.z],
         tex_coords: [start_atlas[0], end_atlas[1]],
         normals,
+        applied_color
     });
     vertices.push(Vertex {
         position: [
@@ -288,6 +313,7 @@ pub fn draw_vertical_face(
         ],
         tex_coords: end_atlas,
         normals,
+        applied_color
     });
     vertices.push(Vertex {
         position: [
@@ -297,6 +323,7 @@ pub fn draw_vertical_face(
         ],
         tex_coords: start_atlas,
         normals,
+        applied_color
     });
     vertices.push(Vertex {
         position: [
@@ -306,6 +333,7 @@ pub fn draw_vertical_face(
         ],
         tex_coords: [end_atlas[0], start_atlas[1]],
         normals,
+        applied_color
     });
 
     if top {

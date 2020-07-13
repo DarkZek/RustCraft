@@ -1,4 +1,4 @@
-use crate::services::chunk_service::chunk::Chunk;
+use crate::services::chunk_service::chunk::{ChunkData};
 use crate::services::chunk_service::mesh::block::draw_block;
 use crate::services::chunk_service::mesh::chunk::ChunkMeshData;
 use crate::services::chunk_service::mesh::culling::ViewableDirection;
@@ -11,21 +11,12 @@ use std::collections::HashMap;
 // Our greedy meshing system
 //
 
-impl Chunk {
+impl ChunkData {
     pub fn generate_mesh(
         &self,
         chunk_service: &ChunkService,
         settings: &SettingsService,
     ) -> ChunkMeshData {
-        // Make sure to generate viewable map before returning null mesh data
-        if self.world.is_none() {
-            return ChunkMeshData {
-                viewable: None,
-                vertices: vec![],
-                indices: vec![],
-            };
-        }
-
         // Get adjacent chunks
         let mut map = HashMap::new();
         map.insert(
@@ -71,7 +62,7 @@ impl Chunk {
         let mut indices = Vec::new();
 
         // Create the buffers to add the mesh data into
-        let chunk = self.world.as_ref().unwrap();
+        let chunk = self.world;
 
         for x in 0..chunk.len() {
             for z in 0..chunk[0][0].len() {
@@ -81,6 +72,7 @@ impl Chunk {
                     //Isn't air
                     if chunk[x][y][z] != 0 && viewable != 0 {
                         let block = &self.blocks[chunk[x][y][z] as usize - 1];
+                        let applied_color = self.light_levels[x][y][z];
 
                         //Found it, draw vertices for it
                         draw_block(
@@ -89,6 +81,7 @@ impl Chunk {
                             &mut vertices,
                             &mut indices,
                             block,
+                            applied_color
                         );
                     }
                 }

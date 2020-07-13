@@ -1,7 +1,6 @@
 use wgpu::{SwapChain, RenderPipeline, Device, Queue, BufferUsage, Buffer, Sampler, BindGroupLayout, BindGroup, Texture};
 use std::sync::{Arc, Mutex};
 use winit::dpi::PhysicalSize;
-use image::ImageFormat;
 use instant::Duration;
 use std::thread;
 use lazy_static::lazy_static;
@@ -18,29 +17,29 @@ lazy_static! {
 }
 
 const STANDARD_VERTICES: [UIVertex; 18] = [
-    UIVertex { position: [0.73, -0.49], tex_coords: [-1.0, -1.0], color: [1.0, 1.0, 1.0, 1.0] },
-    UIVertex { position: [-0.73, -0.49], tex_coords: [-1.0, -1.0], color: [1.0, 1.0, 1.0, 1.0] },
-    UIVertex { position: [0.73, -0.61], tex_coords: [-1.0, -1.0], color: [1.0, 1.0, 1.0, 1.0] },
+    UIVertex { position: [0.72, -0.49], tex_coords: [-1.0, -1.0], color: [1.0, 1.0, 1.0, 1.0] },
+    UIVertex { position: [-0.72, -0.49], tex_coords: [-1.0, -1.0], color: [1.0, 1.0, 1.0, 1.0] },
+    UIVertex { position: [0.72, -0.61], tex_coords: [-1.0, -1.0], color: [1.0, 1.0, 1.0, 1.0] },
 
-    UIVertex { position: [-0.73, -0.61], tex_coords: [-1.0, -1.0], color: [1.0, 1.0, 1.0, 1.0] },
-    UIVertex { position: [0.73, -0.61], tex_coords: [-1.0, -1.0], color: [1.0, 1.0, 1.0, 1.0] },
-    UIVertex { position: [-0.73, -0.49], tex_coords: [-1.0, -1.0], color: [1.0, 1.0, 1.0, 1.0] },
+    UIVertex { position: [-0.72, -0.61], tex_coords: [-1.0, -1.0], color: [1.0, 1.0, 1.0, 1.0] },
+    UIVertex { position: [0.72, -0.61], tex_coords: [-1.0, -1.0], color: [1.0, 1.0, 1.0, 1.0] },
+    UIVertex { position: [-0.72, -0.49], tex_coords: [-1.0, -1.0], color: [1.0, 1.0, 1.0, 1.0] },
 
-    UIVertex { position: [0.72, -0.5], tex_coords: [-1.0, -1.0], color: [0.937, 0.196, 0.239, 1.0] },
-    UIVertex { position: [-0.72, -0.5], tex_coords: [-1.0, -1.0], color: [0.937, 0.196, 0.239, 1.0] },
-    UIVertex { position: [0.72, -0.6], tex_coords: [-1.0, -1.0], color: [0.937, 0.196, 0.239, 1.0] },
+    UIVertex { position: [0.71, -0.5], tex_coords: [-1.0, -1.0], color: [0.937, 0.196, 0.239, 1.0] },
+    UIVertex { position: [-0.71, -0.5], tex_coords: [-1.0, -1.0], color: [0.937, 0.196, 0.239, 1.0] },
+    UIVertex { position: [0.71, -0.6], tex_coords: [-1.0, -1.0], color: [0.937, 0.196, 0.239, 1.0] },
 
-    UIVertex { position: [-0.72, -0.6], tex_coords: [-1.0, -1.0], color: [0.937, 0.196, 0.239, 1.0] },
-    UIVertex { position: [0.72, -0.6], tex_coords: [-1.0, -1.0], color: [0.937, 0.196, 0.239, 1.0] },
-    UIVertex { position: [-0.72, -0.5], tex_coords: [-1.0, -1.0], color: [0.937, 0.196, 0.239, 1.0] },
+    UIVertex { position: [-0.71, -0.6], tex_coords: [-1.0, -1.0], color: [0.937, 0.196, 0.239, 1.0] },
+    UIVertex { position: [0.71, -0.6], tex_coords: [-1.0, -1.0], color: [0.937, 0.196, 0.239, 1.0] },
+    UIVertex { position: [-0.71, -0.5], tex_coords: [-1.0, -1.0], color: [0.937, 0.196, 0.239, 1.0] },
 
-    UIVertex { position: [0.74, 0.2], tex_coords: [1.0, 0.0], color: [1.0, 1.0, 1.0, 0.0] },
-    UIVertex { position: [-0.74, 0.2], tex_coords: [0.0, 0.0], color: [1.0, 1.0, 1.0, 0.0] },
-    UIVertex { position: [0.74, -0.2], tex_coords: [1.0, 1.0], color: [1.0, 1.0, 1.0, 0.0] },
+    UIVertex { position: [0.7, 0.2], tex_coords: [1.0, 0.0], color: [1.0, 1.0, 1.0, 0.0] },
+    UIVertex { position: [-0.7, 0.2], tex_coords: [0.0, 0.0], color: [1.0, 1.0, 1.0, 0.0] },
+    UIVertex { position: [0.7, -0.2], tex_coords: [1.0, 1.0], color: [1.0, 1.0, 1.0, 0.0] },
 
-    UIVertex { position: [-0.74, -0.2], tex_coords: [0.0, 1.0], color: [0.0, 0.0, 0.0, 0.0] },
-    UIVertex { position: [0.74, -0.2], tex_coords: [1.0, 1.0], color: [0.0, 0.0, 0.0, 0.0] },
-    UIVertex { position: [-0.74, 0.2], tex_coords: [0.0, 0.0], color: [0.0, 0.0, 0.0, 0.0] },
+    UIVertex { position: [-0.7, -0.2], tex_coords: [0.0, 1.0], color: [0.0, 0.0, 0.0, 0.0] },
+    UIVertex { position: [0.7, -0.2], tex_coords: [1.0, 1.0], color: [0.0, 0.0, 0.0, 0.0] },
+    UIVertex { position: [-0.7, 0.2], tex_coords: [0.0, 0.0], color: [0.0, 0.0, 0.0, 0.0] },
 ];
 
 ///

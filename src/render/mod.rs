@@ -13,10 +13,9 @@ use std::borrow::Borrow;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant, SystemTime};
 use systemstat::{Platform, System};
-use wgpu::{AdapterInfo, BindGroupLayout, Device, RenderPipeline, Sampler, SwapChainDescriptor, Texture, TextureView, VertexStateDescriptor, SwapChain};
+use wgpu::{AdapterInfo, BindGroupLayout, Device, RenderPipeline, Sampler, SwapChainDescriptor, Texture, TextureView, VertexStateDescriptor};
 use winit::event_loop::EventLoop;
 use winit::window::{Window, WindowBuilder};
-use std::thread;
 
 pub mod camera;
 pub mod device;
@@ -128,7 +127,7 @@ impl RenderState {
                     .as_ref()
                     .unwrap(),
                 &uniform_bind_group_layout,
-                &universe.read_resource::<ChunkService>().bind_group_layout,
+                &universe.read_resource::<ChunkService>().model_bind_group_layout
             ],
         );
 

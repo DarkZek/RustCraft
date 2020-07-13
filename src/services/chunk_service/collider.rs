@@ -1,21 +1,18 @@
 use crate::game::physics::collider::BoxCollider;
-use crate::services::chunk_service::chunk::Chunk;
+use crate::services::chunk_service::chunk::{ChunkData};
 use crate::services::settings_service::CHUNK_SIZE;
 use nalgebra::Point3;
 
-impl Chunk {
+impl ChunkData {
     /// Calculates a chunks colliders from its geometry. It is a lot like greedy meshing, except with colliders.
     pub fn calculate_colliders(&mut self) {
-        if self.world.is_none() {
-            return;
-        }
 
         let mut colliders = Vec::new();
 
         for x in 0..CHUNK_SIZE {
             for y in 0..CHUNK_SIZE {
                 for z in 0..CHUNK_SIZE {
-                    if self.world.unwrap()[x][y][z] == 0 {
+                    if self.world[x][y][z] == 0 {
                         continue;
                     }
 

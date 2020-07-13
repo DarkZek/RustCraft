@@ -4,6 +4,7 @@ use crate::services::settings_service::CHUNK_SIZE;
 use nalgebra::Vector3;
 use specs::{Component, Read, System, VecStorage, WriteStorage, ParJoin};
 use specs::prelude::ParallelIterator;
+use crate::services::chunk_service::chunk::Chunk;
 
 pub mod collider;
 pub mod interpolator;
@@ -36,11 +37,13 @@ impl<'a> System<'a> for PhysicsProcessingSystem {
 
                 let mut collision_target = CollisionSide::zero();
 
-                for collider in &chunk.collision_map {
-                    let collision = collider.check_collision(&entity.collider);
-                    if collision.is_some() {
-                        collision_target.combine(&collision.unwrap());
-                        break;
+                if let Chunk::Tangible(chunk) = chunk {
+                    for collider in &chunk.collision_map {
+                        let collision = collider.check_collision(&entity.collider);
+                        if collision.is_some() {
+                            collision_target.combine(&collision.unwrap());
+                            break;
+                        }
                     }
                 }
 

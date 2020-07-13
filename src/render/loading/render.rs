@@ -3,7 +3,6 @@ use wgpu::{Device, RenderPipeline, VertexStateDescriptor, ShaderModule, BindGrou
 use winit::dpi::PhysicalSize;
 use crate::render::shaders::bytes_to_shader;
 use crate::services::chunk_service::mesh::UIVertex;
-use crate::services::ServicesContext;
 use nalgebra::{Orthographic3, Matrix4};
 
 impl LoadingScreen {

@@ -14,6 +14,8 @@ pub struct Block {
     pub texture_ids: [u32; 6],
     pub texture_atlas_lookups: [TextureAtlasIndex; 6],
     pub transparent: bool,
+    pub light_intensity: u8,
+    pub color: [f32; 3]
 }
 
 /// Stores a direction on a block. Useful for things like furnaces that have a different front face, face culling and hoppers that move items down or sideways.

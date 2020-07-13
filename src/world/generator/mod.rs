@@ -1,7 +1,7 @@
 use crate::block::Block;
-use crate::services::chunk_service::chunk::ChunkData;
+use crate::services::chunk_service::chunk::{ChunkBlockData};
 use crate::services::settings_service::CHUNK_SIZE;
-use nalgebra::Vector3;
+use nalgebra::{Vector3};
 use noise::{NoiseFn, Perlin, Seedable};
 
 // This file is temporary, until we can connect to a server I need to have chunk generation client side
@@ -9,7 +9,7 @@ use noise::{NoiseFn, Perlin, Seedable};
 pub struct World {}
 
 impl World {
-    pub fn generate_chunk(chunk_pos: Vector3<i32>, blocks: &Vec<Block>) -> Option<ChunkData> {
+    pub fn generate_chunk(chunk_pos: Vector3<i32>, blocks: &Vec<Block>) -> Option<ChunkBlockData> {
         let scale = 1.0 / CHUNK_SIZE as f64;
         let mut chunk_nothing = true;
 
@@ -40,36 +40,19 @@ impl World {
                     } else if y == (height + 2) {
                         chunk[x][y_offset][z] = 3;
                         chunk_nothing = false;
-                    }
 
-                    // chunk[x][y_offset][z] = 0;
-                    // if ((x * 5) + (y_offset * 3) + (z * 2)) % 20 == 0 {
-                    //     chunk[x][y_offset][z] = 1;
-                    // }
-                    //
-                    // if chunk_pos.x == 0 && chunk_pos.z == 0 {
-                    //     chunk[x][y_offset][z] = 2;
-                    // }
-                    // if chunk_pos.x == 1 && chunk_pos.z == 0 {
-                    //     chunk[x][y_offset][z] = 3;
-                    // }
-                    // if chunk_pos.y == 15 {
-                    //     chunk[x][y_offset][z] = 0;
-                    // }
+                        if rand::random::<bool>() == true && rand::random::<bool>() == true && rand::random::<bool>() == true && rand::random::<bool>() == true && rand::random::<bool>() == true && rand::random::<bool>() == true &&  rand::random::<bool>() == true  {
+                            chunk[x][y_offset][z] = 6;
+                        }
+
+                        if rand::random::<bool>() == true && rand::random::<bool>() == true && rand::random::<bool>() == true && rand::random::<bool>() == true && rand::random::<bool>() == true && rand::random::<bool>() == true &&  rand::random::<bool>() == true  {
+                            chunk[x][y_offset][z] = 5;
+                        }
+                    }
                 }
             }
         }
 
-        // Way to tell X/Z
-        // chunk[0][0][0] = 1;
-        // chunk[1][0][0] = 1;
-        // chunk[2][0][0] = 1;
-        // chunk[3][0][0] = 1;
-        //
-        // chunk[0][0][1] = 2;
-        // chunk[0][0][1] = 2;
-        // chunk[0][0][1] = 2;
-        // chunk[0][0][1] = 2;
         if chunk_nothing {
             None
         } else {

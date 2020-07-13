@@ -1,4 +1,6 @@
-use std::ops::{Add, Sub, Mul};
+use std::ops::{Add};
+use crate::services::chunk_service::chunk::Color;
+use nalgebra::Point3;
 
 /// Formats a u32 with American comma placement.
 ///
@@ -38,3 +40,17 @@ impl Lerp for u8 {
     }
 }
 
+pub fn lerp_color(c1: Color, c2: Color, t: f32) -> Color {
+    [
+        c1[0].lerp(c2[0], t),
+        c1[1].lerp(c2[1], t),
+        c1[2].lerp(c2[2], t),
+        c1[3].lerp(c2[3], t),
+    ]
+}
+
+pub fn distance(p1: &Point3<usize>, p2: &Point3<usize>) -> u32 {
+    ((p1.x as isize - p2.x as isize) +
+        (p1.y as isize - p2.y as isize) +
+        (p1.z as isize - p2.z as isize)) as u32
+}

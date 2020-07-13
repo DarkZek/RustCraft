@@ -1,5 +1,5 @@
 use crate::block::Block;
-use crate::services::chunk_service::chunk::Chunk;
+use crate::services::chunk_service::chunk::{Chunk, ChunkData};
 use crate::services::chunk_service::mesh::culling::{calculate_viewable, ViewableDirection};
 use crate::services::chunk_service::mesh::{Vertex, ViewableDirectionBitMap};
 use crate::services::settings_service::CHUNK_SIZE;
@@ -13,9 +13,9 @@ pub struct ChunkMeshData {
     pub indices: Vec<u16>,
 }
 
-impl<'a> Chunk {
+impl<'a> ChunkData {
     pub fn create_buffers(&mut self, device: &Device, bind_group_layout: &BindGroupLayout) {
-        let vertices = self.vertices.as_ref().unwrap();
+        let vertices = &self.vertices;
 
         if vertices.len() != 0 {
             let vertex_buffer = device.create_buffer_with_data(
@@ -25,7 +25,7 @@ impl<'a> Chunk {
             self.vertices_buffer = Some(vertex_buffer);
         }
 
-        let indices = self.indices.take().unwrap();
+        let indices = &self.indices;
         self.indices_buffer_len = indices.len() as u32;
 
         if self.indices_buffer_len != 0 {
@@ -90,12 +90,8 @@ impl<'a> Chunk {
         adjacent_chunks: HashMap<Vector3<i32>, Option<&Chunk>>,
         chunk_edge_faces: bool,
     ) -> [[[ViewableDirection; 16]; 16]; 16] {
-        if self.world.is_none() {
-            return [[[ViewableDirection(0); CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
-        }
 
         let mut data = [[[ViewableDirection(0); CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
-        let world = self.world.as_ref().unwrap();
 
         let directions: [Vector3<i32>; 6] = [
             Vector3::new(1, 0, 0),
@@ -106,9 +102,9 @@ impl<'a> Chunk {
             Vector3::new(0, 0, -1),
         ];
 
-        for x in 0..world.len() {
-            for z in 0..world[0][0].len() {
-                for y in 0..world[0].len() {
+        for x in 0..self.world.len() {
+            for z in 0..self.world[0][0].len() {
+                for y in 0..self.world[0].len() {
                     let mut viewable = calculate_viewable(&self, [x, y, z]);
 
                     // Temp
@@ -155,18 +151,18 @@ impl<'a> Chunk {
                                 let chunk = adjacent_chunks.get(&direction).unwrap().unwrap();
 
                                 let block = {
-                                    let world = chunk.world.as_ref();
-                                    if world.is_none() {
-                                        None
-                                    } else {
-                                        let block_id =
-                                            world.unwrap()[block_pos.x][block_pos.y][block_pos.z];
+                                    match chunk {
+                                        Chunk::Tangible(chunk) => {
+                                            let block_id =
+                                                chunk.world[block_pos.x][block_pos.y][block_pos.z];
 
-                                        if block_id != 0 {
-                                            chunk.blocks.get(block_id as usize - 1)
-                                        } else {
-                                            None
-                                        }
+                                            if block_id != 0 {
+                                                chunk.blocks.get(block_id as usize - 1)
+                                            } else {
+                                                None
+                                            }
+                                        },
+                                        Chunk::Intangible => None,
                                     }
                                 };
 
@@ -190,7 +186,7 @@ impl<'a> Chunk {
     }
 
     pub fn get_block(&self, pos: Vector3<usize>) -> Option<&Block> {
-        let block_id = self.world.as_ref().unwrap()[pos.x][pos.y][pos.z];
+        let block_id = self.world[pos.x][pos.y][pos.z];
         if block_id == 0 {
             self.blocks.get(block_id as usize - 1)
         } else {
@@ -199,8 +195,8 @@ impl<'a> Chunk {
     }
 
     pub fn update_mesh(&mut self, data: ChunkMeshData) {
-        self.indices = Some(data.indices);
-        self.vertices = Some(data.vertices);
+        self.indices = data.indices;
+        self.vertices = data.vertices;
         self.viewable_map = data.viewable;
     }
 }
