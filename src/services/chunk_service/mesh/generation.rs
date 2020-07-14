@@ -72,7 +72,15 @@ impl ChunkData {
                     //Isn't air
                     if chunk[x][y][z] != 0 && viewable != 0 {
                         let block = &self.blocks[chunk[x][y][z] as usize - 1];
-                        let applied_color = self.light_levels[x][y][z];
+                        let applied_color = &self.light_levels[x][y][z];
+                        let extra_color = &self.neighboring_light_levels[x][y][z];
+
+                        let out_color = [
+                            applied_color[0] * extra_color[0],
+                            applied_color[1] * extra_color[1],
+                            applied_color[2] * extra_color[2],
+                            applied_color[3] * extra_color[3]
+                        ];
 
                         //Found it, draw vertices for it
                         draw_block(
@@ -81,7 +89,7 @@ impl ChunkData {
                             &mut vertices,
                             &mut indices,
                             block,
-                            applied_color
+                            out_color
                         );
                     }
                 }

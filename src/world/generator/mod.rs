@@ -28,6 +28,7 @@ impl World {
                         (z as f64 * scale) + chunk_pos.z as f64,
                     ]);
                     let height = (height_map * 5.0).round() as i32 + 50;
+                    //let height = 52;
 
                     //Stone
                     if y < height {
@@ -41,11 +42,28 @@ impl World {
                         chunk[x][y_offset][z] = 3;
                         chunk_nothing = false;
 
-                        if rand::random::<bool>() == true && rand::random::<bool>() == true && rand::random::<bool>() == true && rand::random::<bool>() == true && rand::random::<bool>() == true && rand::random::<bool>() == true &&  rand::random::<bool>() == true  {
+                        // Please ignore
+                        if rand::random::<bool>() == true &&
+                            rand::random::<bool>() == true &&
+                            rand::random::<bool>() == true &&
+                            rand::random::<bool>() == true &&
+                            rand::random::<bool>() == true &&
+                            rand::random::<bool>() == true &&
+                            rand::random::<bool>() == true &&
+                            rand::random::<bool>() == true &&
+                            rand::random::<bool>() == true  {
                             chunk[x][y_offset][z] = 6;
                         }
 
-                        if rand::random::<bool>() == true && rand::random::<bool>() == true && rand::random::<bool>() == true && rand::random::<bool>() == true && rand::random::<bool>() == true && rand::random::<bool>() == true &&  rand::random::<bool>() == true  {
+                        if rand::random::<bool>() == true &&
+                            rand::random::<bool>() == true &&
+                            rand::random::<bool>() == true &&
+                            rand::random::<bool>() == true &&
+                            rand::random::<bool>() == true &&
+                            rand::random::<bool>() == true &&
+                            rand::random::<bool>() == true &&
+                            rand::random::<bool>() == true &&
+                            rand::random::<bool>() == true  {
                             chunk[x][y_offset][z] = 5;
                         }
                     }

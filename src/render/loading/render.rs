@@ -15,6 +15,7 @@ impl LoadingScreen {
         let render_pipeline_layout =
             device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
                 bind_group_layouts,
+                push_constant_ranges: &[]
             });
 
         let (vs_module, fs_module) = load_shaders(&device);
@@ -79,15 +80,14 @@ impl LoadingScreen {
         );
 
         let matrix_binding_layout_descriptor = wgpu::BindGroupLayoutDescriptor {
-            bindings: &[wgpu::BindGroupLayoutEntry {
+            entries: &[wgpu::BindGroupLayoutEntry {
                 binding: 0,
                 visibility: wgpu::ShaderStage::VERTEX,
                 ty: wgpu::BindingType::UniformBuffer {
                     dynamic: false,
                     min_binding_size: None,
                 },
-                count: None,
-                _non_exhaustive: Default::default(),
+                count: None
             }],
             label: None,
         };
@@ -104,7 +104,7 @@ impl LoadingScreen {
 
         let matrix_bind_group_descriptor = wgpu::BindGroupDescriptor {
             layout: &matrix_bind_group_layout,
-            bindings: &[wgpu::Binding {
+            entries: &[wgpu::BindGroupEntry {
                 binding: 0,
                 resource: wgpu::BindingResource::Buffer(
                     matrix_buffer.slice(0..std::mem::size_of_val(&matrix) as wgpu::BufferAddress),

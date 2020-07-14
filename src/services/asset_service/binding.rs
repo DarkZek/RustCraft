@@ -12,7 +12,8 @@ impl AssetService {
 
         let texture_bind_group_layout =
             device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-                bindings: &[
+                label: None,
+                entries: &[
                     wgpu::BindGroupLayoutEntry {
                         binding: 0,
                         visibility: wgpu::ShaderStage::FRAGMENT,
@@ -21,33 +22,28 @@ impl AssetService {
                             dimension: wgpu::TextureViewDimension::D2Array,
                             component_type: TextureComponentType::Float,
                         },
-                        count: None,
-                        _non_exhaustive: Default::default(),
+                        count: None
                     },
                     wgpu::BindGroupLayoutEntry {
                         binding: 1,
                         visibility: wgpu::ShaderStage::FRAGMENT,
                         ty: wgpu::BindingType::Sampler { comparison: true },
-                        count: None,
-                        _non_exhaustive: Default::default(),
-                    },
-                ],
-                label: None,
+                        count: None
+                    },]
             });
 
         let texture_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
             layout: &texture_bind_group_layout,
-            bindings: &[
-                wgpu::Binding {
+            label: None,
+            entries: &[
+                wgpu::BindGroupEntry {
                     binding: 0,
                     resource: wgpu::BindingResource::TextureView(&diffuse_texture_view),
                 },
-                wgpu::Binding {
+                wgpu::BindGroupEntry {
                     binding: 1,
                     resource: wgpu::BindingResource::Sampler(diffuse_sampler),
-                },
-            ],
-            label: None,
+                },]
         });
 
         (texture_bind_group_layout, texture_bind_group)

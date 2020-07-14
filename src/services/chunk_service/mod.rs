@@ -33,15 +33,14 @@ pub struct ChunkService {
 impl ChunkService {
     pub fn new(settings: &SettingsService, context: &mut ServicesContext) -> ChunkService {
         let model_bind_group_layout_descriptor = wgpu::BindGroupLayoutDescriptor {
-            bindings: &[wgpu::BindGroupLayoutEntry {
+            entries: &[wgpu::BindGroupLayoutEntry {
                 binding: 0,
                 visibility: wgpu::ShaderStage::VERTEX,
                 ty: wgpu::BindingType::UniformBuffer {
                     dynamic: true,
                     min_binding_size: None,
                 },
-                count: None,
-                _non_exhaustive: Default::default(),
+                count: None
             }],
             label: None,
         };
@@ -110,7 +109,7 @@ impl ChunkService {
 
             // Do some calculations to get it read
             chunk.calculate_colliders();
-            chunk.calculate_lighting();
+            chunk.calculate_lighting(self);
 
             self.viewable_chunks.push(chunk_coords);
             if chunk.indices_buffer.is_some() { self.visible_chunks.push(chunk_coords); }

@@ -15,7 +15,6 @@ impl<'a> System<'a> for PhysicsProcessingSystem {
     type SystemData = (WriteStorage<'a, PhysicsObject>, Read<'a, ChunkService>);
 
     fn run(&mut self, (mut physics_objects, chunk_service): Self::SystemData) {
-        use specs::Join;
 
         (&mut physics_objects).par_join()
             .for_each(|entity| {

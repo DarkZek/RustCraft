@@ -24,7 +24,12 @@ pub struct ChunkData {
     pub viewable_map: Option<[[[ViewableDirection; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE]>,
     pub position: Vector3<i32>,
     pub collision_map: Vec<BoxCollider>,
-    pub light_levels: [[[Color; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE],
+
+    // Stores the lighting intensity and color map
+    pub light_levels: RawLightingData,
+
+    // Stores the lighting of neighbouring chunks effect on this chunk.
+    pub neighboring_light_levels: RawLightingData,
 }
 
 pub type Color = [f32; 4];
@@ -43,7 +48,9 @@ impl ChunkData {
             viewable_map: None,
             position,
             collision_map: vec![],
-            light_levels: [[[[0.0, 0.0, 0.0, 0.0]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE],
+            // Ambient color
+            light_levels: [[[[1.0, 1.0, 1.0, 1.0]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE],
+            neighboring_light_levels: [[[[1.0, 1.0, 1.0, 1.0]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE]
         }
     }
 }

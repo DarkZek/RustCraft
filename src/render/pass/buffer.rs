@@ -1,4 +1,4 @@
-use wgpu::{BindGroup, BindGroupLayout, Buffer, Device, BindGroupLayoutDescriptor, Binding, BufferUsage, BindingResource};
+use wgpu::{BindGroup, BindGroupLayout, Buffer, Device, BindGroupLayoutDescriptor, BufferUsage, BindingResource, BindGroupEntry};
 use bytemuck::Pod;
 use std::sync::Arc;
 
@@ -40,8 +40,8 @@ impl BufferGroup {
 
         let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
             layout: &self.bind_group_layout,
-            bindings: &[
-                Binding {
+            entries: &[
+                BindGroupEntry {
                     binding: 0,
                     resource: BindingResource::Buffer(buffer.slice(..))
                 }

@@ -15,7 +15,7 @@ use std::time::{Duration, Instant, SystemTime};
 use systemstat::{Platform, System};
 use wgpu::{AdapterInfo, BindGroupLayout, Device, RenderPipeline, Sampler, SwapChainDescriptor, Texture, TextureView, VertexStateDescriptor};
 use winit::event_loop::EventLoop;
-use winit::window::{Window, WindowBuilder};
+use winit::window::{Window, WindowBuilder, Fullscreen};
 
 pub mod camera;
 pub mod device;
@@ -66,6 +66,7 @@ impl RenderState {
         let window = Arc::new(
             WindowBuilder::new()
                 .with_title("Loading - Rustcraft")
+                .with_fullscreen(Some(Fullscreen::Borderless(event_loop.available_monitors().last().unwrap())))
                 .build(&event_loop)
                 .unwrap(),
         );
@@ -191,7 +192,7 @@ fn generate_render_pipeline(
     let (vs_module, fs_module) = load_shaders(device);
 
     let render_pipeline_layout =
-        device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor { bind_group_layouts });
+        device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor { bind_group_layouts, push_constant_ranges: &[] });
 
     device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
         layout: &render_pipeline_layout,

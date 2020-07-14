@@ -1,6 +1,6 @@
 use crate::render::RenderState;
 use futures::executor::block_on;
-use wgpu::{AdapterInfo, BackendBit, Device, Instance, Queue, Surface, UnsafeFeatures};
+use wgpu::{AdapterInfo, BackendBit, Device, Instance, Queue, Surface};
 use winit::dpi::PhysicalSize;
 use winit::window::Window;
 
@@ -19,8 +19,7 @@ impl RenderState {
             &wgpu::RequestAdapterOptions {
                 power_preference: wgpu::PowerPreference::HighPerformance,
                 compatible_surface: None,
-            },
-            UnsafeFeatures::disallow(),
+            }
         ))
         .unwrap();
 

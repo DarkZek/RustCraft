@@ -278,8 +278,7 @@ impl AssetService {
             lod_min_clamp: -100.0,
             lod_max_clamp: 100.0,
             compare: Some(CompareFunction::Always),
-            anisotropy_clamp: None,
-            _non_exhaustive: Default::default(),
+            anisotropy_clamp: None
         };
 
         let diffuse_sampler = device.create_sampler(&diffuse_sampler_descriptor);

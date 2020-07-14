@@ -22,13 +22,18 @@ pub fn calculate_frustum_culling(
     viewable_chunks: &Vec<Vector3<i32>>,
     chunks: &HashMap<Vector3<i32>, Chunk>,
 ) -> Vec<Vector3<i32>> {
-    let rot = -_cam.yaw + (PI / 2.0);
+    let rot_y = -_cam.yaw + (PI / 2.0);
+    let rot_z = _cam.pitch;
+
+    let left_pane = rotate_y_axis(Vector3::new(1.0, 0.0, -1.0), rot_y);
+    let right_pane = rotate_y_axis(Vector3::new(1.0, 0.0, 1.0), rot_y);
+    let bottom_pane = rotate_y_axis(Vector3::new(1.0, -1.0, 0.0), rot_y);
 
     // (Normal, d)
     let faces: [(Vector3<f32>, f32); 3] = [
-        (rotate_pane(Vector3::new(1.0, 0.0, -1.0), rot), 8.0),
-        (rotate_pane(Vector3::new(1.0, 0.0, 1.0), rot), 8.0),
-        (rotate_pane(Vector3::new(1.0, -1.0, 0.0), rot), 8.0),
+        (left_pane, 0.0),
+        (right_pane, 0.0),
+        (bottom_pane, 0.0)
     ];
 
     let mut visible_chunks = Vec::new();
@@ -55,11 +60,27 @@ pub fn calculate_frustum_culling(
     visible_chunks
 }
 
-fn rotate_pane(pos: Matrix<f32, U3, U1, ArrayStorage<f32, U3, U1>>, rotation: f32) -> Vector3<f32> {
+fn rotate_y_axis(pos: Matrix<f32, U3, U1, ArrayStorage<f32, U3, U1>>, rotation: f32) -> Vector3<f32> {
     Vector3::new(
         (pos.x * rotation.cos()) + (pos.z * rotation.sin()),
         pos.y,
         (-pos.x * rotation.sin()) + (pos.z * rotation.cos()),
+    )
+}
+
+fn rotate_z_axis(pos: Vector3<f32>, rotation: f32) -> Vector3<f32> {
+    Vector3::new(
+        (pos.x * rotation.cos()) - (pos.y * rotation.sin()),
+        (pos.x * rotation.sin()) + (pos.y * rotation.cos()),
+        pos.z,
+    )
+}
+
+fn rotate_x_axis(pos: Vector3<f32>, rotation: f32) -> Vector3<f32> {
+    Vector3::new(
+        pos.x,
+        (pos.y * rotation.cos()) - (pos.z * rotation.sin()),
+        (pos.y * rotation.sin()) + (pos.z * rotation.cos()),
     )
 }
 

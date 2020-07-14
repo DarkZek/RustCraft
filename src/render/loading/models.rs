@@ -60,8 +60,7 @@ pub fn load_splash(device: &Device, queue: &mut Queue) -> (Texture, Sampler, Bin
         lod_min_clamp: -100.0,
         lod_max_clamp: 100.0,
         compare: Some(CompareFunction::Always),
-        anisotropy_clamp: None,
-        _non_exhaustive: Default::default(),
+        anisotropy_clamp: None
     };
 
     let diffuse_sampler = device.create_sampler(&diffuse_sampler_descriptor);
@@ -78,7 +77,7 @@ pub fn load_splash_image_bindings(device: &Device,
 
     let texture_bind_group_layout =
         device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-            bindings: &[
+            entries: &[
                 wgpu::BindGroupLayoutEntry {
                     binding: 0,
                     visibility: wgpu::ShaderStage::FRAGMENT,
@@ -87,15 +86,13 @@ pub fn load_splash_image_bindings(device: &Device,
                         dimension: wgpu::TextureViewDimension::D2Array,
                         component_type: TextureComponentType::Float,
                     },
-                    count: None,
-                    _non_exhaustive: Default::default(),
+                    count: None
                 },
                 wgpu::BindGroupLayoutEntry {
                     binding: 1,
                     visibility: wgpu::ShaderStage::FRAGMENT,
                     ty: wgpu::BindingType::Sampler { comparison: true },
-                    count: None,
-                    _non_exhaustive: Default::default(),
+                    count: None
                 },
             ],
             label: None,
@@ -103,12 +100,12 @@ pub fn load_splash_image_bindings(device: &Device,
 
     let texture_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
         layout: &texture_bind_group_layout,
-        bindings: &[
-            wgpu::Binding {
+        entries: &[
+            wgpu::BindGroupEntry {
                 binding: 0,
                 resource: wgpu::BindingResource::TextureView(&diffuse_texture_view),
             },
-            wgpu::Binding {
+            wgpu::BindGroupEntry {
                 binding: 1,
                 resource: wgpu::BindingResource::Sampler(diffuse_sampler),
             },

@@ -14,7 +14,7 @@ pub fn generate_render_pipeline(
     let (vs_module, fs_module) = load_shaders(device);
 
     let render_pipeline_layout =
-        device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor { bind_group_layouts });
+        device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor { bind_group_layouts, push_constant_ranges: &[] });
 
     device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
         layout: &render_pipeline_layout,
