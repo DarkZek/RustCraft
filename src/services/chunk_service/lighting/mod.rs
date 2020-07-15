@@ -3,6 +3,7 @@ use crate::services::settings_service::CHUNK_SIZE;
 use crate::block::Block;
 use nalgebra::{Point3};
 use crate::services::chunk_service::ChunkService;
+use crate::helpers::lerp_color;
 
 impl ChunkData {
     pub fn calculate_lighting(&mut self, service: &mut ChunkService) {
@@ -69,12 +70,12 @@ impl ChunkData {
 
             for pos in points.iter() {
 
-                let col = current_intensity as f32 / 14.0;
-                let col = 1.0;
+                let col = current_intensity as f32 / 24.0;
+                //let col = 1.0;
 
                 // Add color to current points
-                let new_color = [1.0, color[0] * col, color[1] * col, color[2] * col];
-                apply_color_to_chunk(self, pos.clone(), new_color, service);
+                let new_color = [1.0, color[0], color[1], color[2]];
+                apply_color_to_chunk(self, pos.clone(), new_color, col, service);
 
                 // Add adjacent tiles
                 new_points.push([pos[0] + 1, pos[1], pos[2]]);
@@ -84,7 +85,6 @@ impl ChunkData {
                 new_points.push([pos[0], pos[1], pos[2] + 1]);
                 new_points.push([pos[0], pos[1], pos[2] - 1]);
             }
-
             points.clear();
             points = new_points.clone();
             new_points.clear();
@@ -94,17 +94,15 @@ impl ChunkData {
     }
 }
 
-fn apply_color_to_chunk(chunk: &mut ChunkData, mut pos: [i32; 3], color: [f32; 4], service: &mut ChunkService) {
+fn apply_color_to_chunk(chunk: &mut ChunkData, mut pos: [i32; 3], color: [f32; 4], intensity: f32, service: &mut ChunkService) {
+
     if pos[0] >= 0 && pos[0] <= 15 &&
         pos[1] >= 0 && pos[1] <= 15 &&
         pos[2] >= 0 && pos[2] <= 15 {
 
         // Its in current chunk.
         let current_color = &mut chunk.light_levels[pos[0] as usize][pos[1] as usize][pos[2] as usize];
-        current_color[0] *= color[0] * 0.0;
-        current_color[1] *= color[1] * 0.0;
-        current_color[2] *= color[2] * 0.0;
-        current_color[3] *= color[3] * 0.0;
+        *current_color = lerp_color(color, *current_color, intensity);
     } else {
         // Its in other chunk
         let mut chunk_pos = chunk.position;
@@ -141,10 +139,10 @@ fn apply_color_to_chunk(chunk: &mut ChunkData, mut pos: [i32; 3], color: [f32; 4
             // Make sure chunk has blocks to draw
             if let Chunk::Tangible(chunk) = chunk {
                 let current_color = &mut chunk.neighboring_light_levels[pos[0] as usize][pos[1] as usize][pos[2] as usize];
-                current_color[0] *= color[0] * 0.0;
-                current_color[1] *= color[1] * 10.0;
-                current_color[2] *= color[2] * 0.0;
-                current_color[3] *= color[3] * 0.0;
+                current_color[0] *= color[0];
+                current_color[1] *= color[1];
+                current_color[2] *= color[2];
+                current_color[3] *= color[3];
                 //println!("In: {:?} Chunk: {:?}", pos, chunk_pos);
             }
         }

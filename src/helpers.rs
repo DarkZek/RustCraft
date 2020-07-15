@@ -42,10 +42,10 @@ impl Lerp for u8 {
 
 pub fn lerp_color(c1: Color, c2: Color, t: f32) -> Color {
     [
-        c1[0].lerp(c2[0], t),
-        c1[1].lerp(c2[1], t),
-        c1[2].lerp(c2[2], t),
-        c1[3].lerp(c2[3], t),
+        if c1[0] < c2[0] { c1[0].lerp(c2[0], t) } else { c2[0].lerp(c1[0], t) },
+        if c1[1] < c2[1] { c1[1].lerp(c2[1], t) } else { c2[1].lerp(c1[1], t) },
+        if c1[2] < c2[2] { c1[2].lerp(c2[2], t) } else { c2[2].lerp(c1[2], t) },
+        if c1[3] < c2[3] { c1[3].lerp(c2[3], t) } else { c2[3].lerp(c1[3], t) },
     ]
 }
 
