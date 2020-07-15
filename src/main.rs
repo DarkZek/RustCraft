@@ -1,7 +1,3 @@
-#![feature(get_mut_unchecked)]
-#![feature(fixed_size_array)]
-#![feature(clamp)]
-
 extern crate log;
 extern crate zerocopy;
 

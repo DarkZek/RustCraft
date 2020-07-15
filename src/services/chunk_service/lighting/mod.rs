@@ -60,6 +60,8 @@ impl ChunkData {
 
         let mut current_intensity = intensity;
 
+        let mut painted_positions = Vec::new();
+
         points.push([
             position[0] as i32,
             position[1] as i32,
@@ -70,7 +72,13 @@ impl ChunkData {
 
             for pos in points.iter() {
 
-                let col = current_intensity as f32 / 24.0;
+                if painted_positions.contains(pos) {
+                    continue;
+                }
+
+                painted_positions.push(*pos);
+
+                let col = current_intensity as f32 / 32.0;
                 //let col = 1.0;
 
                 // Add color to current points

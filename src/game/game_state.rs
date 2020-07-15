@@ -6,6 +6,7 @@ use crate::services::input_service::input::GameChanges;
 use specs::{Builder, Join, Read, ReadStorage, System, World, WorldExt, Write, WriteStorage};
 use std::f32::consts::PI;
 use crate::services::input_service::actions::ActionSheet;
+use crate::helpers::Clamp;
 
 /// Stores the current state of the game. Currently this is mostly just looking after player movement.
 pub struct GameState {
@@ -75,7 +76,7 @@ impl<'a> System<'a> for PlayerMovementSystem {
 
             // Handle Vertical Rotation
             player.rot[1] = (player.rot[1] + (events.look[1] as f32 * y_look_speed))
-                .clamp(0.01, std::f32::consts::PI - 0.01);
+                .clamp_val(0.01, std::f32::consts::PI - 0.01);
 
             camera.yaw = player.rot[0];
             camera.pitch = player.rot[1] - (PI / 2.0);

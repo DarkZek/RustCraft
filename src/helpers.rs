@@ -54,3 +54,21 @@ pub fn distance(p1: &Point3<usize>, p2: &Point3<usize>) -> u32 {
         (p1.y as isize - p2.y as isize).abs() +
         (p1.z as isize - p2.z as isize).abs()).abs() as u32
 }
+
+pub trait Clamp {
+    fn clamp_val(self, min: Self, max: f32) -> f32;
+}
+
+impl Clamp for f32 {
+    fn clamp_val(self, min: f32, max: f32) -> f32 {
+        assert!(min <= max);
+        let mut x = self;
+        if x < min {
+            x = min;
+        }
+        if x > max {
+            x = max;
+        }
+        x
+    }
+}
