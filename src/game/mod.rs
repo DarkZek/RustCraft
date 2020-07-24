@@ -2,6 +2,7 @@ use crate::entity::player::{
     PlayerEntity, PlayerEntityCameraSyncSystem, PlayerEntityColliderGeneratingSystem,
 };
 use crate::game::game_state::{GameState, PlayerMovementSystem};
+use crate::game::physics::interpolator::{PhysicsInterpolationFactor, PhysicsInterpolationSystem};
 use crate::game::physics::{PhysicsObject, PhysicsProcessingSystem};
 use crate::game::systems::DeltaTime;
 use crate::render::camera::Camera;
@@ -18,12 +19,12 @@ use specs::{DispatcherBuilder, World, WorldExt};
 use std::borrow::Borrow;
 use std::time::Instant;
 use systemstat::Duration;
+use winit::event::StartCause;
 use winit::{
     event::{Event, WindowEvent},
     event_loop::ControlFlow,
     event_loop::EventLoop,
 };
-use crate::game::physics::interpolator::{PhysicsInterpolationFactor, PhysicsInterpolationSystem};
 
 pub mod game_state;
 pub mod physics;
@@ -83,13 +84,21 @@ impl Game {
             .with(FontComputingSystem, "font_computing", &["pre_frame"])
             .with(FpsDisplayingSystem, "fps_displayer", &["pre_frame"])
             .with(LoggingSystem, "logging_system", &["pre_frame"])
-            .with(PhysicsInterpolationSystem, "physics_interpolation", &["pre_frame"])
+            .with(
+                PhysicsInterpolationSystem,
+                "physics_interpolation",
+                &["pre_frame"],
+            )
             .with(
                 PlayerEntityCameraSyncSystem,
                 "playerentity_camera_sync",
                 &["player_movement", "pre_frame", "physics_interpolation"],
             )
-            .with(FrustumCullingSystem, "frustum_culling", &["pre_frame", "physics_interpolation"])
+            .with(
+                FrustumCullingSystem,
+                "frustum_culling",
+                &["pre_frame", "physics_interpolation"],
+            )
             .with(
                 RenderSystem,
                 "render_frame",
@@ -99,7 +108,7 @@ impl Game {
                     "fps_displayer",
                     "logging_system",
                     "frustum_culling",
-                    "physics_interpolation"
+                    "physics_interpolation",
                 ],
             )
             .with(PostFrame, "post_frame", &["render_frame"])
@@ -127,6 +136,15 @@ impl Game {
 
         event_loop.run(move |event, _, control_flow| {
             match event {
+                Event::NewEvents(StartCause::Init) => {
+                    // Send manual resize notification because windows doesn't send one itself (sometimes).
+                    let size = self
+                        .universe
+                        .read_resource::<RenderState>()
+                        .window
+                        .inner_size();
+                    self.universe.write_resource::<GameChanges>().resized(&size);
+                }
                 Event::WindowEvent {
                     ref event,
                     window_id: _,
@@ -169,8 +187,11 @@ impl Game {
                     }
 
                     // Calculates a scale from 0 - 1 on the time between the previous and next physics frame
-                    let time = time_since_physics.elapsed().as_nanos() as f32 / physics_loop_length.as_nanos() as f32;
-                    self.universe.write_resource::<PhysicsInterpolationFactor>().0 = time;
+                    let time = time_since_physics.elapsed().as_nanos() as f32
+                        / physics_loop_length.as_nanos() as f32;
+                    self.universe
+                        .write_resource::<PhysicsInterpolationFactor>()
+                        .0 = time;
 
                     frame_dispatcher.dispatch(&mut self.universe);
                     *control_flow = ControlFlow::Poll;
