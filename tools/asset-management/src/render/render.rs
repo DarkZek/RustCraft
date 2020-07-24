@@ -1,12 +1,12 @@
-use winit::event_loop::EventLoop;
-use winit::window::Window;
-use winit::dpi::{LogicalSize, PhysicalSize};
 use futures::executor::block_on;
-use imgui::{FontSource, Context};
+use imgui::{Context, FontSource};
 use imgui_wgpu::Renderer;
-use wgpu::{SwapChain, Queue, Device, SwapChainDescriptor, Surface};
 use imgui_winit_support::WinitPlatform;
 use std::cell::RefCell;
+use wgpu::{Device, Queue, Surface, SwapChain, SwapChainDescriptor};
+use winit::dpi::{LogicalSize, PhysicalSize};
+use winit::event_loop::EventLoop;
+use winit::window::Window;
 
 pub struct RenderState {
     pub window: RefCell<Window>,
@@ -19,12 +19,11 @@ pub struct RenderState {
     pub hidpi_factor: f64,
     pub sc_desc: SwapChainDescriptor,
     pub surface: Surface,
-    pub platform: WinitPlatform
+    pub platform: WinitPlatform,
 }
 
 impl RenderState {
     pub fn new(event_loop: &EventLoop<()>) -> RenderState {
-
         let hidpi_factor = 1.0;
         let (window, window_size, surface) = {
             let version = env!("CARGO_PKG_VERSION");
@@ -48,7 +47,8 @@ impl RenderState {
                 compatible_surface: Some(&surface),
             },
             wgpu::BackendBit::PRIMARY,
-        )).unwrap();
+        ))
+        .unwrap();
 
         let (device, mut queue) = block_on(adapter.request_device(&wgpu::DeviceDescriptor {
             extensions: wgpu::Extensions {
@@ -65,7 +65,6 @@ impl RenderState {
             height: window_size.height as u32,
             present_mode: wgpu::PresentMode::Fifo,
         };
-
 
         let swap_chain = device.create_swap_chain(&surface, &sc_desc);
 
@@ -102,7 +101,7 @@ impl RenderState {
         };
 
         #[cfg(not(feature = "glsl-to-spirv"))]
-            let renderer = Renderer::new(
+        let renderer = Renderer::new(
             &mut imgui,
             &device,
             &mut queue,
@@ -130,7 +129,7 @@ impl RenderState {
             hidpi_factor,
             sc_desc,
             surface,
-            platform
+            platform,
         }
     }
 }

@@ -1,7 +1,7 @@
 use crate::block::Block;
-use crate::services::chunk_service::chunk::{ChunkBlockData};
+use crate::services::chunk_service::chunk::ChunkBlockData;
 use crate::services::settings_service::CHUNK_SIZE;
-use nalgebra::{Vector3};
+use nalgebra::Vector3;
 use noise::{NoiseFn, Perlin, Seedable};
 
 // This file is temporary, until we can connect to a server I need to have chunk generation client side
@@ -28,7 +28,6 @@ impl World {
                         (z as f64 * scale) + chunk_pos.z as f64,
                     ]);
                     let height = (height_map * 5.0).round() as i32 + 50;
-                    //let height = 52;
 
                     //Stone
                     if y < height {
@@ -43,27 +42,29 @@ impl World {
                         chunk_nothing = false;
 
                         // Please ignore
-                        if rand::random::<bool>() == true &&
-                            rand::random::<bool>() == true &&
-                            rand::random::<bool>() == true &&
-                            rand::random::<bool>() == true &&
-                            rand::random::<bool>() == true &&
-                            rand::random::<bool>() == true &&
-                            rand::random::<bool>() == true &&
-                            rand::random::<bool>() == true &&
-                            rand::random::<bool>() == true  {
+                        if rand::random::<bool>() == true
+                            && rand::random::<bool>() == true
+                            && rand::random::<bool>() == true
+                            && rand::random::<bool>() == true
+                            && rand::random::<bool>() == true
+                            && rand::random::<bool>() == true
+                            && rand::random::<bool>() == true
+                            && rand::random::<bool>() == true
+                            && rand::random::<bool>() == true
+                        {
                             chunk[x][y_offset][z] = 6;
                         }
 
-                        if rand::random::<bool>() == true &&
-                            rand::random::<bool>() == true &&
-                            rand::random::<bool>() == true &&
-                            rand::random::<bool>() == true &&
-                            rand::random::<bool>() == true &&
-                            rand::random::<bool>() == true &&
-                            rand::random::<bool>() == true &&
-                            rand::random::<bool>() == true &&
-                            rand::random::<bool>() == true  {
+                        if rand::random::<bool>() == true
+                            && rand::random::<bool>() == true
+                            && rand::random::<bool>() == true
+                            && rand::random::<bool>() == true
+                            && rand::random::<bool>() == true
+                            && rand::random::<bool>() == true
+                            && rand::random::<bool>() == true
+                            && rand::random::<bool>() == true
+                            && rand::random::<bool>() == true
+                        {
                             chunk[x][y_offset][z] = 5;
                         }
                     }

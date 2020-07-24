@@ -1,6 +1,6 @@
-use std::ops::{Add};
 use crate::services::chunk_service::chunk::Color;
 use nalgebra::Point3;
+use std::ops::Add;
 
 /// Formats a u32 with American comma placement.
 ///
@@ -25,34 +25,54 @@ pub fn format_u32(mut count: u32) -> String {
 }
 
 pub trait Lerp {
-    fn lerp(self, b: Self, t: f32) -> f32;
+    fn lerp(self, b: Self, t: f32) -> Self;
 }
 
 impl Lerp for f32 {
-    fn lerp(self, b: Self, t: f32) -> f32 {
+    fn lerp(self, b: Self, t: f32) -> Self {
         ((b - self) * t) + self
     }
 }
 
 impl Lerp for u8 {
-    fn lerp(self, b: Self, t: f32) -> f32 {
-        ((b as f32 - self as f32) * t as f32) + self as f32
+    fn lerp(self, b: Self, t: f32) -> Self {
+        ((b as f32 - self as f32) * t as f32) as u8 + self
     }
 }
 
 pub fn lerp_color(c1: Color, c2: Color, t: f32) -> Color {
+    if t == 0.0 {
+        return c1;
+    }
     [
-        if c1[0] < c2[0] { c1[0].lerp(c2[0], t) } else { c2[0].lerp(c1[0], t) },
-        if c1[1] < c2[1] { c1[1].lerp(c2[1], t) } else { c2[1].lerp(c1[1], t) },
-        if c1[2] < c2[2] { c1[2].lerp(c2[2], t) } else { c2[2].lerp(c1[2], t) },
-        if c1[3] < c2[3] { c1[3].lerp(c2[3], t) } else { c2[3].lerp(c1[3], t) },
+        if c1[0] < c2[0] {
+            c1[0].lerp(c2[0], t)
+        } else {
+            c2[0].lerp(c1[0], t)
+        },
+        if c1[1] < c2[1] {
+            c1[1].lerp(c2[1], t)
+        } else {
+            c2[1].lerp(c1[1], t)
+        },
+        if c1[2] < c2[2] {
+            c1[2].lerp(c2[2], t)
+        } else {
+            c2[2].lerp(c1[2], t)
+        },
+        if c1[3] < c2[3] {
+            c1[3].lerp(c2[3], t)
+        } else {
+            c2[3].lerp(c1[3], t)
+        },
     ]
 }
 
 pub fn distance(p1: &Point3<usize>, p2: &Point3<usize>) -> u32 {
-    ((p1.x as isize - p2.x as isize).abs() +
-        (p1.y as isize - p2.y as isize).abs() +
-        (p1.z as isize - p2.z as isize).abs()).abs() as u32
+    ((p1.x as isize - p2.x as isize).abs()
+        + (p1.y as isize - p2.y as isize).abs()
+        + (p1.z as isize - p2.z as isize).abs())
+    .abs() as u32
 }
 
 pub trait Clamp {

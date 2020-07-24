@@ -1,10 +1,9 @@
 use crate::game::physics::collider::{BoxCollider, CollisionSide};
-use crate::services::chunk_service::ChunkService;
+use crate::services::chunk_service::chunk::{Chunk, Chunks};
 use crate::services::settings_service::CHUNK_SIZE;
 use nalgebra::Vector3;
-use specs::{Component, Read, System, VecStorage, WriteStorage, ParJoin};
 use specs::prelude::ParallelIterator;
-use crate::services::chunk_service::chunk::Chunk;
+use specs::{Component, ParJoin, Read, System, VecStorage, WriteStorage};
 
 pub mod collider;
 pub mod interpolator;
@@ -12,73 +11,70 @@ pub mod interpolator;
 pub struct PhysicsProcessingSystem;
 
 impl<'a> System<'a> for PhysicsProcessingSystem {
-    type SystemData = (WriteStorage<'a, PhysicsObject>, Read<'a, ChunkService>);
+    type SystemData = (WriteStorage<'a, PhysicsObject>, Read<'a, Chunks>);
 
-    fn run(&mut self, (mut physics_objects, chunk_service): Self::SystemData) {
+    fn run(&mut self, (mut physics_objects, chunks): Self::SystemData) {
+        (&mut physics_objects).par_join().for_each(|entity| {
+            // Check collisions
+            let chunk_pos = Vector3::new(
+                (entity.position.x / CHUNK_SIZE as f32).floor() as i32,
+                (entity.position.y / CHUNK_SIZE as f32).floor() as i32,
+                (entity.position.z / CHUNK_SIZE as f32).floor() as i32,
+            );
 
-        (&mut physics_objects).par_join()
-            .for_each(|entity| {
+            let chunk = match chunks.0.get(&chunk_pos) {
+                Some(val) => val,
+                // If its in an unloaded it should just float
+                none => return,
+            };
 
-                // Check collisions
-                let chunk_pos = Vector3::new(
-                    (entity.position.x / CHUNK_SIZE as f32).floor() as i32,
-                    (entity.position.y / CHUNK_SIZE as f32).floor() as i32,
-                    (entity.position.z / CHUNK_SIZE as f32).floor() as i32,
-                );
+            //TODO: Greedy mesh the frick out of the colliders
 
-                let chunk = match chunk_service.chunks.get(&chunk_pos) {
-                    Some(val) => val,
-                    // If its in an unloaded it should just float
-                    none => return,
-                };
+            let mut collision_target = CollisionSide::zero();
 
-                //TODO: Greedy mesh the frick out of the colliders
-
-                let mut collision_target = CollisionSide::zero();
-
-                if let Chunk::Tangible(chunk) = chunk {
-                    for collider in &chunk.collision_map {
-                        let collision = collider.check_collision(&entity.collider);
-                        if collision.is_some() {
-                            collision_target.combine(&collision.unwrap());
-                            break;
-                        }
+            if let Chunk::Tangible(chunk) = chunk {
+                for collider in &chunk.collision_map {
+                    let collision = collider.check_collision(&entity.collider);
+                    if collision.is_some() {
+                        collision_target.combine(&collision.unwrap());
+                        break;
                     }
                 }
+            }
 
-                let slipperiness = 0.6;
+            let slipperiness = 0.6;
 
-                entity.velocity.x *= slipperiness;
-                entity.velocity.z *= slipperiness;
+            entity.velocity.x *= slipperiness;
+            entity.velocity.z *= slipperiness;
 
-                // Add gravity
-                entity.velocity.y -= 0.08;
+            // Add gravity
+            //entity.velocity.y -= 0.08;
 
-                // Air Drag
-                entity.velocity.y *= 0.98;
+            // Air Drag
+            entity.velocity.y *= 0.98;
 
-                if !collision_target.bottom {
-                    entity.touching_ground = false;
+            if !collision_target.bottom {
+                entity.touching_ground = false;
 
-                    // Terminal velocity
-                    if entity.velocity.y < -3.92 {
-                        entity.velocity.y = -3.92;
-                    }
-                } else {
-                    entity.touching_ground = true;
-
-                    if entity.velocity.y < 0.0 {
-                        entity.velocity.y = 0.0;
-                    }
+                // Terminal velocity
+                if entity.velocity.y < -3.92 {
+                    entity.velocity.y = -3.92;
                 }
+            } else {
+                entity.touching_ground = true;
 
-                // if collision_target.front && entity.velocity.x > 0.0 { entity.velocity.x = 0.0;}
-                // if collision_target.back && entity.velocity.x < 0.0 { entity.velocity.x = 0.0;}
-                // if collision_target.left && entity.velocity.z > 0.0 { entity.velocity.z = 0.0;}
-                // if collision_target.right && entity.velocity.z < 0.0 { entity.velocity.z = 0.0;}
+                if entity.velocity.y < 0.0 {
+                    entity.velocity.y = 0.0;
+                }
+            }
 
-                entity.old_position = entity.position;
-                entity.new_position = entity.position + entity.velocity;
+            // if collision_target.front && entity.velocity.x > 0.0 { entity.velocity.x = 0.0;}
+            // if collision_target.back && entity.velocity.x < 0.0 { entity.velocity.x = 0.0;}
+            // if collision_target.left && entity.velocity.z > 0.0 { entity.velocity.z = 0.0;}
+            // if collision_target.right && entity.velocity.z < 0.0 { entity.velocity.z = 0.0;}
+
+            entity.old_position = entity.position;
+            entity.new_position = entity.position + entity.velocity;
         });
     }
 }

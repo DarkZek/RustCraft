@@ -1,4 +1,5 @@
 use crate::block::Block;
+use crate::render::loading::LoadingScreen;
 use crate::services::input_service::InputService;
 use crate::services::networking_service::NetworkingService;
 use crate::services::{
@@ -15,7 +16,6 @@ use std::sync::{Arc, Mutex};
 use wgpu::{Device, Queue};
 use winit::dpi::PhysicalSize;
 use winit::window::Window;
-use crate::render::loading::LoadingScreen;
 
 #[macro_use]
 pub mod logging_service;
@@ -65,7 +65,7 @@ pub fn load_services(mut context: ServicesContext, universe: &mut World) {
 
     //TODO: Remove this once we have networking
     atlas_update_blocks(asset.atlas_index.as_ref().unwrap(), &mut context.blocks);
-    let chunk = ChunkService::new(&settings, &mut context);
+    let chunk = ChunkService::new(&settings, &mut context, universe);
     LoadingScreen::update_state(80.0);
     let audio = AudioService::new();
     let mut ui = UIService::new(&mut context, &asset, universe);
@@ -92,7 +92,7 @@ pub fn load_services(mut context: ServicesContext, universe: &mut World) {
             "Chunks: {}x16x{} ({} Total)",
             settings.render_distance * 2,
             settings.render_distance * 2,
-            chunk.chunks.len()
+            (settings.render_distance * 2) * (settings.render_distance * 2) * 16
         ))
         .set_size(20.0)
         .set_text_alignment(ObjectAlignment::TopLeft)

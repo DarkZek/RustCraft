@@ -3,11 +3,11 @@
 layout(location=0) in vec3 a_position;
 layout(location=1) in vec2 a_tex_coords;
 layout(location=2) in vec3 normal;
-layout(location=3) in vec4 applied_color;
+layout(location=3) in int applied_color;
 
 layout(location=0) out vec2 v_tex_coords;
 layout(location=1) out vec3 v_normal;
-layout(location=2) out vec4 v_applied_color;
+layout(location=2) out int v_applied_color;
 
 layout(set=1, binding=0) uniform Uniforms {
     mat4 u_view_proj;

@@ -4,11 +4,20 @@ use crate::services::chunk_service::mesh::culling::ViewableDirection;
 use crate::services::chunk_service::mesh::Vertex;
 use crate::services::settings_service::CHUNK_SIZE;
 use nalgebra::Vector3;
+use std::collections::HashMap;
 use wgpu::{BindGroup, Buffer};
+
+pub struct Chunks(pub(crate) HashMap<Vector3<i32>, Chunk>);
+
+impl Default for Chunks {
+    fn default() -> Self {
+        unimplemented!()
+    }
+}
 
 pub enum Chunk {
     Tangible(ChunkData),
-    Intangible
+    Intangible,
 }
 
 pub struct ChunkData {
@@ -32,7 +41,7 @@ pub struct ChunkData {
     pub neighboring_light_levels: RawLightingData,
 }
 
-pub type Color = [f32; 4];
+pub type Color = [u8; 4];
 
 impl ChunkData {
     pub fn new(data: ChunkBlockData, position: Vector3<i32>) -> ChunkData {
@@ -49,8 +58,8 @@ impl ChunkData {
             position,
             collision_map: vec![],
             // Ambient color
-            light_levels: [[[[1.0, 0.01, 0.01, 0.01]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE],
-            neighboring_light_levels: [[[[1.0, 1.0, 1.0, 1.0]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE]
+            light_levels: [[[[255, 2, 2, 2]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE],
+            neighboring_light_levels: [[[[0, 0, 0, 0]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE],
         }
     }
 }

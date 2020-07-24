@@ -27,6 +27,20 @@ pub struct SettingsService {
 }
 
 impl SettingsService {
+    #[cfg(target_os = "windows")]
+    fn get_path() -> String {
+        let path = std::env::current_dir().unwrap();
+        let path = path.as_os_str();
+        String::from(path.to_str().unwrap()).add("\\")
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    fn get_path() -> String {
+        let path = std::env::current_dir().unwrap();
+        let path = path.as_os_str();
+        String::from(path.to_str().unwrap()).add("/")
+    }
+
     /// Creates a new instance of settings, loading the variables from the environment variables as well as settings file
     ///
     /// # Returns
@@ -35,15 +49,7 @@ impl SettingsService {
     ///
     pub fn new() -> SettingsService {
         // Load resources directory
-        let path: String = {
-            let path = std::env::current_exe().unwrap();
-            let path = path.as_os_str();
-            let mut path: Vec<&str> = (path.to_str().unwrap()).split("/").collect();
-
-            path.remove(path.len() - 1);
-            path.iter()
-                .fold("".to_string(), |out, x| out.add(&format!("{}/", x)))
-        };
+        let path: String = Self::get_path();
 
         let mut atlas_caching = true;
         let debug_vertices = false;
@@ -56,7 +62,7 @@ impl SettingsService {
             path,
             atlas_cache_reading: true,
             atlas_cache_writing: atlas_caching,
-            render_distance: 4,
+            render_distance: 6,
             debug_vertices,
             debug_atlas: false,
             backface_culling: false,

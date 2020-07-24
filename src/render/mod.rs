@@ -13,9 +13,13 @@ use std::borrow::Borrow;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant, SystemTime};
 use systemstat::{Platform, System};
-use wgpu::{AdapterInfo, BindGroupLayout, Device, RenderPipeline, Sampler, SwapChainDescriptor, Texture, TextureView, VertexStateDescriptor};
+use wgpu::{
+    AdapterInfo, BindGroupLayout, Device, RenderPipeline, Sampler, SwapChainDescriptor, Texture,
+    TextureView, VertexStateDescriptor,
+};
+use winit::dpi::PhysicalSize;
 use winit::event_loop::EventLoop;
-use winit::window::{Window, WindowBuilder, Fullscreen};
+use winit::window::{Window, WindowBuilder};
 
 pub mod camera;
 pub mod device;
@@ -63,17 +67,22 @@ impl RenderState {
         let last_frame_time = SystemTime::now();
         let delta_time = Duration::from_millis(0);
 
+        //let icon = Icon::from_rgba()
+
         let window = Arc::new(
             WindowBuilder::new()
                 .with_title("Loading - Rustcraft")
-                .with_fullscreen(Some(Fullscreen::Borderless(event_loop.available_monitors().last().unwrap())))
+                .with_inner_size(PhysicalSize {
+                    width: 1536,
+                    height: 864,
+                })
+                //.with_window_icon()
                 .build(&event_loop)
                 .unwrap(),
         );
 
         // Get the window setup ASAP so we can show loading screen
-        let (size, surface, gpu_info, device, queue) =
-            RenderState::get_devices(window.borrow());
+        let (size, surface, gpu_info, device, queue) = RenderState::get_devices(window.borrow());
 
         // Convert to forms that can be used in multiple places
         let device = Arc::new(device);
@@ -98,7 +107,13 @@ impl RenderState {
 
         // Start the intensive job of loading services
         load_services(
-            ServicesContext::new(device.clone(), queue.clone(), &mut blocks, &size, window.clone()),
+            ServicesContext::new(
+                device.clone(),
+                queue.clone(),
+                &mut blocks,
+                &size,
+                window.clone(),
+            ),
             universe,
         );
         LoadingScreen::update_state(95.0);
@@ -110,9 +125,6 @@ impl RenderState {
         let (uniform_buffer, uniform_bind_group_layout, uniform_bind_group) =
             uniforms.create_uniform_buffers(&device.clone());
 
-        universe
-            .write_resource::<ChunkService>()
-            .update_frustum_culling(&camera);
         universe.insert(camera);
 
         let depth_texture = create_depth_texture(&device.clone(), &sc_desc);
@@ -128,7 +140,9 @@ impl RenderState {
                     .as_ref()
                     .unwrap(),
                 &uniform_bind_group_layout,
-                &universe.read_resource::<ChunkService>().model_bind_group_layout
+                &universe
+                    .read_resource::<ChunkService>()
+                    .model_bind_group_layout,
             ],
         );
 
@@ -191,8 +205,10 @@ fn generate_render_pipeline(
 ) -> RenderPipeline {
     let (vs_module, fs_module) = load_shaders(device);
 
-    let render_pipeline_layout =
-        device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor { bind_group_layouts, push_constant_ranges: &[] });
+    let render_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+        bind_group_layouts,
+        push_constant_ranges: &[],
+    });
 
     device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
         layout: &render_pipeline_layout,

@@ -90,7 +90,6 @@ impl<'a> ChunkData {
         adjacent_chunks: HashMap<Vector3<i32>, Option<&Chunk>>,
         chunk_edge_faces: bool,
     ) -> [[[ViewableDirection; 16]; 16]; 16] {
-
         let mut data = [[[ViewableDirection(0); CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
 
         let directions: [Vector3<i32>; 6] = [
@@ -161,7 +160,7 @@ impl<'a> ChunkData {
                                             } else {
                                                 None
                                             }
-                                        },
+                                        }
                                         Chunk::Intangible => None,
                                     }
                                 };
@@ -192,11 +191,5 @@ impl<'a> ChunkData {
         } else {
             None
         }
-    }
-
-    pub fn update_mesh(&mut self, data: ChunkMeshData) {
-        self.indices = data.indices;
-        self.vertices = data.vertices;
-        self.viewable_map = data.viewable;
     }
 }

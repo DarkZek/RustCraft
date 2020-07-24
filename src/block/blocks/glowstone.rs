@@ -14,6 +14,6 @@ pub const GLOWSTONE_BLOCK: Block = Block {
     texture_ids: [0; 6],
     texture_atlas_lookups: [([0.0, 0.0], [1.0, 1.0]); 6],
     transparent: false,
-    light_intensity: 8,
-    color: [0.5, 0.5, 0.0]
+    light_intensity: 12,
+    color: [128, 128, 0],
 };

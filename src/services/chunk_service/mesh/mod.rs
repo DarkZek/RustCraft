@@ -13,7 +13,7 @@ pub struct Vertex {
     pub position: [f32; 3],
     pub tex_coords: [f32; 2],
     pub normals: [f32; 3],
-    pub applied_color: [f32; 4],
+    pub applied_color: [u8; 4],
 }
 
 unsafe impl bytemuck::Zeroable for Vertex {}
@@ -92,10 +92,12 @@ impl Vertex {
                     format: wgpu::VertexFormat::Float3,
                 },
                 wgpu::VertexAttributeDescriptor {
-                    offset: (mem::size_of::<[f32; 3]>() + mem::size_of::<[f32; 2]>() + mem::size_of::<[f32; 4]>())
+                    offset: (mem::size_of::<[f32; 3]>()
+                        + mem::size_of::<[f32; 2]>()
+                        + mem::size_of::<[f32; 4]>())
                         as wgpu::BufferAddress,
                     shader_location: 3,
-                    format: wgpu::VertexFormat::Float4,
+                    format: wgpu::VertexFormat::Uint,
                 },
             ],
         }

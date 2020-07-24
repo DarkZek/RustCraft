@@ -23,7 +23,7 @@ impl Camera {
             eye: Point3::new(0.0, 0.0, 0.0),
             // have it look at the origin
             yaw: 0.0,
-            pitch: 3.14,
+            pitch: 1.0,
             // which way is "up"
             up: Vector3::y(),
             aspect: size.width as f32 / size.height as f32,

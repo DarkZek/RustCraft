@@ -1,14 +1,14 @@
 use crate::render::RenderState;
 use crate::services::asset_service::AssetService;
+use crate::services::chunk_service::chunk::{Chunk, Chunks};
 use crate::services::chunk_service::ChunkService;
 use crate::services::ui_service::UIService;
 use specs::{Read, System, Write};
 use wgpu::{Color, LoadOp, Operations};
-use crate::services::chunk_service::chunk::Chunk;
 
+pub mod buffer;
 pub mod prepass;
 pub mod uniforms;
-pub mod buffer;
 
 pub struct RenderSystem;
 
@@ -17,13 +17,14 @@ impl<'a> System<'a> for RenderSystem {
         Write<'a, RenderState>,
         Read<'a, AssetService>,
         Read<'a, ChunkService>,
+        Read<'a, Chunks>,
         Read<'a, UIService>,
     );
 
     /// Renders all visible chunks
     fn run(
         &mut self,
-        (mut render_state, asset_service, chunk_service, ui_service): Self::SystemData,
+        (mut render_state, asset_service, chunk_service, chunks, ui_service): Self::SystemData,
     ) {
         let frame = render_state
             .swap_chain
@@ -68,7 +69,7 @@ impl<'a> System<'a> for RenderSystem {
                 render_pass.set_bind_group(1, &render_state.uniform_bind_group, &[]);
 
                 for pos in &chunk_service.visible_chunks {
-                    if let Chunk::Tangible(chunk) = chunk_service.chunks.get(pos).unwrap() {
+                    if let Chunk::Tangible(chunk) = chunks.0.get(pos).unwrap() {
                         let indices_buffer = chunk.indices_buffer.as_ref().unwrap();
                         let vertices_buffer = chunk.vertices_buffer.as_ref().unwrap();
                         let model_bind_group = chunk.model_bind_group.as_ref().unwrap();
