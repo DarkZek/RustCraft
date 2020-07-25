@@ -1,12 +1,12 @@
 use crate::entity::player::{move_forwards, Player, PlayerEntity};
 use crate::game::physics::PhysicsObject;
+use crate::helpers::Clamp;
 use crate::render::camera::Camera;
 use crate::render::RenderState;
+use crate::services::input_service::actions::ActionSheet;
 use crate::services::input_service::input::GameChanges;
 use specs::{Builder, Join, Read, ReadStorage, System, World, WorldExt, Write, WriteStorage};
 use std::f32::consts::PI;
-use crate::services::input_service::actions::ActionSheet;
-use crate::helpers::Clamp;
 
 /// Stores the current state of the game. Currently this is mostly just looking after player movement.
 pub struct GameState {
@@ -43,7 +43,7 @@ impl<'a> System<'a> for PlayerMovementSystem {
         Write<'a, GameState>,
         ReadStorage<'a, PlayerEntity>,
         WriteStorage<'a, PhysicsObject>,
-        Write<'a, ActionSheet>
+        Write<'a, ActionSheet>,
     );
 
     fn run(
@@ -55,7 +55,7 @@ impl<'a> System<'a> for PlayerMovementSystem {
             mut game_state,
             player_entity,
             mut player_physics,
-            mut actionsheet
+            mut actionsheet,
         ): Self::SystemData,
     ) {
         let mut encoder = render
@@ -91,7 +91,9 @@ impl<'a> System<'a> for PlayerMovementSystem {
                 move_forwards(&events.movement, game_state.player.rot[0]).into();
         }
 
-        if events.jump { actionsheet.set_jump();}
+        if events.jump {
+            actionsheet.set_jump();
+        }
 
         if actionsheet.get_jump() {
             let (_, player_physics) = (&player_entity, &mut player_physics).join().last().unwrap();
@@ -100,7 +102,7 @@ impl<'a> System<'a> for PlayerMovementSystem {
             }
         }
 
-        render.uniforms.update_view_proj(&camera);
+        render.uniforms.update_view_proj(&mut camera);
 
         let uniform_buffer = render.device.create_buffer_with_data(
             bytemuck::cast_slice(&render.uniforms.view_proj),

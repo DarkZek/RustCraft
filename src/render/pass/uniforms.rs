@@ -19,7 +19,7 @@ impl Uniforms {
         }
     }
 
-    pub fn update_view_proj(&mut self, camera: &Camera) {
+    pub fn update_view_proj(&mut self, camera: &mut Camera) {
         self.view_proj = camera.build_view_projection_matrix().into();
     }
 
@@ -38,7 +38,7 @@ impl Uniforms {
                         dynamic: false,
                         min_binding_size: None,
                     },
-                    count: None
+                    count: None,
                 }],
                 label: None,
             });

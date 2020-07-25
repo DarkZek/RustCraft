@@ -8,6 +8,8 @@ use crate::services::asset_service::AssetService;
 use crate::services::chunk_service::mesh::Vertex;
 use crate::services::chunk_service::ChunkService;
 use crate::services::{load_services, ServicesContext};
+use image::png::PngDecoder;
+use image::ImageFormat;
 use specs::{World, WorldExt};
 use std::borrow::Borrow;
 use std::sync::{Arc, Mutex};
@@ -19,7 +21,7 @@ use wgpu::{
 };
 use winit::dpi::PhysicalSize;
 use winit::event_loop::EventLoop;
-use winit::window::{Window, WindowBuilder};
+use winit::window::{Icon, Window, WindowBuilder};
 
 pub mod camera;
 pub mod device;
@@ -67,7 +69,13 @@ impl RenderState {
         let last_frame_time = SystemTime::now();
         let delta_time = Duration::from_millis(0);
 
-        //let icon = Icon::from_rgba()
+        let icon_img = image::load_from_memory_with_format(
+            include_bytes!("../../assets/logo.png"),
+            ImageFormat::Png,
+        )
+        .unwrap();
+
+        let icon = Icon::from_rgba(icon_img.to_bytes(), 128, 128).unwrap();
 
         let window = Arc::new(
             WindowBuilder::new()
@@ -76,7 +84,7 @@ impl RenderState {
                     width: 1536,
                     height: 864,
                 })
-                //.with_window_icon()
+                .with_window_icon(Some(icon))
                 .build(&event_loop)
                 .unwrap(),
         );
@@ -119,9 +127,9 @@ impl RenderState {
         LoadingScreen::update_state(95.0);
 
         // TODO: Combine uniforms into camera
-        let camera = Camera::new(&size);
+        let mut camera = Camera::new(&size);
         let mut uniforms = Uniforms::new();
-        uniforms.update_view_proj(&camera);
+        uniforms.update_view_proj(&mut camera);
         let (uniform_buffer, uniform_bind_group_layout, uniform_bind_group) =
             uniforms.create_uniform_buffers(&device.clone());
 

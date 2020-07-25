@@ -11,6 +11,7 @@ pub struct Camera {
     pub fovy: f32,
     pub znear: f32,
     pub zfar: f32,
+    pub projection_matrix: Matrix4<f32>,
 }
 
 const FIRST_PERSON_OFFSET: [f32; 3] = [0.0, 0.0, 0.0];
@@ -30,11 +31,12 @@ impl Camera {
             fovy: 70.0,
             znear: 0.1,
             zfar: 2000.0,
+            projection_matrix: Matrix4::zeros(),
         }
     }
 
     /// Builds the view projection matrix with flipped axis for wgpu using Camera settings
-    pub fn build_view_projection_matrix(&self) -> Matrix4<f32> {
+    pub fn build_view_projection_matrix(&mut self) -> Matrix4<f32> {
         let opengl_to_wgpu_matrix: Matrix4<f32> = Matrix4::new(
             1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5, 1.0,
         );
@@ -52,7 +54,11 @@ impl Camera {
 
         let proj = Perspective3::new(self.aspect, self.fovy, self.znear, self.zfar);
 
-        return (opengl_to_wgpu_matrix * proj.as_matrix()) * view.to_homogeneous();
+        let matrix = (opengl_to_wgpu_matrix * proj.as_matrix()) * view.to_homogeneous();
+
+        self.projection_matrix = matrix;
+
+        return matrix;
     }
 
     /// Move camera in direction based off current rotation
