@@ -58,7 +58,7 @@ impl ChunkData {
             position,
             collision_map: vec![],
             // Ambient color
-            light_levels: [[[[255, 2, 2, 2]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE],
+            light_levels: [[[[2, 2, 2, 255]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE],
             neighboring_light_levels: [[[[0, 0, 0, 0]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE],
         }
     }

@@ -94,10 +94,10 @@ impl Vertex {
                 wgpu::VertexAttributeDescriptor {
                     offset: (mem::size_of::<[f32; 3]>()
                         + mem::size_of::<[f32; 2]>()
-                        + mem::size_of::<[f32; 4]>())
+                        + mem::size_of::<[f32; 3]>())
                         as wgpu::BufferAddress,
                     shader_location: 3,
-                    format: wgpu::VertexFormat::Uint,
+                    format: wgpu::VertexFormat::Uchar4Norm,
                 },
             ],
         }

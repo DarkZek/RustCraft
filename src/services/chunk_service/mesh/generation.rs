@@ -58,10 +58,10 @@ impl ChunkData {
                         let extra_color = self.neighboring_light_levels[x][y][z].clone();
 
                         let out_color = [
+                            (applied_color[0] as u16 + extra_color[0] as u16) as u8,
+                            (applied_color[1] as u16 + extra_color[1] as u16) as u8,
+                            (applied_color[2] as u16 + extra_color[2] as u16) as u8,
                             255,
-                            applied_color[1] + extra_color[1],
-                            applied_color[2] + extra_color[2],
-                            applied_color[3] + extra_color[3],
                         ];
 
                         //Found it, draw vertices for it

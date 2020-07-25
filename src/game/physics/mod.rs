@@ -48,7 +48,7 @@ impl<'a> System<'a> for PhysicsProcessingSystem {
             entity.velocity.z *= slipperiness;
 
             // Add gravity
-            //entity.velocity.y -= 0.08;
+            entity.velocity.y -= 0.08;
 
             // Air Drag
             entity.velocity.y *= 0.98;

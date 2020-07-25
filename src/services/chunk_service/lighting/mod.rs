@@ -96,7 +96,7 @@ impl ChunkData {
                 //let col = 1.0;
 
                 // Add color to current points
-                let new_color = [255, color[0], color[1], color[2]];
+                let new_color = [color[0], color[1], color[2], 255];
                 apply_color_to_chunk(self, pos.clone(), new_color, col, chunks);
 
                 // Add adjacent tiles
@@ -168,9 +168,9 @@ fn apply_color_to_chunk(
                 let current_color = &mut chunk.neighboring_light_levels[pos[0] as usize]
                     [pos[1] as usize][pos[2] as usize];
 
-                let new_intensity = current_color[0] + (intensity * 25.0) as u8;
+                let new_intensity = current_color[3] + (intensity * 25.0) as u8;
                 *current_color = lerp_color(current_color.clone(), color, intensity);
-                current_color[0] = new_intensity;
+                current_color[3] = new_intensity;
             }
         }
     }
