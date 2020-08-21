@@ -1,7 +1,15 @@
-use wgpu::{Device, Texture, Sampler, TextureComponentType, BufferUsage, TextureDataLayout, Queue, BindGroup, BindGroupLayout, CompareFunction};
 use image::ImageFormat;
+use wgpu::util::{BufferInitDescriptor, DeviceExt};
+use wgpu::{
+    BindGroup, BindGroupLayout, BufferUsage, CompareFunction, Device, Queue, Sampler, Texture,
+    TextureAspect, TextureComponentType, TextureDataLayout, TextureFormat, TextureViewDescriptor,
+    TextureViewDimension,
+};
 
-pub fn load_splash(device: &Device, queue: &mut Queue) -> (Texture, Sampler, BindGroupLayout, BindGroup) {
+pub fn load_splash(
+    device: &Device,
+    queue: &mut Queue,
+) -> (Texture, Sampler, BindGroupLayout, BindGroup) {
     let splash_image = include_bytes!("../../../assets/splash.png");
     let splash_image = image::load_from_memory_with_format(splash_image, ImageFormat::Png).unwrap();
 
@@ -14,7 +22,11 @@ pub fn load_splash(device: &Device, queue: &mut Queue) -> (Texture, Sampler, Bin
         depth: 1,
     };
 
-    let diffuse_buffer = device.create_buffer_with_data(&diffuse_rgba, BufferUsage::COPY_SRC);
+    let diffuse_buffer = device.create_buffer_init(&BufferInitDescriptor {
+        label: None,
+        contents: &diffuse_rgba,
+        usage: BufferUsage::COPY_SRC,
+    });
 
     let mut encoder =
         device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
@@ -60,7 +72,7 @@ pub fn load_splash(device: &Device, queue: &mut Queue) -> (Texture, Sampler, Bin
         lod_min_clamp: -100.0,
         lod_max_clamp: 100.0,
         compare: Some(CompareFunction::Always),
-        anisotropy_clamp: None
+        anisotropy_clamp: None,
     };
 
     let diffuse_sampler = device.create_sampler(&diffuse_sampler_descriptor);
@@ -70,10 +82,21 @@ pub fn load_splash(device: &Device, queue: &mut Queue) -> (Texture, Sampler, Bin
     (diffuse_texture, diffuse_sampler, bindings.0, bindings.1)
 }
 
-pub fn load_splash_image_bindings(device: &Device,
-                                  diffuse_texture: &Texture,
-                                  diffuse_sampler: &Sampler) -> (BindGroupLayout, BindGroup) {
-    let diffuse_texture_view = diffuse_texture.create_default_view();
+pub fn load_splash_image_bindings(
+    device: &Device,
+    diffuse_texture: &Texture,
+    diffuse_sampler: &Sampler,
+) -> (BindGroupLayout, BindGroup) {
+    let diffuse_texture_view = diffuse_texture.create_view(&TextureViewDescriptor {
+        label: None,
+        format: Some(TextureFormat::Rgba8UnormSrgb),
+        dimension: Some(TextureViewDimension::D2),
+        aspect: TextureAspect::All,
+        base_mip_level: 0,
+        level_count: None,
+        base_array_layer: 0,
+        array_layer_count: None,
+    });
 
     let texture_bind_group_layout =
         device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
@@ -86,13 +109,13 @@ pub fn load_splash_image_bindings(device: &Device,
                         dimension: wgpu::TextureViewDimension::D2Array,
                         component_type: TextureComponentType::Float,
                     },
-                    count: None
+                    count: None,
                 },
                 wgpu::BindGroupLayoutEntry {
                     binding: 1,
                     visibility: wgpu::ShaderStage::FRAGMENT,
                     ty: wgpu::BindingType::Sampler { comparison: true },
-                    count: None
+                    count: None,
                 },
             ],
             label: None,
@@ -118,7 +141,7 @@ pub fn load_splash_image_bindings(device: &Device,
 
 // pub fn load_view_matrix(device: &Device) {
 //
-//     let uniform_buffer = device.create_buffer_with_data(
+//     let uniform_buffer = device.create_buffer_init(
 //         bytemuck::cast_slice(&self.view_proj),
 //         wgpu::BufferUsage::UNIFORM | wgpu::BufferUsage::COPY_DST | wgpu::BufferUsage::COPY_SRC,
 //     );

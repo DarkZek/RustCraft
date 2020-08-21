@@ -30,7 +30,7 @@ impl<'a> System<'a> for RenderSystem {
             .swap_chain
             .as_mut()
             .unwrap()
-            .get_next_frame()
+            .get_current_frame()
             .unwrap();
 
         let mut encoder = render_state
@@ -44,7 +44,7 @@ impl<'a> System<'a> for RenderSystem {
                         attachment: &frame.output.view,
                         resolve_target: None,
                         ops: Operations {
-                            load: LoadOp::Clear(Color::BLUE),
+                            load: LoadOp::Clear(Color::BLACK),
                             store: true,
                         },
                     }],

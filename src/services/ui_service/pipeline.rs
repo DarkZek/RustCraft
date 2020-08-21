@@ -13,11 +13,15 @@ pub fn generate_render_pipeline(
 ) -> RenderPipeline {
     let (vs_module, fs_module) = load_shaders(device);
 
-    let render_pipeline_layout =
-        device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor { bind_group_layouts, push_constant_ranges: &[] });
+    let render_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+        label: None,
+        bind_group_layouts,
+        push_constant_ranges: &[],
+    });
 
     device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-        layout: &render_pipeline_layout,
+        label: None,
+        layout: Some(&render_pipeline_layout),
         vertex_stage: wgpu::ProgrammableStageDescriptor {
             module: &vs_module,
             entry_point: "main",
@@ -29,6 +33,7 @@ pub fn generate_render_pipeline(
         rasterization_state: Some(wgpu::RasterizationStateDescriptor {
             front_face: wgpu::FrontFace::Ccw,
             cull_mode: wgpu::CullMode::None,
+            clamp_depth: false,
             depth_bias: 0,
             depth_bias_slope_scale: 0.0,
             depth_bias_clamp: 0.0,
@@ -64,10 +69,10 @@ pub fn load_shaders(device: &Device) -> (ShaderModule, ShaderModule) {
     let fs_src = include_bytes!("../../../assets/shaders/ui_frag.spv");
 
     let vs_module = device.create_shader_module(wgpu::ShaderModuleSource::SpirV(
-        bytes_to_shader(vs_src).as_slice(),
+        std::borrow::Cow::Borrowed(bytes_to_shader(vs_src).as_slice()),
     ));
     let fs_module = device.create_shader_module(wgpu::ShaderModuleSource::SpirV(
-        bytes_to_shader(fs_src).as_slice(),
+        std::borrow::Cow::Borrowed(bytes_to_shader(fs_src).as_slice()),
     ));
 
     (vs_module, fs_module)

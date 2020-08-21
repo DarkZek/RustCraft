@@ -25,7 +25,7 @@ impl<'a> System<'a> for PhysicsProcessingSystem {
             let chunk = match chunks.0.get(&chunk_pos) {
                 Some(val) => val,
                 // If its in an unloaded it should just float
-                none => return,
+                None => return,
             };
 
             //TODO: Greedy mesh the frick out of the colliders
@@ -34,9 +34,22 @@ impl<'a> System<'a> for PhysicsProcessingSystem {
 
             if let Chunk::Tangible(chunk) = chunk {
                 for collider in &chunk.collision_map {
+                    //let collision = collider.check_collision(&entity.collider);
                     let collision = collider.check_collision(&entity.collider);
+
                     if collision.is_some() {
                         collision_target.combine(&collision.unwrap());
+                        break;
+                    }
+
+                    let collision = entity.collider.check_collision(&collider);
+
+                    if collision.is_some() {
+                        let mut collision = collision.unwrap();
+                        println!("Collision Map: {:?}", collision);
+                        collision.invert();
+                        println!("Collision Map: {:?}", collision);
+                        collision_target.combine(&collision);
                         break;
                     }
                 }
@@ -52,6 +65,13 @@ impl<'a> System<'a> for PhysicsProcessingSystem {
 
             // Air Drag
             entity.velocity.y *= 0.98;
+
+            if collision_target.front {
+                // Remove speed
+                if entity.velocity.x > 0.0 {
+                    entity.velocity.x = 0.0;
+                }
+            }
 
             if !collision_target.bottom {
                 entity.touching_ground = false;

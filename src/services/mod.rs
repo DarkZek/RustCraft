@@ -63,14 +63,14 @@ pub fn load_services(mut context: ServicesContext, universe: &mut World) {
     let asset = AssetService::new(&settings, &mut context);
     LoadingScreen::update_state(60.0);
 
-    //TODO: Remove this once we have networking
+    //TODO: Remove this once we have rc_network
     atlas_update_blocks(asset.atlas_index.as_ref().unwrap(), &mut context.blocks);
     let chunk = ChunkService::new(&settings, &mut context, universe);
     LoadingScreen::update_state(80.0);
     let audio = AudioService::new();
     let mut ui = UIService::new(&mut context, &asset, universe);
     let input = InputService::new(&mut context, universe);
-    let mut networking_service = NetworkingService::new();
+    let mut networking_service = NetworkingService::new(universe);
     LoadingScreen::update_state(90.0);
 
     //TEMP
@@ -102,8 +102,6 @@ pub fn load_services(mut context: ServicesContext, universe: &mut World) {
         .set_offset([0.0, 60.0])
         .build();
     //endregion
-
-    networking_service.update_servers();
 
     logging.flush_buffer();
 

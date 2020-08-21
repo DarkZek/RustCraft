@@ -26,6 +26,12 @@ pub struct SettingsService {
     pub chunk_edge_faces: bool,
 }
 
+impl Default for SettingsService {
+    fn default() -> Self {
+        unimplemented!()
+    }
+}
+
 impl SettingsService {
     #[cfg(target_os = "windows")]
     fn get_path() -> String {
@@ -36,9 +42,9 @@ impl SettingsService {
 
     #[cfg(not(target_os = "windows"))]
     fn get_path() -> String {
-        let path = std::env::current_dir().unwrap();
+        let path = std::env::home_dir().unwrap();
         let path = path.as_os_str();
-        String::from(path.to_str().unwrap()).add("/")
+        format!("{}/.rustcraft/", path.to_str().unwrap())
     }
 
     /// Creates a new instance of settings, loading the variables from the environment variables as well as settings file
@@ -66,7 +72,7 @@ impl SettingsService {
             debug_vertices,
             debug_atlas: false,
             backface_culling: false,
-            chunk_edge_faces: false,
+            chunk_edge_faces: true,
         }
     }
 }

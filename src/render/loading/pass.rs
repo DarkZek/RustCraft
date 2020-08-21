@@ -1,12 +1,12 @@
-use wgpu::{BufferUsage, Operations, LoadOp, Color};
-use std::thread;
-use crate::render::loading::{LoadingScreen, STANDARD_VERTICES};
-use instant::Instant;
 use crate::helpers::Lerp;
+use crate::render::loading::{LoadingScreen, STANDARD_VERTICES};
 use crate::services::chunk_service::mesh::UIVertex;
+use instant::Instant;
+use std::thread;
+use wgpu::util::{BufferInitDescriptor, DeviceExt};
+use wgpu::{BufferUsage, Color, LoadOp, Operations};
 
 impl LoadingScreen {
-
     pub fn start_loop(mut self) {
         thread::spawn(move || {
             let mut displayed_progress: f32 = 0.0;
@@ -19,12 +19,12 @@ impl LoadingScreen {
             let mut time = Instant::now();
 
             loop {
-                displayed_progress = displayed_progress.lerp(target_progress, 2.0 / processed_fps as f32);
+                displayed_progress =
+                    displayed_progress.lerp(target_progress, 2.0 / processed_fps as f32);
 
                 // Only update progress every 15 frames to reduce lag
                 if update_progress == 15 {
-                    target_progress = *crate::render::loading::LOADING_STATE
-                        .lock().unwrap();
+                    target_progress = *crate::render::loading::LOADING_STATE.lock().unwrap();
                     update_progress = 0;
                 } else {
                     update_progress += 1;
@@ -48,31 +48,28 @@ impl LoadingScreen {
         });
     }
 
-    pub fn render(
-        &mut self,
-        percentage: f32,
-    ) {
+    pub fn render(&mut self, percentage: f32) {
         let x = ((percentage as f32 / 100.0) * 1.2) - 0.6;
 
         let top_left = UIVertex {
             position: [-0.7, -0.51],
             tex_coords: [-1.0, -1.0],
-            color: [1.0, 1.0, 1.0, 1.0]
+            color: [1.0, 1.0, 1.0, 1.0],
         };
         let top_right = UIVertex {
             position: [x, -0.51],
             tex_coords: [-1.0, -1.0],
-            color: [1.0, 1.0, 1.0, 1.0]
+            color: [1.0, 1.0, 1.0, 1.0],
         };
         let bottom_left = UIVertex {
             position: [-0.7, -0.59],
             tex_coords: [-1.0, -1.0],
-            color: [1.0, 1.0, 1.0, 1.0]
+            color: [1.0, 1.0, 1.0, 1.0],
         };
         let bottom_right = UIVertex {
             position: [x, -0.59],
             tex_coords: [-1.0, -1.0],
-            color: [1.0, 1.0, 1.0, 1.0]
+            color: [1.0, 1.0, 1.0, 1.0],
         };
 
         // Create loading
@@ -85,15 +82,21 @@ impl LoadingScreen {
             bottom_right,
         ];
 
-        let vertices_buffer = self.device.as_ref().create_buffer_with_data(
-            bytemuck::cast_slice(vertices.as_slice()),
-            BufferUsage::VERTEX,
-        );
+        let vertices_buffer = self
+            .device
+            .as_ref()
+            .create_buffer_init(&BufferInitDescriptor {
+                label: None,
+                contents: &bytemuck::cast_slice(vertices.as_slice()),
+                usage: BufferUsage::VERTEX,
+            });
 
-        let frame = self.swapchain.lock().unwrap().get_next_frame().unwrap();
+        let frame = self.swapchain.lock().unwrap().get_current_frame().unwrap();
 
-        let mut encoder =
-            self.device.as_ref().create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
+        let mut encoder = self
+            .device
+            .as_ref()
+            .create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
 
         {
             let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
@@ -106,7 +109,7 @@ impl LoadingScreen {
                             r: 2.0,
                             g: 50.0 / 255.0,
                             b: 61.0 / 255.0,
-                            a: 0.0
+                            a: 0.0,
                         }),
                         store: true,
                     },

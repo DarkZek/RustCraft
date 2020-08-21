@@ -9,7 +9,7 @@ use crate::services::chunk_service::frustum_culling::calculate_frustum_culling;
 use crate::services::settings_service::{SettingsService, CHUNK_SIZE};
 use crate::services::ServicesContext;
 use nalgebra::Vector3;
-use specs::{World, WorldExt};
+use specs::World;
 use std::collections::HashMap;
 use std::ops::Index;
 use wgpu::{BindGroupLayout, Device};
@@ -27,6 +27,8 @@ pub struct ChunkService {
     pub vertices_count: u64,
     pub chunk_keys: Vec<Vector3<i32>>,
 
+    //Temp
+    pub(crate) blocks: Vec<Block>,
     previous_player_rot: f32,
 }
 
@@ -61,70 +63,69 @@ impl ChunkService {
             vertices_count: 0,
             chunk_keys: Vec::new(),
             previous_player_rot: 0.0,
+            blocks: context.blocks.clone(),
         };
 
         let mut chunks = Chunks(HashMap::with_capacity(16 * CHUNK_SIZE * CHUNK_SIZE));
 
-        //TODO: Remove this once we have networking
-        for x in -(settings.render_distance as i32)..(settings.render_distance as i32) {
-            for z in -(settings.render_distance as i32)..(settings.render_distance as i32) {
-                for y in 0..16 {
-                    let data = ChunkService::generate_chunk(x, y, z, context.blocks);
-                    service.load_chunk(
-                        context.device.as_ref(),
-                        data,
-                        Vector3::new(x, y, z),
-                        &settings,
-                        &mut chunks,
-                    );
-                }
-            }
-        }
-
-        //TODO: Switch this out to something more stable, please
-        for pos in &service.viewable_chunks {
-            unsafe {
-                let index = chunks.0.index(pos);
-                if let Chunk::Tangible(chunk) = index {
-                    let const_ptr = chunk as *const ChunkData;
-                    let mut_ptr = const_ptr as *mut ChunkData;
-                    let chunk = &mut *mut_ptr;
-
-                    chunk.calculate_lighting(&mut chunks);
-                }
-            }
-        }
-
-        for pos in &service.viewable_chunks {
-            unsafe {
-                let index = chunks.0.index(pos);
-                if let Chunk::Tangible(chunk) = index {
-                    let const_ptr = chunk as *const ChunkData;
-                    let mut_ptr = const_ptr as *mut ChunkData;
-                    let chunk = &mut *mut_ptr;
-
-                    chunk.generate_mesh(&chunks, settings);
-                    chunk.create_buffers(&context.device, &service.model_bind_group_layout);
-                }
-            }
-        }
+        //TODO: Remove this once we have rc_network
+        // for x in -(settings.render_distance as i32)..(settings.render_distance as i32) {
+        //     for z in -(settings.render_distance as i32)..(settings.render_distance as i32) {
+        //         for y in 0..16 {
+        //             let data = ChunkService::generate_chunk(x, y, z, context.blocks);
+        //             service.load_chunk(
+        //                 context.device.as_ref(),
+        //                 data,
+        //                 Vector3::new(x, y, z),
+        //                 &settings,
+        //                 &mut chunks,
+        //             );
+        //         }
+        //     }
+        // }
+        //
+        // //TODO: Switch this out to something more stable, please
+        // for pos in &service.viewable_chunks {
+        //     unsafe {
+        //         let index = chunks.0.index(pos);
+        //         if let Chunk::Tangible(chunk) = index {
+        //             let const_ptr = chunk as *const ChunkData;
+        //             let mut_ptr = const_ptr as *mut ChunkData;
+        //             let chunk = &mut *mut_ptr;
+        //
+        //             chunk.calculate_lighting(&mut chunks);
+        //         }
+        //     }
+        // }
+        //
+        // for pos in &service.viewable_chunks {
+        //     unsafe {
+        //         let index = chunks.0.index(pos);
+        //         if let Chunk::Tangible(chunk) = index {
+        //             let const_ptr = chunk as *const ChunkData;
+        //             let mut_ptr = const_ptr as *mut ChunkData;
+        //             let chunk = &mut *mut_ptr;
+        //
+        //             chunk.generate_mesh(&chunks, settings);
+        //             chunk.create_buffers(&context.device, &service.model_bind_group_layout);
+        //         }
+        //     }
+        // }
 
         universe.insert(chunks);
 
         service
     }
 
-    //TODO: Remove this once we have networking setup
+    //TODO: Remove this once we have rc_network setup
     fn generate_chunk(x: i32, y: i32, z: i32, blocks: &Vec<Block>) -> Option<ChunkBlockData> {
         return crate::world::generator::World::generate_chunk(Vector3::new(x, y, z), blocks);
     }
 
     pub fn load_chunk(
         &mut self,
-        device: &Device,
         data: Option<ChunkBlockData>,
         chunk_coords: Vector3<i32>,
-        _settings: &SettingsService,
         chunks: &mut Chunks,
     ) {
         if data.is_some() {

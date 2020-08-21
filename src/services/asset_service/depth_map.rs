@@ -1,4 +1,7 @@
-use wgpu::{Extent3d, Sampler, Texture, TextureDimension, TextureView};
+use wgpu::{
+    Extent3d, Sampler, Texture, TextureAspect, TextureDimension, TextureFormat, TextureView,
+    TextureViewDescriptor, TextureViewDimension,
+};
 
 pub const DEPTH_FORMAT: wgpu::TextureFormat = wgpu::TextureFormat::Depth32Float;
 
@@ -17,7 +20,7 @@ pub fn create_depth_texture(
         lod_min_clamp: -100.0,
         lod_max_clamp: 100.0,
         compare: Some(wgpu::CompareFunction::Always),
-        anisotropy_clamp: None
+        anisotropy_clamp: None,
     };
 
     let texture_descriptor = wgpu::TextureDescriptor {
@@ -35,7 +38,16 @@ pub fn create_depth_texture(
     };
 
     let texture = device.create_texture(&texture_descriptor);
-    let view = texture.create_default_view();
+    let view = texture.create_view(&TextureViewDescriptor {
+        label: None,
+        format: Some(TextureFormat::Rgba8UnormSrgb),
+        dimension: Some(TextureViewDimension::D2),
+        aspect: TextureAspect::All,
+        base_mip_level: 0,
+        level_count: None,
+        base_array_layer: 0,
+        array_layer_count: None,
+    });
     let sampler = device.create_sampler(&sampler_descriptor);
 
     (texture, view, sampler)

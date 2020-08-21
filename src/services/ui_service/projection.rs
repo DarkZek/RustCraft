@@ -2,6 +2,7 @@ use crate::render::RenderState;
 use crate::services::ui_service::UIService;
 use crate::services::ServicesContext;
 use nalgebra::{Matrix4, Orthographic3};
+use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{BindGroup, BindGroupLayout, Buffer};
 use winit::dpi::PhysicalSize;
 
@@ -32,17 +33,20 @@ impl UIService {
                     dynamic: false,
                     min_binding_size: None,
                 },
-                count: None
+                count: None,
             }],
             label: None,
         };
 
         let matrix: Matrix4<f32> = projection.into();
 
-        let matrix_buffer = context.device.create_buffer_with_data(
-            bytemuck::cast_slice(matrix.as_slice()),
-            wgpu::BufferUsage::UNIFORM | wgpu::BufferUsage::COPY_DST | wgpu::BufferUsage::COPY_SRC,
-        );
+        let matrix_buffer = context.device.create_buffer_init(&BufferInitDescriptor {
+            label: None,
+            contents: &bytemuck::cast_slice(matrix.as_slice()),
+            usage: wgpu::BufferUsage::UNIFORM
+                | wgpu::BufferUsage::COPY_DST
+                | wgpu::BufferUsage::COPY_SRC,
+        });
 
         let matrix_bind_group_layout = context
             .device
@@ -81,16 +85,19 @@ impl UIService {
         );
 
         let mut matrix: Matrix4<f32> = projection.into();
-        //TODO: Remove this when WGPU switches its axis
         matrix = matrix * opengl_to_wgpu_matrix;
+
         let mut encoder = render
             .device
             .create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
 
-        let matrix_buffer = render.device.create_buffer_with_data(
-            bytemuck::cast_slice(matrix.as_slice()),
-            wgpu::BufferUsage::UNIFORM | wgpu::BufferUsage::COPY_DST | wgpu::BufferUsage::COPY_SRC,
-        );
+        let matrix_buffer = render.device.create_buffer_init(&BufferInitDescriptor {
+            label: None,
+            contents: &bytemuck::cast_slice(matrix.as_slice()),
+            usage: wgpu::BufferUsage::UNIFORM
+                | wgpu::BufferUsage::COPY_DST
+                | wgpu::BufferUsage::COPY_SRC,
+        });
 
         self.fonts.resized(&size, &render.device);
 

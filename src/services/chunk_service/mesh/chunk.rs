@@ -5,6 +5,7 @@ use crate::services::chunk_service::mesh::{Vertex, ViewableDirectionBitMap};
 use crate::services::settings_service::CHUNK_SIZE;
 use nalgebra::{Matrix4, Vector3};
 use std::collections::HashMap;
+use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{BindGroupLayout, Device};
 
 pub struct ChunkMeshData {
@@ -18,10 +19,11 @@ impl<'a> ChunkData {
         let vertices = &self.vertices;
 
         if vertices.len() != 0 {
-            let vertex_buffer = device.create_buffer_with_data(
-                bytemuck::cast_slice(&vertices),
-                wgpu::BufferUsage::VERTEX,
-            );
+            let vertex_buffer = device.create_buffer_init(&BufferInitDescriptor {
+                label: None,
+                contents: &bytemuck::cast_slice(&vertices),
+                usage: wgpu::BufferUsage::VERTEX,
+            });
             self.vertices_buffer = Some(vertex_buffer);
         }
 
@@ -29,8 +31,11 @@ impl<'a> ChunkData {
         self.indices_buffer_len = indices.len() as u32;
 
         if self.indices_buffer_len != 0 {
-            let indices_buffer = device
-                .create_buffer_with_data(bytemuck::cast_slice(&indices), wgpu::BufferUsage::INDEX);
+            let indices_buffer = device.create_buffer_init(&BufferInitDescriptor {
+                label: None,
+                contents: &bytemuck::cast_slice(&indices),
+                usage: wgpu::BufferUsage::INDEX,
+            });
             self.indices_buffer = Some(indices_buffer);
         }
 
@@ -42,10 +47,13 @@ impl<'a> ChunkData {
         ))
         .into();
 
-        let model_buffer = device.create_buffer_with_data(
-            bytemuck::cast_slice(&[model]),
-            wgpu::BufferUsage::UNIFORM | wgpu::BufferUsage::COPY_DST | wgpu::BufferUsage::COPY_SRC,
-        );
+        let model_buffer = device.create_buffer_init(&BufferInitDescriptor {
+            label: None,
+            contents: &bytemuck::cast_slice(&[model]),
+            usage: wgpu::BufferUsage::UNIFORM
+                | wgpu::BufferUsage::COPY_DST
+                | wgpu::BufferUsage::COPY_SRC,
+        });
 
         let model_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
             layout: &bind_group_layout,

@@ -4,6 +4,7 @@ use crate::services::chunk_service::mesh::UIVertex;
 use crate::services::ui_service::fonts::text::Text;
 use crate::services::ui_service::fonts::text_builder::TextBuilder;
 use crate::services::ui_service::fonts::variable_width::generate_variable_width_map;
+use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{Buffer, Device};
 use winit::dpi::PhysicalSize;
 
@@ -105,15 +106,17 @@ impl FontsManager {
                 self.total_vertices.append(&mut text.vertices.clone());
             }
 
-            self.total_vertex_buffer = Some(device.create_buffer_with_data(
-                bytemuck::cast_slice(&self.total_vertices),
-                wgpu::BufferUsage::VERTEX,
-            ));
+            self.total_vertex_buffer = Some(device.create_buffer_init(&BufferInitDescriptor {
+                label: None,
+                contents: &bytemuck::cast_slice(&self.total_vertices),
+                usage: wgpu::BufferUsage::VERTEX,
+            }));
 
-            self.total_indices_buffer = Some(device.create_buffer_with_data(
-                bytemuck::cast_slice(&self.total_indices),
-                wgpu::BufferUsage::INDEX,
-            ));
+            self.total_indices_buffer = Some(device.create_buffer_init(&BufferInitDescriptor {
+                label: None,
+                contents: &bytemuck::cast_slice(&self.total_indices),
+                usage: wgpu::BufferUsage::INDEX,
+            }));
         }
     }
 

@@ -12,6 +12,8 @@ use crate::render::RenderState;
 use crate::services::chunk_service::frustum_culling::FrustumCullingSystem;
 use crate::services::input_service::input::GameChanges;
 use crate::services::logging_service::LoggingSystem;
+use crate::services::networking_service::system::NetworkingSyncSystem;
+use crate::services::networking_service::NetworkingService;
 use crate::services::ui_service::fonts::system::FontComputingSystem;
 use crate::services::ui_service::fps_system::FpsDisplayingSystem;
 use crate::services::ui_service::UIService;
@@ -80,6 +82,7 @@ impl Game {
         // This does stuff like rendering the frame to the screen, post processing & frame time calculations
         let mut frame_dispatcher = DispatcherBuilder::new()
             .with(PreFrame, "pre_frame", &[])
+            .with(NetworkingSyncSystem, "networking_sync", &[])
             .with(PlayerMovementSystem, "player_movement", &["pre_frame"])
             .with(FontComputingSystem, "font_computing", &["pre_frame"])
             .with(FpsDisplayingSystem, "fps_displayer", &["pre_frame"])
@@ -151,6 +154,9 @@ impl Game {
                 } => match event {
                     WindowEvent::CloseRequested => {
                         *control_flow = ControlFlow::Exit;
+                        self.universe
+                            .write_resource::<NetworkingService>()
+                            .shutdown();
                         return;
                     }
                     WindowEvent::Resized(physical_size) => {

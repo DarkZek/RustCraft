@@ -1,25 +1,44 @@
-pub struct NetworkingService {}
+use crate::services::networking_service::system::ReceivedNetworkPackets;
+use rc_network::messaging::NetworkingMessage;
+use rc_network::protocol::packet::Packet;
+use rc_network::RustcraftNetworking;
+use specs::World;
+
+pub mod system;
+
+pub struct NetworkingService {
+    networking: RustcraftNetworking,
+}
 
 impl NetworkingService {
-    pub fn new() -> NetworkingService {
-        NetworkingService {}
+    pub fn new(universe: &mut World) -> NetworkingService {
+        let service = RustcraftNetworking::new();
+        service.start();
+
+        service.send_message(NetworkingMessage::Connect("localhost".to_string(), 25565));
+        universe.insert(ReceivedNetworkPackets { packets: vec![] });
+
+        NetworkingService {
+            networking: service,
+        }
     }
 
-    pub fn update_servers(&mut self) {
-        // let mut stream = TcpStream::connect("localhost:25565").unwrap();println!("{}", 0b00000011);
-        //
-        // let mut input: [u32; 128] = [0; 128];
-        //
-        // // Set version code to -1
-        // input[0] = 0b00000011;
-        //
-        // let mut output: Vec<u8> = Vec::new();
-        //
-        // stream.write(&[0b00000011]).unwrap();
-        // stream.read_to_end(&mut output).unwrap();
-        //
-        // for ret in output {
-        //     println!("{:b} ", ret);
-        // }
+    pub fn connect_to_server(&mut self, ip: String, port: u32) {
+        self.networking
+            .send_message(NetworkingMessage::Connect(ip, port));
+    }
+
+    pub fn shutdown(&mut self) {
+        self.networking.send_message(NetworkingMessage::Shutdown);
+    }
+
+    pub fn get_packets(&mut self) -> Vec<Packet> {
+        self.networking.get_packets()
+    }
+}
+
+impl Default for NetworkingService {
+    fn default() -> Self {
+        unimplemented!()
     }
 }

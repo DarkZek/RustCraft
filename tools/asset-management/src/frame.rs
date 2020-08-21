@@ -1,22 +1,25 @@
-use imgui::{MouseCursor};
-use std::time::Instant;
-use crate::screens::model_selection::ModelSelection;
 use crate::render::render::RenderState;
+use crate::screens::model_selection::ModelSelection;
+use imgui::MouseCursor;
+use std::time::Instant;
 
 pub struct DataStore {
-    model_selection: ModelSelection
+    model_selection: ModelSelection,
 }
 
 impl DataStore {
-
     pub fn new() -> DataStore {
         DataStore {
-            model_selection: ModelSelection::new()
+            model_selection: ModelSelection::new(),
         }
     }
 
-    pub fn draw_frame(&mut self, last_frame: &mut Instant, render: &mut RenderState, last_cursor: &mut Option<MouseCursor>) {
-
+    pub fn draw_frame(
+        &mut self,
+        last_frame: &mut Instant,
+        render: &mut RenderState,
+        last_cursor: &mut Option<MouseCursor>,
+    ) {
         *last_frame = render.imgui.io_mut().update_delta_time(*last_frame);
 
         let frame = match render.swap_chain.get_next_texture() {
@@ -27,8 +30,9 @@ impl DataStore {
             }
         };
 
-        render.platform
-            .prepare_frame(render.imgui.io_mut(), &render.window)
+        render
+            .platform
+            .prepare_frame(render.imgui.io_mut(), &*render.window.borrow())
             .expect("Failed to prepare frame");
         let ui = render.imgui.frame();
 
@@ -37,14 +41,16 @@ impl DataStore {
             ui.show_demo_window(&mut true);
         }
 
-        let mut encoder: wgpu::CommandEncoder =
-            render.device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
+        let mut encoder: wgpu::CommandEncoder = render
+            .device
+            .create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
 
         if last_cursor != &mut ui.mouse_cursor() {
             *last_cursor = ui.mouse_cursor();
-            render.platform.prepare_render(&ui, &render.window);
+            render.platform.prepare_render(&ui, &render.window.borrow());
         }
-        render.renderer
+        render
+            .renderer
             .render(ui.render(), &mut render.device, &mut encoder, &frame.view)
             .expect("Rendering failed");
 

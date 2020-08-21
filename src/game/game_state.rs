@@ -7,6 +7,7 @@ use crate::services::input_service::actions::ActionSheet;
 use crate::services::input_service::input::GameChanges;
 use specs::{Builder, Join, Read, ReadStorage, System, World, WorldExt, Write, WriteStorage};
 use std::f32::consts::PI;
+use wgpu::util::{BufferInitDescriptor, DeviceExt};
 
 /// Stores the current state of the game. Currently this is mostly just looking after player movement.
 pub struct GameState {
@@ -104,10 +105,13 @@ impl<'a> System<'a> for PlayerMovementSystem {
 
         render.uniforms.update_view_proj(&mut camera);
 
-        let uniform_buffer = render.device.create_buffer_with_data(
-            bytemuck::cast_slice(&render.uniforms.view_proj),
-            wgpu::BufferUsage::UNIFORM | wgpu::BufferUsage::COPY_DST | wgpu::BufferUsage::COPY_SRC,
-        );
+        let uniform_buffer = render.device.create_buffer_init(&BufferInitDescriptor {
+            label: None,
+            contents: &bytemuck::cast_slice(&render.uniforms.view_proj),
+            usage: wgpu::BufferUsage::UNIFORM
+                | wgpu::BufferUsage::COPY_DST
+                | wgpu::BufferUsage::COPY_SRC,
+        });
 
         encoder.copy_buffer_to_buffer(
             &uniform_buffer,

@@ -1,8 +1,10 @@
+use std::fs;
 use std::process::Command;
 
 fn main() {
     // UI
     println!("cargo:rerun-if-changed=assets/shaders/ui.frag");
+    fs::remove_file("./assets/shaders/ui_frag.spv");
     Command::new("glslangValidator")
         .arg("-H")
         .arg("-V")
@@ -13,6 +15,7 @@ fn main() {
         .expect("failed to execute process");
 
     println!("cargo:rerun-if-changed=assets/shaders/ui.vert");
+    fs::remove_file("./assets/shaders/ui_vert.spv");
     Command::new("glslangValidator")
         .arg("-H")
         .arg("-V")
@@ -25,6 +28,7 @@ fn main() {
     // Loading
 
     println!("cargo:rerun-if-changed=assets/shaders/loading.frag");
+    fs::remove_file("./assets/shaders/loading_frag.spv");
     Command::new("glslangValidator")
         .arg("-H")
         .arg("-V")
@@ -35,6 +39,7 @@ fn main() {
         .expect("failed to execute process");
 
     println!("cargo:rerun-if-changed=assets/shaders/loading.vert");
+    fs::remove_file("./assets/shaders/loading_vert.spv");
     Command::new("glslangValidator")
         .arg("-H")
         .arg("-V")
@@ -47,6 +52,7 @@ fn main() {
     // Main Shader
 
     println!("cargo:rerun-if-changed=assets/shaders/shader.frag");
+    fs::remove_file("./assets/shaders/shader_frag.spv");
     Command::new("glslangValidator")
         .arg("-H")
         .arg("-V")
@@ -57,6 +63,7 @@ fn main() {
         .expect("failed to execute process");
 
     println!("cargo:rerun-if-changed=assets/shaders/shader.vert");
+    fs::remove_file("./assets/shaders/shader_vert.spv");
     Command::new("glslangValidator")
         .arg("-H")
         .arg("-V")

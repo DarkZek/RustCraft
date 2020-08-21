@@ -1,5 +1,8 @@
 use crate::services::asset_service::AssetService;
-use wgpu::{BindGroup, BindGroupLayout, Device, Sampler, Texture, TextureComponentType};
+use wgpu::{
+    BindGroup, BindGroupLayout, Device, Sampler, Texture, TextureAspect, TextureComponentType,
+    TextureFormat, TextureViewDescriptor, TextureViewDimension,
+};
 
 impl AssetService {
     /// Create the information for the gpu to know how to deal with the atlas
@@ -8,7 +11,16 @@ impl AssetService {
         diffuse_texture: &Texture,
         diffuse_sampler: &Sampler,
     ) -> (BindGroupLayout, BindGroup) {
-        let diffuse_texture_view = diffuse_texture.create_default_view();
+        let diffuse_texture_view = diffuse_texture.create_view(&TextureViewDescriptor {
+            label: None,
+            format: Some(TextureFormat::Rgba8UnormSrgb),
+            dimension: Some(TextureViewDimension::D2),
+            aspect: TextureAspect::All,
+            base_mip_level: 0,
+            level_count: None,
+            base_array_layer: 0,
+            array_layer_count: None,
+        });
 
         let texture_bind_group_layout =
             device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {

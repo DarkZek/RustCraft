@@ -8,7 +8,6 @@ use crate::services::asset_service::AssetService;
 use crate::services::chunk_service::mesh::Vertex;
 use crate::services::chunk_service::ChunkService;
 use crate::services::{load_services, ServicesContext};
-use image::png::PngDecoder;
 use image::ImageFormat;
 use specs::{World, WorldExt};
 use std::borrow::Borrow;
@@ -16,8 +15,8 @@ use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant, SystemTime};
 use systemstat::{Platform, System};
 use wgpu::{
-    AdapterInfo, BindGroupLayout, Device, RenderPipeline, Sampler, SwapChainDescriptor, Texture,
-    TextureView, VertexStateDescriptor,
+    AdapterInfo, BindGroupLayout, Device, RenderPipeline, Sampler, StencilStateDescriptor,
+    SwapChainDescriptor, Texture, TextureView, VertexStateDescriptor,
 };
 use winit::dpi::PhysicalSize;
 use winit::event_loop::EventLoop;
@@ -214,12 +213,14 @@ fn generate_render_pipeline(
     let (vs_module, fs_module) = load_shaders(device);
 
     let render_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+        label: None,
         bind_group_layouts,
         push_constant_ranges: &[],
     });
 
     device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-        layout: &render_pipeline_layout,
+        label: None,
+        layout: Some(&render_pipeline_layout),
         vertex_stage: wgpu::ProgrammableStageDescriptor {
             module: &vs_module,
             entry_point: "main",
@@ -235,6 +236,7 @@ fn generate_render_pipeline(
             } else {
                 wgpu::CullMode::None
             },
+            clamp_depth: false,
             depth_bias: 0,
             depth_bias_slope_scale: 0.0,
             depth_bias_clamp: 0.0,
@@ -250,10 +252,12 @@ fn generate_render_pipeline(
             format: DEPTH_FORMAT,
             depth_write_enabled: true,
             depth_compare: wgpu::CompareFunction::Less,
-            stencil_front: wgpu::StencilStateFaceDescriptor::IGNORE,
-            stencil_back: wgpu::StencilStateFaceDescriptor::IGNORE,
-            stencil_read_mask: 0,
-            stencil_write_mask: 0,
+            stencil: StencilStateDescriptor {
+                front: wgpu::StencilStateFaceDescriptor::IGNORE,
+                back: wgpu::StencilStateFaceDescriptor::IGNORE,
+                read_mask: 0,
+                write_mask: 0,
+            },
         }),
         vertex_state: VertexStateDescriptor {
             index_format: wgpu::IndexFormat::Uint16,

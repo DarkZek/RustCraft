@@ -1,5 +1,6 @@
 use crate::render::camera::Camera;
 use nalgebra::Matrix4;
+use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{BindGroup, BindGroupLayout, Buffer, Device};
 use zerocopy::{AsBytes, FromBytes};
 
@@ -24,10 +25,13 @@ impl Uniforms {
     }
 
     pub fn create_uniform_buffers(self, device: &Device) -> (Buffer, BindGroupLayout, BindGroup) {
-        let uniform_buffer = device.create_buffer_with_data(
-            bytemuck::cast_slice(&self.view_proj),
-            wgpu::BufferUsage::UNIFORM | wgpu::BufferUsage::COPY_DST | wgpu::BufferUsage::COPY_SRC,
-        );
+        let uniform_buffer = device.create_buffer_init(&BufferInitDescriptor {
+            label: None,
+            contents: &bytemuck::cast_slice(&self.view_proj),
+            usage: wgpu::BufferUsage::UNIFORM
+                | wgpu::BufferUsage::COPY_DST
+                | wgpu::BufferUsage::COPY_SRC,
+        });
 
         let uniform_bind_group_layout =
             device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {

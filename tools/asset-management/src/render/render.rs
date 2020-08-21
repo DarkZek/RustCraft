@@ -68,12 +68,11 @@ impl RenderState {
 
         let swap_chain = device.create_swap_chain(&surface, &sc_desc);
 
-        // Set up dear imgui
         let mut imgui = imgui::Context::create();
         let mut platform = imgui_winit_support::WinitPlatform::init(&mut imgui);
         platform.attach_window(
             imgui.io_mut(),
-            &window,
+            &*window.borrow(),
             imgui_winit_support::HiDpiMode::Default,
         );
         imgui.set_ini_filename(None);

@@ -6,6 +6,7 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::io::{Read, Write};
 use std::time::SystemTime;
+use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{BufferUsage, CompareFunction, Device, Queue, Sampler, Texture, TextureDataLayout};
 
 pub type TextureAtlasIndex = ([f32; 2], [f32; 2]);
@@ -207,13 +208,15 @@ impl AssetService {
             }
 
             if settings.atlas_cache_writing {
-                if let Err(e) = atlas.save(format!("{}resources/atlas.png", settings.path)) {
+                std::fs::create_dir(format!("{}cache/", settings.path));
+
+                if let Err(e) = atlas.save(format!("{}cache/atlas.png", settings.path)) {
                     log_error!("Failed to cache atlas image: {}", e);
                 }
 
                 let result = serde_json::to_string(&atlas_index).unwrap();
 
-                match File::create(format!("{}resources/atlas_index.json", settings.path)) {
+                match File::create(format!("{}cache/atlas_index.json", settings.path)) {
                     Ok(mut atlas_index_file) => {
                         if let Err(e) = atlas_index_file.write_all(result.as_bytes()) {
                             log_error!("Error writing texture atlas index: {}", e);
@@ -242,7 +245,11 @@ impl AssetService {
             depth: 1,
         };
 
-        let diffuse_buffer = device.create_buffer_with_data(&diffuse_rgba, BufferUsage::COPY_SRC);
+        let diffuse_buffer = device.create_buffer_init(&BufferInitDescriptor {
+            label: None,
+            contents: &diffuse_rgba,
+            usage: BufferUsage::COPY_SRC,
+        });
 
         let mut encoder =
             device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
@@ -278,7 +285,7 @@ impl AssetService {
             lod_min_clamp: -100.0,
             lod_max_clamp: 100.0,
             compare: Some(CompareFunction::Always),
-            anisotropy_clamp: None
+            anisotropy_clamp: None,
         };
 
         let diffuse_sampler = device.create_sampler(&diffuse_sampler_descriptor);
@@ -341,9 +348,9 @@ fn sort_textures(textures: &mut HashMap<String, DynamicImage>) -> Vec<(String, D
 pub fn load_cached_atlas(
     settings: &SettingsService,
 ) -> Result<(DynamicImage, HashMap<String, TextureAtlasIndex>), Box<dyn std::error::Error>> {
-    let img = image::open(format!("{}resources/atlas.png", settings.path))?;
+    let img = image::open(format!("{}cache/atlas.png", settings.path))?;
 
-    let mut index_file = File::open(format!("{}resources/atlas_index.json", settings.path))?;
+    let mut index_file = File::open(format!("{}cache/atlas_index.json", settings.path))?;
     let mut data = Vec::new();
     index_file.read_to_end(&mut data)?;
 

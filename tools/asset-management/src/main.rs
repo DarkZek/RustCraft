@@ -1,19 +1,19 @@
+use crate::frame::DataStore;
+use crate::render::render::RenderState;
 use std::time::Instant;
 use winit::{
     event::{ElementState, Event, KeyboardInput, VirtualKeyCode, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
 };
-use crate::frame::{DataStore};
-use crate::render::render::RenderState;
 
 #[macro_use]
 extern crate imgui;
 
-pub mod render;
-pub mod models;
 pub mod frame;
-pub mod screens;
 pub mod model;
+pub mod models;
+pub mod render;
+pub mod screens;
 
 fn main() {
     env_logger::init();
@@ -46,7 +46,7 @@ fn main() {
                 event: WindowEvent::Resized(_),
                 ..
             } => {
-                render.window_size = render.window.inner_size();
+                render.window_size = render.window.borrow().inner_size();
 
                 render.sc_desc = wgpu::SwapChainDescriptor {
                     usage: wgpu::TextureUsage::OUTPUT_ATTACHMENT,
@@ -56,19 +56,21 @@ fn main() {
                     present_mode: wgpu::PresentMode::Mailbox,
                 };
 
-                render.swap_chain = render.device.create_swap_chain(&render.surface, &render.sc_desc);
+                render.swap_chain = render
+                    .device
+                    .create_swap_chain(&render.surface, &render.sc_desc);
             }
             Event::WindowEvent {
                 event:
-                WindowEvent::KeyboardInput {
-                    input:
-                    KeyboardInput {
-                        virtual_keycode: Some(VirtualKeyCode::Escape),
-                        state: ElementState::Pressed,
+                    WindowEvent::KeyboardInput {
+                        input:
+                            KeyboardInput {
+                                virtual_keycode: Some(VirtualKeyCode::Escape),
+                                state: ElementState::Pressed,
+                                ..
+                            },
                         ..
                     },
-                    ..
-                },
                 ..
             }
             | Event::WindowEvent {
@@ -77,13 +79,15 @@ fn main() {
             } => {
                 *control_flow = ControlFlow::Exit;
             }
-            Event::MainEventsCleared => render.window.request_redraw(),
+            Event::MainEventsCleared => render.window.borrow().request_redraw(),
             Event::RedrawEventsCleared => {
                 datastore.draw_frame(&mut last_frame, &mut render, &mut last_cursor);
             }
             _ => (),
         }
 
-        render.platform.handle_event(render.imgui.io_mut(), &render.window, &event);
+        render
+            .platform
+            .handle_event(render.imgui.io_mut(), &*render.window.borrow(), &event);
     });
 }
