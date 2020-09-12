@@ -1,12 +1,15 @@
 use crate::messaging::NetworkingMessage;
 use crate::protocol::decoder::PacketDecoder;
-use crate::protocol::login::LoginRequest;
-use crate::protocol::packet::Packet;
-use crate::protocol::status::PingRequest;
 use crate::stream::NetworkStream;
 use std::ops::DerefMut;
 use std::sync::{Arc, Mutex};
 use std::{mem, process, thread};
+use crate::protocol::data::Packet;
+use crate::protocol::requests::status::PingRequest;
+use crate::protocol::requests::login::LoginRequest;
+use crate::protocol::packet::PacketData;
+use crate::protocol::data::writer::PacketBuilder;
+use byteorder::{WriteBytesExt, BigEndian};
 
 pub mod messaging;
 pub mod protocol;
@@ -15,8 +18,19 @@ pub mod stream;
 #[derive(Clone)]
 pub struct RustcraftNetworking {
     messaging_channel: Arc<Mutex<Vec<NetworkingMessage>>>,
-    received_packets: Arc<Mutex<Vec<Packet>>>,
-    send_packets: Arc<Mutex<Vec<Packet>>>,
+    received_packets: Arc<Mutex<Vec<PacketData>>>,
+    send_packets: Arc<Mutex<Vec<PacketData>>>,
+}
+
+#[cfg(test)]
+mod tests {
+    // Note this useful idiom: importing names from outer (for mod tests) scope.
+    use super::*;
+
+    #[test]
+    fn test_add() {
+        assert_eq!(1, 3);
+    }
 }
 
 pub struct NetworkingContext {
@@ -44,7 +58,7 @@ impl RustcraftNetworking {
         let mut send_packets = self.send_packets.clone();
 
         thread::spawn(move || {
-            let mut context = NetworkingContext::new();
+            let context = NetworkingContext::new();
             let mut connection: Option<NetworkStream> = None;
 
             loop {
@@ -60,13 +74,29 @@ impl RustcraftNetworking {
                     continue;
                 }
 
-                let packet = PacketDecoder::decode(&mut connection.as_mut().unwrap());
+                match PacketDecoder::decode(&mut connection.as_mut().unwrap()) {
+                    Ok(packet) => {
 
-                match received_packets.lock() {
-                    Ok(mut received_packets) => {
-                        received_packets.push(packet);
+                        // Answer callbacks
+                        if let PacketData::KeepAlive(packet) = packet {
+                            // Send packet back
+                            let mut builder = PacketBuilder::new(0x21);
+                            builder.data.write_i64::<BigEndian>(packet.keep_alive_id);
+                            builder.send(connection.as_mut().unwrap());
+                            println!("Answered callback");
+                            return;
+                        }
+
+                        match received_packets.lock() {
+                            Ok(mut received_packets) => {
+                                received_packets.push(packet);
+                            }
+                            Err(e) => println!("{}", e),
+                        }
                     }
-                    Err(e) => println!("{}", e),
+                    Err(e) => {
+                        println!("Error parsing packet {}", e);
+                    }
                 }
             }
         });
@@ -79,7 +109,7 @@ impl RustcraftNetworking {
         }
     }
 
-    pub fn get_packets(&mut self) -> Vec<Packet> {
+    pub fn get_packets(&mut self) -> Vec<PacketData> {
         match self.received_packets.lock() {
             Ok(mut received_packets) => mem::take(received_packets.deref_mut()),
             Err(_) => Vec::new(),

@@ -66,7 +66,7 @@ impl<'a> System<'a> for NetworkingSyncSystem {
                 let blocks = chunk_service.blocks.clone();
                 chunk_service.load_chunk(
                     Some((chunk_details.data.clone(), blocks)),
-                    Vector3::new(chunk_x.clone() as i32, 0, chunk_z.clone() as i32),
+                    Vector3::new(chunk_x.clone() as i32 + 5, 4, chunk_z.clone() as i32 + 5),
                     &mut chunks,
                 );
 

@@ -1,0 +1,21 @@
+use crate::protocol::packet::PacketType;
+use crate::protocol::data::read_types::{read_unsignedbyte, read_bool, read_int, read_long};
+use std::io::{Cursor, Seek, Read};
+
+#[derive(Debug)]
+pub struct TimeUpdatePacket {
+    pub world_age: i64,
+    pub time_of_day: i64
+}
+
+impl PacketType for TimeUpdatePacket {
+    fn deserialize(buf: &mut Cursor<Vec<u8>>) -> Box<Self> {
+        let world_age = read_long(buf);
+        let time_of_day = read_long(buf);
+
+        Box::new(TimeUpdatePacket {
+            world_age,
+            time_of_day
+        })
+    }
+}

@@ -1,8 +1,14 @@
 use crate::protocol::types::chunk::NetworkChunk;
 use nbt::Blob;
+use crate::protocol::types::slot::Slot;
 
 pub mod chunk;
+pub mod slot;
+pub mod ingredient;
+pub mod entity_metadata;
+pub mod modifier_data;
 
+#[derive(Debug)]
 pub enum PVarType {
     UnsignedByte(u8),
     VarInt(i64),
@@ -18,7 +24,10 @@ pub enum PVarType {
     NBT(Blob),
     IntArray(Vec<i32>),
     NBTArray(Vec<Blob>),
-    ChunkData(Vec<NetworkChunk>),
+    OptChat(Option<String>),
+    Slot(Slot),
+    Rotation([f32; 3]),
+    Position([i64; 3])
 }
 
 pub enum PVarTypeTemplate {

@@ -1,49 +1,8 @@
-use crate::protocol::read_types::{length_as_varint, read_string, read_varint};
-use crate::protocol::types::{PVarType, PVarTypeTemplate};
-use crate::protocol::write_types::write_varint;
+use crate::protocol::types::{PVarTypeTemplate, PVarType};
 use crate::stream::NetworkStream;
-use std::io::{Read, Write};
-
-pub struct PacketBuilder {
-    id: u16,
-    pub data: Vec<u8>,
-}
-
-impl PacketBuilder {
-    pub fn new(id: u16) -> PacketBuilder {
-        PacketBuilder {
-            id,
-            data: Vec::new(),
-        }
-    }
-
-    pub fn send(&mut self, stream: &mut NetworkStream) {
-        let mut packet_id = Vec::new();
-        write_varint(self.id as i32, &mut packet_id);
-
-        // Calculate packet Length
-        let len = packet_id.len() + self.data.len();
-
-        // Final data transmission
-        let mut data_stream = Vec::new();
-        write_varint(len as i32, &mut data_stream);
-
-        // Add packet id
-        data_stream.append(&mut packet_id);
-
-        // Add data
-        data_stream.append(&mut self.data);
-
-        stream.write_all(&mut data_stream);
-        stream.flush();
-    }
-}
-
-pub struct Packet {
-    pub id: u16,
-    pub len: u32,
-    pub tokens: Vec<PVarType>,
-}
+use crate::protocol::data::read_types::{read_varint, length_as_varint, read_string};
+use crate::protocol::data::Packet;
+use std::io::Read;
 
 pub struct PacketReader {
     tokens: Vec<PVarTypeTemplate>,

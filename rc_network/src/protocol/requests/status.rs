@@ -1,8 +1,9 @@
-use crate::protocol::packet::{PacketBuilder, PacketReader};
 use crate::protocol::types::{PVarType, PVarTypeTemplate};
-use crate::protocol::write_types::{write_string, write_ushort, write_varint, write_varlong};
+use crate::protocol::data::write_types::{write_string, write_ushort, write_varint, write_varlong};
 use crate::stream::NetworkStream;
 use std::time::{SystemTime, UNIX_EPOCH};
+use crate::protocol::data::writer::PacketBuilder;
+use crate::protocol::data::reader::PacketReader;
 
 pub struct PingRequest;
 

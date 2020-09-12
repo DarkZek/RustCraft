@@ -22,35 +22,31 @@ impl<'a> System<'a> for PhysicsProcessingSystem {
                 (entity.position.z / CHUNK_SIZE as f32).floor() as i32,
             );
 
-            let chunk = match chunks.0.get(&chunk_pos) {
-                Some(val) => val,
-                // If its in an unloaded it should just float
-                None => return,
-            };
-
-            //TODO: Greedy mesh the frick out of the colliders
-
             let mut collision_target = CollisionSide::zero();
 
-            if let Chunk::Tangible(chunk) = chunk {
-                for collider in &chunk.collision_map {
-                    //let collision = collider.check_collision(&entity.collider);
-                    let collision = collider.check_collision(&entity.collider);
+            if let Some(chunk) = chunks.0.get(&chunk_pos) {
+                //TODO: Greedy mesh the frick out of the colliders
 
-                    if collision.is_some() {
-                        collision_target.combine(&collision.unwrap());
-                        break;
-                    }
+                if let Chunk::Tangible(chunk) = chunk {
+                    for collider in &chunk.collision_map {
+                        //let collision = collider.check_collision(&entity.collider);
+                        let collision = collider.check_collision(&entity.collider);
 
-                    let collision = entity.collider.check_collision(&collider);
+                        if collision.is_some() {
+                            collision_target.combine(&collision.unwrap());
+                            break;
+                        }
 
-                    if collision.is_some() {
-                        let mut collision = collision.unwrap();
-                        println!("Collision Map: {:?}", collision);
-                        collision.invert();
-                        println!("Collision Map: {:?}", collision);
-                        collision_target.combine(&collision);
-                        break;
+                        let collision = entity.collider.check_collision(&collider);
+
+                        if collision.is_some() {
+                            let mut collision = collision.unwrap();
+                            println!("Collision Map: {:?}", collision);
+                            collision.invert();
+                            println!("Collision Map: {:?}", collision);
+                            collision_target.combine(&collision);
+                            break;
+                        }
                     }
                 }
             }
@@ -61,7 +57,7 @@ impl<'a> System<'a> for PhysicsProcessingSystem {
             entity.velocity.z *= slipperiness;
 
             // Add gravity
-            entity.velocity.y -= 0.08;
+            //entity.velocity.y -= 0.08;
 
             // Air Drag
             entity.velocity.y *= 0.98;
@@ -69,7 +65,7 @@ impl<'a> System<'a> for PhysicsProcessingSystem {
             if collision_target.front {
                 // Remove speed
                 if entity.velocity.x > 0.0 {
-                    entity.velocity.x = 0.0;
+                    //entity.velocity.x = 0.0;
                 }
             }
 

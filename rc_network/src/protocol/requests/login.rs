@@ -1,8 +1,9 @@
-use crate::protocol::packet::{PacketBuilder, PacketReader};
 use crate::protocol::types::{PVarType, PVarTypeTemplate};
-use crate::protocol::write_types::{write_string, write_ushort, write_varint};
+use crate::protocol::data::write_types::{write_string, write_ushort, write_varint};
 use crate::stream::NetworkStream;
 use openssl::sha::Sha1;
+use crate::protocol::data::writer::PacketBuilder;
+use crate::protocol::data::reader::PacketReader;
 
 pub struct LoginRequest {
     pub(crate) connection_host: String,
@@ -46,7 +47,7 @@ impl LoginRequest {
             login_packet.send(stream);
         }
 
-        //region: Encryption
+        // region: Encryption
         // Save for online mode later, for now we'll only support offline mode
         //         let encryption_request = PacketReader::new()
         //             .add_token(PVarType::String(String::new()))
@@ -125,11 +126,11 @@ pub fn calc_hash(input: &mut Vec<u8>) -> String {
     hasher.update(input);
 
     let mut hash = hasher.finish().to_vec();
-    let mut negative = false;
+    // Option 1
+    let negative = (hash.get(0).unwrap() & 0x80) == 0x80;
 
-    if (hash.get(0).unwrap() & 0x80) == 0x80 {
+    if negative {
         two_complement(&mut hash);
-        negative = true;
     }
 
     let mut out = String::with_capacity(20);
@@ -138,12 +139,12 @@ pub fn calc_hash(input: &mut Vec<u8>) -> String {
         out.push_str(&format!("{:02x}", t));
     }
 
-    if out.starts_with("0") {
+    if out.starts_with('0') {
         out = out.split_at(1).1.to_string();
     }
 
     if negative {
-        out = String::from("-") + &out;
+        out = String::from(" - ") + &out;
     }
 
     return out;

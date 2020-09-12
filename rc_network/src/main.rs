@@ -1,5 +1,5 @@
-use crate::lib::RustcraftNetworking;
-use crate::messaging::NetworkingMessage;
+use rc_network::messaging::NetworkingMessage;
+use rc_network::RustcraftNetworking;
 use std::io;
 use std::io::BufRead;
 

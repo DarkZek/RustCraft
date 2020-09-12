@@ -3,20 +3,63 @@
    and should be able to accept any incoming connections and store its information.
 */
 
-use crate::protocol::packet::Packet;
-use crate::protocol::read_types::{
-    read_bool, read_bytearray, read_float, read_int, read_intarray, read_long, read_string,
-    read_unsignedbyte, read_varint, read_varintarray,
-};
-use crate::protocol::types::chunk::NetworkChunk;
-use crate::protocol::types::{PVarType, PVarTypeTemplate};
-use crate::stream::NetworkStream;
 use nbt::Blob;
+use std::io::{Read, Error, Cursor};
+use crate::{
+    stream::NetworkStream,
+    protocol::{
+        data::read_types::{
+            read_bool, read_bytearray, read_float, read_int, read_intarray, read_long, read_string,
+            read_unsignedbyte, read_varint, read_varintarray,
+        },
+        types::chunk::NetworkChunk,
+        types::{PVarType, PVarTypeTemplate},
+        packet::{
+            PacketType,
+            PacketData,
+            info::join_game::JoinGamePacket,
+            info::server_difficulty::ServerDifficultyPacket,
+            player::player_abilities::PlayerAbilitiesPacket,
+            player::held_item_change::HeldItemChangePacket,
+            inventory::declare_recipes::DeclareRecipesPacket,
+            info::plugin_message::PluginMessagePacket,
+            PacketData::{ServerDifficulty, DeclareRecipes, ChatMessage, UpdateLightLevels},
+            info::tags::TagsPacket,
+            entity::status::EntityStatusPacket,
+            player::position_rotation::PlayerPositionRotationPacket,
+            inventory::unlock_recipes::UnlockRecipesPacket,
+            player::position_look::PlayerPositionLookPacket,
+            info::chat_message::ChatMessagePacket,
+            info::player_list_info::PlayerListInfoPacket,
+            entity::update_metadata::EntityUpdateMetadataPacket,
+            player::view_chunk_position::UpdateViewChunkPositionPacket,
+            world::update_light::UpdateLightLevelsPacket
+        }
+    }
+};
+use std::io;
+use crate::protocol::packet::world::chunk_data::ChunkDataPacket;
+use crate::protocol::packet::entity::spawn_living_entity::SpawnLivingEntityPacket;
+use crate::protocol::packet::entity::set_properties::EntitySetPropertiesPacket;
+use crate::protocol::packet::entity::head_look::EntityHeadLookPacket;
+use crate::protocol::packet::entity::equipment::EntityEquipmentPacket;
+use crate::protocol::packet::entity::spawn_entity::SpawnEntityPacket;
+use crate::protocol::packet::PacketData::{EntityVelocity, WindowItems, UpdatePlayerHealth};
+use crate::protocol::packet::entity::velocity::EntityVelocityPacket;
+use crate::protocol::packet::world::border::WorldBorderPacket;
+use crate::protocol::packet::world::time_update::TimeUpdatePacket;
+use crate::protocol::packet::world::spawn_position::SpawnPositionPacket;
+use crate::protocol::packet::info::change_game_state::ChangeGameStatePacket;
+use crate::protocol::packet::inventory::window_items::WindowItemsPacket;
+use crate::protocol::packet::inventory::set_slot::SetSlotPacket;
+use crate::protocol::packet::player::update_health::UpdatePlayerHealthPacket;
+use crate::protocol::packet::player::set_experience::SetPlayerExperiencePacket;
+use crate::protocol::packet::info::keep_alive::KeepAlivePacket;
 
 pub struct PacketDecoder;
 
 impl PacketDecoder {
-    pub fn decode(stream: &mut NetworkStream) -> Packet {
+    pub fn decode(stream: &mut NetworkStream) -> Result<PacketData, io::Error> {
         // Get length of packet
         let len = read_varint(stream);
 
@@ -24,221 +67,58 @@ impl PacketDecoder {
 
         // Get id of packet
         let packet_id = read_varint(stream);
+        let mut buf = vec![0; (len - stream.get_bytes_read() as i64) as usize];
 
-        let packet_definition = match get_packet_definition(packet_id) {
-            Some(value) => value,
-            None => {
-                //println!("Packet ID: 0x{:x} not implemented, ignoring", packet_id);
-                PacketDefinition::blank()
-            }
+        stream.read_exact(&mut buf)?;
+
+        let mut cursor = Cursor::new(buf);
+
+        let packet = match packet_id {
+            0xe => PacketData::ServerDifficulty(*ServerDifficultyPacket::deserialize(&mut cursor)),
+            0x19 => PacketData::PluginMessage(*PluginMessagePacket::deserialize(&mut cursor)),
+            0x26 => PacketData::JoinGame(*JoinGamePacket::deserialize(&mut cursor)),
+            0x32 => PacketData::PlayerAbilities(*PlayerAbilitiesPacket::deserialize(&mut cursor)),
+            0x40 => PacketData::HeldItemChange(*HeldItemChangePacket::deserialize(&mut cursor)),
+            0x5b => PacketData::DeclareRecipes(*DeclareRecipesPacket::deserialize(&mut cursor)),
+            0x5c => PacketData::Tags(*TagsPacket::deserialize(&mut cursor)),
+            0x1c => PacketData::EntityStatus(*EntityStatusPacket::deserialize(&mut cursor)),
+            0x12 => PacketData::PlayerPositionRotation(*PlayerPositionRotationPacket::deserialize(&mut cursor)),
+            0x37 => PacketData::UnlockRecipes(*UnlockRecipesPacket::deserialize(&mut cursor)),
+            0x36 => PacketData::PlayerPositionLook(*PlayerPositionLookPacket::deserialize(&mut cursor)),
+            0x0F => PacketData::ChatMessage(*ChatMessagePacket::deserialize(&mut cursor)),
+            0x34 => PacketData::PlayerListInfo(*PlayerListInfoPacket::deserialize(&mut cursor)),
+            0x44 => PacketData::EntityUpdateMetadata(*EntityUpdateMetadataPacket::deserialize(&mut cursor)),
+            0x41 => PacketData::UpdateViewChunkPosition(*UpdateViewChunkPositionPacket::deserialize(&mut cursor)),
+            0x25 => PacketData::UpdateLightLevels(*UpdateLightLevelsPacket::deserialize(&mut cursor)),
+            0x22 => PacketData::ChunkData(*ChunkDataPacket::deserialize(&mut cursor)),
+            0x03 => PacketData::SpawnLivingEntity(*SpawnLivingEntityPacket::deserialize(&mut cursor)),
+            0x59 => PacketData::EntitySetProperties(*EntitySetPropertiesPacket::deserialize(&mut cursor)),
+            0x3c => PacketData::EntityHeadLook(*EntityHeadLookPacket::deserialize(&mut cursor)),
+            0x47 => PacketData::EntityEquipment(*EntityEquipmentPacket::deserialize(&mut cursor)),
+            0x00 => PacketData::SpawnEntity(*SpawnEntityPacket::deserialize(&mut cursor)),
+            0x46 => PacketData::EntityVelocity(*EntityVelocityPacket::deserialize(&mut cursor)),
+            0x3e => PacketData::WorldBorder(*WorldBorderPacket::deserialize(&mut cursor)),
+            0x4F => PacketData::TimeUpdate(*TimeUpdatePacket::deserialize(&mut cursor)),
+            0x4E => PacketData::SpawnPosition(*SpawnPositionPacket::deserialize(&mut cursor)),
+            0x1F => PacketData::ChangeGameState(*ChangeGameStatePacket::deserialize(&mut cursor)),
+            0x15 => PacketData::WindowItems(*WindowItemsPacket::deserialize(&mut cursor)),
+            0x17 => PacketData::SetSlot(*SetSlotPacket::deserialize(&mut cursor)),
+            0x49 => PacketData::UpdatePlayerHealth(*UpdatePlayerHealthPacket::deserialize(&mut cursor)),
+            0x48 => PacketData::SetPlayerExperience(*SetPlayerExperiencePacket::deserialize(&mut cursor)),
+            0x21 => PacketData::KeepAlive(*KeepAlivePacket::deserialize(&mut cursor)),
+            _ => panic!(format!("Unknown packet ID: 0x{:x}", packet_id))
         };
-
-        let mut data = Vec::new();
-
-        //println!("{} Bytes - {}", len, packet_definition.name);
-
-        for (i, (name, var_type)) in packet_definition.data.iter().enumerate() {
-            // Check if this one has any conditions
-            for condition in packet_definition.conditions {
-                if i == condition.0 as usize {
-                    // This is a conditional, get value it refers to
-                    let val: &PVarType = data.get(condition.1 as usize).unwrap();
-
-                    let valid = match val {
-                        PVarType::Boolean(val) => val.clone(),
-                        _ => false,
-                    };
-
-                    if !valid {
-                        continue;
-                    }
-                }
-            }
-
-            match var_type {
-                PVarTypeTemplate::UnsignedByte => {
-                    let result = read_unsignedbyte(stream);
-                    data.push(PVarType::UnsignedByte(result));
-                }
-                PVarTypeTemplate::VarInt => {
-                    let result = read_varint(stream);
-                    data.push(PVarType::VarInt(result));
-                }
-                PVarTypeTemplate::String => {
-                    let result = read_string(stream);
-                    data.push(PVarType::String(result.clone()));
-                }
-                PVarTypeTemplate::VarIntByteArray => {
-                    let result = read_varintarray(stream);
-                    data.push(PVarType::VarIntByteArray(result.clone()));
-                }
-                PVarTypeTemplate::Int => {
-                    let result = read_int(stream);
-                    data.push(PVarType::Int(result));
-                }
-                PVarTypeTemplate::Long => {
-                    let result = read_long(stream);
-                    data.push(PVarType::Long(result));
-                }
-                PVarTypeTemplate::Boolean => {
-                    let result = read_bool(stream);
-                    data.push(PVarType::Boolean(result));
-                }
-                PVarTypeTemplate::Float => {
-                    let result = read_float(stream);
-                    data.push(PVarType::Float(result));
-                }
-                PVarTypeTemplate::ByteArray => {
-                    let remaining_len = len - stream.get_bytes_read() as i64;
-                    let result = read_bytearray(stream, remaining_len as u16);
-                    data.push(PVarType::ByteArray(result.clone()));
-                }
-                PVarTypeTemplate::NBT => {
-                    data.push(PVarType::NBT(Blob::from_reader(stream).unwrap()));
-                }
-                PVarTypeTemplate::IntArray(len) => {
-                    data.push(PVarType::IntArray(read_intarray(
-                        stream,
-                        len.clone() as usize,
-                    )));
-                }
-                PVarTypeTemplate::NBTArray => {}
-                PVarTypeTemplate::ChunkData(chunks_bitmask) => {
-                    let chunk_len = match data.get(chunks_bitmask.clone()).unwrap() {
-                        PVarType::VarInt(val) => val,
-                        _ => panic!(),
-                    };
-
-                    data.push(PVarType::ChunkData(NetworkChunk::load_arr(
-                        stream,
-                        chunk_len.clone(),
-                    )));
-                }
-            }
-        }
 
         if len - stream.get_bytes_read() as i64 > 0 {
             println!("Remaining Length: {}", len - stream.get_bytes_read() as i64);
+        } else if (len - stream.get_bytes_read() as i64) < 0 {
+            println!("Read {} too many bytes on packet type 0x{:x}", stream.get_bytes_read() as i64 - len, packet_id);
         }
 
         while len - stream.get_bytes_read() as i64 > 0 {
             read_unsignedbyte(stream);
         }
 
-        Packet {
-            id: packet_id as u16,
-            len: len as u32,
-            tokens: data,
-        }
-    }
-}
-
-fn get_packet_definition(id: i64) -> Option<PacketDefinition> {
-    for packet in &PACKET_DEFINITIONS {
-        if packet.id == id {
-            return Some(*packet);
-        }
-    }
-
-    None
-}
-
-const PACKET_DEFINITIONS: [PacketDefinition; 7] = [
-    PacketDefinition {
-        name: "Join Game",
-        id: 0x26,
-        data: &[
-            ("Entity ID", PVarTypeTemplate::Int),
-            ("Gamemode", PVarTypeTemplate::UnsignedByte),
-            ("Dimension", PVarTypeTemplate::Int),
-            ("Hashed Seed", PVarTypeTemplate::Long),
-            ("Max Players", PVarTypeTemplate::UnsignedByte),
-            ("Level Type", PVarTypeTemplate::String),
-            ("View Distance", PVarTypeTemplate::VarInt),
-            ("Reduced Debug Info", PVarTypeTemplate::Boolean),
-            ("Enable Respawn Screen", PVarTypeTemplate::Boolean),
-        ],
-        conditions: &[],
-    },
-    PacketDefinition {
-        name: "Plugin Message",
-        id: 0x19,
-        data: &[
-            // Bit mask. 0x08: damage disabled (god mode), 0x04: can fly, 0x02: is flying, 0x01: is Creative
-            ("Channel", PVarTypeTemplate::String),
-            ("Data", PVarTypeTemplate::ByteArray),
-        ],
-        conditions: &[],
-    },
-    PacketDefinition {
-        name: "Server Difficulty",
-        id: 0xe,
-        data: &[
-            // Bit mask. 0x08: damage disabled (god mode), 0x04: can fly, 0x02: is flying, 0x01: is Creative
-            ("Difficulty", PVarTypeTemplate::UnsignedByte),
-            ("Difficulty locked", PVarTypeTemplate::Boolean),
-        ],
-        conditions: &[],
-    },
-    PacketDefinition {
-        name: "Player Abilities",
-        id: 0x32,
-        data: &[
-            // Bit mask. 0x08: Creative Mode (god mode), 0x04: can fly, 0x02: is flying, 0x01: is Creative
-            ("Flags", PVarTypeTemplate::UnsignedByte),
-            ("Flying Speed", PVarTypeTemplate::Float),
-            ("Field of View Modifier", PVarTypeTemplate::Float),
-        ],
-        conditions: &[],
-    },
-    PacketDefinition {
-        name: "Held Item Change",
-        id: 0x40,
-        data: &[("Slot", PVarTypeTemplate::UnsignedByte)],
-        conditions: &[],
-    },
-    PacketDefinition {
-        name: "Chunk Data",
-        id: 0x22,
-        data: &[
-            ("Chunk X", PVarTypeTemplate::Int),
-            ("Chunk Z", PVarTypeTemplate::Int),
-            ("Full chunk", PVarTypeTemplate::Boolean),
-            ("Primary Bit Mask", PVarTypeTemplate::VarInt),
-            ("Heightmaps", PVarTypeTemplate::NBT),
-            ("Biomes", PVarTypeTemplate::IntArray(1024)),
-            ("Data", PVarTypeTemplate::ChunkData(3)),
-            ("Number of block entities", PVarTypeTemplate::VarInt),
-            //("Block entities",              PVarType::NBTArray(String::new()))
-        ],
-        conditions: &[
-            // Only read biomes if Full Chunk is true
-            (5, 2),
-        ],
-    },
-    PacketDefinition {
-        name: "Keep Alive",
-        id: 0x21,
-        data: &[("Keep Alive ID", PVarTypeTemplate::Long)],
-        conditions: &[],
-    },
-];
-
-#[derive(Copy, Clone)]
-pub struct PacketDefinition {
-    name: &'static str,
-    id: i64,
-    data: &'static [(&'static str, PVarTypeTemplate)],
-    conditions: &'static [(u32, u32)],
-}
-
-impl PacketDefinition {
-    pub fn blank() -> PacketDefinition {
-        PacketDefinition {
-            name: "",
-            id: 0,
-            data: &[],
-            conditions: &[],
-        }
+        Ok(packet)
     }
 }

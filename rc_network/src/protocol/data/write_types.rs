@@ -14,7 +14,6 @@ pub fn write_varint(mut value: i32, data: &mut Vec<u8>) {
         if value == 0 {
             return;
         }
-
     }
 }
 

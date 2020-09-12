@@ -1,8 +1,7 @@
-use crate::protocol::read_types::{
-    read_longarray, read_short, read_unsignedbyte, read_varint, read_varintarray, read_varlongarray,
-};
-use crate::stream::NetworkStream;
+use crate::protocol::data::read_types::{read_longarray, read_short, read_unsignedbyte, read_long};
+use std::io::{Read};
 
+#[derive(Debug)]
 pub struct NetworkChunk {
     pub block_count: i16,
     pub bits_per_block: u8,
@@ -10,47 +9,52 @@ pub struct NetworkChunk {
 }
 
 impl NetworkChunk {
-    pub fn load_arr(stream: &mut NetworkStream, len: i64) -> Vec<NetworkChunk> {
+    pub fn deserialize<T: Read>(buf: &mut T, len: i64) -> Vec<NetworkChunk> {
         let chunks_count = bits_set(len);
-
         let mut chunks = Vec::with_capacity(chunks_count as usize);
 
-        // for i in 0..chunks_count {
-        //     chunks.push(NetworkChunk::load(stream));
-        // }
-        chunks.push(NetworkChunk::load(stream));
+        for _ in 0..chunks_count {
+            chunks.push(NetworkChunk::load(buf));
+        }
 
         chunks
     }
 
-    //https://wiki.vg/Chunk_Format#Data_structure
-    pub fn load(stream: &mut NetworkStream) -> NetworkChunk {
+    // https://wiki.vg/Chunk_Format#Data_structure
+    pub fn load<T: Read>(stream: &mut T) -> NetworkChunk {
         let block_count = read_short(stream);
+        println!("Block count: {}", block_count);
         let mut bits_per_block = read_unsignedbyte(stream);
+        println!("Bits per block: {}", bits_per_block);
+
+        if bits_per_block <=4 {
+            bits_per_block = 4;
+        }
 
         let mut output = Vec::new();
         let mut current_number = 0;
         let mut bits = 0;
 
-        let mut read_bytes = stream.get_bytes_read();
+        let longs_len = read_long(stream);
+        println!("Longs: {} {}", 16*16*16, longs_len);
+
         let data = read_longarray(stream, ((16 * 16 * 16 * bits_per_block as i64) / 64) as u16);
-        //let data = read_varlongarray(stream);
-        read_bytes = stream.get_bytes_read() - read_bytes;
+
         println!(
             "Actual longs: {}, Expected Longs: {}",
             data.len(),
             (16 * 16 * 16 * bits_per_block as i64) / 64
         );
-        println!(
-            "Bytes I Read: {}, Bytes I Should Have Read: {} B: {}",
-            read_bytes,
-            (16 * 16 * 16 * bits_per_block as i64) / 8,
-            bits_per_block
-        );
+        // println!(
+        //     "Bytes I Read: {}, Bytes I Should Have Read: {} B: {}",
+        //     read_bytes,
+        //     (16 * 16 * 16 * bits_per_block as i64) / 8,
+        //     bits_per_block
+        // );
 
         // Read compacted chunk block data
         for mut byte in data {
-            for i in 0..64 {
+            for _ in 0..64 {
                 if byte & 0b10000000_00000000_00000000_00000000 != 0 {
                     current_number ^= 0b1;
                 };
