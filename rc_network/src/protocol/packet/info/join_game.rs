@@ -1,6 +1,6 @@
 use crate::protocol::packet::PacketType;
 use crate::protocol::data::read_types::{read_int, read_unsignedbyte, read_long, read_bool, read_varint, read_string};
-use std::io::{Cursor, Seek};
+use std::io::{Cursor};
 
 #[derive(Debug)]
 pub struct JoinGamePacket {

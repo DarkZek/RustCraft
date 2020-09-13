@@ -1,5 +1,5 @@
-use crate::protocol::data::read_types::{read_longarray, read_short, read_unsignedbyte, read_long};
-use std::io::{Read};
+use crate::protocol::data::read_types::{read_longarray, read_short, read_unsignedbyte, read_long, read_varint};
+use std::io::{Read, Write};
 
 #[derive(Debug)]
 pub struct NetworkChunk {
@@ -23,34 +23,31 @@ impl NetworkChunk {
     // https://wiki.vg/Chunk_Format#Data_structure
     pub fn load<T: Read>(stream: &mut T) -> NetworkChunk {
         let block_count = read_short(stream);
-        println!("Block count: {}", block_count);
-        let mut bits_per_block = read_unsignedbyte(stream);
-        println!("Bits per block: {}", bits_per_block);
 
-        if bits_per_block <=4 {
+        let mut bits_per_block = read_unsignedbyte(stream);
+
+        if bits_per_block <= 4 {
             bits_per_block = 4;
         }
+
+        let palette = if bits_per_block < 9 {
+            let len = read_varint(stream);
+            let mut maps = Vec::new();
+            for _ in 0..len {
+                maps.push(read_varint(stream));
+            }
+            Some(maps)
+        } else {
+            None
+        };
 
         let mut output = Vec::new();
         let mut current_number = 0;
         let mut bits = 0;
 
-        let longs_len = read_long(stream);
-        println!("Longs: {} {}", 16*16*16, longs_len);
+        let longs_len = read_varint(stream);
 
-        let data = read_longarray(stream, ((16 * 16 * 16 * bits_per_block as i64) / 64) as u16);
-
-        println!(
-            "Actual longs: {}, Expected Longs: {}",
-            data.len(),
-            (16 * 16 * 16 * bits_per_block as i64) / 64
-        );
-        // println!(
-        //     "Bytes I Read: {}, Bytes I Should Have Read: {} B: {}",
-        //     read_bytes,
-        //     (16 * 16 * 16 * bits_per_block as i64) / 8,
-        //     bits_per_block
-        // );
+        let data = read_longarray(stream, longs_len as u16);
 
         // Read compacted chunk block data
         for mut byte in data {
@@ -76,16 +73,24 @@ impl NetworkChunk {
         let mut block_map: [[[u32; 16]; 16]; 16] = [[[0; 16]; 16]; 16];
         let mut i = 0;
         // Convert into 3d block map
-        for x in 0..16 {
-            for y in 0..16 {
-                for z in 0..16 {
-                    block_map[x][y][z] = if output.get(i).unwrap() != &0 { 1 } else { 0 };
+        for y in 0..16 {
+            for z in 0..16 {
+                for x in 0..16 {
+                    let id = if palette.is_some() {
+                        let palette = palette.as_ref().unwrap();
+                        if output.get(i).unwrap() >= &(palette.len() as i32) {
+                            0
+                        } else {
+                            palette.get(*output.get(i).unwrap() as usize).unwrap().clone()
+                        }
+                    } else {
+                        output.get(i).unwrap().clone() as i64
+                    };
+                    block_map[x][y][z] = if id == 0 { 0 } else { ((id % 6) + 1) as u32 };
                     i += 1;
                 }
             }
         }
-
-        //println!("Len: {}", output.len());
 
         NetworkChunk {
             block_count,

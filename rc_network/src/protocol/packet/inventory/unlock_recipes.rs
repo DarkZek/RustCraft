@@ -1,6 +1,6 @@
 use crate::protocol::packet::PacketType;
 use crate::protocol::data::read_types::{read_unsignedbyte, read_bool, read_int, read_float, read_double, read_varint, read_string};
-use std::io::{Cursor, Seek, Read};
+use std::io::{Cursor};
 
 #[derive(Debug)]
 pub struct UnlockRecipesPacket {

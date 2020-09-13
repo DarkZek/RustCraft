@@ -32,7 +32,7 @@ impl Player {
 
 pub fn move_forwards(axis: &[i32; 2], side_yaw: f32) -> [f32; 3] {
     let mut pos = [0.0; 3];
-    let movement_speed = 0.2;
+    let movement_speed = 1.2;
 
     let sideways = axis[1] as f32 * movement_speed as f32;
     let forwards = axis[0] as f32 * movement_speed as f32;

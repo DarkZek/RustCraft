@@ -1,6 +1,6 @@
 use crate::protocol::packet::PacketType;
-use crate::protocol::data::read_types::{read_unsignedbyte, read_bool, read_varint, read_string, read_float};
-use std::io::{Cursor, Seek, Read};
+use crate::protocol::data::read_types::{read_varint, read_string, read_float};
+use std::io::{Cursor};
 use crate::protocol::types::slot::Slot;
 use crate::protocol::types::ingredient::Ingredient;
 

@@ -84,7 +84,7 @@ pub fn read_int<T: Read>(read: &mut T) -> i32 {
 pub fn read_unsignedbyte<T: Read>(read: &mut T) -> u8 {
     match read.read_u8() {
         Ok(val) => val,
-        Err(_) => 0,
+        Err(_) => panic!(),
     }
 }
 
@@ -160,7 +160,7 @@ pub fn read_varlongarray(read: &mut NetworkStream) -> Vec<i64> {
     byte_array
 }
 
-pub fn read_nbtarray(read: &mut NetworkStream, len: u16) -> Vec<Blob> {
+pub fn read_nbtarray(read: &mut NetworkStream, _len: u16) -> Vec<Blob> {
     let mut nbt = Vec::new();
     let bytes_count = 0;
 

@@ -1,6 +1,6 @@
 use crate::protocol::packet::PacketType;
-use crate::protocol::data::read_types::{read_unsignedbyte, read_bool, read_int, read_float, read_double, read_varint};
-use std::io::{Cursor, Seek, Read};
+use crate::protocol::data::read_types::{read_unsignedbyte, read_varint};
+use std::io::{Cursor};
 
 #[derive(Debug)]
 pub struct UpdateLightLevelsPacket {
@@ -10,8 +10,8 @@ pub struct UpdateLightLevelsPacket {
     pub block_light_mask: i64,
     pub empty_sky_light_mask: i64,
     pub empty_block_light_mask: i64,
-    pub sky_light: Vec<u8>,
-    pub block_light: Vec<u8>,
+    pub sky_light: Option<Vec<u8>>,
+    pub block_light: Option<Vec<u8>>,
 }
 
 impl PacketType for UpdateLightLevelsPacket {
@@ -22,6 +22,20 @@ impl PacketType for UpdateLightLevelsPacket {
         let block_light_mask = read_varint(buf);
         let empty_sky_light_mask = read_varint(buf);
         let empty_block_light_mask = read_varint(buf);
+
+        // Check this later
+        if buf.get_ref().len() - buf.position() as usize == 0 {
+            return Box::new(UpdateLightLevelsPacket {
+                x,
+                z,
+                sky_light_mask,
+                block_light_mask,
+                empty_sky_light_mask,
+                empty_block_light_mask,
+                sky_light: None,
+                block_light: None
+            });
+        }
 
         let sky_light_len = read_varint(buf);
         let mut sky_light = Vec::new();
@@ -37,7 +51,6 @@ impl PacketType for UpdateLightLevelsPacket {
             block_light.push(read_unsignedbyte(buf));
         }
 
-
         Box::new(UpdateLightLevelsPacket {
             x,
             z,
@@ -45,8 +58,8 @@ impl PacketType for UpdateLightLevelsPacket {
             block_light_mask,
             empty_sky_light_mask,
             empty_block_light_mask,
-            sky_light,
-            block_light
+            sky_light: Some(sky_light),
+            block_light: Some(block_light)
         })
     }
 }

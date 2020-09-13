@@ -1,6 +1,6 @@
 use crate::protocol::packet::PacketType;
 use crate::protocol::data::read_types::{read_unsignedbyte, read_bool, read_int, read_float, read_double, read_varint, read_intarray};
-use std::io::{Cursor, Seek, Read};
+use std::io::{Cursor};
 use nbt::Blob;
 use crate::protocol::types::chunk::NetworkChunk;
 
@@ -8,6 +8,7 @@ use crate::protocol::types::chunk::NetworkChunk;
 pub struct ChunkDataPacket {
     pub x: i32,
     pub z: i32,
+    // True = New chunk, False = Existing chunk
     pub full_chunk: bool,
     pub primary_bit_mask: i64,
     pub heightmaps: Blob,
@@ -23,6 +24,7 @@ impl PacketType for ChunkDataPacket {
 
         let full_chunk = read_bool(buf);
         let primary_bit_mask = read_varint(buf);
+
         let heightmaps = Blob::from_reader(buf).unwrap();
         let biomes = if full_chunk {
             let mut arr = Vec::new();
@@ -41,7 +43,7 @@ impl PacketType for ChunkDataPacket {
             data.push(read_unsignedbyte(buf));
         }
 
-        // Temp to keep the chunk stuff seperated so it doesnt fuck up the network stream
+        // Temp to keep the chunk stuff separated so it doesn't fuck up the network stream
         let mut chunk_data = Cursor::new(data);
         let chunks = NetworkChunk::deserialize(&mut chunk_data, primary_bit_mask);
 
@@ -51,7 +53,6 @@ impl PacketType for ChunkDataPacket {
         for _ in 0..block_entities_len {
             block_entities.push(Blob::from_reader(buf).unwrap());
         }
-
 
         Box::new(ChunkDataPacket {
             x,

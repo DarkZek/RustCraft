@@ -1,6 +1,6 @@
 use crate::protocol::packet::PacketType;
 use crate::protocol::data::read_types::{read_position};
-use std::io::{Cursor, Seek, Read};
+use std::io::{Cursor};
 
 #[derive(Debug)]
 pub struct SpawnPositionPacket {

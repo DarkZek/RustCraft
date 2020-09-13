@@ -23,7 +23,7 @@ impl PacketReader {
         let len = read_varint(stream);
         let packet_id = read_varint(stream);
 
-        let remaining_len = len - length_as_varint(packet_id);
+        let _remaining_len = len - length_as_varint(packet_id);
 
         let mut tokens = Vec::with_capacity(self.tokens.len());
 

@@ -1,6 +1,6 @@
 use crate::protocol::packet::PacketType;
-use crate::protocol::data::read_types::{read_unsignedbyte, read_bool, read_int, read_float};
-use std::io::{Cursor, Seek, Read};
+use crate::protocol::data::read_types::{read_unsignedbyte, read_float};
+use std::io::{Cursor};
 
 // https://wiki.vg/Protocol#Change_Game_state
 

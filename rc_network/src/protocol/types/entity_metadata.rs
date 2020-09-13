@@ -1,30 +1,32 @@
+use crate::protocol::data::read_types::{
+    read_bool, read_float, read_position, read_string, read_unsignedbyte, read_varint,
+};
 use crate::protocol::types::slot::Slot;
-use std::io::Cursor;
-use crate::protocol::data::read_types::{read_varint, read_unsignedbyte, read_float, read_string, read_bool, read_position};
 use crate::protocol::types::PVarType;
+use std::io::Cursor;
 
 #[derive(Debug)]
 pub struct EntityMetadata {
     index: u8,
     ty: Option<i64>,
-    value: Option<Box<PVarType>>
+    value: Option<Box<PVarType>>,
 }
-
+// TODO: Fix problems deserializing
 impl EntityMetadata {
     pub fn deserialize(buf: &mut Cursor<Vec<u8>>) -> Self {
-
         let index = read_unsignedbyte(buf);
 
         if index == 0xff {
             return EntityMetadata {
                 index,
                 ty: None,
-                value: None
+                value: None,
             };
         }
 
         let ty = read_varint(buf);
 
+        // https://wiki.vg/Entities#Entity_Metadata_Format
         let value = match ty {
             0 => PVarType::UnsignedByte(read_unsignedbyte(buf)),
             1 => PVarType::VarInt(read_varint(buf)),
@@ -38,18 +40,18 @@ impl EntityMetadata {
                 } else {
                     None
                 })
-            },
+            }
             6 => PVarType::Slot(Slot::deserialize(buf)),
             7 => PVarType::Boolean(read_bool(buf)),
             8 => PVarType::Rotation([read_float(buf), read_float(buf), read_float(buf)]),
             9 => PVarType::Position(read_position(buf)),
-            _ => panic!("Bruh you didn't implement the type!: {}", ty)
+            _ => panic!("Bruh you didn't implement the type!: {}", ty),
         };
 
         EntityMetadata {
             index,
             ty: Some(ty),
-            value: Some(Box::new(value))
+            value: Some(Box::new(value)),
         }
     }
 }

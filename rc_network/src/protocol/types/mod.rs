@@ -1,4 +1,4 @@
-use crate::protocol::types::chunk::NetworkChunk;
+
 use nbt::Blob;
 use crate::protocol::types::slot::Slot;
 

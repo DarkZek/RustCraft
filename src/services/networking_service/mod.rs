@@ -1,6 +1,6 @@
 use crate::services::networking_service::system::ReceivedNetworkPackets;
 use rc_network::messaging::NetworkingMessage;
-use rc_network::protocol::packet::Packet;
+use rc_network::protocol::packet::PacketData;
 use rc_network::RustcraftNetworking;
 use specs::World;
 
@@ -32,7 +32,7 @@ impl NetworkingService {
         self.networking.send_message(NetworkingMessage::Shutdown);
     }
 
-    pub fn get_packets(&mut self) -> Vec<Packet> {
+    pub fn get_packets(&mut self) -> Vec<PacketData> {
         self.networking.get_packets()
     }
 }

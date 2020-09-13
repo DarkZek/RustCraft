@@ -4,12 +4,12 @@ use crate::stream::NetworkStream;
 use std::ops::DerefMut;
 use std::sync::{Arc, Mutex};
 use std::{mem, process, thread};
-use crate::protocol::data::Packet;
-use crate::protocol::requests::status::PingRequest;
-use crate::protocol::requests::login::LoginRequest;
-use crate::protocol::packet::PacketData;
+
 use crate::protocol::data::writer::PacketBuilder;
-use byteorder::{WriteBytesExt, BigEndian};
+use crate::protocol::packet::PacketData;
+use crate::protocol::requests::login::LoginRequest;
+use crate::protocol::requests::status::PingRequest;
+use byteorder::{BigEndian, WriteBytesExt};
 
 pub mod messaging;
 pub mod protocol;
@@ -53,12 +53,12 @@ impl RustcraftNetworking {
     }
 
     pub fn start(&self) {
-        let mut messaging_channel = self.messaging_channel.clone();
-        let mut received_packets = self.received_packets.clone();
-        let mut send_packets = self.send_packets.clone();
+        let messaging_channel = self.messaging_channel.clone();
+        let received_packets = self.received_packets.clone();
+        let _send_packets = self.send_packets.clone();
 
         thread::spawn(move || {
-            let context = NetworkingContext::new();
+            let _context = NetworkingContext::new();
             let mut connection: Option<NetworkStream> = None;
 
             loop {
@@ -67,7 +67,7 @@ impl RustcraftNetworking {
                     Ok(mut messages) => {
                         handle_messages(&mut *messages, &mut connection);
                     }
-                    Err(e) => println!("{}", e),
+                    Err(e) => println!("Poison Error: {}", e),
                 }
 
                 if connection.is_none() {
@@ -76,22 +76,29 @@ impl RustcraftNetworking {
 
                 match PacketDecoder::decode(&mut connection.as_mut().unwrap()) {
                     Ok(packet) => {
-
                         // Answer callbacks
                         if let PacketData::KeepAlive(packet) = packet {
                             // Send packet back
-                            let mut builder = PacketBuilder::new(0x21);
+                            let mut builder = PacketBuilder::new(0x0F);
                             builder.data.write_i64::<BigEndian>(packet.keep_alive_id);
                             builder.send(connection.as_mut().unwrap());
                             println!("Answered callback");
-                            return;
+                            continue;
+                        }
+
+                        // Handle disconnects
+                        if let PacketData::Disconnect(packet) = packet {
+                            // Send packet back
+                            connection = None;
+                            println!("Disconnected: {}", packet.reason);
+                            continue;
                         }
 
                         match received_packets.lock() {
                             Ok(mut received_packets) => {
                                 received_packets.push(packet);
                             }
-                            Err(e) => println!("{}", e),
+                            Err(e) => println!("Mutex Poison Error {}", e),
                         }
                     }
                     Err(e) => {

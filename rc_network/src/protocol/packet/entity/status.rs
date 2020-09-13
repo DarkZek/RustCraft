@@ -1,6 +1,6 @@
 use crate::protocol::packet::PacketType;
-use crate::protocol::data::read_types::{read_unsignedbyte, read_bool, read_int};
-use std::io::{Cursor, Seek, Read};
+use crate::protocol::data::read_types::{read_unsignedbyte, read_int};
+use std::io::{Cursor};
 
 #[derive(Debug)]
 pub struct EntityStatusPacket {

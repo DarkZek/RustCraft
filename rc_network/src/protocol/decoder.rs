@@ -3,61 +3,78 @@
    and should be able to accept any incoming connections and store its information.
 */
 
-use nbt::Blob;
-use std::io::{Read, Error, Cursor};
+use crate::protocol::packet::entity::equipment::EntityEquipmentPacket;
+use crate::protocol::packet::entity::head_look::EntityHeadLookPacket;
+use crate::protocol::packet::entity::set_properties::EntitySetPropertiesPacket;
+use crate::protocol::packet::entity::spawn_entity::SpawnEntityPacket;
+use crate::protocol::packet::entity::spawn_living_entity::SpawnLivingEntityPacket;
+use crate::protocol::packet::world::chunk_data::ChunkDataPacket;
 use crate::{
-    stream::NetworkStream,
     protocol::{
         data::read_types::{
             read_bool, read_bytearray, read_float, read_int, read_intarray, read_long, read_string,
             read_unsignedbyte, read_varint, read_varintarray,
         },
+        packet::{
+            entity::status::EntityStatusPacket,
+            entity::update_metadata::EntityUpdateMetadataPacket,
+            info::chat_message::ChatMessagePacket,
+            info::join_game::JoinGamePacket,
+            info::player_list_info::PlayerListInfoPacket,
+            info::plugin_message::PluginMessagePacket,
+            info::server_difficulty::ServerDifficultyPacket,
+            info::tags::TagsPacket,
+            inventory::declare_recipes::DeclareRecipesPacket,
+            inventory::unlock_recipes::UnlockRecipesPacket,
+            player::held_item_change::HeldItemChangePacket,
+            player::player_abilities::PlayerAbilitiesPacket,
+            player::position_look::PlayerPositionLookPacket,
+            player::position_rotation::PlayerPositionRotationPacket,
+            player::view_chunk_position::UpdateViewChunkPositionPacket,
+            world::update_light::UpdateLightLevelsPacket,
+            PacketData,
+            PacketData::{ChatMessage, DeclareRecipes, ServerDifficulty, UpdateLightLevels},
+            PacketType,
+        },
         types::chunk::NetworkChunk,
         types::{PVarType, PVarTypeTemplate},
-        packet::{
-            PacketType,
-            PacketData,
-            info::join_game::JoinGamePacket,
-            info::server_difficulty::ServerDifficultyPacket,
-            player::player_abilities::PlayerAbilitiesPacket,
-            player::held_item_change::HeldItemChangePacket,
-            inventory::declare_recipes::DeclareRecipesPacket,
-            info::plugin_message::PluginMessagePacket,
-            PacketData::{ServerDifficulty, DeclareRecipes, ChatMessage, UpdateLightLevels},
-            info::tags::TagsPacket,
-            entity::status::EntityStatusPacket,
-            player::position_rotation::PlayerPositionRotationPacket,
-            inventory::unlock_recipes::UnlockRecipesPacket,
-            player::position_look::PlayerPositionLookPacket,
-            info::chat_message::ChatMessagePacket,
-            info::player_list_info::PlayerListInfoPacket,
-            entity::update_metadata::EntityUpdateMetadataPacket,
-            player::view_chunk_position::UpdateViewChunkPositionPacket,
-            world::update_light::UpdateLightLevelsPacket
-        }
-    }
+    },
+    stream::NetworkStream,
 };
 use std::io;
-use crate::protocol::packet::world::chunk_data::ChunkDataPacket;
-use crate::protocol::packet::entity::spawn_living_entity::SpawnLivingEntityPacket;
-use crate::protocol::packet::entity::set_properties::EntitySetPropertiesPacket;
-use crate::protocol::packet::entity::head_look::EntityHeadLookPacket;
-use crate::protocol::packet::entity::equipment::EntityEquipmentPacket;
-use crate::protocol::packet::entity::spawn_entity::SpawnEntityPacket;
-use crate::protocol::packet::PacketData::{EntityVelocity, WindowItems, UpdatePlayerHealth};
+use std::io::{Cursor, Read};
+
+use crate::protocol::packet::effect::sound::SoundEffectPacket;
+use crate::protocol::packet::entity::animation::EntityAnimationPacket;
+use crate::protocol::packet::entity::destroy_entities::DestroyEntitiesPacket;
+use crate::protocol::packet::entity::set_passengers::SetPassengersPacket;
+use crate::protocol::packet::entity::teleport::EntityTeleportPacket;
+use crate::protocol::packet::entity::update_position::UpdateEntityPositionPacket;
+use crate::protocol::packet::entity::update_position_rotation::UpdateEntityPositionRotationPacket;
+use crate::protocol::packet::entity::update_rotation::UpdateEntityRotationPacket;
 use crate::protocol::packet::entity::velocity::EntityVelocityPacket;
-use crate::protocol::packet::world::border::WorldBorderPacket;
-use crate::protocol::packet::world::time_update::TimeUpdatePacket;
-use crate::protocol::packet::world::spawn_position::SpawnPositionPacket;
+use crate::protocol::packet::info::advancements::AdvancementsPacket;
 use crate::protocol::packet::info::change_game_state::ChangeGameStatePacket;
-use crate::protocol::packet::inventory::window_items::WindowItemsPacket;
-use crate::protocol::packet::inventory::set_slot::SetSlotPacket;
-use crate::protocol::packet::player::update_health::UpdatePlayerHealthPacket;
-use crate::protocol::packet::player::set_experience::SetPlayerExperiencePacket;
+use crate::protocol::packet::info::disconnect::DisconnectPacket;
 use crate::protocol::packet::info::keep_alive::KeepAlivePacket;
+use crate::protocol::packet::inventory::set_slot::SetSlotPacket;
+use crate::protocol::packet::inventory::window_items::WindowItemsPacket;
+use crate::protocol::packet::player::set_experience::SetPlayerExperiencePacket;
+use crate::protocol::packet::player::spawn::SpawnPlayerPacket;
+use crate::protocol::packet::player::update_health::UpdatePlayerHealthPacket;
+use crate::protocol::packet::world::block_change::BlockChangePacket;
+use crate::protocol::packet::world::border::WorldBorderPacket;
+use crate::protocol::packet::world::multi_block_change::MultiBlockChangePacket;
+use crate::protocol::packet::world::spawn_position::SpawnPositionPacket;
+use crate::protocol::packet::world::spawn_weather_entity::SpawnWeatherEntityPacket;
+use crate::protocol::packet::world::time_update::TimeUpdatePacket;
+use crate::protocol::packet::PacketData::{
+    Advancements, UpdateEntityPosition, UpdateEntityPositionRotation,
+};
 
 pub struct PacketDecoder;
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 impl PacketDecoder {
     pub fn decode(stream: &mut NetworkStream) -> Result<PacketData, io::Error> {
         // Get length of packet
@@ -106,6 +123,20 @@ impl PacketDecoder {
             0x49 => PacketData::UpdatePlayerHealth(*UpdatePlayerHealthPacket::deserialize(&mut cursor)),
             0x48 => PacketData::SetPlayerExperience(*SetPlayerExperiencePacket::deserialize(&mut cursor)),
             0x21 => PacketData::KeepAlive(*KeepAlivePacket::deserialize(&mut cursor)),
+            0x58 => PacketData::Advancements(*AdvancementsPacket::deserialize(&mut cursor)),
+            0x1B => PacketData::Disconnect(*DisconnectPacket::deserialize(&mut cursor)),
+            0x0C => PacketData::BlockChange(*BlockChangePacket::deserialize(&mut cursor)),
+            0x10 => PacketData::MultiBlockChange(*MultiBlockChangePacket::deserialize(&mut cursor)),
+            0x05 => PacketData::SpawnPlayer(*SpawnPlayerPacket::deserialize(&mut cursor)),
+            0x4B => PacketData::SetPassengers(*SetPassengersPacket::deserialize(&mut cursor)),
+            0x29 => PacketData::UpdateEntityPosition(*UpdateEntityPositionPacket::deserialize(&mut cursor)),
+            0x2B => PacketData::UpdateEntityRotation(*UpdateEntityRotationPacket::deserialize(&mut cursor)),
+            0x2A => PacketData::UpdateEntityPositionRotation(*UpdateEntityPositionRotationPacket::deserialize(&mut cursor)),
+            0x57 => PacketData::EntityTeleport(*EntityTeleportPacket::deserialize(&mut cursor)),
+            0x02 => PacketData::SpawnWeatherEntity(*SpawnWeatherEntityPacket::deserialize(&mut cursor)),
+            0x38 => PacketData::DestroyEntities(*DestroyEntitiesPacket::deserialize(&mut cursor)),
+            0x52 => PacketData::SoundEffect(*SoundEffectPacket::deserialize(&mut cursor)),
+            0x06 => PacketData::EntityAnimation(*EntityAnimationPacket::deserialize(&mut cursor)),
             _ => panic!(format!("Unknown packet ID: 0x{:x}", packet_id))
         };
 

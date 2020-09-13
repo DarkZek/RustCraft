@@ -1,6 +1,6 @@
 use crate::protocol::packet::PacketType;
 use crate::protocol::data::read_types::{read_string, read_varint};
-use std::io::{Cursor, Seek, Read};
+use std::io::{Cursor};
 
 #[derive(Debug)]
 pub struct TagsPacket {
