@@ -1,5 +1,5 @@
-use crate::protocol::data::read_types::{read_longarray, read_short, read_unsignedbyte, read_long, read_varint};
-use std::io::{Read, Write};
+use crate::protocol::data::read_types::{read_longarray, read_short, read_unsignedbyte, read_varint};
+use std::io::{Read};
 
 #[derive(Debug)]
 pub struct NetworkChunk {

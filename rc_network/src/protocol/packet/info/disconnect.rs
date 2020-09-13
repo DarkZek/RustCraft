@@ -1,4 +1,4 @@
-use crate::protocol::data::read_types::{read_long, read_string};
+use crate::protocol::data::read_types::{read_string};
 use crate::protocol::packet::PacketType;
 use std::io::Cursor;
 

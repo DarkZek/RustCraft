@@ -1,6 +1,6 @@
-use crate::protocol::data::read_types::{read_bool, read_int, read_short, read_varint};
+use crate::protocol::data::read_types::{read_bool, read_short, read_varint};
 use crate::protocol::packet::PacketType;
-use crate::protocol::types::entity_metadata::EntityMetadata;
+
 use std::io::Cursor;
 
 // https://wiki.vg/Protocol#Entity_Position

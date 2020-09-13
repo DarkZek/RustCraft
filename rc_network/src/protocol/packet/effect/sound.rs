@@ -1,4 +1,4 @@
-use crate::protocol::data::read_types::{read_float, read_int, read_unsignedbyte, read_varint};
+use crate::protocol::data::read_types::{read_float, read_int, read_varint};
 use crate::protocol::packet::PacketType;
 use std::io::Cursor;
 

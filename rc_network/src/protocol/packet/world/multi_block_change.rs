@@ -19,8 +19,8 @@ impl PacketType for MultiBlockChangePacket {
 
         for _ in 0..changes_len {
             let pos = read_unsignedbyte(buf);
-            let x = (pos >> 4 & 15);
-            let z = (pos & 15);
+            let x = pos >> 4 & 15;
+            let z = pos & 15;
             let y = read_unsignedbyte(buf);
             let block_id = read_varint(buf);
 

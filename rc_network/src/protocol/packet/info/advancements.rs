@@ -1,5 +1,5 @@
 use crate::protocol::data::read_types::{
-    read_bool, read_float, read_int, read_long, read_string, read_unsignedbyte, read_varint,
+    read_bool, read_float, read_int, read_long, read_string, read_varint,
 };
 use crate::protocol::packet::PacketType;
 use crate::protocol::types::slot::Slot;
