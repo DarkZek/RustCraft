@@ -2,10 +2,12 @@ use crate::render::camera::Camera;
 use crate::services::chunk_service::chunk::{Chunk, Chunks};
 use crate::services::chunk_service::ChunkService;
 use crate::services::settings_service::CHUNK_SIZE;
-use nalgebra::{ArrayStorage, Matrix, Vector3, U1, U3};
+use nalgebra::{ArrayStorage, Matrix, Matrix4, Point3, Vector3, Vector4, U1, U3, U4};
 use specs::{Read, System, Write};
+use std::cmp;
 use std::collections::HashMap;
 use std::f32::consts::PI;
+use std::fmt::Debug;
 
 pub struct FrustumCullingSystem;
 
@@ -22,14 +24,13 @@ pub fn calculate_frustum_culling(
     viewable_chunks: &Vec<Vector3<i32>>,
     chunks: &HashMap<Vector3<i32>, Chunk>,
 ) -> Vec<Vector3<i32>> {
-    let rot_y = -cam.yaw + (PI / 2.0);
+    let frustum = Frustum::from_matrix(cam.projection_matrix);
 
-    let left_pane = rotate_y_axis(Vector3::new(1.0, 0.0, -1.0), rot_y);
-    let right_pane = rotate_y_axis(Vector3::new(1.0, 0.0, 1.0), rot_y);
-    let bottom_pane = rotate_y_axis(Vector3::new(1.0, -1.0, 0.0), rot_y);
+    if let None = frustum {
+        return Vec::new();
+    }
 
-    // (Normal, d)
-    let faces: [(Vector3<f32>, f32); 3] = [(left_pane, 0.0), (right_pane, 0.0), (bottom_pane, 0.0)];
+    let frustum = frustum.unwrap();
 
     let mut visible_chunks = Vec::new();
 
@@ -45,7 +46,7 @@ pub fn calculate_frustum_culling(
             );
 
             if chunk.vertices_buffer.is_some() && chunk.indices_buffer.is_some() {
-                if is_visible(relative_pos, 30.0, &faces) {
+                if frustum.is_visible(relative_pos, 22.0) {
                     visible_chunks.push(pos.clone());
                 }
             }
@@ -55,43 +56,74 @@ pub fn calculate_frustum_culling(
     visible_chunks
 }
 
-fn rotate_y_axis(
-    pos: Matrix<f32, U3, U1, ArrayStorage<f32, U3, U1>>,
-    rotation: f32,
-) -> Vector3<f32> {
-    Vector3::new(
-        (pos.x * rotation.cos()) + (pos.z * rotation.sin()),
-        pos.y,
-        (-pos.x * rotation.sin()) + (pos.z * rotation.cos()),
-    )
+fn dot(v1: Vector3<f32>, v2: Vector3<f32>) -> f32 {
+    (v1.x * v2.x) + (v1.y * v2.y) + (v1.z * v2.z)
 }
 
-fn rotate_z_axis(pos: Vector3<f32>, rotation: f32) -> Vector3<f32> {
-    Vector3::new(
-        (pos.x * rotation.cos()) - (pos.y * rotation.sin()),
-        (pos.x * rotation.sin()) + (pos.y * rotation.cos()),
-        pos.z,
-    )
+// Inspiration taken from https://docs.rs/collision/0.20.1/src/collision/frustum.rs.html
+
+#[derive(Clone, Copy)]
+pub struct Plane {
+    pub n: Vector3<f32>,
+    pub d: f32,
 }
 
-fn rotate_x_axis(pos: Vector3<f32>, rotation: f32) -> Vector3<f32> {
-    Vector3::new(
-        pos.x,
-        (pos.y * rotation.cos()) - (pos.z * rotation.sin()),
-        (pos.y * rotation.sin()) + (pos.z * rotation.cos()),
-    )
-}
-
-pub fn is_visible(center: Vector3<f32>, radius: f32, faces: &[(Vector3<f32>, f32); 3]) -> bool {
-    for i in 0..faces.len() {
-        if dot(center, faces[i].0) as f32 + faces[i].1 + radius <= 0.0 {
-            return false;
+impl Plane {
+    pub fn from_vector4(v: Matrix<f32, U1, U4, ArrayStorage<f32, U1, U4>>) -> Plane {
+        Plane {
+            n: Vector3::new(v.x, v.y, v.z),
+            d: -v.w,
         }
     }
 
-    return true;
+    pub fn normalize(&self) -> Option<Plane> {
+        if self.n == Vector3::zeros() {
+            None
+        } else {
+            let denom = 1.0 / self.n.magnitude();
+            Some(Plane::new(self.n * denom, self.d * denom))
+        }
+    }
 }
 
-fn dot(v1: Vector3<f32>, v2: Vector3<f32>) -> f32 {
-    (v1.x * v2.x) + (v1.y * v2.y) + (v1.z * v2.z)
+#[derive(Copy, Clone)]
+struct Frustum {
+    pub planes: [Plane; 6],
+}
+
+impl Frustum {
+    pub fn from_matrix(matrix: Matrix4<f32>) -> Option<Frustum> {
+        let data = [
+            matrix.row(3) + matrix.row(0),
+            matrix.row(3) - matrix.row(0),
+            matrix.row(3) + matrix.row(1),
+            matrix.row(3) - matrix.row(1),
+            matrix.row(3) + matrix.row(2),
+            matrix.row(3) - matrix.row(2),
+        ];
+
+        let mut planes = [Plane {
+            n: Vector3::zeros(),
+            d: 0.0,
+        }; 6];
+
+        for i in 0..6 {
+            planes[i] = match Plane::from_vector4(data[i]).normalize() {
+                Some(p) => p,
+                None => return None,
+            };
+        }
+
+        Some(Frustum { planes })
+    }
+
+    pub fn is_visible(&self, center: Vector3<f32>, radius: f32) -> bool {
+        for i in 0..self.planes.len() {
+            if dot(center, self.planes[i].n) as f32 + radius <= 0.0 {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }
