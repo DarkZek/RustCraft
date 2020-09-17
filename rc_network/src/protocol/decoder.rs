@@ -68,6 +68,7 @@ use crate::protocol::packet::world::multi_block_change::MultiBlockChangePacket;
 use crate::protocol::packet::world::spawn_position::SpawnPositionPacket;
 use crate::protocol::packet::world::spawn_weather_entity::SpawnWeatherEntityPacket;
 use crate::protocol::packet::world::time_update::TimeUpdatePacket;
+use crate::protocol::packet::effect::play::PlayEffectPacket;
 
 
 pub struct PacketDecoder;
@@ -135,6 +136,7 @@ impl PacketDecoder {
             0x38 => PacketData::DestroyEntities(*DestroyEntitiesPacket::deserialize(&mut cursor)),
             0x52 => PacketData::SoundEffect(*SoundEffectPacket::deserialize(&mut cursor)),
             0x06 => PacketData::EntityAnimation(*EntityAnimationPacket::deserialize(&mut cursor)),
+            0x23 => PacketData::PlayEffect(*PlayEffectPacket::deserialize(&mut cursor)),
             _ => panic!(format!("Unknown packet ID: 0x{:x}", packet_id))
         };
 

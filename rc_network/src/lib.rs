@@ -25,7 +25,6 @@ pub struct RustcraftNetworking {
 #[cfg(test)]
 mod tests {
     // Note this useful idiom: importing names from outer (for mod tests) scope.
-    
 
     #[test]
     fn test_add() {
@@ -84,6 +83,12 @@ impl RustcraftNetworking {
                             builder.send(connection.as_mut().unwrap());
                             println!("Answered callback");
                             continue;
+                        }
+
+                        if let PacketData::ChunkData(chunk) = &packet {
+                            if chunk.x == 5 && chunk.z == 9 {
+                                println!("Chunk: {:?}", chunk);
+                            }
                         }
 
                         // Handle disconnects

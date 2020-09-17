@@ -1,8 +1,10 @@
+use crate::protocol::data::read_types::{
+    read_bool, read_double, read_float, read_int, read_intarray, read_unsignedbyte, read_varint,
+};
 use crate::protocol::packet::PacketType;
-use crate::protocol::data::read_types::{read_unsignedbyte, read_bool, read_int, read_float, read_double, read_varint, read_intarray};
-use std::io::{Cursor};
-use nbt::Blob;
 use crate::protocol::types::chunk::NetworkChunk;
+use nbt::Blob;
+use std::io::Cursor;
 
 #[derive(Debug)]
 pub struct ChunkDataPacket {
@@ -45,7 +47,7 @@ impl PacketType for ChunkDataPacket {
 
         // Temp to keep the chunk stuff separated so it doesn't fuck up the network stream
         let mut chunk_data = Cursor::new(data);
-        let chunks = NetworkChunk::deserialize(&mut chunk_data, primary_bit_mask);
+        let chunks = NetworkChunk::deserialize(&mut chunk_data, primary_bit_mask, x == 5 && z == 9);
 
         let block_entities_len = read_varint(buf);
         let mut block_entities = Vec::new();
@@ -62,7 +64,7 @@ impl PacketType for ChunkDataPacket {
             heightmaps,
             biomes,
             data: chunks,
-            block_entities
+            block_entities,
         })
     }
 }

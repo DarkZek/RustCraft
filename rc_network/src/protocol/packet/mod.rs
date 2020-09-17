@@ -45,6 +45,7 @@ use crate::protocol::packet::world::spawn_weather_entity::SpawnWeatherEntityPack
 use crate::protocol::packet::world::time_update::TimeUpdatePacket;
 use crate::protocol::packet::world::update_light::UpdateLightLevelsPacket;
 use std::io::Cursor;
+use crate::protocol::packet::effect::play::PlayEffectPacket;
 
 pub mod effect;
 pub mod entity;
@@ -105,4 +106,5 @@ pub enum PacketData {
     DestroyEntities(DestroyEntitiesPacket),
     SoundEffect(SoundEffectPacket),
     EntityAnimation(EntityAnimationPacket),
+    PlayEffect(PlayEffectPacket),
 }

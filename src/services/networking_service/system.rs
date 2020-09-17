@@ -1,3 +1,5 @@
+use crate::entity::player::{Player, PlayerEntity};
+use crate::game::physics::PhysicsObject;
 use crate::render::RenderState;
 use crate::services::chunk_service::chunk::{Chunk, ChunkData, Chunks};
 use crate::services::chunk_service::ChunkService;
@@ -6,7 +8,7 @@ use crate::services::settings_service::SettingsService;
 use nalgebra::Vector3;
 use rc_network::protocol::packet::PacketData;
 use rc_network::protocol::types::PVarType;
-use specs::{Read, System, Write};
+use specs::{Join, Read, ReadStorage, System, Write, WriteStorage};
 use std::fs::File;
 use std::io;
 use std::io::Write as StdWrite;
@@ -31,6 +33,8 @@ impl<'a> System<'a> for NetworkingSyncSystem {
         Write<'a, Chunks>,
         Read<'a, RenderState>,
         Read<'a, SettingsService>,
+        WriteStorage<'a, PhysicsObject>,
+        ReadStorage<'a, PlayerEntity>,
     );
 
     fn run(
@@ -42,6 +46,8 @@ impl<'a> System<'a> for NetworkingSyncSystem {
             mut chunks,
             render_system,
             settings,
+            mut player_physics,
+            player_entity,
         ): Self::SystemData,
     ) {
         network_packets.packets = networking_service.get_packets();
@@ -51,6 +57,13 @@ impl<'a> System<'a> for NetworkingSyncSystem {
         }
 
         for packet in network_packets.packets.iter() {
+            if let PacketData::SpawnPlayer(packet) = &packet {
+                let (_, player_physics) =
+                    (&player_entity, &mut player_physics).join().last().unwrap();
+                player_physics.position =
+                    Vector3::new(packet.x as f32, packet.y as f32, packet.z as f32);
+            }
+
             if let PacketData::ChunkData(packet) = packet {
                 let mut mask = packet.primary_bit_mask.clone();
                 let mut chunks_index = 0;
