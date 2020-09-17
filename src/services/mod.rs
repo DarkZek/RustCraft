@@ -70,7 +70,7 @@ pub fn load_services(mut context: ServicesContext, universe: &mut World) {
     let audio = AudioService::new();
     let mut ui = UIService::new(&mut context, &asset, universe);
     let input = InputService::new(&mut context, universe);
-    let mut networking_service = NetworkingService::new(universe);
+    let networking_service = NetworkingService::new(universe);
     LoadingScreen::update_state(90.0);
 
     //TEMP

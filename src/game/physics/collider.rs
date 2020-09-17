@@ -117,7 +117,7 @@ impl BoxCollider {
         }
 
         // Check for collision on top
-        let difference = Vector3::new(
+        let _difference = Vector3::new(
             self.center.x - collider.center.x,
             self.center.y - collider.center.y,
             self.center.z - collider.center.z,

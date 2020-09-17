@@ -11,8 +11,8 @@ use crate::services::ServicesContext;
 use nalgebra::Vector3;
 use specs::World;
 use std::collections::HashMap;
-use std::ops::Index;
-use wgpu::{BindGroupLayout, Device};
+
+use wgpu::{BindGroupLayout};
 
 pub mod chunk;
 pub mod collider;
@@ -34,7 +34,7 @@ pub struct ChunkService {
 
 impl ChunkService {
     pub fn new(
-        settings: &SettingsService,
+        _settings: &SettingsService,
         context: &mut ServicesContext,
         universe: &mut World,
     ) -> ChunkService {
@@ -56,7 +56,7 @@ impl ChunkService {
             .device
             .create_bind_group_layout(&model_bind_group_layout_descriptor);
 
-        let mut service = ChunkService {
+        let service = ChunkService {
             model_bind_group_layout,
             viewable_chunks: vec![],
             visible_chunks: vec![],
@@ -66,7 +66,7 @@ impl ChunkService {
             blocks: context.blocks.clone(),
         };
 
-        let mut chunks = Chunks(HashMap::with_capacity(16 * CHUNK_SIZE * CHUNK_SIZE));
+        let chunks = Chunks(HashMap::with_capacity(16 * CHUNK_SIZE * CHUNK_SIZE));
 
         //TODO: Remove this once we have rc_network
         // for x in -(settings.render_distance as i32)..(settings.render_distance as i32) {

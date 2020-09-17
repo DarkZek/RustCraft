@@ -8,7 +8,7 @@ impl UIService {
         &self,
         frame: &SwapChainFrame,
         encoder: &mut CommandEncoder,
-        device: &Device,
+        _device: &Device,
         asset_service: &AssetService,
     ) {
         let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {

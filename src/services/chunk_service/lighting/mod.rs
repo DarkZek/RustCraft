@@ -30,9 +30,9 @@ impl ChunkData {
     fn fast_flood_fill(
         &mut self,
         position: [usize; 3],
-        color: [f32; 3],
+        _color: [f32; 3],
         intensity: u8,
-        chunks: &mut Chunks,
+        _chunks: &mut Chunks,
     ) {
         let posx = position[0] as i8;
         let posy = position[1] as i8;
