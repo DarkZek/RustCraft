@@ -12,10 +12,9 @@ use nalgebra::Vector3;
 use specs::World;
 use std::collections::HashMap;
 
-use wgpu::{BindGroupLayout};
+use wgpu::BindGroupLayout;
 
 pub mod chunk;
-pub mod collider;
 pub mod frustum_culling;
 pub mod lighting;
 pub mod mesh;
@@ -28,7 +27,7 @@ pub struct ChunkService {
     pub chunk_keys: Vec<Vector3<i32>>,
 
     //Temp
-    pub(crate) blocks: Vec<Block>,
+    pub blocks: Vec<Block>,
     previous_player_rot: f32,
 }
 
@@ -130,9 +129,6 @@ impl ChunkService {
     ) {
         if data.is_some() {
             let mut chunk = ChunkData::new(data.unwrap(), chunk_coords);
-
-            // Do some calculations to get it read
-            chunk.calculate_colliders();
 
             self.viewable_chunks.push(chunk_coords);
             if chunk.indices_buffer.is_some() {

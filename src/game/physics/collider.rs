@@ -68,28 +68,6 @@ impl BoxCollider {
 
         let mut any_matched = false;
 
-        /*
-
-        https://github.com/ddevault/TrueCraft/blob/master/TrueCraft.Core/Physics/PhysicsEngine.cs
-
-         */
-
-        /*
-
-        Ok Zekky, what you also need to do is you see that for loop down there? You gotta somehow get that working online, probably having to remove half
-        of the surrounding code cause it has no idea what a `BoxCollider` is, ew. Then you take a yander at the machine code and idk how to tell if its
-        simd or not, you can tell by if the compiled bit has longer instruction names that start with v.
-        https://godbolt.org/
-        https://software.intel.com/sites/landingpage/IntrinsicsGuide/
-
-         */
-
-        /*
-
-        Ok zekky, move physics to own folder along like render/
-
-         */
-
         for (matched, point) in points.iter_mut() {
             // Check if the point collided roughly
             if (point.x >= self.p1.x && point.x <= self.p2.x)

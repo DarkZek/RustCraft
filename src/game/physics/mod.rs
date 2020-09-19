@@ -1,9 +1,12 @@
 use crate::game::physics::collider::{BoxCollider, CollisionSide};
-use crate::services::chunk_service::chunk::{Chunk, Chunks};
+use crate::helpers::Clamp;
+use crate::services::chunk_service::chunk::{Chunk, Chunks, RawChunkData};
 use crate::services::settings_service::CHUNK_SIZE;
 use nalgebra::Vector3;
+use noise::NoiseFn;
 use specs::prelude::ParallelIterator;
 use specs::{Component, ParJoin, Read, System, VecStorage, WriteStorage};
+use std::collections::HashMap;
 
 pub mod collider;
 pub mod interpolator;
@@ -16,40 +19,8 @@ impl<'a> System<'a> for PhysicsProcessingSystem {
     fn run(&mut self, (mut physics_objects, chunks): Self::SystemData) {
         (&mut physics_objects).par_join().for_each(|entity| {
             // Check collisions
-            let chunk_pos = Vector3::new(
-                (entity.position.x / CHUNK_SIZE as f32).floor() as i32,
-                (entity.position.y / CHUNK_SIZE as f32).floor() as i32,
-                (entity.position.z / CHUNK_SIZE as f32).floor() as i32,
-            );
 
             let mut collision_target = CollisionSide::zero();
-
-            if let Some(chunk) = chunks.0.get(&chunk_pos) {
-                //TODO: Greedy mesh the frick out of the colliders
-
-                if let Chunk::Tangible(chunk) = chunk {
-                    for collider in &chunk.collision_map {
-                        //let collision = collider.check_collision(&entity.collider);
-                        let collision = collider.check_collision(&entity.collider);
-
-                        if collision.is_some() {
-                            collision_target.combine(&collision.unwrap());
-                            break;
-                        }
-
-                        let collision = entity.collider.check_collision(&collider);
-
-                        if collision.is_some() {
-                            let mut collision = collision.unwrap();
-                            println!("Collision Map: {:?}", collision);
-                            collision.invert();
-                            println!("Collision Map: {:?}", collision);
-                            collision_target.combine(&collision);
-                            break;
-                        }
-                    }
-                }
-            }
 
             let slipperiness = 0.6;
 
@@ -57,17 +28,10 @@ impl<'a> System<'a> for PhysicsProcessingSystem {
             entity.velocity.z *= slipperiness;
 
             // Add gravity
-            //entity.velocity.y -= 0.08;
+            entity.velocity.y -= 0.08;
 
             // Air Drag
             entity.velocity.y *= 0.98;
-
-            if collision_target.front {
-                // Remove speed
-                if entity.velocity.x > 0.0 {
-                    //entity.velocity.x = 0.0;
-                }
-            }
 
             if !collision_target.bottom {
                 entity.touching_ground = false;
@@ -84,13 +48,15 @@ impl<'a> System<'a> for PhysicsProcessingSystem {
                 }
             }
 
-            // if collision_target.front && entity.velocity.x > 0.0 { entity.velocity.x = 0.0;}
-            // if collision_target.back && entity.velocity.x < 0.0 { entity.velocity.x = 0.0;}
-            // if collision_target.left && entity.velocity.z > 0.0 { entity.velocity.z = 0.0;}
-            // if collision_target.right && entity.velocity.z < 0.0 { entity.velocity.z = 0.0;}
+            let movement = move_entity_xyz(
+                &entity.collider,
+                &chunks.0,
+                &mut entity.velocity,
+                entity.position,
+            );
 
             entity.old_position = entity.position;
-            entity.new_position = entity.position + entity.velocity;
+            entity.new_position = entity.position + movement;
         });
     }
 }
@@ -113,11 +79,117 @@ impl PhysicsObject {
     pub fn new() -> PhysicsObject {
         PhysicsObject {
             velocity: Vector3::new(0.0, 0.0, 0.0),
-            position: Vector3::new(0.0, 90.0, 0.0),
-            old_position: Vector3::new(0.0, 90.0, 0.0),
-            new_position: Vector3::new(0.0, 90.0, 0.0),
+            position: Vector3::new(0.0, 60.0, 0.0),
+            old_position: Vector3::new(0.0, 60.0, 0.0),
+            new_position: Vector3::new(0.0, 60.0, 0.0),
             collider: BoxCollider::blank(),
             touching_ground: false,
         }
     }
+}
+
+//TODO: Address physics issues when moving between chunks
+
+// Calculates movement based on velocity and colliders
+pub fn move_entity_xyz(
+    collider: &BoxCollider,
+    chunks: &HashMap<Vector3<i32>, Chunk>,
+    velocity: &mut Vector3<f32>,
+    absolute_position: Vector3<f32>,
+) -> Vector3<f32> {
+    let chunk_pos = absolute_pos_to_chunk(absolute_position);
+
+    let (y_change, y_collided) = if let Some(chunk) = chunks.get(&chunk_pos) {
+        if let Chunk::Tangible(data) = chunk {
+            move_entity_dir(collider, &data.world, Vector3::new(0.0, velocity.y, 0.0))
+        } else {
+            (velocity.y, false)
+        }
+    } else {
+        (velocity.y, false)
+    };
+    if y_collided {
+        velocity.y = 0.0;
+    }
+
+    let z_change = if let Some(Chunk::Tangible(data)) = chunks.get(&chunk_pos) {
+        let (z_change, z_collided) =
+            move_entity_dir(collider, &data.world, Vector3::new(0.0, 0.0, velocity.z));
+        if z_collided {
+            velocity.z = 0.0;
+        }
+        z_change
+    } else {
+        velocity.z
+    };
+
+    let x_change = if let Some(Chunk::Tangible(data)) = chunks.get(&chunk_pos) {
+        let (x_change, x_collided) =
+            move_entity_dir(collider, &data.world, Vector3::new(velocity.x, 0.0, 0.0));
+        if x_collided {
+            velocity.x = 0.0;
+        }
+        x_change
+    } else {
+        velocity.x
+    };
+
+    Vector3::new(x_change, y_change, z_change)
+}
+
+/// Move an entity on a single axis, if any points that arent colliding collide after the move, cancel the move
+fn move_entity_dir(
+    collider: &BoxCollider,
+    chunk: &RawChunkData,
+    movement: Vector3<f32>,
+) -> (f32, bool) {
+    let start_collisions = count_collisions(collider, chunk);
+
+    let new_collider = BoxCollider {
+        p1: collider.p1 + movement,
+        p2: collider.p2 + movement,
+        center: collider.center + movement,
+    };
+
+    let end_collisions = count_collisions(&new_collider, chunk);
+
+    // Can make full move
+    if start_collisions >= end_collisions {
+        // Only one of these will have a value so just print them all
+        (movement.x + movement.y + movement.z, false)
+    } else {
+        (0.0, true)
+    }
+}
+
+/// Counts how many points (out of 8) are colliding
+#[cfg_attr(rustfmt, rustfmt_skip)]
+fn count_collisions(collider: &BoxCollider, chunk: &RawChunkData) -> i32 {
+    let mut collisions = 0;
+    if is_colliding(Vector3::new(collider.p1.x, collider.p1.y, collider.p1.z), chunk) { collisions += 1; }
+    if is_colliding(Vector3::new(collider.p2.x, collider.p1.y, collider.p1.z), chunk) { collisions += 1; }
+    if is_colliding(Vector3::new(collider.p1.x, collider.p1.y, collider.p2.z), chunk) { collisions += 1; }
+    if is_colliding(Vector3::new(collider.p2.x, collider.p1.y, collider.p2.z), chunk) { collisions += 1; }
+    if is_colliding(Vector3::new(collider.p2.x, collider.p2.y, collider.p2.z), chunk) { collisions += 1; }
+    if is_colliding(Vector3::new(collider.p1.x, collider.p2.y, collider.p2.z), chunk) { collisions += 1; }
+    if is_colliding(Vector3::new(collider.p2.x, collider.p2.y, collider.p1.z), chunk) { collisions += 1; }
+    if is_colliding(Vector3::new(collider.p1.x, collider.p2.y, collider.p1.z), chunk) { collisions += 1; }
+    collisions
+}
+
+fn is_colliding(point: Vector3<f32>, chunk: &RawChunkData) -> bool {
+    let block = Vector3::new(
+        point.x.floor().clamp_val(0.0, 15.0) as i32,
+        point.y.floor().clamp_val(0.0, 15.0) as i32,
+        point.z.floor().clamp_val(0.0, 15.0) as i32,
+    );
+    chunk[block.x as usize][block.y as usize][block.z as usize] != 0
+}
+
+fn absolute_pos_to_chunk(pos: Vector3<f32>) -> Vector3<i32> {
+    Vector3::new(
+        (pos.x / CHUNK_SIZE as f32).floor() as i32,
+        (pos.y / CHUNK_SIZE as f32).floor() as i32,
+        (pos.z / CHUNK_SIZE as f32).floor() as i32,
+    )
 }

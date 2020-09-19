@@ -81,7 +81,10 @@ impl Plane {
             None
         } else {
             let denom = 1.0 / self.n.magnitude();
-            Some(Plane::new(self.n * denom, self.d * denom))
+            Some(Plane {
+                n: self.n * denom,
+                d: self.d * denom,
+            })
         }
     }
 }

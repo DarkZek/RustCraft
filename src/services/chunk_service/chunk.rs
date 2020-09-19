@@ -7,7 +7,7 @@ use nalgebra::Vector3;
 use std::collections::HashMap;
 use wgpu::{BindGroup, Buffer};
 
-pub struct Chunks(pub(crate) HashMap<Vector3<i32>, Chunk>);
+pub struct Chunks(pub HashMap<Vector3<i32>, Chunk>);
 
 impl Default for Chunks {
     fn default() -> Self {
@@ -32,7 +32,6 @@ pub struct ChunkData {
     //TODO: Investigate if caching this is even faster
     pub viewable_map: Option<[[[ViewableDirection; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE]>,
     pub position: Vector3<i32>,
-    pub collision_map: Vec<BoxCollider>,
 
     // Stores the lighting intensity and color map
     pub light_levels: RawLightingData,
@@ -56,7 +55,6 @@ impl ChunkData {
             model_bind_group: None,
             viewable_map: None,
             position,
-            collision_map: vec![],
             // Ambient color
             light_levels: [[[[2, 2, 2, 255]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE],
             neighboring_light_levels: [[[[0, 0, 0, 0]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE],
