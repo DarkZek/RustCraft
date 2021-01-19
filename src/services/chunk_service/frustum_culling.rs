@@ -2,12 +2,9 @@ use crate::render::camera::Camera;
 use crate::services::chunk_service::chunk::{Chunk, Chunks};
 use crate::services::chunk_service::ChunkService;
 use crate::services::settings_service::CHUNK_SIZE;
-use nalgebra::{ArrayStorage, Matrix, Matrix4, Point3, Vector3, Vector4, U1, U3, U4};
+use nalgebra::{ArrayStorage, Matrix, Matrix4, Vector3, U1, U4};
 use specs::{Read, System, Write};
-use std::cmp;
 use std::collections::HashMap;
-use std::f32::consts::PI;
-use std::fmt::Debug;
 
 pub struct FrustumCullingSystem;
 

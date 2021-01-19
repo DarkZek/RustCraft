@@ -1,4 +1,4 @@
-use crate::entity::player::{PlayerEntity};
+use crate::entity::player::PlayerEntity;
 use crate::game::physics::PhysicsObject;
 use crate::render::RenderState;
 use crate::services::chunk_service::chunk::{Chunk, ChunkData, Chunks};
@@ -8,10 +8,8 @@ use crate::services::settings_service::SettingsService;
 use nalgebra::Vector3;
 use rc_network::protocol::packet::PacketData;
 
+use crate::block::blocks::BlockStates;
 use specs::{Join, Read, ReadStorage, System, Write, WriteStorage};
-
-
-
 
 pub struct ReceivedNetworkPackets {
     pub(crate) packets: Vec<PacketData>,
@@ -75,10 +73,8 @@ impl<'a> System<'a> for NetworkingSyncSystem {
                     }
                     mask >>= 0b1;
 
-                    let blocks = chunk_service.blocks.clone();
-
                     chunk_service.load_chunk(
-                        Some((packet.data.get(chunks_index).unwrap().data.clone(), blocks)),
+                        Some((packet.data.get(chunks_index).unwrap().data.clone(), vec![])),
                         Vector3::new(packet.x, y, packet.z),
                         &mut chunks,
                     );

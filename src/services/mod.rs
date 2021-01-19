@@ -1,3 +1,4 @@
+use crate::block::blocks::BlockStates;
 use crate::block::Block;
 use crate::render::loading::LoadingScreen;
 use crate::services::input_service::InputService;
@@ -31,7 +32,6 @@ pub mod ui_service;
 pub struct ServicesContext<'a> {
     pub device: Arc<Device>,
     pub queue: Arc<Mutex<Queue>>,
-    pub blocks: &'a mut Vec<Block>,
     pub size: &'a PhysicalSize<u32>,
     pub window: Arc<Window>,
 }
@@ -40,14 +40,12 @@ impl<'a> ServicesContext<'_> {
     pub fn new(
         device: Arc<Device>,
         queue: Arc<Mutex<Queue>>,
-        blocks: &'a mut Vec<Block>,
         size: &'a PhysicalSize<u32>,
         window: Arc<Window>,
     ) -> ServicesContext<'a> {
         ServicesContext {
             device,
             queue,
-            blocks,
             size,
             window,
         }
@@ -64,7 +62,9 @@ pub fn load_services(mut context: ServicesContext, universe: &mut World) {
     LoadingScreen::update_state(60.0);
 
     //TODO: Remove this once we have rc_network
-    atlas_update_blocks(asset.atlas_index.as_ref().unwrap(), &mut context.blocks);
+    unsafe {
+        atlas_update_blocks(asset.atlas_index.as_ref().unwrap());
+    }
     let chunk = ChunkService::new(&settings, &mut context, universe);
     LoadingScreen::update_state(80.0);
     let audio = AudioService::new();

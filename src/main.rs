@@ -1,5 +1,7 @@
 extern crate log;
 extern crate zerocopy;
+#[macro_use]
+extern crate lazy_static;
 
 use crate::game::Game;
 

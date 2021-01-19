@@ -1,4 +1,5 @@
-use crate::block::{blocks, Block};
+use crate::block::blocks::BlockStates;
+use crate::block::Block;
 use crate::render::camera::Camera;
 use crate::render::loading::LoadingScreen;
 use crate::render::pass::uniforms::Uniforms;
@@ -49,8 +50,6 @@ pub struct RenderState {
     uniform_bind_group: wgpu::BindGroup,
 
     depth_texture: (Texture, TextureView, Sampler),
-
-    blocks: Vec<Block>,
 
     pub fps: u32,
     pub frames: u32,
@@ -110,19 +109,12 @@ impl RenderState {
         let loading = LoadingScreen::new(&size, swap_chain.clone(), device.clone(), queue.clone());
         loading.start_loop();
 
-        let mut blocks = blocks::get_blocks();
-
         // Start the intensive job of loading services
         load_services(
-            ServicesContext::new(
-                device.clone(),
-                queue.clone(),
-                &mut blocks,
-                &size,
-                window.clone(),
-            ),
+            ServicesContext::new(device.clone(), queue.clone(), &size, window.clone()),
             universe,
         );
+
         LoadingScreen::update_state(95.0);
 
         // TODO: Combine uniforms into camera
@@ -178,7 +170,6 @@ impl RenderState {
             uniform_buffer,
             uniform_bind_group,
             depth_texture,
-            blocks,
             fps: 0,
             frames: 0,
             frame_capture_time: Instant::now(),

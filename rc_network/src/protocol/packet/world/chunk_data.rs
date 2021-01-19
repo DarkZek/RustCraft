@@ -45,9 +45,8 @@ impl PacketType for ChunkDataPacket {
             data.push(read_unsignedbyte(buf));
         }
 
-        // Temp to keep the chunk stuff separated so it doesn't fuck up the network stream
         let mut chunk_data = Cursor::new(data);
-        let chunks = NetworkChunk::deserialize(&mut chunk_data, primary_bit_mask, x == 5 && z == 9);
+        let chunks = NetworkChunk::deserialize(&mut chunk_data, primary_bit_mask);
 
         let block_entities_len = read_varint(buf);
         let mut block_entities = Vec::new();

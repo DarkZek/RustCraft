@@ -3,7 +3,9 @@ use rc_network::RustcraftNetworking;
 use std::io;
 use std::io::BufRead;
 
-// Simple rc_network setup for testing
+// Based on protocl as of
+// https://web.archive.org/web/20200601221423/https://wiki.vg/Protocol
+
 fn main() {
     let networking = RustcraftNetworking::new();
 

@@ -8,7 +8,6 @@ use crate::services::ServicesContext;
 use image::DynamicImage;
 use std::collections::HashMap;
 use std::ops::DerefMut;
-use std::process;
 use wgpu::{BindGroup, BindGroupLayout, Sampler, Texture};
 
 pub mod atlas;
@@ -42,25 +41,22 @@ impl AssetService {
             (settings.path.as_str().to_owned() + "resources/").as_ref(),
         );
 
+        if resource_packs.len() < 0 {
+            panic!("No resource packs found!");
+        }
+
         log!("Resource Packs: {:?}", resource_packs);
 
         // For now, select the first one in the list. In the future we will grab the selected resource pack from the settings
-        let selected_pack = resource_packs.get(0);
-        let mut selected_pack = if let Some(pack) = selected_pack {
-            Some(AssetService::load_resource_pack(&format!(
-                "{}resources/{}",
-                settings.path, pack
-            )))
-        } else {
-            None
-        };
-
-        if selected_pack.is_none() {
-            process::exit(0);
-        }
+        let mut selected_pack = AssetService::load_resource_pack(&format!(
+            "{}resources/{}",
+            settings.path,
+            resource_packs.get(0).unwrap()
+        ));
 
         let (atlas_image, atlas, atlas_index, atlas_sampler) = AssetService::generate_texture_atlas(
-            selected_pack.as_mut().unwrap(),
+            &mut selected_pack,
+            resource_packs.get(0).unwrap(),
             context.device.as_ref(),
             context.queue.lock().unwrap().deref_mut(),
             settings,
@@ -71,7 +67,7 @@ impl AssetService {
 
         AssetService {
             resource_packs,
-            selected_pack,
+            selected_pack: Some(selected_pack),
             atlas_image: Some(atlas_image),
             atlas: Some(atlas),
             atlas_index: Some(atlas_index),

@@ -1,10 +1,12 @@
-use crate::block::Block;
+use crate::block::blocks::BlockStates;
+use crate::block::{blocks, Block};
 use crate::services::asset_service::{AssetService, ResourcePack};
 use crate::services::settings_service::SettingsService;
-use image::{DynamicImage, GenericImageView, ImageBuffer, Rgba};
+use image::{DynamicImage, GenericImageView, ImageBuffer, RgbImage, Rgba};
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{Read, Write};
+use std::sync::Arc;
 use std::time::SystemTime;
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{BufferUsage, CompareFunction, Device, Queue, Sampler, Texture, TextureDataLayout};
@@ -18,6 +20,7 @@ impl AssetService {
     /// Generate a a new texture atlas from a list of textures and a resources directory
     pub fn generate_texture_atlas(
         resource_pack: &mut ResourcePack,
+        zip_name: &str,
         device: &Device,
         queue: &mut Queue,
         settings: &SettingsService,
@@ -27,7 +30,13 @@ impl AssetService {
         HashMap<String, TextureAtlasIndex>,
         Sampler,
     ) {
-        let textures = sort_textures(&mut resource_pack.textures);
+        let mut textures = sort_textures(&mut resource_pack.textures);
+
+        // Add error texture
+        textures.push((
+            String::from("mcv3/error"),
+            DynamicImage::ImageRgba8(gen_invalid_texture()),
+        ));
 
         let start_time = SystemTime::now();
 
@@ -50,16 +59,30 @@ impl AssetService {
         let mut atlas_img = None;
 
         if settings.atlas_cache_reading {
-            match load_cached_atlas(&settings) {
-                Ok((img, index)) => {
-                    atlas_img = Some(img);
-                    atlas_index = index;
-                    log!(
-                        "Loading cached texture atlas took: {}ms",
-                        start_time.elapsed().unwrap().as_millis()
-                    );
+            // Check if they're the same resource pack
+            let pack_details_match = {
+                match File::open(format!("{}cache/atlas_info", settings.path)) {
+                    Ok(mut file) => {
+                        let mut info = String::new();
+                        file.read_to_string(&mut info);
+                        info.as_str() == zip_name
+                    }
+                    Err(_) => false,
                 }
-                Err(e) => log_error!("Error loading cached atlas info {}", e),
+            };
+
+            if pack_details_match {
+                match load_cached_atlas(&settings) {
+                    Ok((img, index)) => {
+                        atlas_img = Some(img);
+                        atlas_index = index;
+                        log!(
+                            "Loading cached texture atlas took: {}ms",
+                            start_time.elapsed().unwrap().as_millis()
+                        );
+                    }
+                    Err(e) => log_error!("Error loading cached atlas info {}", e),
+                }
             }
         }
 
@@ -226,6 +249,15 @@ impl AssetService {
                         log_error!("Failed to cache atlas index: {}", e);
                     }
                 }
+
+                match File::create(format!("{}cache/atlas_info", settings.path)) {
+                    Ok(mut file) => {
+                        file.write_all(zip_name.as_bytes());
+                    }
+                    Err(e) => {
+                        log_error!("Failed to cache atlas info: {}", e);
+                    }
+                }
             }
 
             atlas_img = Some(DynamicImage::ImageRgba8(atlas));
@@ -294,7 +326,14 @@ impl AssetService {
     }
 }
 
-#[allow(dead_code)]
+fn gen_invalid_texture() -> ImageBuffer<Rgba<u8>, Vec<u8>> {
+    let mut buffer = ImageBuffer::new(2, 2);
+    for (x, y, p) in buffer.enumerate_pixels_mut() {
+        *p = invalid_texture(x, y, 2);
+    }
+    buffer
+}
+
 fn invalid_texture(x: u32, y: u32, texture_size: u32) -> Rgba<u8> {
     let relative_x = ((x as f32 + 1.0) / (texture_size as f32 / 2.0)).ceil();
     let relative_y = ((y as f32 + 1.0) / (texture_size as f32 / 2.0)).ceil();
@@ -359,17 +398,17 @@ pub fn load_cached_atlas(
     Ok((img, index))
 }
 
-pub fn atlas_update_blocks(mapping: &HashMap<String, TextureAtlasIndex>, blocks: &mut Vec<Block>) {
-    for mut block in blocks.iter_mut() {
-        for (i, tex) in block.raw_texture_names.iter().enumerate() {
-            match mapping.get(*tex) {
-                Some(map) => {
-                    block.texture_atlas_lookups[i] = map.clone();
-                }
-                None => {
-                    log_error!("No mapping found for {}", tex);
-                }
-            }
+pub unsafe fn atlas_update_blocks(mapping: &HashMap<String, TextureAtlasIndex>) {
+    for block in blocks::BLOCK_STATES.blocks.iter_mut() {
+        let texture = &*block.name.as_ref().unwrap();
+
+        if !mapping.contains_key(texture) {
+            println!("Warn: {} has no texture", block.name.as_ref().unwrap());
+            block.texture_atlas_lookups = [*mapping.get("mcv3/error").unwrap(); 6];
+            continue;
         }
+        let index = mapping.get(texture).unwrap();
+
+        block.texture_atlas_lookups = [*index; 6];
     }
 }

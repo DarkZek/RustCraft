@@ -1,7 +1,7 @@
 use crate::protocol::data::read_types::{
     read_bytearray, read_long, read_longarray, read_short, read_unsignedbyte, read_varint,
 };
-use byteorder::{BigEndian, ReadBytesExt};
+use byteorder::{BigEndian, LittleEndian, ReadBytesExt};
 use std::io::Read;
 
 #[derive(Debug)]
@@ -12,19 +12,19 @@ pub struct NetworkChunk {
 }
 
 impl NetworkChunk {
-    pub fn deserialize<T: Read>(buf: &mut T, len: i64, debug: bool) -> Vec<NetworkChunk> {
+    pub fn deserialize<T: Read>(buf: &mut T, len: i64) -> Vec<NetworkChunk> {
         let chunks_count = bits_set(len);
         let mut chunks = Vec::with_capacity(chunks_count as usize);
 
         for _ in 0..chunks_count {
-            chunks.push(NetworkChunk::load(buf, debug));
+            chunks.push(NetworkChunk::load(buf));
         }
 
         chunks
     }
 
-    // https://wiki.vg/Chunk_Format#Data_structure
-    pub fn load<T: Read>(stream: &mut T, debug: bool) -> NetworkChunk {
+    // https://web.archive.org/web/20201111224656/https://wiki.vg/Chunk_Format#Data_structure
+    pub fn load<T: Read>(stream: &mut T) -> NetworkChunk {
         let block_count = read_short(stream);
 
         let mut bits_per_block = read_unsignedbyte(stream);
@@ -47,36 +47,43 @@ impl NetworkChunk {
         // Technically we should use longs here, but bytes are so much easier to work with.
         let longs_len = read_varint(stream);
 
-        // if debug {
-        //     println!("Bits: {}", bits_len)
-        // }
-
         let mut data = Vec::new();
         for _ in 0..longs_len {
-            data.push(stream.read_u64::<BigEndian>().unwrap());
+            data.push(stream.read_u64::<BigEndian>().unwrap().reverse_bits());
         }
 
         let mut data = BitStreamReader::new(data);
 
         let mut block_map: [[[u32; 16]; 16]; 16] = [[[0; 16]; 16]; 16];
         let mut i = 0;
+
         // Convert into 3d block map
         for y in 0..16 {
             for z in 0..16 {
                 for x in 0..16 {
                     let val = data.get(bits_per_block);
 
-                    let id = if palette.is_some() {
+                    let mut id = if palette.is_some() {
                         let palette = palette.as_ref().unwrap();
                         if val >= palette.len() as u64 {
-                            1
+                            println!(
+                                "Value ({}) out of range of palette ({})",
+                                val,
+                                palette.len()
+                            );
+                            return NetworkChunk {
+                                block_count,
+                                bits_per_block,
+                                data: [[[0; 16]; 16]; 16],
+                            };
                         } else {
                             palette.get(val as usize).unwrap().clone()
                         }
                     } else {
                         val as i64
                     };
-                    block_map[15-x][y][z] = if id == 0 { 0 } else { ((id % 6) + 1) as u32 };
+
+                    block_map[x][y][z] = id as u32;
                     i += 1;
                 }
             }
@@ -115,7 +122,15 @@ impl BitStreamReader {
         }
     }
 
+    pub fn remaining(&self) -> usize {
+        self.bit_number as usize - (self.data.len() * 64)
+    }
+
     pub fn get(&mut self, bits: u8) -> u64 {
+        if (self.bit_number as f32 + bits as f32) / 64.0 > self.data.len() as f32 {
+            panic!("Read too much!");
+        }
+
         let mut out = 0;
 
         // Get bits from current byte
@@ -125,9 +140,8 @@ impl BitStreamReader {
 
         let value = *self.data.get(byte as usize).clone().unwrap();
         out = get_bits(value, bit as u8, end_bit as u8);
-        //println!("{:08b} {:08b} {} {}", value, get_bits(value, bit as u8, end_bit as u8), bit, end_bit);
+
         out >>= bit;
-        //println!("{}", bit);
 
         self.bit_number += bits as u64;
 

@@ -9,7 +9,7 @@ pub fn generate_variable_width_map(assets: &AssetService) -> [u8; 127] {
         .atlas_index
         .as_ref()
         .unwrap()
-        .get("textures/font/ascii")
+        .get("font/ascii")
         .unwrap();
 
     let mut image = assets.atlas_image.as_ref().unwrap().clone();

@@ -47,7 +47,7 @@ impl FontsManager {
             .atlas_index
             .as_ref()
             .unwrap()
-            .get("textures/font/ascii")
+            .get("font/ascii")
             .unwrap()
             .clone();
 

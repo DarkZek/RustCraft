@@ -1,3 +1,4 @@
+use crate::block::blocks::BlockStates;
 use crate::entity::player::{
     PlayerEntity, PlayerEntityCameraSyncSystem, PlayerEntityColliderGeneratingSystem,
 };
@@ -19,6 +20,7 @@ use crate::services::ui_service::fps_system::FpsDisplayingSystem;
 use crate::services::ui_service::UIService;
 use specs::{DispatcherBuilder, World, WorldExt};
 use std::borrow::Borrow;
+use std::sync::Arc;
 use std::time::Instant;
 use systemstat::Duration;
 use winit::event::StartCause;
@@ -50,6 +52,8 @@ impl Game {
 
         universe.register::<PhysicsObject>();
         universe.register::<PlayerEntity>();
+
+        universe.insert(BlockStates::generate());
 
         let render_state = RenderState::new(&mut universe, &event_loop);
         let game_state = GameState::new(&mut universe);

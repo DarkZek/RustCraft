@@ -1,5 +1,4 @@
 use crate::block::Block;
-use crate::game::physics::collider::BoxCollider;
 use crate::services::chunk_service::mesh::culling::ViewableDirection;
 use crate::services::chunk_service::mesh::Vertex;
 use crate::services::settings_service::CHUNK_SIZE;

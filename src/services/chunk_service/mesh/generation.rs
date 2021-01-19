@@ -1,3 +1,4 @@
+use crate::block::{blocks, Block};
 use crate::services::chunk_service::chunk::{ChunkData, Chunks};
 use crate::services::chunk_service::mesh::block::draw_block;
 use crate::services::chunk_service::mesh::culling::ViewableDirection;
@@ -53,26 +54,31 @@ impl ChunkData {
 
                     //Isn't air
                     if chunk[x][y][z] != 0 && viewable != 0 {
-                        let block = &self.blocks[chunk[x][y][z] as usize - 1];
-                        let applied_color = self.light_levels[x][y][z];
-                        let extra_color = self.neighboring_light_levels[x][y][z].clone();
+                        unsafe {
+                            let block = blocks::BLOCK_STATES
+                                .get_block(chunk[x][y][z] as usize)
+                                .unwrap();
 
-                        let out_color = [
-                            (applied_color[0] as u16 + extra_color[0] as u16) as u8,
-                            (applied_color[1] as u16 + extra_color[1] as u16) as u8,
-                            (applied_color[2] as u16 + extra_color[2] as u16) as u8,
-                            255,
-                        ];
+                            let applied_color = self.light_levels[x][y][z];
+                            let extra_color = self.neighboring_light_levels[x][y][z].clone();
 
-                        //Found it, draw vertices for it
-                        draw_block(
-                            Point3::new(x as f32, y as f32, z as f32),
-                            ViewableDirection(viewable),
-                            &mut vertices,
-                            &mut indices,
-                            block,
-                            out_color,
-                        );
+                            let out_color = [
+                                (applied_color[0] as u16 + extra_color[0] as u16) as u8,
+                                (applied_color[1] as u16 + extra_color[1] as u16) as u8,
+                                (applied_color[2] as u16 + extra_color[2] as u16) as u8,
+                                255,
+                            ];
+
+                            //Found it, draw vertices for it
+                            draw_block(
+                                Point3::new(x as f32, y as f32, z as f32),
+                                ViewableDirection(viewable),
+                                &mut vertices,
+                                &mut indices,
+                                &block,
+                                out_color,
+                            );
+                        }
                     }
                 }
             }

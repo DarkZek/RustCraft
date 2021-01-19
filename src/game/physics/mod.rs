@@ -1,9 +1,8 @@
-use crate::game::physics::collider::{BoxCollider, CollisionSide};
+use crate::game::physics::collider::BoxCollider;
 use crate::helpers::Clamp;
 use crate::services::chunk_service::chunk::{Chunk, Chunks, RawChunkData};
 use crate::services::settings_service::CHUNK_SIZE;
 use nalgebra::Vector3;
-use noise::NoiseFn;
 use specs::prelude::ParallelIterator;
 use specs::{Component, ParJoin, Read, System, VecStorage, WriteStorage};
 use std::collections::HashMap;
@@ -20,8 +19,6 @@ impl<'a> System<'a> for PhysicsProcessingSystem {
         (&mut physics_objects).par_join().for_each(|entity| {
             // Check collisions
 
-            let mut collision_target = CollisionSide::zero();
-
             let slipperiness = 0.6;
 
             entity.velocity.x *= slipperiness;
@@ -33,27 +30,25 @@ impl<'a> System<'a> for PhysicsProcessingSystem {
             // Air Drag
             entity.velocity.y *= 0.98;
 
-            if !collision_target.bottom {
-                entity.touching_ground = false;
-
-                // Terminal velocity
-                if entity.velocity.y < -3.92 {
-                    entity.velocity.y = -3.92;
-                }
-            } else {
-                entity.touching_ground = true;
-
-                if entity.velocity.y < 0.0 {
-                    entity.velocity.y = 0.0;
-                }
-            }
-
             let movement = move_entity_xyz(
                 &entity.collider,
                 &chunks.0,
                 &mut entity.velocity,
                 entity.position,
             );
+
+            entity.touching_ground = movement.y == 0.0;
+
+            if entity.touching_ground {
+                if entity.velocity.y < 0.0 {
+                    entity.velocity.y = 0.0;
+                }
+            } else {
+                // Terminal velocity
+                if entity.velocity.y < -3.92 {
+                    entity.velocity.y = -3.92;
+                }
+            }
 
             entity.old_position = entity.position;
             entity.new_position = entity.position + movement;
@@ -79,9 +74,9 @@ impl PhysicsObject {
     pub fn new() -> PhysicsObject {
         PhysicsObject {
             velocity: Vector3::new(0.0, 0.0, 0.0),
-            position: Vector3::new(0.0, 60.0, 0.0),
-            old_position: Vector3::new(0.0, 60.0, 0.0),
-            new_position: Vector3::new(0.0, 60.0, 0.0),
+            position: Vector3::new(0.0, 70.0, 0.0),
+            old_position: Vector3::new(0.0, 70.0, 0.0),
+            new_position: Vector3::new(0.0, 70.0, 0.0),
             collider: BoxCollider::blank(),
             touching_ground: false,
         }
