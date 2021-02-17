@@ -1,4 +1,5 @@
 use nalgebra::Vector3;
+use wgpu::Buffer;
 
 pub mod block;
 pub mod chunk;
@@ -14,6 +15,26 @@ pub struct Vertex {
     pub tex_coords: [f32; 2],
     pub normals: [f32; 3],
     pub applied_color: [u8; 4],
+}
+
+pub struct MeshData {
+    pub vertices: Vec<Vertex>,
+    pub indices: Vec<u16>,
+    pub vertices_buffer: Option<Buffer>,
+    pub indices_buffer: Option<Buffer>,
+    pub indices_buffer_len: u32,
+}
+
+impl MeshData {
+    pub fn default() -> Self {
+        MeshData {
+            vertices: vec![],
+            indices: vec![],
+            vertices_buffer: None,
+            indices_buffer: None,
+            indices_buffer_len: 0,
+        }
+    }
 }
 
 unsafe impl bytemuck::Zeroable for Vertex {}

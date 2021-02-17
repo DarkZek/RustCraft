@@ -42,7 +42,6 @@ impl LoadingScreen {
                     fps = 0;
                 }
 
-                // Limited to vsync here
                 self.render(displayed_progress);
             }
         });

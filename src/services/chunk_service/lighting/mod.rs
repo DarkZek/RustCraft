@@ -1,3 +1,4 @@
+use crate::block::blocks::BlockStates;
 use crate::block::Block;
 use crate::helpers::lerp_color;
 use crate::services::chunk_service::chunk::{Chunk, ChunkData, Chunks};
@@ -5,7 +6,7 @@ use crate::services::settings_service::CHUNK_SIZE;
 use nalgebra::Point3;
 
 impl ChunkData {
-    pub fn calculate_lighting(&mut self, chunks: &mut Chunks) {
+    pub fn calculate_lighting(&mut self, chunks: &mut Chunks, blocks: BlockStates) {
         let mut lights = Vec::new();
 
         for x in 0..CHUNK_SIZE {
@@ -14,7 +15,7 @@ impl ChunkData {
                     let block_id = self.world[x][y][z];
 
                     if block_id != 0 {
-                        let block: &Block = self.blocks.get(block_id as usize - 1).unwrap();
+                        let block: &Block = blocks.get_block(block_id as usize).unwrap();
 
                         lights.push((block.color, block.light_intensity, [x, y, z]));
                     }

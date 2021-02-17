@@ -1,3 +1,5 @@
+#![feature(once_cell)]
+
 extern crate log;
 extern crate zerocopy;
 #[macro_use]

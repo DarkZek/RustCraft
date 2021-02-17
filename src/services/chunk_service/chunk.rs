@@ -1,6 +1,6 @@
 use crate::block::Block;
 use crate::services::chunk_service::mesh::culling::ViewableDirection;
-use crate::services::chunk_service::mesh::Vertex;
+use crate::services::chunk_service::mesh::{MeshData, Vertex};
 use crate::services::settings_service::CHUNK_SIZE;
 use nalgebra::Vector3;
 use std::collections::HashMap;
@@ -21,12 +21,13 @@ pub enum Chunk {
 
 pub struct ChunkData {
     pub world: RawChunkData,
-    pub blocks: Vec<Block>,
-    pub vertices: Vec<Vertex>,
-    pub indices: Vec<u16>,
-    pub vertices_buffer: Option<Buffer>,
-    pub indices_buffer: Option<Buffer>,
-    pub indices_buffer_len: u32,
+
+    // Opaque chunk data
+    pub opaque_model: MeshData,
+
+    // Translucent chunk data
+    pub translucent_model: MeshData,
+
     pub model_bind_group: Option<BindGroup>,
     //TODO: Investigate if caching this is even faster
     pub viewable_map: Option<[[[ViewableDirection; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE]>,
@@ -45,12 +46,8 @@ impl ChunkData {
     pub fn new(data: ChunkBlockData, position: Vector3<i32>) -> ChunkData {
         ChunkData {
             world: data.0,
-            blocks: data.1,
-            vertices: vec![],
-            indices: vec![],
-            vertices_buffer: None,
-            indices_buffer: None,
-            indices_buffer_len: 0,
+            opaque_model: MeshData::default(),
+            translucent_model: MeshData::default(),
             model_bind_group: None,
             viewable_map: None,
             position,

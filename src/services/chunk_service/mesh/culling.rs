@@ -1,3 +1,4 @@
+use crate::block::blocks::BLOCK_STATES;
 use crate::block::Block;
 use crate::services::chunk_service::chunk::{ChunkData, RawChunkData};
 use crate::services::chunk_service::mesh::ViewableDirectionBitMap;
@@ -20,50 +21,45 @@ pub fn calculate_viewable(chunk: &ChunkData, pos: [usize; 3]) -> ViewableDirecti
     let world = &chunk.world;
     let mut direction: u8 = 0;
 
-    if pos[1] != world[0].len() - 1 && is_offset_transparent(world, pos, &chunk.blocks, [0, 1, 0]) {
+    if pos[1] != world[0].len() - 1 && is_offset_transparent(world, pos, [0, 1, 0]) {
         direction += ViewableDirectionBitMap::Top as u8;
     }
 
-    if pos[1] != 0 && is_offset_transparent(world, pos, &chunk.blocks, [0, -1, 0]) {
+    if pos[1] != 0 && is_offset_transparent(world, pos, [0, -1, 0]) {
         direction += ViewableDirectionBitMap::Bottom as u8;
     }
 
-    if pos[0] != world.len() - 1 && is_offset_transparent(world, pos, &chunk.blocks, [1, 0, 0]) {
+    if pos[0] != world.len() - 1 && is_offset_transparent(world, pos, [1, 0, 0]) {
         direction += ViewableDirectionBitMap::Right as u8;
     }
 
-    if pos[0] != 0 && is_offset_transparent(world, pos, &chunk.blocks, [-1, 0, 0]) {
+    if pos[0] != 0 && is_offset_transparent(world, pos, [-1, 0, 0]) {
         direction += ViewableDirectionBitMap::Left as u8;
     }
 
-    if pos[2] != world[0][0].len() - 1
-        && is_offset_transparent(world, pos, &chunk.blocks, [0, 0, 1])
-    {
+    if pos[2] != world[0][0].len() - 1 && is_offset_transparent(world, pos, [0, 0, 1]) {
         direction += ViewableDirectionBitMap::Back as u8;
     }
 
-    if pos[2] != 0 && is_offset_transparent(world, pos, &chunk.blocks, [0, 0, -1]) {
+    if pos[2] != 0 && is_offset_transparent(world, pos, [0, 0, -1]) {
         direction += ViewableDirectionBitMap::Front as u8;
     }
 
     ViewableDirection(direction)
 }
 
-fn is_offset_transparent(
-    world: &RawChunkData,
-    pos: [usize; 3],
-    blocks: &Vec<Block>,
-    offset: [isize; 3],
-) -> bool {
+fn is_offset_transparent(world: &RawChunkData, pos: [usize; 3], offset: [isize; 3]) -> bool {
     let block_id = world[(pos[0] as isize + offset[0]) as usize]
         [(pos[1] as isize + offset[1]) as usize][(pos[2] as isize + offset[2]) as usize];
 
     if block_id == 0 {
-        //TODO: Change this back to true
         return true;
     }
 
-    // Temporary
-    return false;
-    blocks.get(block_id as usize).unwrap().transparent
+    BLOCK_STATES
+        .get()
+        .unwrap()
+        .get_block(block_id as usize)
+        .unwrap()
+        .transparent
 }

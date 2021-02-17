@@ -11,7 +11,6 @@ pub mod blocks;
 #[derive(Clone, Debug)]
 pub struct Block {
     pub name: Option<String>,
-    pub start_palette_id: u32,
     pub raw_texture_names: [String; 6],
     pub texture_atlas_lookups: [TextureAtlasIndex; 6],
 

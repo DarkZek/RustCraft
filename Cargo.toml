@@ -15,7 +15,7 @@ overflow-checks = true
 
 [dependencies]
 rc_network = { path = "./rc_network"}
-wgpu = "0.6.0"
+wgpu = "0.6.2"
 gfx-hal = "0.5.3"
 nalgebra = "0.21.0"
 noise = "0.6.0"

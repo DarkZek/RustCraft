@@ -61,10 +61,6 @@ pub fn load_services(mut context: ServicesContext, universe: &mut World) {
     let asset = AssetService::new(&settings, &mut context);
     LoadingScreen::update_state(60.0);
 
-    //TODO: Remove this once we have rc_network
-    unsafe {
-        atlas_update_blocks(asset.atlas_index.as_ref().unwrap());
-    }
     let chunk = ChunkService::new(&settings, &mut context, universe);
     LoadingScreen::update_state(80.0);
     let audio = AudioService::new();

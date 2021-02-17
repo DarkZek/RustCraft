@@ -6,7 +6,7 @@ use wgpu::{
 };
 
 /// Creates the user inferace render pipeline. This includes things like loading shaders.
-/// This happens because we have one render pass for the chunks, and a seperate for user interfaces. This lets us use 2d vertices for UI as well as have more control over depth and perspective.
+/// This happens because we have one render pass for the chunks, and a separate for user interfaces. This lets us use 2d vertices for UI as well as have more control over depth and perspective.
 pub fn generate_render_pipeline(
     device: &Device,
     bind_group_layouts: &[&BindGroupLayout],
@@ -20,7 +20,7 @@ pub fn generate_render_pipeline(
     });
 
     device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-        label: None,
+        label: Some("Main render pipeline"),
         layout: Some(&render_pipeline_layout),
         vertex_stage: wgpu::ProgrammableStageDescriptor {
             module: &vs_module,
@@ -41,14 +41,14 @@ pub fn generate_render_pipeline(
         color_states: &[wgpu::ColorStateDescriptor {
             format: wgpu::TextureFormat::Bgra8UnormSrgb,
             color_blend: wgpu::BlendDescriptor {
-                src_factor: BlendFactor::SrcAlpha,
-                dst_factor: BlendFactor::OneMinusSrcAlpha,
-                operation: BlendOperation::Add,
+                src_factor: wgpu::BlendFactor::SrcAlpha,
+                dst_factor: wgpu::BlendFactor::OneMinusSrcAlpha,
+                operation: wgpu::BlendOperation::Add,
             },
             alpha_blend: wgpu::BlendDescriptor {
-                src_factor: BlendFactor::One,
-                dst_factor: BlendFactor::One,
-                operation: BlendOperation::Add,
+                src_factor: wgpu::BlendFactor::One,
+                dst_factor: wgpu::BlendFactor::Zero,
+                operation: wgpu::BlendOperation::Add,
             },
             write_mask: wgpu::ColorWrite::ALL,
         }],

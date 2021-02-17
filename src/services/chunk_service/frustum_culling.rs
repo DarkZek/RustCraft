@@ -42,7 +42,9 @@ pub fn calculate_frustum_culling(
                 relative_pos.z as f32 - cam.eye.z,
             );
 
-            if chunk.vertices_buffer.is_some() && chunk.indices_buffer.is_some() {
+            if chunk.opaque_model.vertices_buffer.is_some()
+                || chunk.translucent_model.vertices_buffer.is_some()
+            {
                 if frustum.is_visible(relative_pos, 22.0) {
                     visible_chunks.push(pos.clone());
                 }

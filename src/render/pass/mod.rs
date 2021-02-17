@@ -12,6 +12,13 @@ pub mod uniforms;
 
 pub struct RenderSystem;
 
+static CLEAR_COLOR: Color = Color {
+    r: 0.4,
+    g: 0.8,
+    b: 1.0,
+    a: 0.0,
+};
+
 impl<'a> System<'a> for RenderSystem {
     type SystemData = (
         Write<'a, RenderState>,
@@ -44,7 +51,7 @@ impl<'a> System<'a> for RenderSystem {
                         attachment: &frame.output.view,
                         resolve_target: None,
                         ops: Operations {
-                            load: LoadOp::Clear(Color::BLACK),
+                            load: LoadOp::Clear(CLEAR_COLOR),
                             store: true,
                         },
                     }],
@@ -68,16 +75,44 @@ impl<'a> System<'a> for RenderSystem {
                 );
                 render_pass.set_bind_group(1, &render_state.uniform_bind_group, &[]);
 
+                // Opaque pass
                 for pos in &chunk_service.visible_chunks {
                     if let Chunk::Tangible(chunk) = chunks.0.get(pos).unwrap() {
-                        let indices_buffer = chunk.indices_buffer.as_ref().unwrap();
-                        let vertices_buffer = chunk.vertices_buffer.as_ref().unwrap();
+                        if chunk.opaque_model.indices_buffer.is_none() {
+                            continue;
+                        }
+                        let indices_buffer = chunk.opaque_model.indices_buffer.as_ref().unwrap();
+                        let vertices_buffer = chunk.opaque_model.vertices_buffer.as_ref().unwrap();
                         let model_bind_group = chunk.model_bind_group.as_ref().unwrap();
 
                         render_pass.set_bind_group(2, model_bind_group, &[0]);
                         render_pass.set_vertex_buffer(0, vertices_buffer.slice(..));
                         render_pass.set_index_buffer(indices_buffer.slice(..));
-                        render_pass.draw_indexed(0..chunk.indices_buffer_len, 0, 0..1);
+                        render_pass.draw_indexed(0..chunk.opaque_model.indices_buffer_len, 0, 0..1);
+                    }
+                }
+
+                // Transparent pass
+                for i in (0..chunk_service.visible_chunks.len()).rev() {
+                    let pos = chunk_service.visible_chunks.get(i).unwrap();
+                    if let Chunk::Tangible(chunk) = chunks.0.get(pos).unwrap() {
+                        if chunk.translucent_model.indices_buffer.is_none() {
+                            continue;
+                        }
+                        let indices_buffer =
+                            chunk.translucent_model.indices_buffer.as_ref().unwrap();
+                        let vertices_buffer =
+                            chunk.translucent_model.vertices_buffer.as_ref().unwrap();
+                        let model_bind_group = chunk.model_bind_group.as_ref().unwrap();
+
+                        render_pass.set_bind_group(2, model_bind_group, &[0]);
+                        render_pass.set_vertex_buffer(0, vertices_buffer.slice(..));
+                        render_pass.set_index_buffer(indices_buffer.slice(..));
+                        render_pass.draw_indexed(
+                            0..chunk.translucent_model.indices_buffer_len,
+                            0,
+                            0..1,
+                        );
                     }
                 }
             }

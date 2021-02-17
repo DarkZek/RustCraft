@@ -1,8 +1,9 @@
-use crate::block::blocks::BlockStates;
+use crate::block::blocks::{BlockStates, BLOCK_STATES};
 use crate::block::{blocks, Block};
 use crate::services::asset_service::{AssetService, ResourcePack};
 use crate::services::settings_service::SettingsService;
 use image::{DynamicImage, GenericImageView, ImageBuffer, RgbImage, Rgba};
+use std::cell::UnsafeCell;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{Read, Write};
@@ -398,8 +399,8 @@ pub fn load_cached_atlas(
     Ok((img, index))
 }
 
-pub unsafe fn atlas_update_blocks(mapping: &HashMap<String, TextureAtlasIndex>) {
-    for block in blocks::BLOCK_STATES.blocks.iter_mut() {
+pub fn atlas_update_blocks(mapping: &HashMap<String, TextureAtlasIndex>, blocks: &mut Vec<Block>) {
+    for block in blocks {
         let texture = &*block.name.as_ref().unwrap();
 
         if !mapping.contains_key(texture) {

@@ -1,3 +1,4 @@
+use crate::block::blocks::{BlockStates, BLOCK_STATES};
 use crate::block::Block;
 use crate::services::chunk_service::chunk::{Chunk, ChunkData};
 use crate::services::chunk_service::mesh::culling::{calculate_viewable, ViewableDirection};
@@ -16,27 +17,48 @@ pub struct ChunkMeshData {
 
 impl<'a> ChunkData {
     pub fn create_buffers(&mut self, device: &Device, bind_group_layout: &BindGroupLayout) {
-        let vertices = &self.vertices;
+        let opaque_vertices = &self.opaque_model.vertices;
+        let translucent_vertices = &self.translucent_model.vertices;
 
-        if vertices.len() != 0 {
+        if opaque_vertices.len() != 0 {
             let vertex_buffer = device.create_buffer_init(&BufferInitDescriptor {
                 label: None,
-                contents: &bytemuck::cast_slice(&vertices),
+                contents: &bytemuck::cast_slice(&opaque_vertices),
                 usage: wgpu::BufferUsage::VERTEX,
             });
-            self.vertices_buffer = Some(vertex_buffer);
+            self.opaque_model.vertices_buffer = Some(vertex_buffer);
         }
 
-        let indices = &self.indices;
-        self.indices_buffer_len = indices.len() as u32;
+        if translucent_vertices.len() != 0 {
+            let vertex_buffer = device.create_buffer_init(&BufferInitDescriptor {
+                label: None,
+                contents: &bytemuck::cast_slice(&translucent_vertices),
+                usage: wgpu::BufferUsage::VERTEX,
+            });
+            self.translucent_model.vertices_buffer = Some(vertex_buffer);
+        }
 
-        if self.indices_buffer_len != 0 {
+        let opaque_indices = &self.opaque_model.indices;
+        let translucent_indices = &self.translucent_model.indices;
+        self.opaque_model.indices_buffer_len = opaque_indices.len() as u32;
+        self.translucent_model.indices_buffer_len = translucent_indices.len() as u32;
+
+        if self.opaque_model.indices_buffer_len != 0 {
             let indices_buffer = device.create_buffer_init(&BufferInitDescriptor {
                 label: None,
-                contents: &bytemuck::cast_slice(&indices),
+                contents: &bytemuck::cast_slice(&opaque_indices),
                 usage: wgpu::BufferUsage::INDEX,
             });
-            self.indices_buffer = Some(indices_buffer);
+            self.opaque_model.indices_buffer = Some(indices_buffer);
+        }
+
+        if self.translucent_model.indices_buffer_len != 0 {
+            let indices_buffer = device.create_buffer_init(&BufferInitDescriptor {
+                label: None,
+                contents: &bytemuck::cast_slice(&translucent_indices),
+                usage: wgpu::BufferUsage::INDEX,
+            });
+            self.translucent_model.indices_buffer = Some(indices_buffer);
         }
 
         // Create model buffer
@@ -49,7 +71,7 @@ impl<'a> ChunkData {
 
         let model_buffer = device.create_buffer_init(&BufferInitDescriptor {
             label: None,
-            contents: &bytemuck::cast_slice(&[model]),
+            contents: &bytemuck::cast_slice(&[model.clone()]),
             usage: wgpu::BufferUsage::UNIFORM
                 | wgpu::BufferUsage::COPY_DST
                 | wgpu::BufferUsage::COPY_SRC,
@@ -151,8 +173,6 @@ impl<'a> ChunkData {
                                 },
                             );
 
-                            //println!("{:?} - {:?} = {:?}", (x,y,z), direction, block_pos);
-
                             // Checks if the block in an adjacent chunk is transparent
                             if adjacent_chunks.get(&direction).unwrap().is_some() {
                                 let chunk = adjacent_chunks.get(&direction).unwrap().unwrap();
@@ -164,7 +184,10 @@ impl<'a> ChunkData {
                                                 chunk.world[block_pos.x][block_pos.y][block_pos.z];
 
                                             if block_id != 0 {
-                                                chunk.blocks.get(block_id as usize - 1)
+                                                BLOCK_STATES
+                                                    .get()
+                                                    .unwrap()
+                                                    .get_block(block_id as usize)
                                             } else {
                                                 None
                                             }
@@ -195,7 +218,7 @@ impl<'a> ChunkData {
     pub fn get_block(&self, pos: Vector3<usize>) -> Option<&Block> {
         let block_id = self.world[pos.x][pos.y][pos.z];
         if block_id == 0 {
-            self.blocks.get(block_id as usize - 1)
+            unsafe { BLOCK_STATES.get().unwrap().get_block(block_id as usize - 1) }
         } else {
             None
         }

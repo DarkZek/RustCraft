@@ -1,23 +1,23 @@
 use crate::block::{Block, BlockModel, ToolType};
+use crate::services::asset_service::atlas::atlas_update_blocks;
+use crate::services::asset_service::AssetService;
 use crate::services::chunk_service::chunk::Color;
 use include_dir::{include_dir, Dir};
 use lazy_static::LazyStatic;
 use nalgebra::Vector3;
 use serde_json::Value;
 use std::any::Any;
+use std::cell::UnsafeCell;
 use std::collections::HashMap;
 use std::fs;
+use std::lazy::SyncOnceCell;
 use std::sync::Arc;
 
-pub(crate) static mut BLOCK_STATES: BlockStates = BlockStates {
-    states: vec![],
-    blocks: vec![],
-};
+pub static BLOCK_STATES: SyncOnceCell<BlockStates> = SyncOnceCell::new();
 
 pub struct BlockStates {
     pub states: Vec<BlockStateEntry>,
     pub blocks: Vec<Block>,
-    //model_cache: Vec<BlockModel> // Fetching the above every single time would be taxing for every single model, just use this
 }
 
 #[derive(Debug)]
@@ -32,7 +32,7 @@ impl BlockStates {
         self.blocks.get(self.states.get(id).unwrap().block_number)
     }
 
-    pub fn generate() {
+    pub fn generate(asset: &AssetService) {
         use std::str;
 
         let mut states: Vec<BlockStateEntry> = vec![];
@@ -100,7 +100,6 @@ impl BlockStates {
 
             let resource = Block {
                 name: Some(texture_name.clone()),
-                start_palette_id: 0,
                 raw_texture_names: [
                     texture_name.clone(),
                     texture_name.clone(),
@@ -112,7 +111,12 @@ impl BlockStates {
                 texture_atlas_lookups: [([0.0; 2], [0.0; 2]); 6],
                 color: [0; 3],
                 light_intensity: 0,
-                transparent: false,
+                transparent: if i == 34 || i == 230 || i == 1341 || (i >= 1342 && i <= 1346) {
+                    print!("test{}", i);
+                    true
+                } else {
+                    false
+                },
             };
 
             blocks.push(resource);
@@ -128,9 +132,10 @@ impl BlockStates {
             }
         }
 
-        println!("34: {:?}", states.get(34));
+        atlas_update_blocks(asset.atlas_index.as_ref().unwrap(), &mut blocks);
+
         unsafe {
-            BLOCK_STATES = BlockStates { states, blocks };
+            BLOCK_STATES.set(BlockStates { states, blocks });
         }
     }
 

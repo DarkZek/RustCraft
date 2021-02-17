@@ -16,8 +16,8 @@ use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant, SystemTime};
 use systemstat::{Platform, System};
 use wgpu::{
-    AdapterInfo, BindGroupLayout, Device, RenderPipeline, Sampler, StencilStateDescriptor,
-    SwapChainDescriptor, Texture, TextureView, VertexStateDescriptor,
+    AdapterInfo, BindGroupLayout, BlendFactor, BlendOperation, Device, RenderPipeline, Sampler,
+    StencilStateDescriptor, SwapChainDescriptor, Texture, TextureView, VertexStateDescriptor,
 };
 use winit::dpi::PhysicalSize;
 use winit::event_loop::EventLoop;
@@ -94,12 +94,13 @@ impl RenderState {
         let device = Arc::new(device);
         let queue = Arc::new(Mutex::new(queue));
 
+        // Limited to vsync here
         let sc_desc = wgpu::SwapChainDescriptor {
             usage: wgpu::TextureUsage::OUTPUT_ATTACHMENT,
             format: wgpu::TextureFormat::Bgra8UnormSrgb,
             width: size.width,
             height: size.height,
-            present_mode: wgpu::PresentMode::Fifo,
+            present_mode: wgpu::PresentMode::Immediate,
         };
 
         let swap_chain = device.create_swap_chain(&surface, &sc_desc);
@@ -156,6 +157,8 @@ impl RenderState {
         let queue = Arc::try_unwrap(queue).ok().unwrap().into_inner().unwrap();
 
         let device = Arc::try_unwrap(device).ok().unwrap();
+
+        window.set_title("RustCraft");
 
         Self {
             surface,
@@ -234,8 +237,16 @@ fn generate_render_pipeline(
         }),
         color_states: &[wgpu::ColorStateDescriptor {
             format: sc_desc.format,
-            color_blend: wgpu::BlendDescriptor::REPLACE,
-            alpha_blend: wgpu::BlendDescriptor::REPLACE,
+            color_blend: wgpu::BlendDescriptor {
+                src_factor: BlendFactor::SrcAlpha,
+                dst_factor: BlendFactor::OneMinusSrcAlpha,
+                operation: BlendOperation::Add,
+            },
+            alpha_blend: wgpu::BlendDescriptor {
+                src_factor: BlendFactor::One,
+                dst_factor: BlendFactor::Zero,
+                operation: BlendOperation::Subtract,
+            },
             write_mask: wgpu::ColorWrite::ALL,
         }],
         primitive_topology: wgpu::PrimitiveTopology::TriangleList,

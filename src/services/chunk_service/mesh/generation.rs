@@ -1,3 +1,4 @@
+use crate::block::blocks::BlockStates;
 use crate::block::{blocks, Block};
 use crate::services::chunk_service::chunk::{ChunkData, Chunks};
 use crate::services::chunk_service::mesh::block::draw_block;
@@ -41,8 +42,11 @@ impl ChunkData {
 
         let viewable = self.generate_viewable_map(map, settings.chunk_edge_faces);
 
-        let mut vertices = Vec::new();
-        let mut indices = Vec::new();
+        let mut opaque_vertices = Vec::new();
+        let mut opaque_indices = Vec::new();
+
+        let mut translucent_vertices = Vec::new();
+        let mut translucent_indices = Vec::new();
 
         // Create the buffers to add the mesh data into
         let chunk = self.world;
@@ -56,6 +60,8 @@ impl ChunkData {
                     if chunk[x][y][z] != 0 && viewable != 0 {
                         unsafe {
                             let block = blocks::BLOCK_STATES
+                                .get()
+                                .unwrap()
                                 .get_block(chunk[x][y][z] as usize)
                                 .unwrap();
 
@@ -69,13 +75,29 @@ impl ChunkData {
                                 255,
                             ];
 
+                            let vertices = if block.transparent
+                                || chunk[x][y][z] == 34
+                                || chunk[x][y][z] == 230
+                            {
+                                &mut translucent_vertices
+                            } else {
+                                &mut opaque_vertices
+                            };
+
+                            // Change buffer based on transparency
+                            let indices = if block.transparent {
+                                &mut translucent_indices
+                            } else {
+                                &mut opaque_indices
+                            };
+
                             //Found it, draw vertices for it
                             draw_block(
                                 Point3::new(x as f32, y as f32, z as f32),
                                 ViewableDirection(viewable),
-                                &mut vertices,
-                                &mut indices,
-                                &block,
+                                vertices,
+                                indices,
+                                block,
                                 out_color,
                             );
                         }
@@ -85,8 +107,10 @@ impl ChunkData {
         }
 
         // Check top faces
-        self.indices = indices;
-        self.vertices = vertices;
+        self.opaque_model.indices = opaque_indices;
+        self.opaque_model.vertices = opaque_vertices;
+        self.translucent_model.indices = translucent_indices;
+        self.translucent_model.vertices = translucent_vertices;
         self.viewable_map = Some(viewable);
     }
 }

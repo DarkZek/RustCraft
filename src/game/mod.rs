@@ -10,6 +10,7 @@ use crate::render::camera::Camera;
 use crate::render::pass::prepass::{PostFrame, PreFrame};
 use crate::render::pass::RenderSystem;
 use crate::render::RenderState;
+use crate::services::asset_service::AssetService;
 use crate::services::chunk_service::frustum_culling::FrustumCullingSystem;
 use crate::services::input_service::input::GameChanges;
 use crate::services::logging_service::LoggingSystem;
@@ -20,6 +21,7 @@ use crate::services::ui_service::fps_system::FpsDisplayingSystem;
 use crate::services::ui_service::UIService;
 use specs::{DispatcherBuilder, World, WorldExt};
 use std::borrow::Borrow;
+use std::ops::Deref;
 use std::sync::Arc;
 use std::time::Instant;
 use systemstat::Duration;
@@ -53,10 +55,11 @@ impl Game {
         universe.register::<PhysicsObject>();
         universe.register::<PlayerEntity>();
 
-        universe.insert(BlockStates::generate());
-
         let render_state = RenderState::new(&mut universe, &event_loop);
         let game_state = GameState::new(&mut universe);
+
+        // Generate blockstates
+        BlockStates::generate(universe.read_resource::<AssetService>().deref());
 
         let delta_time = Duration::from_millis(0);
 

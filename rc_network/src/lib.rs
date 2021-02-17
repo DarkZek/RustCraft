@@ -81,7 +81,6 @@ impl RustcraftNetworking {
                             let mut builder = PacketBuilder::new(0x0F);
                             builder.data.write_i64::<BigEndian>(packet.keep_alive_id);
                             builder.send(connection.as_mut().unwrap());
-                            println!("Answered callback");
                             continue;
                         }
 

@@ -13,6 +13,8 @@ use specs::{World, WorldExt};
 use std::collections::HashMap;
 
 use crate::block::blocks::BlockStates;
+use gfx_hal::pso::Comparison;
+use std::cmp::Ordering;
 use std::sync::Arc;
 use wgpu::BindGroupLayout;
 
@@ -30,7 +32,8 @@ pub struct ChunkService {
     pub chunk_keys: Vec<Vector3<i32>>,
 
     //Temp
-    previous_player_rot: f32,
+    previous_player_yaw: f32,
+    previous_player_pitch: f32,
 }
 
 impl ChunkService {
@@ -63,7 +66,8 @@ impl ChunkService {
             visible_chunks: vec![],
             vertices_count: 0,
             chunk_keys: Vec::new(),
-            previous_player_rot: 0.0,
+            previous_player_yaw: 0.0,
+            previous_player_pitch: 0.0,
         };
 
         let chunks = Chunks(HashMap::with_capacity(16 * CHUNK_SIZE * CHUNK_SIZE));
@@ -83,7 +87,7 @@ impl ChunkService {
             let mut chunk = ChunkData::new(data.unwrap(), chunk_coords);
 
             self.viewable_chunks.push(chunk_coords);
-            if chunk.indices_buffer.is_some() {
+            if chunk.opaque_model.indices_buffer.is_some() {
                 self.visible_chunks.push(chunk_coords);
             }
 
@@ -95,18 +99,52 @@ impl ChunkService {
             self.chunk_keys.push(chunk_coords.clone());
             chunks.0.insert(chunk_coords.clone(), Chunk::Intangible);
         }
+
+        self.sort_chunks();
     }
 
     pub fn update_frustum_culling(&mut self, camera: &Camera, chunks: &Chunks) {
         // To 3 dp
-        if (camera.yaw * 100.0).round() == self.previous_player_rot {
+        if (camera.yaw * 100.0).round() == self.previous_player_yaw
+            && (camera.pitch * 100.0).round() == self.previous_player_pitch
+        {
             return;
         }
 
-        self.previous_player_rot = (camera.yaw * 100.0).round();
+        self.previous_player_yaw = (camera.yaw * 100.0).round();
+        self.previous_player_pitch = (camera.pitch * 100.0).round();
 
         self.visible_chunks = calculate_frustum_culling(camera, &self.viewable_chunks, &chunks.0);
     }
+
+    //TODO: Run this every time the player moves between chunks
+    pub fn sort_chunks(&mut self) {
+        let player_pos = Vector3::new(0, 0, 0);
+
+        self.chunk_keys.sort_by(|a, b| {
+            if dist(&player_pos, a) > dist(&player_pos, b) {
+                Ordering::Less
+            } else if dist(&player_pos, a) < dist(&player_pos, b) {
+                Ordering::Greater
+            } else {
+                Ordering::Equal
+            }
+        });
+
+        self.visible_chunks.sort_by(|a, b| {
+            if dist(&player_pos, a) > dist(&player_pos, b) {
+                Ordering::Less
+            } else if dist(&player_pos, a) < dist(&player_pos, b) {
+                Ordering::Greater
+            } else {
+                Ordering::Equal
+            }
+        });
+    }
+}
+
+fn dist(v1: &Vector3<i32>, v2: &Vector3<i32>) -> u32 {
+    ((v1.x - v2.x).abs() + (v1.y - v2.y).abs() + (v1.z - v2.z).abs()) as u32
 }
 
 impl Default for ChunkService {
