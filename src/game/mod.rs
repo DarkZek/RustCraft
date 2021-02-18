@@ -11,7 +11,9 @@ use crate::render::pass::prepass::{PostFrame, PreFrame};
 use crate::render::pass::RenderSystem;
 use crate::render::RenderState;
 use crate::services::asset_service::AssetService;
+use crate::services::chunk_service::chunk::{ChunkData, RerenderChunkFlag};
 use crate::services::chunk_service::frustum_culling::FrustumCullingSystem;
+use crate::services::chunk_service::mesh::rerendering::ChunkRerenderSystem;
 use crate::services::input_service::input::GameChanges;
 use crate::services::logging_service::LoggingSystem;
 use crate::services::networking_service::system::NetworkingSyncSystem;
@@ -54,6 +56,8 @@ impl Game {
 
         universe.register::<PhysicsObject>();
         universe.register::<PlayerEntity>();
+        universe.register::<ChunkData>();
+        universe.register::<RerenderChunkFlag>();
 
         let render_state = RenderState::new(&mut universe, &event_loop);
         let game_state = GameState::new(&mut universe);
@@ -122,6 +126,7 @@ impl Game {
                 ],
             )
             .with(PostFrame, "post_frame", &["render_frame"])
+            .with(ChunkRerenderSystem, "chunk_rerendering", &["post_frame"])
             .build();
 
         self.universe.insert(PhysicsInterpolationFactor::default());
@@ -207,6 +212,7 @@ impl Game {
                         .0 = time;
 
                     frame_dispatcher.dispatch(&mut self.universe);
+                    self.universe.maintain();
                     *control_flow = ControlFlow::Poll;
                 }
                 _ => (),

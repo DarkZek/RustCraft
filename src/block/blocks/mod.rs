@@ -111,12 +111,7 @@ impl BlockStates {
                 texture_atlas_lookups: [([0.0; 2], [0.0; 2]); 6],
                 color: [0; 3],
                 light_intensity: 0,
-                transparent: if i == 34 || i == 230 || i == 1341 || (i >= 1342 && i <= 1346) {
-                    print!("test{}", i);
-                    true
-                } else {
-                    false
-                },
+                transparent: false,
             };
 
             blocks.push(resource);

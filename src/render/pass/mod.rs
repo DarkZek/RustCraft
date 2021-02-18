@@ -1,9 +1,14 @@
+use crate::helpers::chunk_by_loc_from_read;
 use crate::render::RenderState;
 use crate::services::asset_service::AssetService;
-use crate::services::chunk_service::chunk::{Chunk, Chunks};
+use crate::services::chunk_service::chunk::{ChunkData, Chunks};
 use crate::services::chunk_service::ChunkService;
 use crate::services::ui_service::UIService;
-use specs::{Read, System, Write};
+use nalgebra::Vector3;
+use specs::hibitset::BitSetLike;
+use specs::{Read, ReadStorage, System, Write};
+use std::collections::HashMap;
+use std::mem::MaybeUninit;
 use wgpu::{Color, LoadOp, Operations};
 
 pub mod buffer;
@@ -24,7 +29,7 @@ impl<'a> System<'a> for RenderSystem {
         Write<'a, RenderState>,
         Read<'a, AssetService>,
         Read<'a, ChunkService>,
-        Read<'a, Chunks>,
+        ReadStorage<'a, ChunkData>,
         Read<'a, UIService>,
     );
 
@@ -33,6 +38,8 @@ impl<'a> System<'a> for RenderSystem {
         &mut self,
         (mut render_state, asset_service, chunk_service, chunks, ui_service): Self::SystemData,
     ) {
+        let chunks = Chunks::new(chunks.as_slice());
+
         let frame = render_state
             .swap_chain
             .as_mut()
@@ -77,43 +84,39 @@ impl<'a> System<'a> for RenderSystem {
 
                 // Opaque pass
                 for pos in &chunk_service.visible_chunks {
-                    if let Chunk::Tangible(chunk) = chunks.0.get(pos).unwrap() {
-                        if chunk.opaque_model.indices_buffer.is_none() {
-                            continue;
-                        }
-                        let indices_buffer = chunk.opaque_model.indices_buffer.as_ref().unwrap();
-                        let vertices_buffer = chunk.opaque_model.vertices_buffer.as_ref().unwrap();
-                        let model_bind_group = chunk.model_bind_group.as_ref().unwrap();
-
-                        render_pass.set_bind_group(2, model_bind_group, &[0]);
-                        render_pass.set_vertex_buffer(0, vertices_buffer.slice(..));
-                        render_pass.set_index_buffer(indices_buffer.slice(..));
-                        render_pass.draw_indexed(0..chunk.opaque_model.indices_buffer_len, 0, 0..1);
+                    let chunk = chunks.get_loc(*pos).unwrap();
+                    if chunk.opaque_model.indices_buffer.is_none() {
+                        continue;
                     }
+                    let indices_buffer = chunk.opaque_model.indices_buffer.as_ref().unwrap();
+                    let vertices_buffer = chunk.opaque_model.vertices_buffer.as_ref().unwrap();
+                    let model_bind_group = chunk.model_bind_group.as_ref().unwrap();
+
+                    render_pass.set_bind_group(2, model_bind_group, &[0]);
+                    render_pass.set_vertex_buffer(0, vertices_buffer.slice(..));
+                    render_pass.set_index_buffer(indices_buffer.slice(..));
+                    render_pass.draw_indexed(0..chunk.opaque_model.indices_buffer_len, 0, 0..1);
                 }
 
                 // Transparent pass
                 for i in (0..chunk_service.visible_chunks.len()).rev() {
                     let pos = chunk_service.visible_chunks.get(i).unwrap();
-                    if let Chunk::Tangible(chunk) = chunks.0.get(pos).unwrap() {
-                        if chunk.translucent_model.indices_buffer.is_none() {
-                            continue;
-                        }
-                        let indices_buffer =
-                            chunk.translucent_model.indices_buffer.as_ref().unwrap();
-                        let vertices_buffer =
-                            chunk.translucent_model.vertices_buffer.as_ref().unwrap();
-                        let model_bind_group = chunk.model_bind_group.as_ref().unwrap();
-
-                        render_pass.set_bind_group(2, model_bind_group, &[0]);
-                        render_pass.set_vertex_buffer(0, vertices_buffer.slice(..));
-                        render_pass.set_index_buffer(indices_buffer.slice(..));
-                        render_pass.draw_indexed(
-                            0..chunk.translucent_model.indices_buffer_len,
-                            0,
-                            0..1,
-                        );
+                    let chunk = chunks.get_loc(*pos).unwrap();
+                    if chunk.translucent_model.indices_buffer.is_none() {
+                        continue;
                     }
+                    let indices_buffer = chunk.translucent_model.indices_buffer.as_ref().unwrap();
+                    let vertices_buffer = chunk.translucent_model.vertices_buffer.as_ref().unwrap();
+                    let model_bind_group = chunk.model_bind_group.as_ref().unwrap();
+
+                    render_pass.set_bind_group(2, model_bind_group, &[0]);
+                    render_pass.set_vertex_buffer(0, vertices_buffer.slice(..));
+                    render_pass.set_index_buffer(indices_buffer.slice(..));
+                    render_pass.draw_indexed(
+                        0..chunk.translucent_model.indices_buffer_len,
+                        0,
+                        0..1,
+                    );
                 }
             }
 

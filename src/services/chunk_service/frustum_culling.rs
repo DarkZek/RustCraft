@@ -1,15 +1,19 @@
 use crate::render::camera::Camera;
-use crate::services::chunk_service::chunk::{Chunk, Chunks};
+use crate::services::chunk_service::chunk::{ChunkData, Chunks};
 use crate::services::chunk_service::ChunkService;
 use crate::services::settings_service::CHUNK_SIZE;
 use nalgebra::{ArrayStorage, Matrix, Matrix4, Vector3, U1, U4};
-use specs::{Read, System, Write};
+use specs::{Join, Read, ReadStorage, System, Write};
 use std::collections::HashMap;
 
 pub struct FrustumCullingSystem;
 
 impl<'a> System<'a> for FrustumCullingSystem {
-    type SystemData = (Write<'a, ChunkService>, Read<'a, Camera>, Read<'a, Chunks>);
+    type SystemData = (
+        Write<'a, ChunkService>,
+        Read<'a, Camera>,
+        ReadStorage<'a, ChunkData>,
+    );
 
     fn run(&mut self, (mut chunk_service, camera, chunks): Self::SystemData) {
         chunk_service.update_frustum_culling(&camera, &chunks);
@@ -19,8 +23,9 @@ impl<'a> System<'a> for FrustumCullingSystem {
 pub fn calculate_frustum_culling(
     cam: &Camera,
     viewable_chunks: &Vec<Vector3<i32>>,
-    chunks: &HashMap<Vector3<i32>, Chunk>,
+    chunks: &ReadStorage<ChunkData>,
 ) -> Vec<Vector3<i32>> {
+    let chunks = Chunks::new(chunks.as_slice());
     let frustum = Frustum::from_matrix(cam.projection_matrix);
 
     if let None = frustum {
@@ -32,22 +37,20 @@ pub fn calculate_frustum_culling(
     let mut visible_chunks = Vec::new();
 
     for pos in viewable_chunks {
-        let chunk = chunks.get(pos).unwrap();
+        let chunk = chunks.get_loc(*pos).unwrap();
 
-        if let Chunk::Tangible(chunk) = chunk {
-            let relative_pos = chunk.position * CHUNK_SIZE as i32;
-            let relative_pos = Vector3::new(
-                relative_pos.x as f32 - cam.eye.x,
-                relative_pos.y as f32 - cam.eye.y,
-                relative_pos.z as f32 - cam.eye.z,
-            );
+        let relative_pos = chunk.position * CHUNK_SIZE as i32;
+        let relative_pos = Vector3::new(
+            relative_pos.x as f32 - cam.eye.x,
+            relative_pos.y as f32 - cam.eye.y,
+            relative_pos.z as f32 - cam.eye.z,
+        );
 
-            if chunk.opaque_model.vertices_buffer.is_some()
-                || chunk.translucent_model.vertices_buffer.is_some()
-            {
-                if frustum.is_visible(relative_pos, 22.0) {
-                    visible_chunks.push(pos.clone());
-                }
+        if chunk.opaque_model.vertices_buffer.is_some()
+            || chunk.translucent_model.vertices_buffer.is_some()
+        {
+            if frustum.is_visible(relative_pos, 22.0) {
+                visible_chunks.push(pos.clone());
             }
         }
     }

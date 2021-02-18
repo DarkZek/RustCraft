@@ -1,43 +1,43 @@
 use crate::block::blocks::BlockStates;
 use crate::block::{blocks, Block};
-use crate::services::chunk_service::chunk::{ChunkData, Chunks};
+use crate::helpers::{chunk_by_loc_from_read, chunk_by_loc_from_write};
+use crate::services::chunk_service::chunk::ChunkData;
 use crate::services::chunk_service::mesh::block::draw_block;
 use crate::services::chunk_service::mesh::culling::ViewableDirection;
 use crate::services::settings_service::SettingsService;
 use nalgebra::{Point3, Vector3};
+use specs::{ReadStorage, WriteStorage};
 use std::collections::HashMap;
 
-//
-// Our greedy meshing system
-//
+// Our mesh generation system
 
 impl ChunkData {
-    pub fn generate_mesh(&mut self, chunks: &Chunks, settings: &SettingsService) {
+    pub fn generate_mesh(&mut self, chunks: &WriteStorage<ChunkData>, settings: &SettingsService) {
         // Get adjacent chunks
         let mut map = HashMap::new();
         map.insert(
             Vector3::new(0, 1, 0),
-            chunks.0.get(&(self.position + Vector3::new(0, 1, 0))),
+            chunk_by_loc_from_write(chunks, (self.position + Vector3::new(0, 1, 0))),
         );
         map.insert(
             Vector3::new(0, -1, 0),
-            chunks.0.get(&(self.position + Vector3::new(0, -1, 0))),
+            chunk_by_loc_from_write(chunks, (self.position + Vector3::new(0, -1, 0))),
         );
         map.insert(
             Vector3::new(1, 0, 0),
-            chunks.0.get(&(self.position + Vector3::new(1, 0, 0))),
+            chunk_by_loc_from_write(chunks, (self.position + Vector3::new(1, 0, 0))),
         );
         map.insert(
             Vector3::new(-1, 0, 0),
-            chunks.0.get(&(self.position + Vector3::new(-1, 0, 0))),
+            chunk_by_loc_from_write(chunks, (self.position + Vector3::new(-1, 0, 0))),
         );
         map.insert(
             Vector3::new(0, 0, 1),
-            chunks.0.get(&(self.position + Vector3::new(0, 0, 1))),
+            chunk_by_loc_from_write(chunks, (self.position + Vector3::new(0, 0, 1))),
         );
         map.insert(
             Vector3::new(0, 0, -1),
-            chunks.0.get(&(self.position + Vector3::new(0, 0, -1))),
+            chunk_by_loc_from_write(chunks, (self.position + Vector3::new(0, 0, -1))),
         );
 
         let viewable = self.generate_viewable_map(map, settings.chunk_edge_faces);

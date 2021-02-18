@@ -5,6 +5,7 @@ pub mod block;
 pub mod chunk;
 pub mod culling;
 pub mod generation;
+pub mod rerendering;
 
 //TODO: Maybe look into using some shader trickery to decrease VRAM usage by generating indices shader side since it never changes
 
@@ -17,6 +18,7 @@ pub struct Vertex {
     pub applied_color: [u8; 4],
 }
 
+#[derive(Debug)]
 pub struct MeshData {
     pub vertices: Vec<Vertex>,
     pub indices: Vec<u16>,

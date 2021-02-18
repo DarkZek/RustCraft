@@ -4,12 +4,12 @@
 
 use crate::block::Block;
 use crate::render::camera::Camera;
-use crate::services::chunk_service::chunk::{Chunk, ChunkBlockData, ChunkData, Chunks};
+use crate::services::chunk_service::chunk::{ChunkBlockData, ChunkData, Chunks, RerenderChunkFlag};
 use crate::services::chunk_service::frustum_culling::calculate_frustum_culling;
 use crate::services::settings_service::{SettingsService, CHUNK_SIZE};
 use crate::services::ServicesContext;
 use nalgebra::Vector3;
-use specs::{World, WorldExt};
+use specs::{Entities, Join, ReadStorage, World, WorldExt, WriteStorage};
 use std::collections::HashMap;
 
 use crate::block::blocks::BlockStates;
@@ -70,10 +70,6 @@ impl ChunkService {
             previous_player_pitch: 0.0,
         };
 
-        let chunks = Chunks(HashMap::with_capacity(16 * CHUNK_SIZE * CHUNK_SIZE));
-
-        universe.insert(chunks);
-
         service
     }
 
@@ -81,7 +77,9 @@ impl ChunkService {
         &mut self,
         data: Option<ChunkBlockData>,
         chunk_coords: Vector3<i32>,
-        chunks: &mut Chunks,
+        entities: &mut Entities,
+        chunks: &mut WriteStorage<ChunkData>,
+        rerendering_chunks: &mut WriteStorage<RerenderChunkFlag>,
     ) {
         if data.is_some() {
             let mut chunk = ChunkData::new(data.unwrap(), chunk_coords);
@@ -92,18 +90,37 @@ impl ChunkService {
             }
 
             self.chunk_keys.push(chunk_coords.clone());
-            chunks
-                .0
-                .insert(chunk_coords.clone(), Chunk::Tangible(chunk));
-        } else {
-            self.chunk_keys.push(chunk_coords.clone());
-            chunks.0.insert(chunk_coords.clone(), Chunk::Intangible);
-        }
 
-        self.sort_chunks();
+            let entity = entities.create();
+            chunks.insert(entity, chunk);
+
+            // Flag the adjacent chunks for rerendering
+            let rerender = [
+                Vector3::new(chunk_coords.x + 1, chunk_coords.y, chunk_coords.z),
+                Vector3::new(chunk_coords.x, chunk_coords.y + 1, chunk_coords.z),
+                Vector3::new(chunk_coords.x, chunk_coords.y, chunk_coords.z + 1),
+                Vector3::new(chunk_coords.x - 1, chunk_coords.y, chunk_coords.z),
+                Vector3::new(chunk_coords.x, chunk_coords.y - 1, chunk_coords.z),
+                Vector3::new(chunk_coords.x, chunk_coords.y, chunk_coords.z - 1),
+            ];
+
+            for rerender_pos in rerender.iter() {
+                entities
+                    .build_entity()
+                    .with(
+                        RerenderChunkFlag {
+                            chunk: *rerender_pos,
+                        },
+                        rerendering_chunks,
+                    )
+                    .build();
+            }
+
+            self.sort_chunks();
+        }
     }
 
-    pub fn update_frustum_culling(&mut self, camera: &Camera, chunks: &Chunks) {
+    pub fn update_frustum_culling(&mut self, camera: &Camera, chunks: &ReadStorage<ChunkData>) {
         // To 3 dp
         if (camera.yaw * 100.0).round() == self.previous_player_yaw
             && (camera.pitch * 100.0).round() == self.previous_player_pitch
@@ -114,7 +131,7 @@ impl ChunkService {
         self.previous_player_yaw = (camera.yaw * 100.0).round();
         self.previous_player_pitch = (camera.pitch * 100.0).round();
 
-        self.visible_chunks = calculate_frustum_culling(camera, &self.viewable_chunks, &chunks.0);
+        self.visible_chunks = calculate_frustum_culling(camera, &self.viewable_chunks, &chunks);
     }
 
     //TODO: Run this every time the player moves between chunks

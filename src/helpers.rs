@@ -1,5 +1,7 @@
-use crate::services::chunk_service::chunk::Color;
-use nalgebra::Point3;
+use crate::services::chunk_service::chunk::{ChunkData, Color};
+use nalgebra::{Point3, Vector3};
+use specs::ReadStorage;
+use specs::{Join, WriteStorage};
 use std::ops::Add;
 
 /// Formats a u32 with American comma placement.
@@ -91,4 +93,30 @@ impl Clamp for f32 {
         }
         x
     }
+}
+
+pub fn chunk_by_loc_from_read<'a>(
+    chunks: &'a ReadStorage<ChunkData>,
+    loc: Vector3<i32>,
+) -> Option<&'a ChunkData> {
+    let mut c = None;
+    for chunk in chunks.join() {
+        if loc.eq(&chunk.position) {
+            c = Some(chunk);
+        }
+    }
+    c
+}
+
+pub fn chunk_by_loc_from_write<'a>(
+    chunks: &'a WriteStorage<ChunkData>,
+    loc: Vector3<i32>,
+) -> Option<&'a ChunkData> {
+    let mut c = None;
+    for chunk in chunks.join() {
+        if loc.eq(&chunk.position) {
+            c = Some(chunk);
+        }
+    }
+    c
 }

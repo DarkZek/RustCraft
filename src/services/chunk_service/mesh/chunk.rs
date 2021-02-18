@@ -1,6 +1,6 @@
 use crate::block::blocks::{BlockStates, BLOCK_STATES};
 use crate::block::Block;
-use crate::services::chunk_service::chunk::{Chunk, ChunkData};
+use crate::services::chunk_service::chunk::ChunkData;
 use crate::services::chunk_service::mesh::culling::{calculate_viewable, ViewableDirection};
 use crate::services::chunk_service::mesh::{Vertex, ViewableDirectionBitMap};
 use crate::services::settings_service::CHUNK_SIZE;
@@ -117,7 +117,7 @@ impl<'a> ChunkData {
 
     pub fn generate_viewable_map(
         &self,
-        adjacent_chunks: HashMap<Vector3<i32>, Option<&Chunk>>,
+        adjacent_chunks: HashMap<Vector3<i32>, Option<&ChunkData>>,
         chunk_edge_faces: bool,
     ) -> [[[ViewableDirection; 16]; 16]; 16] {
         let mut data = [[[ViewableDirection(0); CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
@@ -135,9 +135,6 @@ impl<'a> ChunkData {
             for z in 0..self.world[0][0].len() {
                 for y in 0..self.world[0].len() {
                     let mut viewable = calculate_viewable(&self, [x, y, z]);
-
-                    // Temp
-                    //viewable = ViewableDirection(0);
 
                     for direction in directions.iter() {
                         // Calculates if block is bordering on this direction
@@ -178,21 +175,13 @@ impl<'a> ChunkData {
                                 let chunk = adjacent_chunks.get(&direction).unwrap().unwrap();
 
                                 let block = {
-                                    match chunk {
-                                        Chunk::Tangible(chunk) => {
-                                            let block_id =
-                                                chunk.world[block_pos.x][block_pos.y][block_pos.z];
+                                    let block_id =
+                                        chunk.world[block_pos.x][block_pos.y][block_pos.z];
 
-                                            if block_id != 0 {
-                                                BLOCK_STATES
-                                                    .get()
-                                                    .unwrap()
-                                                    .get_block(block_id as usize)
-                                            } else {
-                                                None
-                                            }
-                                        }
-                                        Chunk::Intangible => None,
+                                    if block_id != 0 {
+                                        BLOCK_STATES.get().unwrap().get_block(block_id as usize)
+                                    } else {
+                                        None
                                     }
                                 };
 

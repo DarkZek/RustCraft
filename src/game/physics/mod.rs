@@ -1,10 +1,10 @@
 use crate::game::physics::collider::BoxCollider;
-use crate::helpers::Clamp;
-use crate::services::chunk_service::chunk::{Chunk, Chunks, RawChunkData};
+use crate::helpers::{chunk_by_loc_from_read, Clamp};
+use crate::services::chunk_service::chunk::{ChunkData, RawChunkData};
 use crate::services::settings_service::CHUNK_SIZE;
 use nalgebra::Vector3;
 use specs::prelude::ParallelIterator;
-use specs::{Component, ParJoin, Read, System, VecStorage, WriteStorage};
+use specs::{Component, ParJoin, Read, ReadStorage, System, VecStorage, WriteStorage};
 use std::collections::HashMap;
 
 pub mod collider;
@@ -13,7 +13,7 @@ pub mod interpolator;
 pub struct PhysicsProcessingSystem;
 
 impl<'a> System<'a> for PhysicsProcessingSystem {
-    type SystemData = (WriteStorage<'a, PhysicsObject>, Read<'a, Chunks>);
+    type SystemData = (WriteStorage<'a, PhysicsObject>, ReadStorage<'a, ChunkData>);
 
     fn run(&mut self, (mut physics_objects, chunks): Self::SystemData) {
         (&mut physics_objects).par_join().for_each(|entity| {
@@ -32,7 +32,7 @@ impl<'a> System<'a> for PhysicsProcessingSystem {
 
             let movement = move_entity_xyz(
                 &entity.collider,
-                &chunks.0,
+                &chunks,
                 &mut entity.velocity,
                 entity.position,
             );
@@ -88,18 +88,14 @@ impl PhysicsObject {
 // Calculates movement based on velocity and colliders
 pub fn move_entity_xyz(
     collider: &BoxCollider,
-    chunks: &HashMap<Vector3<i32>, Chunk>,
+    chunks: &ReadStorage<ChunkData>,
     velocity: &mut Vector3<f32>,
     absolute_position: Vector3<f32>,
 ) -> Vector3<f32> {
     let chunk_pos = absolute_pos_to_chunk(absolute_position);
 
-    let (y_change, y_collided) = if let Some(chunk) = chunks.get(&chunk_pos) {
-        if let Chunk::Tangible(data) = chunk {
-            move_entity_dir(collider, &data.world, Vector3::new(0.0, velocity.y, 0.0))
-        } else {
-            (velocity.y, false)
-        }
+    let (y_change, y_collided) = if let Some(chunk) = chunk_by_loc_from_read(&chunks, chunk_pos) {
+        move_entity_dir(collider, &chunk.world, Vector3::new(0.0, velocity.y, 0.0))
     } else {
         (velocity.y, false)
     };
@@ -107,7 +103,7 @@ pub fn move_entity_xyz(
         velocity.y = 0.0;
     }
 
-    let z_change = if let Some(Chunk::Tangible(data)) = chunks.get(&chunk_pos) {
+    let z_change = if let Some(data) = chunk_by_loc_from_read(chunks, chunk_pos) {
         let (z_change, z_collided) =
             move_entity_dir(collider, &data.world, Vector3::new(0.0, 0.0, velocity.z));
         if z_collided {
@@ -118,7 +114,7 @@ pub fn move_entity_xyz(
         velocity.z
     };
 
-    let x_change = if let Some(Chunk::Tangible(data)) = chunks.get(&chunk_pos) {
+    let x_change = if let Some(data) = chunk_by_loc_from_read(chunks, chunk_pos) {
         let (x_change, x_collided) =
             move_entity_dir(collider, &data.world, Vector3::new(velocity.x, 0.0, 0.0));
         if x_collided {

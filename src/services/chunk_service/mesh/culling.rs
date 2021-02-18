@@ -3,7 +3,7 @@ use crate::block::Block;
 use crate::services::chunk_service::chunk::{ChunkData, RawChunkData};
 use crate::services::chunk_service::mesh::ViewableDirectionBitMap;
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub struct ViewableDirection(pub u8);
 
 impl ViewableDirection {

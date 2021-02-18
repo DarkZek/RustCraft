@@ -6,7 +6,7 @@ pub mod blocks;
 
 //TODO: Update with real information about real in game blocks.
 
-/// A struct to hold all of a blocks information. This is purely for integral purposes to store all blocks that exist in the game.
+/// A struct to hold all of a blocks information. This is purely for internal purposes to store all blocks that exist in the game.
 /// For physical blocks placed in the game use `PhysicalBlock`
 #[derive(Clone, Debug)]
 pub struct Block {

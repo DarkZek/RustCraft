@@ -1,12 +1,17 @@
 use crate::block::blocks::BlockStates;
 use crate::block::Block;
 use crate::helpers::lerp_color;
-use crate::services::chunk_service::chunk::{Chunk, ChunkData, Chunks};
+use crate::services::chunk_service::chunk::ChunkData;
 use crate::services::settings_service::CHUNK_SIZE;
 use nalgebra::Point3;
+use specs::{Join, ReadStorage, WriteStorage};
 
 impl ChunkData {
-    pub fn calculate_lighting(&mut self, chunks: &mut Chunks, blocks: BlockStates) {
+    pub fn calculate_lighting(
+        &mut self,
+        chunks: &mut WriteStorage<ChunkData>,
+        blocks: BlockStates,
+    ) {
         let mut lights = Vec::new();
 
         for x in 0..CHUNK_SIZE {
@@ -33,7 +38,7 @@ impl ChunkData {
         position: [usize; 3],
         _color: [f32; 3],
         intensity: u8,
-        _chunks: &mut Chunks,
+        _chunks: &mut ReadStorage<ChunkData>,
     ) {
         let posx = position[0] as i8;
         let posy = position[1] as i8;
@@ -74,7 +79,7 @@ impl ChunkData {
         position: [usize; 3],
         color: [u8; 3],
         intensity: u8,
-        chunks: &mut Chunks,
+        chunks: &mut WriteStorage<ChunkData>,
     ) {
         let mut points = Vec::new();
         let mut new_points = Vec::new();
@@ -124,7 +129,7 @@ fn apply_color_to_chunk(
     mut pos: [i32; 3],
     color: [u8; 4],
     intensity: f32,
-    chunks: &mut Chunks,
+    chunks: &mut WriteStorage<ChunkData>,
 ) {
     if pos[0] >= 0 && pos[0] <= 15 && pos[1] >= 0 && pos[1] <= 15 && pos[2] >= 0 && pos[2] <= 15 {
         // Its in current chunk.
@@ -160,19 +165,24 @@ fn apply_color_to_chunk(
             pos[2] -= CHUNK_SIZE as i32;
         }
 
-        let chunk = chunks.0.get_mut(&chunk_pos);
+        let chunk = {
+            let mut c = None;
+            for mut chunk in chunks.join() {
+                if chunk.position.eq(&chunk_pos) {
+                    c = Some(chunk);
+                }
+            }
+            c
+        };
 
         // Make sure chunk exists
         if let Some(chunk) = chunk {
-            // Make sure chunk has blocks to draw
-            if let Chunk::Tangible(chunk) = chunk {
-                let current_color = &mut chunk.neighboring_light_levels[pos[0] as usize]
-                    [pos[1] as usize][pos[2] as usize];
+            let current_color = &mut chunk.neighboring_light_levels[pos[0] as usize]
+                [pos[1] as usize][pos[2] as usize];
 
-                let new_intensity = current_color[3] + (intensity * 25.0) as u8;
-                *current_color = lerp_color(current_color.clone(), color, intensity);
-                current_color[3] = new_intensity;
-            }
+            let new_intensity = current_color[3] + (intensity * 25.0) as u8;
+            *current_color = lerp_color(current_color.clone(), color, intensity);
+            current_color[3] = new_intensity;
         }
     }
 }

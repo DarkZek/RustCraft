@@ -1,7 +1,7 @@
 use crate::entity::player::PlayerEntity;
 use crate::game::physics::PhysicsObject;
 use crate::render::RenderState;
-use crate::services::chunk_service::chunk::{Chunk, ChunkData, Chunks};
+use crate::services::chunk_service::chunk::{ChunkData, RerenderChunkFlag};
 use crate::services::chunk_service::ChunkService;
 use crate::services::networking_service::NetworkingService;
 use crate::services::settings_service::SettingsService;
@@ -9,7 +9,8 @@ use nalgebra::Vector3;
 use rc_network::protocol::packet::PacketData;
 
 use crate::block::blocks::BlockStates;
-use specs::{Join, Read, ReadStorage, System, Write, WriteStorage};
+use crate::helpers::{chunk_by_loc_from_read, chunk_by_loc_from_write};
+use specs::{Entities, Join, Read, ReadStorage, System, Write, WriteStorage};
 
 pub struct ReceivedNetworkPackets {
     pub(crate) packets: Vec<PacketData>,
@@ -28,11 +29,13 @@ impl<'a> System<'a> for NetworkingSyncSystem {
         Write<'a, ReceivedNetworkPackets>,
         Write<'a, NetworkingService>,
         Write<'a, ChunkService>,
-        Write<'a, Chunks>,
+        WriteStorage<'a, ChunkData>,
         Read<'a, RenderState>,
         Read<'a, SettingsService>,
         WriteStorage<'a, PhysicsObject>,
         ReadStorage<'a, PlayerEntity>,
+        Entities<'a>,
+        WriteStorage<'a, RerenderChunkFlag>,
     );
 
     fn run(
@@ -46,6 +49,8 @@ impl<'a> System<'a> for NetworkingSyncSystem {
             settings,
             mut player_physics,
             player_entity,
+            mut entities,
+            mut rerendering_chunks,
         ): Self::SystemData,
     ) {
         network_packets.packets = networking_service.get_packets();
@@ -76,7 +81,9 @@ impl<'a> System<'a> for NetworkingSyncSystem {
                     chunk_service.load_chunk(
                         Some((packet.data.get(chunks_index).unwrap().data.clone(), vec![])),
                         Vector3::new(packet.x, y, packet.z),
+                        &mut entities,
                         &mut chunks,
+                        &mut rerendering_chunks,
                     );
 
                     let chunk_pos = chunk_service
@@ -84,20 +91,18 @@ impl<'a> System<'a> for NetworkingSyncSystem {
                         .get(chunk_service.viewable_chunks.len() - 1)
                         .unwrap();
 
-                    let chunk = chunks.0.get_mut(chunk_pos).unwrap();
+                    let chunk = chunk_by_loc_from_write(&chunks, *chunk_pos).unwrap();
 
                     unsafe {
-                        if let Chunk::Tangible(chunk) = chunk {
-                            let const_ptr = chunk as *const ChunkData;
-                            let mut_ptr = const_ptr as *mut ChunkData;
-                            let chunk = &mut *mut_ptr;
+                        let const_ptr = chunk as *const ChunkData;
+                        let mut_ptr = const_ptr as *mut ChunkData;
+                        let chunk = &mut *mut_ptr;
 
-                            chunk.generate_mesh(&chunks, &settings);
-                            chunk.create_buffers(
-                                &render_system.device,
-                                &chunk_service.model_bind_group_layout,
-                            );
-                        }
+                        chunk.generate_mesh(&chunks, &settings);
+                        chunk.create_buffers(
+                            &render_system.device,
+                            &chunk_service.model_bind_group_layout,
+                        );
                     }
 
                     chunks_index += 1;
