@@ -1,5 +1,3 @@
-use crate::block::blocks::BlockStates;
-use crate::block::Block;
 use crate::render::camera::Camera;
 use crate::render::loading::LoadingScreen;
 use crate::render::pass::uniforms::Uniforms;
@@ -204,7 +202,13 @@ fn generate_render_pipeline(
     culling: bool,
     bind_group_layouts: &[&BindGroupLayout],
 ) -> RenderPipeline {
-    let (vs_module, fs_module) = load_shaders(device);
+    let (vs_module, fs_module) = load_shaders(
+        device,
+        (
+            include_bytes!("../../assets/shaders/shader_vert.spv"),
+            include_bytes!("../../assets/shaders/shader_frag.spv"),
+        ),
+    );
 
     let render_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
         label: None,

@@ -1,5 +1,4 @@
 use crate::block::blocks::BlockStates;
-use crate::block::Block;
 use crate::helpers::lerp_color;
 use crate::services::chunk_service::chunk::ChunkData;
 use crate::services::settings_service::CHUNK_SIZE;
@@ -20,9 +19,13 @@ impl ChunkData {
                     let block_id = self.world[x][y][z];
 
                     if block_id != 0 {
-                        let block: &Block = blocks.get_block(block_id as usize).unwrap();
+                        let block = blocks.get_block(block_id as usize).unwrap();
 
-                        lights.push((block.color, block.light_intensity, [x, y, z]));
+                        lights.push((
+                            block.block_type.get_light_color(),
+                            block.block_type.get_light_intensity(),
+                            [x, y, z],
+                        ));
                     }
                 }
             }

@@ -120,7 +120,7 @@ pub fn read_position<T: Read>(read: &mut T) -> [i64; 3] {
 
 pub fn read_bytearray<T: Read>(read: &mut T, len: u16) -> Vec<u8> {
     let mut buf = vec![0; len as usize];
-    read.read_exact(&mut buf);
+    read.read_exact(&mut buf).unwrap();
     buf
 }
 

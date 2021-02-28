@@ -1,6 +1,6 @@
+use crate::protocol::data::read_types::{read_double, read_varint, read_varlong};
 use crate::protocol::packet::PacketType;
-use crate::protocol::data::read_types::{read_unsignedbyte, read_bool, read_int, read_varint, read_double, read_long, read_varlong};
-use std::io::{Cursor};
+use std::io::Cursor;
 
 #[derive(Debug)]
 pub struct WorldBorderPacket {
@@ -16,23 +16,21 @@ impl PacketType for WorldBorderPacket {
             1 => WorldBorderData::LerpSize(read_double(buf), read_double(buf), read_varint(buf)),
             2 => WorldBorderData::SetCenter(read_double(buf), read_double(buf)),
             3 => WorldBorderData::Initialize(WorldBorderDataInitialize {
-                    x: read_double(buf),
-                    z: read_double(buf),
-                    old_diameter: read_double(buf),
-                    new_diameter: read_double(buf),
-                    speed: read_varlong(buf),
-                    portal_teleport_boundary: read_varint(buf),
-                    warning_time: read_varint(buf),
-                    warning_blocks: read_varint(buf)
-                }),
+                x: read_double(buf),
+                z: read_double(buf),
+                old_diameter: read_double(buf),
+                new_diameter: read_double(buf),
+                speed: read_varlong(buf),
+                portal_teleport_boundary: read_varint(buf),
+                warning_time: read_varint(buf),
+                warning_blocks: read_varint(buf),
+            }),
             4 => WorldBorderData::SetWarningTime(read_varint(buf)),
             5 => WorldBorderData::SetWarningBlocks(read_varint(buf)),
-            _ => panic!()
+            _ => panic!(),
         };
 
-        Box::new(WorldBorderPacket {
-            data
-        })
+        Box::new(WorldBorderPacket { data })
     }
 }
 
@@ -43,7 +41,7 @@ pub enum WorldBorderData {
     SetCenter(f64, f64),
     Initialize(WorldBorderDataInitialize),
     SetWarningTime(i64),
-    SetWarningBlocks(i64)
+    SetWarningBlocks(i64),
 }
 
 #[derive(Debug)]
@@ -55,5 +53,5 @@ pub struct WorldBorderDataInitialize {
     speed: i64,
     portal_teleport_boundary: i64,
     warning_time: i64,
-    warning_blocks: i64
+    warning_blocks: i64,
 }

@@ -109,9 +109,9 @@ pub fn chunk_by_loc_from_read<'a>(
 }
 
 pub fn chunk_by_loc_from_write<'a>(
-    chunks: &'a WriteStorage<ChunkData>,
+    chunks: &'a mut WriteStorage<ChunkData>,
     loc: Vector3<i32>,
-) -> Option<&'a ChunkData> {
+) -> Option<&'a mut ChunkData> {
     let mut c = None;
     for chunk in chunks.join() {
         if loc.eq(&chunk.position) {

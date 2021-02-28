@@ -1,5 +1,5 @@
-use crate::stream::NetworkStream;
 use crate::protocol::data::write_types::write_varint;
+use crate::stream::NetworkStream;
 use std::io::Write;
 
 pub struct PacketBuilder {
@@ -32,7 +32,7 @@ impl PacketBuilder {
         // Add data
         data_stream.append(&mut self.data);
 
-        stream.write_all(&mut data_stream);
-        stream.flush();
+        stream.write_all(&mut data_stream).unwrap();
+        stream.flush().unwrap();
     }
 }

@@ -3,8 +3,8 @@ use crate::services::chunk_service::chunk::{ChunkData, Chunks};
 use crate::services::chunk_service::ChunkService;
 use crate::services::settings_service::CHUNK_SIZE;
 use nalgebra::{ArrayStorage, Matrix, Matrix4, Vector3, U1, U4};
-use specs::{Join, Read, ReadStorage, System, Write};
-use std::collections::HashMap;
+use specs::Join;
+use specs::{Read, ReadStorage, System, Write};
 
 pub struct FrustumCullingSystem;
 
@@ -25,7 +25,7 @@ pub fn calculate_frustum_culling(
     viewable_chunks: &Vec<Vector3<i32>>,
     chunks: &ReadStorage<ChunkData>,
 ) -> Vec<Vector3<i32>> {
-    let chunks = Chunks::new(chunks.as_slice());
+    let chunks = Chunks::new(chunks.join().collect::<Vec<&ChunkData>>());
     let frustum = Frustum::from_matrix(cam.projection_matrix);
 
     if let None = frustum {

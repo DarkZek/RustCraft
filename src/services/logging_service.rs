@@ -88,10 +88,15 @@ impl LoggingService {
             let mut file = file.lock().unwrap();
 
             for (error, message) in data.as_slice() {
-                let log_type = if *error { "ERROR" } else { "INFO" };
+                let msg: String = if *error {
+                    println!("{}[ERROR] {}{}", "\x1B[31m", message, "\x1B[0m");
+                    format!("[ERROR] {}", message)
+                } else {
+                    println!("[INFO] {}", message);
+                    format!("[INFO] {}", message)
+                };
 
-                println!("[{}] {}", log_type, message);
-                if let Err(e) = file.write_all(format!("[{}] {}\n", log_type, message).as_bytes()) {
+                if let Err(e) = file.write_all(msg.as_bytes()) {
                     println!("\n\n\n\nERROR: CANNOT WRITE TO LOG FILE info.log IN MAIN APPLICATION FOLDER {} \n\n\n\n", e);
                 }
             }

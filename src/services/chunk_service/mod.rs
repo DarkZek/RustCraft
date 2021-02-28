@@ -2,20 +2,16 @@
 // Handles chunk loading, chunk unloading and chunk animations
 //
 
-use crate::block::Block;
 use crate::render::camera::Camera;
-use crate::services::chunk_service::chunk::{ChunkBlockData, ChunkData, Chunks, RerenderChunkFlag};
+use crate::services::chunk_service::chunk::{ChunkData, RawChunkData};
 use crate::services::chunk_service::frustum_culling::calculate_frustum_culling;
-use crate::services::settings_service::{SettingsService, CHUNK_SIZE};
+use crate::services::settings_service::SettingsService;
 use crate::services::ServicesContext;
 use nalgebra::Vector3;
-use specs::{Entities, Join, ReadStorage, World, WorldExt, WriteStorage};
-use std::collections::HashMap;
+use specs::{Entities, ReadStorage, World, WriteStorage};
 
-use crate::block::blocks::BlockStates;
-use gfx_hal::pso::Comparison;
+use crate::services::chunk_service::mesh::rerendering::RerenderChunkFlag;
 use std::cmp::Ordering;
-use std::sync::Arc;
 use wgpu::BindGroupLayout;
 
 pub mod blocks;
@@ -75,7 +71,7 @@ impl ChunkService {
 
     pub fn load_chunk(
         &mut self,
-        data: Option<ChunkBlockData>,
+        data: Option<RawChunkData>,
         chunk_coords: Vector3<i32>,
         entities: &mut Entities,
         chunks: &mut WriteStorage<ChunkData>,
@@ -92,7 +88,12 @@ impl ChunkService {
             self.chunk_keys.push(chunk_coords.clone());
 
             let entity = entities.create();
-            chunks.insert(entity, chunk);
+            if let Err(err) = chunks.insert(entity, chunk) {
+                log_error!(format!(
+                    "Error creating entity for chunk {}: {}",
+                    chunk_coords, err
+                ));
+            }
 
             // Flag the adjacent chunks for rerendering
             let rerender = [

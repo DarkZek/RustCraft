@@ -1,6 +1,6 @@
 use nalgebra::Point3;
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct BoxCollider {
     pub p1: Point3<f32>,
     pub p2: Point3<f32>,

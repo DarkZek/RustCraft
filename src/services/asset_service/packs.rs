@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use std::fs;
 use std::fs::File;
 use std::io::Read;
-use std::time::Instant;
+use std::time::{Instant, SystemTime};
 use zip::ZipArchive;
 
 impl AssetService {
@@ -34,6 +34,7 @@ impl AssetService {
     pub fn load_resource_pack(path: &str) -> ResourcePack {
         let start_time = Instant::now();
         let zipfile = std::fs::File::open(&path).unwrap();
+        let metadata = fs::metadata(&path).unwrap();
 
         let mut archive = zip::ZipArchive::new(zipfile).unwrap();
 
@@ -55,6 +56,7 @@ impl AssetService {
             author: "".to_string(),
             version: "".to_string(),
             textures,
+            modified: metadata.modified().unwrap_or(SystemTime::UNIX_EPOCH),
         }
     }
 }

@@ -1,2 +1,3 @@
-pub mod sound;
+pub mod effect;
 pub mod play;
+pub mod sound;

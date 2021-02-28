@@ -1,14 +1,12 @@
-use crate::block::blocks::{BlockStates, BLOCK_STATES};
-use crate::block::{blocks, Block};
 use crate::services::asset_service::{AssetService, ResourcePack};
 use crate::services::settings_service::SettingsService;
-use image::{DynamicImage, GenericImageView, ImageBuffer, RgbImage, Rgba};
-use std::cell::UnsafeCell;
+use image::{DynamicImage, GenericImageView, ImageBuffer, Rgba};
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{Read, Write};
-use std::sync::Arc;
-use std::time::SystemTime;
+use std::lazy::SyncOnceCell;
+use std::path::Path;
+use std::time::{SystemTime, UNIX_EPOCH};
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{BufferUsage, CompareFunction, Device, Queue, Sampler, Texture, TextureDataLayout};
 
@@ -16,6 +14,9 @@ pub type TextureAtlasIndex = ([f32; 2], [f32; 2]);
 
 pub const ATLAS_WIDTH: u32 = 4096;
 pub const ATLAS_HEIGHT: u32 = (4096.0 * 2.0) as u32;
+
+// Create global atlas lookup variable
+pub static ATLAS_LOOKUPS: SyncOnceCell<HashMap<String, TextureAtlasIndex>> = SyncOnceCell::new();
 
 impl AssetService {
     /// Generate a a new texture atlas from a list of textures and a resources directory
@@ -65,8 +66,18 @@ impl AssetService {
                 match File::open(format!("{}cache/atlas_info", settings.path)) {
                     Ok(mut file) => {
                         let mut info = String::new();
-                        file.read_to_string(&mut info);
-                        info.as_str() == zip_name
+                        if let Result::Err(err) = file.read_to_string(&mut info) {
+                            log_error!("Error reading atlas_info file {}", err)
+                        }
+                        let (name, time) = info.split_at(info.find("\n").unwrap_or(0));
+                        let time = time.trim().parse::<u64>().unwrap();
+                        name == zip_name
+                            && resource_pack
+                                .modified
+                                .duration_since(UNIX_EPOCH)
+                                .unwrap()
+                                .as_secs()
+                                == time
                     }
                     Err(_) => false,
                 }
@@ -232,7 +243,13 @@ impl AssetService {
             }
 
             if settings.atlas_cache_writing {
-                std::fs::create_dir(format!("{}cache/", settings.path));
+                if !Path::new(format!("{}cache/", settings.path).as_str()).is_dir() {
+                    if let Result::Err(error) =
+                        std::fs::create_dir(format!("{}cache/", settings.path))
+                    {
+                        log_error!("Failed to create cache directory: {}", error)
+                    }
+                }
 
                 if let Err(e) = atlas.save(format!("{}cache/atlas.png", settings.path)) {
                     log_error!("Failed to cache atlas image: {}", e);
@@ -253,7 +270,18 @@ impl AssetService {
 
                 match File::create(format!("{}cache/atlas_info", settings.path)) {
                     Ok(mut file) => {
-                        file.write_all(zip_name.as_bytes());
+                        let output = format!(
+                            "{}\n{}",
+                            zip_name,
+                            resource_pack
+                                .modified
+                                .duration_since(UNIX_EPOCH)
+                                .unwrap()
+                                .as_secs()
+                        );
+                        if let Result::Err(err) = file.write_all(output.as_bytes()) {
+                            log_error!("Error while writing atlas_info file {}", err)
+                        }
                     }
                     Err(e) => {
                         log_error!("Failed to cache atlas info: {}", e);
@@ -322,6 +350,10 @@ impl AssetService {
         };
 
         let diffuse_sampler = device.create_sampler(&diffuse_sampler_descriptor);
+
+        ATLAS_LOOKUPS
+            .set(atlas_index.clone())
+            .expect("Atlas failed to setup");
 
         (atlas_img, diffuse_texture, atlas_index, diffuse_sampler)
     }
@@ -397,19 +429,4 @@ pub fn load_cached_atlas(
     let index = serde_json::from_slice::<HashMap<String, TextureAtlasIndex>>(data.as_slice())?;
 
     Ok((img, index))
-}
-
-pub fn atlas_update_blocks(mapping: &HashMap<String, TextureAtlasIndex>, blocks: &mut Vec<Block>) {
-    for block in blocks {
-        let texture = &*block.name.as_ref().unwrap();
-
-        if !mapping.contains_key(texture) {
-            println!("Warn: {} has no texture", block.name.as_ref().unwrap());
-            block.texture_atlas_lookups = [*mapping.get("mcv3/error").unwrap(); 6];
-            continue;
-        }
-        let index = mapping.get(texture).unwrap();
-
-        block.texture_atlas_lookups = [*index; 6];
-    }
 }

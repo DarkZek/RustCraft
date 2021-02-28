@@ -1,10 +1,7 @@
-use crate::block::blocks::BlockStates;
-use crate::block::Block;
 use crate::render::loading::LoadingScreen;
 use crate::services::input_service::InputService;
 use crate::services::networking_service::NetworkingService;
 use crate::services::{
-    asset_service::atlas::atlas_update_blocks,
     asset_service::AssetService,
     audio_service::AudioService,
     chunk_service::ChunkService,
@@ -74,7 +71,7 @@ pub fn load_services(mut context: ServicesContext, universe: &mut World) {
     ui.fonts
         .create_text()
         .set_text("Rustcraft V0.01 Alpha")
-        .set_size(20.0)
+        .set_size(24.0)
         .set_text_alignment(ObjectAlignment::TopLeft)
         .set_object_alignment(ObjectAlignment::TopLeft)
         .set_positioning(Positioning::Relative)
@@ -90,7 +87,7 @@ pub fn load_services(mut context: ServicesContext, universe: &mut World) {
             settings.render_distance * 2,
             (settings.render_distance * 2) * (settings.render_distance * 2) * 16
         ))
-        .set_size(20.0)
+        .set_size(24.0)
         .set_text_alignment(ObjectAlignment::TopLeft)
         .set_object_alignment(ObjectAlignment::TopLeft)
         .set_positioning(Positioning::Relative)

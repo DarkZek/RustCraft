@@ -11,6 +11,7 @@ use wgpu::util::{BufferInitDescriptor, DeviceExt};
 
 /// Stores the current state of the game. Currently this is mostly just looking after player movement.
 pub struct GameState {
+    pub state: ProgramState,
     player: Player,
 }
 
@@ -24,6 +25,7 @@ impl GameState {
 
         GameState {
             player: Player::new(),
+            state: ProgramState::INIT,
         }
     }
 }
@@ -32,6 +34,14 @@ impl Default for GameState {
     fn default() -> Self {
         unimplemented!()
     }
+}
+
+#[derive(PartialEq)]
+pub enum ProgramState {
+    INIT,
+    MENU,
+    LOADING,
+    IN_GAME,
 }
 
 pub struct PlayerMovementSystem;

@@ -1,6 +1,6 @@
+use crate::protocol::data::read_types::{read_bool, read_string, read_varint};
 use crate::protocol::packet::PacketType;
-use crate::protocol::data::read_types::{read_unsignedbyte, read_bool, read_int, read_float, read_double, read_varint, read_string};
-use std::io::{Cursor};
+use std::io::Cursor;
 
 #[derive(Debug)]
 pub struct UnlockRecipesPacket {
@@ -40,7 +40,7 @@ impl PacketType for UnlockRecipesPacket {
             smelting_recipe_book_open,
             smelting_recipe_book_filter_active,
             recipe_ids,
-            recipe_ids_init: Some(recipe_ids_init)
+            recipe_ids_init: Some(recipe_ids_init),
         })
     }
 }

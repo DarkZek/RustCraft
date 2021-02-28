@@ -7,8 +7,8 @@ use crate::services::chunk_service::mesh::ViewableDirectionBitMap;
 pub struct ViewableDirection(pub u8);
 
 impl ViewableDirection {
-    pub fn has_flag(&self, flag: ViewableDirectionBitMap) -> bool {
-        let target: u8 = flag as u8;
+    pub fn has_flag(&self, flag: &ViewableDirectionBitMap) -> bool {
+        let target: u8 = *flag as u8;
         return (self.0 & target) == target;
     }
 
@@ -17,38 +17,48 @@ impl ViewableDirection {
     }
 }
 
-pub fn calculate_viewable(chunk: &ChunkData, pos: [usize; 3]) -> ViewableDirection {
+pub fn calculate_viewable(
+    chunk: &ChunkData,
+    block: &Option<Block>,
+    pos: [usize; 3],
+) -> ViewableDirection {
     let world = &chunk.world;
+
     let mut direction: u8 = 0;
 
-    if pos[1] != world[0].len() - 1 && is_offset_transparent(world, pos, [0, 1, 0]) {
+    if pos[1] != world[0].len() - 1 && is_offset_transparent(world, pos, [0, 1, 0], &block) {
         direction += ViewableDirectionBitMap::Top as u8;
     }
 
-    if pos[1] != 0 && is_offset_transparent(world, pos, [0, -1, 0]) {
+    if pos[1] != 0 && is_offset_transparent(world, pos, [0, -1, 0], &block) {
         direction += ViewableDirectionBitMap::Bottom as u8;
     }
 
-    if pos[0] != world.len() - 1 && is_offset_transparent(world, pos, [1, 0, 0]) {
+    if pos[0] != world.len() - 1 && is_offset_transparent(world, pos, [1, 0, 0], &block) {
         direction += ViewableDirectionBitMap::Right as u8;
     }
 
-    if pos[0] != 0 && is_offset_transparent(world, pos, [-1, 0, 0]) {
+    if pos[0] != 0 && is_offset_transparent(world, pos, [-1, 0, 0], &block) {
         direction += ViewableDirectionBitMap::Left as u8;
     }
 
-    if pos[2] != world[0][0].len() - 1 && is_offset_transparent(world, pos, [0, 0, 1]) {
+    if pos[2] != world[0][0].len() - 1 && is_offset_transparent(world, pos, [0, 0, 1], &block) {
         direction += ViewableDirectionBitMap::Back as u8;
     }
 
-    if pos[2] != 0 && is_offset_transparent(world, pos, [0, 0, -1]) {
+    if pos[2] != 0 && is_offset_transparent(world, pos, [0, 0, -1], &block) {
         direction += ViewableDirectionBitMap::Front as u8;
     }
 
     ViewableDirection(direction)
 }
 
-fn is_offset_transparent(world: &RawChunkData, pos: [usize; 3], offset: [isize; 3]) -> bool {
+fn is_offset_transparent(
+    world: &RawChunkData,
+    pos: [usize; 3],
+    offset: [isize; 3],
+    src_block: &Option<Block>,
+) -> bool {
     let block_id = world[(pos[0] as isize + offset[0]) as usize]
         [(pos[1] as isize + offset[1]) as usize][(pos[2] as isize + offset[2]) as usize];
 
@@ -56,10 +66,30 @@ fn is_offset_transparent(world: &RawChunkData, pos: [usize; 3], offset: [isize; 
         return true;
     }
 
-    BLOCK_STATES
-        .get()
-        .unwrap()
-        .get_block(block_id as usize)
-        .unwrap()
-        .transparent
+    match BLOCK_STATES.get() {
+        None => {
+            // TEMP commented out
+            //log_error!("Blockstates list was not generated");
+            false
+        }
+        Some(states) => match states.get_block(block_id as usize) {
+            None => {
+                // log_error!(format!(
+                //     "Block with invalid blockstate: X {} Y {} Z {} Block ID {}",
+                //     pos[0], pos[1], pos[2], block_id
+                // ));
+                false
+            }
+            Some(block) => {
+                // If its the same block we don't want borders drawn between them
+                if src_block.is_some()
+                    && block.block_type.get_identifier()
+                        == src_block.as_ref().unwrap().block_type.get_identifier()
+                {
+                    return false;
+                }
+                block.block_type.get_transparency()
+            }
+        },
+    }
 }

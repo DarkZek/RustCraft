@@ -9,5 +9,6 @@ impl<'a> System<'a> for FontComputingSystem {
 
     fn run(&mut self, (mut ui_service, render_state): Self::SystemData) {
         ui_service.fonts.total(&render_state.device);
+        ui_service.images.build(&render_state.device);
     }
 }

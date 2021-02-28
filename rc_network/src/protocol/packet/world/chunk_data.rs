@@ -1,6 +1,4 @@
-use crate::protocol::data::read_types::{
-    read_bool, read_double, read_float, read_int, read_intarray, read_unsignedbyte, read_varint,
-};
+use crate::protocol::data::read_types::{read_bool, read_int, read_unsignedbyte, read_varint};
 use crate::protocol::packet::PacketType;
 use crate::protocol::types::chunk::NetworkChunk;
 use nbt::Blob;

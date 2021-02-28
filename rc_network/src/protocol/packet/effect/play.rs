@@ -1,4 +1,4 @@
-use crate::protocol::data::read_types::{read_float, read_int, read_varint, read_position, read_bool};
+use crate::protocol::data::read_types::{read_bool, read_int, read_position};
 use crate::protocol::packet::PacketType;
 use std::io::Cursor;
 
@@ -21,7 +21,7 @@ impl PacketType for PlayEffectPacket {
             effect_id,
             pos,
             data,
-            disable_relative_volume
+            disable_relative_volume,
         })
     }
 }

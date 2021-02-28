@@ -11,19 +11,14 @@ use crate::protocol::packet::entity::spawn_living_entity::SpawnLivingEntityPacke
 use crate::protocol::packet::world::chunk_data::ChunkDataPacket;
 use crate::{
     protocol::{
-        data::read_types::{
-            read_bool, read_bytearray, read_float, read_int, read_intarray, read_long, read_string,
-            read_unsignedbyte, read_varint, read_varintarray,
-        },
+        data::read_types::{read_unsignedbyte, read_varint},
         packet::{
             entity::status::EntityStatusPacket,
             entity::update_metadata::EntityUpdateMetadataPacket,
-            info::chat_message::ChatMessagePacket,
-            info::join_game::JoinGamePacket,
+            info::chat_message::ChatMessagePacket, info::join_game::JoinGamePacket,
             info::player_list_info::PlayerListInfoPacket,
             info::plugin_message::PluginMessagePacket,
-            info::server_difficulty::ServerDifficultyPacket,
-            info::tags::TagsPacket,
+            info::server_difficulty::ServerDifficultyPacket, info::tags::TagsPacket,
             inventory::declare_recipes::DeclareRecipesPacket,
             inventory::unlock_recipes::UnlockRecipesPacket,
             player::held_item_change::HeldItemChangePacket,
@@ -31,19 +26,16 @@ use crate::{
             player::position_look::PlayerPositionLookPacket,
             player::position_rotation::PlayerPositionRotationPacket,
             player::view_chunk_position::UpdateViewChunkPositionPacket,
-            world::update_light::UpdateLightLevelsPacket,
-            PacketData,
-            PacketData::{ChatMessage, DeclareRecipes, ServerDifficulty, UpdateLightLevels},
-            PacketType,
+            world::update_light::UpdateLightLevelsPacket, PacketData, PacketType,
         },
-        types::chunk::NetworkChunk,
-        types::{PVarType, PVarTypeTemplate},
     },
     stream::NetworkStream,
 };
 use std::io;
 use std::io::{Cursor, Read};
 
+use crate::protocol::packet::effect::effect::EntityEffectPacket;
+use crate::protocol::packet::effect::play::PlayEffectPacket;
 use crate::protocol::packet::effect::sound::SoundEffectPacket;
 use crate::protocol::packet::entity::animation::EntityAnimationPacket;
 use crate::protocol::packet::entity::destroy_entities::DestroyEntitiesPacket;
@@ -68,8 +60,6 @@ use crate::protocol::packet::world::multi_block_change::MultiBlockChangePacket;
 use crate::protocol::packet::world::spawn_position::SpawnPositionPacket;
 use crate::protocol::packet::world::spawn_weather_entity::SpawnWeatherEntityPacket;
 use crate::protocol::packet::world::time_update::TimeUpdatePacket;
-use crate::protocol::packet::effect::play::PlayEffectPacket;
-
 
 pub struct PacketDecoder;
 
@@ -137,6 +127,7 @@ impl PacketDecoder {
             0x52 => PacketData::SoundEffect(*SoundEffectPacket::deserialize(&mut cursor)),
             0x06 => PacketData::EntityAnimation(*EntityAnimationPacket::deserialize(&mut cursor)),
             0x23 => PacketData::PlayEffect(*PlayEffectPacket::deserialize(&mut cursor)),
+            0x5A => PacketData::EntityEffect(*EntityEffectPacket::deserialize(&mut cursor)),
             _ => panic!(format!("Unknown packet ID: 0x{:x}", packet_id))
         };
 

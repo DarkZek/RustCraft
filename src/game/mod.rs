@@ -11,20 +11,23 @@ use crate::render::pass::prepass::{PostFrame, PreFrame};
 use crate::render::pass::RenderSystem;
 use crate::render::RenderState;
 use crate::services::asset_service::AssetService;
-use crate::services::chunk_service::chunk::{ChunkData, RerenderChunkFlag};
+use crate::services::chunk_service::chunk::ChunkData;
 use crate::services::chunk_service::frustum_culling::FrustumCullingSystem;
-use crate::services::chunk_service::mesh::rerendering::ChunkRerenderSystem;
+use crate::services::chunk_service::mesh::rerendering::{
+    ChunkRerenderSystem, RerenderChunkFlag, UpdateChunkMesh,
+};
+use crate::services::chunk_service::mesh::update::ChunkMeshUpdateSystem;
 use crate::services::input_service::input::GameChanges;
 use crate::services::logging_service::LoggingSystem;
 use crate::services::networking_service::system::NetworkingSyncSystem;
 use crate::services::networking_service::NetworkingService;
+use crate::services::settings_service::SettingsService;
 use crate::services::ui_service::fonts::system::FontComputingSystem;
 use crate::services::ui_service::fps_system::FpsDisplayingSystem;
 use crate::services::ui_service::UIService;
 use specs::{DispatcherBuilder, World, WorldExt};
 use std::borrow::Borrow;
 use std::ops::Deref;
-use std::sync::Arc;
 use std::time::Instant;
 use systemstat::Duration;
 use winit::event::StartCause;
@@ -58,12 +61,16 @@ impl Game {
         universe.register::<PlayerEntity>();
         universe.register::<ChunkData>();
         universe.register::<RerenderChunkFlag>();
+        universe.register::<UpdateChunkMesh>();
 
         let render_state = RenderState::new(&mut universe, &event_loop);
         let game_state = GameState::new(&mut universe);
 
         // Generate blockstates
-        BlockStates::generate(universe.read_resource::<AssetService>().deref());
+        BlockStates::generate(
+            universe.read_resource::<AssetService>().deref(),
+            universe.read_resource::<SettingsService>().deref(),
+        );
 
         let delta_time = Duration::from_millis(0);
 
@@ -127,6 +134,11 @@ impl Game {
             )
             .with(PostFrame, "post_frame", &["render_frame"])
             .with(ChunkRerenderSystem, "chunk_rerendering", &["post_frame"])
+            .with(
+                ChunkMeshUpdateSystem,
+                "chunk_mesh_updating",
+                &["post_frame"],
+            )
             .build();
 
         self.universe.insert(PhysicsInterpolationFactor::default());

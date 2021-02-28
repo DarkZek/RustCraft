@@ -8,6 +8,7 @@ use crate::services::ServicesContext;
 use image::DynamicImage;
 use std::collections::HashMap;
 use std::ops::DerefMut;
+use std::time::SystemTime;
 use wgpu::{BindGroup, BindGroupLayout, Sampler, Texture};
 
 pub mod atlas;
@@ -33,6 +34,7 @@ pub struct ResourcePack {
     author: String,
     version: String,
     textures: HashMap<String, DynamicImage>,
+    modified: SystemTime,
 }
 
 impl AssetService {
@@ -41,7 +43,7 @@ impl AssetService {
             (settings.path.as_str().to_owned() + "resources/").as_ref(),
         );
 
-        if resource_packs.len() < 0 {
+        if resource_packs.len() == 0 {
             panic!("No resource packs found!");
         }
 

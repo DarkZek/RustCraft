@@ -1,5 +1,5 @@
 use crate::render::loading::LoadingScreen;
-use crate::render::shaders::bytes_to_shader;
+use crate::render::shaders::load_shaders;
 use crate::services::chunk_service::mesh::UIVertex;
 use nalgebra::{Matrix4, Orthographic3};
 use std::borrow::Cow;
@@ -22,7 +22,13 @@ impl LoadingScreen {
                 push_constant_ranges: &[],
             });
 
-        let (vs_module, fs_module) = load_shaders(&device);
+        let (vs_module, fs_module) = load_shaders(
+            &device,
+            (
+                include_bytes!("../../../assets/shaders/loading_vert.spv"),
+                include_bytes!("../../../assets/shaders/loading_frag.spv"),
+            ),
+        );
 
         device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
             label: None,
@@ -118,18 +124,4 @@ impl LoadingScreen {
 
         (matrix_buffer, matrix_bind_group, matrix_bind_group_layout)
     }
-}
-
-fn load_shaders(device: &Device) -> (ShaderModule, ShaderModule) {
-    let vs_src = include_bytes!("../../../assets/shaders/loading_vert.spv");
-    let fs_src = include_bytes!("../../../assets/shaders/loading_frag.spv");
-
-    let vs_module = device.create_shader_module(wgpu::ShaderModuleSource::SpirV(Cow::Borrowed(
-        bytes_to_shader(vs_src).as_slice(),
-    )));
-    let fs_module = device.create_shader_module(wgpu::ShaderModuleSource::SpirV(Cow::Borrowed(
-        bytes_to_shader(fs_src).as_slice(),
-    )));
-
-    (vs_module, fs_module)
 }

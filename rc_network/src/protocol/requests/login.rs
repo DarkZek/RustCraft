@@ -1,9 +1,9 @@
-use crate::protocol::types::{PVarType, PVarTypeTemplate};
+use crate::protocol::data::reader::PacketReader;
 use crate::protocol::data::write_types::{write_string, write_ushort, write_varint};
+use crate::protocol::data::writer::PacketBuilder;
+use crate::protocol::types::{PVarType, PVarTypeTemplate};
 use crate::stream::NetworkStream;
 use openssl::sha::Sha1;
-use crate::protocol::data::writer::PacketBuilder;
-use crate::protocol::data::reader::PacketReader;
 
 pub struct LoginRequest {
     pub(crate) connection_host: String,
@@ -110,11 +110,6 @@ impl LoginRequest {
 
         let uuid = inner_enum!(login_success.tokens.get(0).unwrap(), PVarType::String);
         let username = inner_enum!(login_success.tokens.get(1).unwrap(), PVarType::String);
-
-        println!(
-            "Successfully logged in with status UUID: {} Username: {}",
-            uuid, username
-        );
     }
 }
 

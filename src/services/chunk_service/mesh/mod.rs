@@ -1,11 +1,11 @@
 use nalgebra::Vector3;
 use wgpu::Buffer;
 
-pub mod block;
 pub mod chunk;
 pub mod culling;
 pub mod generation;
 pub mod rerendering;
+pub mod update;
 
 //TODO: Maybe look into using some shader trickery to decrease VRAM usage by generating indices shader side since it never changes
 
@@ -62,6 +62,7 @@ pub struct WGPU4x4Matrix {
 
 impl WGPU4x4Matrix {}
 
+#[derive(Clone, Copy, PartialEq)]
 pub enum ViewableDirectionBitMap {
     Top = 0b00000001,
     Bottom = 0b00000010,

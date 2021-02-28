@@ -79,7 +79,10 @@ impl RustcraftNetworking {
                         if let PacketData::KeepAlive(packet) = packet {
                             // Send packet back
                             let mut builder = PacketBuilder::new(0x0F);
-                            builder.data.write_i64::<BigEndian>(packet.keep_alive_id);
+                            builder
+                                .data
+                                .write_i64::<BigEndian>(packet.keep_alive_id)
+                                .unwrap();
                             builder.send(connection.as_mut().unwrap());
                             continue;
                         }

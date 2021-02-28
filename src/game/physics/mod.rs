@@ -4,8 +4,7 @@ use crate::services::chunk_service::chunk::{ChunkData, RawChunkData};
 use crate::services::settings_service::CHUNK_SIZE;
 use nalgebra::Vector3;
 use specs::prelude::ParallelIterator;
-use specs::{Component, ParJoin, Read, ReadStorage, System, VecStorage, WriteStorage};
-use std::collections::HashMap;
+use specs::{Component, ParJoin, ReadStorage, System, VecStorage, WriteStorage};
 
 pub mod collider;
 pub mod interpolator;
@@ -25,7 +24,7 @@ impl<'a> System<'a> for PhysicsProcessingSystem {
             entity.velocity.z *= slipperiness;
 
             // Add gravity
-            entity.velocity.y -= 0.08;
+            //entity.velocity.y -= 0.08;
 
             // Air Drag
             entity.velocity.y *= 0.98;

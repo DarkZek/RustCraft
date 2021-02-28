@@ -1,15 +1,12 @@
 use std::borrow::Cow;
 use wgpu::{Device, ShaderModule};
 
-pub fn load_shaders(device: &Device) -> (ShaderModule, ShaderModule) {
-    let vs_src = include_bytes!("../../../assets/shaders/shader_vert.spv");
-    let fs_src = include_bytes!("../../../assets/shaders/shader_frag.spv");
-
+pub fn load_shaders(device: &Device, shader_bytes: (&[u8], &[u8])) -> (ShaderModule, ShaderModule) {
     let vs_module = device.create_shader_module(wgpu::ShaderModuleSource::SpirV(Cow::Borrowed(
-        bytes_to_shader(vs_src).as_slice(),
+        bytes_to_shader(shader_bytes.0).as_slice(),
     )));
     let fs_module = device.create_shader_module(wgpu::ShaderModuleSource::SpirV(Cow::Borrowed(
-        bytes_to_shader(fs_src).as_slice(),
+        bytes_to_shader(shader_bytes.1).as_slice(),
     )));
 
     (vs_module, fs_module)

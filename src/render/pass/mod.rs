@@ -1,14 +1,10 @@
-use crate::helpers::chunk_by_loc_from_read;
+use crate::game::game_state::{GameState, ProgramState};
 use crate::render::RenderState;
 use crate::services::asset_service::AssetService;
 use crate::services::chunk_service::chunk::{ChunkData, Chunks};
 use crate::services::chunk_service::ChunkService;
 use crate::services::ui_service::UIService;
-use nalgebra::Vector3;
-use specs::hibitset::BitSetLike;
 use specs::{Read, ReadStorage, System, Write};
-use std::collections::HashMap;
-use std::mem::MaybeUninit;
 use wgpu::{Color, LoadOp, Operations};
 
 pub mod buffer;
@@ -27,6 +23,7 @@ static CLEAR_COLOR: Color = Color {
 impl<'a> System<'a> for RenderSystem {
     type SystemData = (
         Write<'a, RenderState>,
+        Read<'a, GameState>,
         Read<'a, AssetService>,
         Read<'a, ChunkService>,
         ReadStorage<'a, ChunkData>,
@@ -36,9 +33,10 @@ impl<'a> System<'a> for RenderSystem {
     /// Renders all visible chunks
     fn run(
         &mut self,
-        (mut render_state, asset_service, chunk_service, chunks, ui_service): Self::SystemData,
+        (mut render_state, game_state, asset_service, chunk_service, chunks, ui_service): Self::SystemData,
     ) {
-        let chunks = Chunks::new(chunks.as_slice());
+        use specs::Join;
+        let chunks = Chunks::new(chunks.join().collect::<Vec<&ChunkData>>());
 
         let frame = render_state
             .swap_chain
@@ -52,7 +50,7 @@ impl<'a> System<'a> for RenderSystem {
             .create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
 
         {
-            {
+            if game_state.state == ProgramState::IN_GAME {
                 let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
                     color_attachments: &[wgpu::RenderPassColorAttachmentDescriptor {
                         attachment: &frame.output.view,
@@ -119,8 +117,6 @@ impl<'a> System<'a> for RenderSystem {
                     );
                 }
             }
-
-            // Debug information
 
             ui_service.render(&frame, &mut encoder, &render_state.device, &asset_service);
 

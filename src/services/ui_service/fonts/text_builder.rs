@@ -15,7 +15,7 @@ impl<'a> TextBuilder<'a> {
                 text: String::new(),
                 vertices: Vec::new(),
                 indices: Vec::new(),
-                size: 20.0,
+                size: 16.0,
                 color: [1.0, 1.0, 1.0, 1.0],
                 text_alignment: ObjectAlignment::TopLeft,
                 alignment: ObjectAlignment::Center,
@@ -35,6 +35,9 @@ impl<'a> TextBuilder<'a> {
     }
 
     pub fn set_size(mut self, size: f32) -> TextBuilder<'a> {
+        if size % 8.0 != 0.0 {
+            log!("Size of font set to number non divisible by 8, this will result in low quality text");
+        }
         self.text.as_mut().unwrap().size = size;
         self
     }

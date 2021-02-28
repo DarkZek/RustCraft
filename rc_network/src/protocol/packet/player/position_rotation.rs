@@ -1,6 +1,6 @@
+use crate::protocol::data::read_types::{read_bool, read_double, read_float};
 use crate::protocol::packet::PacketType;
-use crate::protocol::data::read_types::{read_unsignedbyte, read_bool, read_int, read_float, read_double};
-use std::io::{Cursor};
+use std::io::Cursor;
 
 #[derive(Debug)]
 pub struct PlayerPositionRotationPacket {
@@ -27,7 +27,7 @@ impl PacketType for PlayerPositionRotationPacket {
             z,
             yaw,
             pitch,
-            on_ground
+            on_ground,
         })
     }
 }

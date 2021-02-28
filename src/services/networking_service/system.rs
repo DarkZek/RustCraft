@@ -1,15 +1,17 @@
 use crate::entity::player::PlayerEntity;
 use crate::game::physics::PhysicsObject;
 use crate::render::RenderState;
-use crate::services::chunk_service::chunk::{ChunkData, RerenderChunkFlag};
+use crate::services::chunk_service::chunk::{ChunkData, Chunks};
 use crate::services::chunk_service::ChunkService;
 use crate::services::networking_service::NetworkingService;
 use crate::services::settings_service::SettingsService;
 use nalgebra::Vector3;
 use rc_network::protocol::packet::PacketData;
 
-use crate::block::blocks::BlockStates;
-use crate::helpers::{chunk_by_loc_from_read, chunk_by_loc_from_write};
+use crate::game::game_state::{GameState, ProgramState};
+use crate::helpers::chunk_by_loc_from_write;
+use crate::services::chunk_service::mesh::rerendering::{RerenderChunkFlag, UpdateChunkMesh};
+use crate::services::ui_service::UIService;
 use specs::{Entities, Join, Read, ReadStorage, System, Write, WriteStorage};
 
 pub struct ReceivedNetworkPackets {
@@ -30,12 +32,12 @@ impl<'a> System<'a> for NetworkingSyncSystem {
         Write<'a, NetworkingService>,
         Write<'a, ChunkService>,
         WriteStorage<'a, ChunkData>,
-        Read<'a, RenderState>,
-        Read<'a, SettingsService>,
         WriteStorage<'a, PhysicsObject>,
         ReadStorage<'a, PlayerEntity>,
         Entities<'a>,
         WriteStorage<'a, RerenderChunkFlag>,
+        Write<'a, GameState>,
+        Write<'a, UIService>,
     );
 
     fn run(
@@ -44,13 +46,13 @@ impl<'a> System<'a> for NetworkingSyncSystem {
             mut network_packets,
             mut networking_service,
             mut chunk_service,
-            mut chunks,
-            render_system,
-            settings,
+            mut chunks_storage,
             mut player_physics,
             player_entity,
             mut entities,
             mut rerendering_chunks,
+            mut game_state,
+            mut ui_service,
         ): Self::SystemData,
     ) {
         network_packets.packets = networking_service.get_packets();
@@ -67,6 +69,14 @@ impl<'a> System<'a> for NetworkingSyncSystem {
                     Vector3::new(packet.x as f32, packet.y as f32, packet.z as f32);
             }
 
+            if let PacketData::PlayerListInfo(packet) = &packet {
+                game_state.state = ProgramState::IN_GAME;
+                let image = ui_service.background_image.clone();
+                ui_service.images.delete_image(image);
+
+                log!("Successfully logged in to server");
+            }
+
             if let PacketData::ChunkData(packet) = packet {
                 let mut mask = packet.primary_bit_mask.clone();
                 let mut chunks_index = 0;
@@ -79,31 +89,19 @@ impl<'a> System<'a> for NetworkingSyncSystem {
                     mask >>= 0b1;
 
                     chunk_service.load_chunk(
-                        Some((packet.data.get(chunks_index).unwrap().data.clone(), vec![])),
+                        Some(packet.data.get(chunks_index).unwrap().data.clone()),
                         Vector3::new(packet.x, y, packet.z),
                         &mut entities,
-                        &mut chunks,
+                        &mut chunks_storage,
                         &mut rerendering_chunks,
                     );
 
-                    let chunk_pos = chunk_service
-                        .viewable_chunks
-                        .get(chunk_service.viewable_chunks.len() - 1)
-                        .unwrap();
+                    let chunk = Vector3::new(packet.x, y, packet.z);
 
-                    let chunk = chunk_by_loc_from_write(&chunks, *chunk_pos).unwrap();
-
-                    unsafe {
-                        let const_ptr = chunk as *const ChunkData;
-                        let mut_ptr = const_ptr as *mut ChunkData;
-                        let chunk = &mut *mut_ptr;
-
-                        chunk.generate_mesh(&chunks, &settings);
-                        chunk.create_buffers(
-                            &render_system.device,
-                            &chunk_service.model_bind_group_layout,
-                        );
-                    }
+                    entities
+                        .build_entity()
+                        .with(RerenderChunkFlag { chunk }, &mut rerendering_chunks)
+                        .build();
 
                     chunks_index += 1;
                 }

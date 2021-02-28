@@ -1,4 +1,4 @@
-use byteorder::{WriteBytesExt, BigEndian};
+use byteorder::{BigEndian, WriteBytesExt};
 
 pub fn write_varint(mut value: i32, data: &mut Vec<u8>) {
     loop {
@@ -39,5 +39,5 @@ pub fn write_string(value: &str, data: &mut Vec<u8>) {
 }
 
 pub fn write_ushort(value: u16, data: &mut Vec<u8>) {
-    data.write_u16::<BigEndian>(value);
+    data.write_u16::<BigEndian>(value).unwrap();
 }

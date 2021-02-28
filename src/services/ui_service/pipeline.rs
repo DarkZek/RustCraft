@@ -1,9 +1,6 @@
-use crate::render::shaders::bytes_to_shader;
+use crate::render::shaders::load_shaders;
 use crate::services::chunk_service::mesh::UIVertex;
-use wgpu::{
-    BindGroupLayout, BlendFactor, BlendOperation, Device, RenderPipeline, ShaderModule,
-    VertexStateDescriptor,
-};
+use wgpu::{BindGroupLayout, Device, RenderPipeline, ShaderModule, VertexStateDescriptor};
 
 /// Creates the user inferace render pipeline. This includes things like loading shaders.
 /// This happens because we have one render pass for the chunks, and a separate for user interfaces. This lets us use 2d vertices for UI as well as have more control over depth and perspective.
@@ -11,7 +8,13 @@ pub fn generate_render_pipeline(
     device: &Device,
     bind_group_layouts: &[&BindGroupLayout],
 ) -> RenderPipeline {
-    let (vs_module, fs_module) = load_shaders(device);
+    let (vs_module, fs_module) = load_shaders(
+        device,
+        (
+            include_bytes!("../../../assets/shaders/ui_text_vert.spv"),
+            include_bytes!("../../../assets/shaders/ui_text_frag.spv"),
+        ),
+    );
 
     let render_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
         label: None,
@@ -62,18 +65,4 @@ pub fn generate_render_pipeline(
         sample_mask: !0,
         alpha_to_coverage_enabled: false,
     })
-}
-
-pub fn load_shaders(device: &Device) -> (ShaderModule, ShaderModule) {
-    let vs_src = include_bytes!("../../../assets/shaders/ui_vert.spv");
-    let fs_src = include_bytes!("../../../assets/shaders/ui_frag.spv");
-
-    let vs_module = device.create_shader_module(wgpu::ShaderModuleSource::SpirV(
-        std::borrow::Cow::Borrowed(bytes_to_shader(vs_src).as_slice()),
-    ));
-    let fs_module = device.create_shader_module(wgpu::ShaderModuleSource::SpirV(
-        std::borrow::Cow::Borrowed(bytes_to_shader(fs_src).as_slice()),
-    ));
-
-    (vs_module, fs_module)
 }

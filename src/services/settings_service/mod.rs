@@ -1,3 +1,11 @@
+use std::fs;
+
+#[cfg(not(target_os = "windows"))]
+#[link(name = "c")]
+extern "C" {
+    fn geteuid() -> u32;
+}
+
 pub mod key_mappings;
 
 pub const CHUNK_SIZE: usize = 16;
@@ -22,6 +30,7 @@ pub struct SettingsService {
     pub debug_atlas: bool,
     pub backface_culling: bool,
     pub chunk_edge_faces: bool,
+    pub debug_states: bool,
 }
 
 impl Default for SettingsService {
@@ -40,9 +49,38 @@ impl SettingsService {
 
     #[cfg(not(target_os = "windows"))]
     fn get_path() -> String {
-        let path = std::env::home_dir().unwrap();
-        let path = path.as_os_str();
-        format!("{}/.rustcraft/", path.to_str().unwrap())
+        let path = std::env::var("HOME");
+
+        let path = if let Result::Ok(val) = path {
+            val
+        } else {
+            // Backup method, checking /etc/passwd
+            let file = fs::read_to_string("/etc/passwd").expect("Failed to find home directory, set environment variable HOME or specify in /etc/passwd");
+            let mut path = String::new();
+            for line in file.split("\n") {
+                let params = line.split(":").collect::<Vec<&str>>();
+                unsafe {
+                    if params
+                        .get(2)
+                        .expect("Corrupt /etc/passwd")
+                        .parse::<u32>()
+                        .expect("Corrupt /etc/passwd")
+                        == geteuid()
+                    {
+                        path = params.get(5).unwrap().to_string();
+                        break;
+                    }
+                }
+            }
+            if &path == "" {
+                log_error!("Failed to find home directory");
+                panic!("Failed to find home directory");
+            }
+
+            path
+        };
+
+        format!("{}/.rustcraft/", path)
     }
 
     /// Creates a new instance of settings, loading the variables from the environment variables as well as settings file
@@ -69,8 +107,9 @@ impl SettingsService {
             render_distance: 6,
             debug_vertices,
             debug_atlas: false,
-            backface_culling: false,
+            backface_culling: true,
             chunk_edge_faces: true,
+            debug_states: false,
         }
     }
 }

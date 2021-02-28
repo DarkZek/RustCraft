@@ -1,7 +1,5 @@
-use crate::protocol::data::read_types::{
-    read_bytearray, read_long, read_longarray, read_short, read_unsignedbyte, read_varint,
-};
-use byteorder::{BigEndian, LittleEndian, ReadBytesExt};
+use crate::protocol::data::read_types::{read_short, read_unsignedbyte, read_varint};
+use byteorder::{BigEndian, ReadBytesExt};
 use std::io::Read;
 
 #[derive(Debug)]
@@ -55,7 +53,6 @@ impl NetworkChunk {
         let mut data = BitStreamReader::new(data);
 
         let mut block_map: [[[u32; 16]; 16]; 16] = [[[0; 16]; 16]; 16];
-        let mut i = 0;
 
         // Convert into 3d block map
         for y in 0..16 {
@@ -63,7 +60,7 @@ impl NetworkChunk {
                 for x in 0..16 {
                     let val = data.get(bits_per_block);
 
-                    let mut id = if palette.is_some() {
+                    let id = if palette.is_some() {
                         let palette = palette.as_ref().unwrap();
                         if val >= palette.len() as u64 {
                             println!(
@@ -84,7 +81,6 @@ impl NetworkChunk {
                     };
 
                     block_map[x][y][z] = id as u32;
-                    i += 1;
                 }
             }
         }
@@ -131,15 +127,13 @@ impl BitStreamReader {
             panic!("Read too much!");
         }
 
-        let mut out = 0;
-
         // Get bits from current byte
         let byte = (self.bit_number as f32 / 64.0).floor() as u32;
         let bit = self.bit_number as u8 % 64;
         let end_bit = if bit + bits >= 64 { 63 } else { bit + bits - 1 };
 
         let value = *self.data.get(byte as usize).clone().unwrap();
-        out = get_bits(value, bit as u8, end_bit as u8);
+        let mut out = get_bits(value, bit as u8, end_bit as u8);
 
         out >>= bit;
 

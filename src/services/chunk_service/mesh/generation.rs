@@ -1,43 +1,42 @@
-use crate::block::blocks::BlockStates;
-use crate::block::{blocks, Block};
-use crate::helpers::{chunk_by_loc_from_read, chunk_by_loc_from_write};
-use crate::services::chunk_service::chunk::ChunkData;
-use crate::services::chunk_service::mesh::block::draw_block;
+use crate::block::blocks::BLOCK_STATES;
+use crate::services::chunk_service::chunk::{ChunkData, Chunks};
 use crate::services::chunk_service::mesh::culling::ViewableDirection;
+use crate::services::chunk_service::mesh::rerendering::UpdateChunkMesh;
+use crate::services::chunk_service::mesh::MeshData;
 use crate::services::settings_service::SettingsService;
 use nalgebra::{Point3, Vector3};
-use specs::{ReadStorage, WriteStorage};
+use specs::WriteStorage;
 use std::collections::HashMap;
 
 // Our mesh generation system
 
 impl ChunkData {
-    pub fn generate_mesh(&mut self, chunks: &WriteStorage<ChunkData>, settings: &SettingsService) {
+    pub fn generate_mesh(&self, chunks: &Chunks, settings: &SettingsService) -> UpdateChunkMesh {
         // Get adjacent chunks
         let mut map = HashMap::new();
         map.insert(
             Vector3::new(0, 1, 0),
-            chunk_by_loc_from_write(chunks, (self.position + Vector3::new(0, 1, 0))),
+            chunks.get_loc(self.position + Vector3::new(0, 1, 0)),
         );
         map.insert(
             Vector3::new(0, -1, 0),
-            chunk_by_loc_from_write(chunks, (self.position + Vector3::new(0, -1, 0))),
+            chunks.get_loc(self.position + Vector3::new(0, -1, 0)),
         );
         map.insert(
             Vector3::new(1, 0, 0),
-            chunk_by_loc_from_write(chunks, (self.position + Vector3::new(1, 0, 0))),
+            chunks.get_loc(self.position + Vector3::new(1, 0, 0)),
         );
         map.insert(
             Vector3::new(-1, 0, 0),
-            chunk_by_loc_from_write(chunks, (self.position + Vector3::new(-1, 0, 0))),
+            chunks.get_loc(self.position + Vector3::new(-1, 0, 0)),
         );
         map.insert(
             Vector3::new(0, 0, 1),
-            chunk_by_loc_from_write(chunks, (self.position + Vector3::new(0, 0, 1))),
+            chunks.get_loc(self.position + Vector3::new(0, 0, 1)),
         );
         map.insert(
             Vector3::new(0, 0, -1),
-            chunk_by_loc_from_write(chunks, (self.position + Vector3::new(0, 0, -1))),
+            chunks.get_loc(self.position + Vector3::new(0, 0, -1)),
         );
 
         let viewable = self.generate_viewable_map(map, settings.chunk_edge_faces);
@@ -59,11 +58,23 @@ impl ChunkData {
                     //Isn't air
                     if chunk[x][y][z] != 0 && viewable != 0 {
                         unsafe {
-                            let block = blocks::BLOCK_STATES
-                                .get()
-                                .unwrap()
-                                .get_block(chunk[x][y][z] as usize)
-                                .unwrap();
+                            let block = match BLOCK_STATES.get() {
+                                None => {
+                                    log_error!("Blockstates list was not generated");
+                                    continue;
+                                }
+                                Some(states) => match states.get_block(chunk[x][y][z] as usize) {
+                                    None => {
+                                        // TEMP commented out
+                                        // log_error!(format!(
+                                        //     "Block with invalid blockstate: X {} Y {} Z {} Block ID {}",
+                                        // x, y, z, chunk[x][y][z]
+                                        // ));
+                                        continue;
+                                    }
+                                    Some(block) => block,
+                                },
+                            };
 
                             let applied_color = self.light_levels[x][y][z];
                             let extra_color = self.neighboring_light_levels[x][y][z].clone();
@@ -75,7 +86,7 @@ impl ChunkData {
                                 255,
                             ];
 
-                            let vertices = if block.transparent
+                            let vertices = if block.block_type.get_transparency()
                                 || chunk[x][y][z] == 34
                                 || chunk[x][y][z] == 230
                             {
@@ -85,20 +96,23 @@ impl ChunkData {
                             };
 
                             // Change buffer based on transparency
-                            let indices = if block.transparent {
+                            let indices = if block.block_type.get_transparency()
+                                || chunk[x][y][z] == 34
+                                || chunk[x][y][z] == 230
+                            {
                                 &mut translucent_indices
                             } else {
                                 &mut opaque_indices
                             };
 
-                            //Found it, draw vertices for it
-                            draw_block(
-                                Point3::new(x as f32, y as f32, z as f32),
-                                ViewableDirection(viewable),
+                            block.get_model().model.draw(
+                                x as f32,
+                                y as f32,
+                                z as f32,
                                 vertices,
                                 indices,
-                                block,
                                 out_color,
+                                ViewableDirection(viewable),
                             );
                         }
                     }
@@ -106,11 +120,28 @@ impl ChunkData {
             }
         }
 
+        let opaque_indices_buffer_len = opaque_indices.len() as u32;
+        let translucent_indices_buffer_len = translucent_indices.len() as u32;
+
         // Check top faces
-        self.opaque_model.indices = opaque_indices;
-        self.opaque_model.vertices = opaque_vertices;
-        self.translucent_model.indices = translucent_indices;
-        self.translucent_model.vertices = translucent_vertices;
-        self.viewable_map = Some(viewable);
+        UpdateChunkMesh {
+            chunk: self.position,
+            opaque_model: MeshData {
+                vertices: opaque_vertices,
+                indices: opaque_indices,
+                vertices_buffer: None,
+                indices_buffer: None,
+                indices_buffer_len: opaque_indices_buffer_len,
+            },
+            translucent_model: MeshData {
+                vertices: translucent_vertices,
+                indices: translucent_indices,
+                vertices_buffer: None,
+                indices_buffer: None,
+                indices_buffer_len: translucent_indices_buffer_len,
+            },
+            viewable_map: Some(viewable),
+            model_bind_group: None,
+        }
     }
 }

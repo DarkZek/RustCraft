@@ -1,12 +1,11 @@
-use crate::block::Block;
 use crate::services::chunk_service::mesh::culling::ViewableDirection;
-use crate::services::chunk_service::mesh::{MeshData, Vertex};
+use crate::services::chunk_service::mesh::MeshData;
 use crate::services::settings_service::CHUNK_SIZE;
 use nalgebra::Vector3;
-use specs::{Component, DenseVecStorage, NullStorage, ReadStorage, VecStorage};
+use specs::{Component, DenseVecStorage, VecStorage};
 use std::collections::HashMap;
 use std::mem::MaybeUninit;
-use wgpu::{BindGroup, Buffer};
+use wgpu::BindGroup;
 
 #[derive(Debug)]
 pub struct ChunkData {
@@ -34,24 +33,12 @@ impl Component for ChunkData {
     type Storage = VecStorage<Self>;
 }
 
-pub struct RerenderChunkFlag {
-    pub chunk: Vector3<i32>,
-}
-impl Component for RerenderChunkFlag {
-    type Storage = DenseVecStorage<Self>;
-}
-impl Default for RerenderChunkFlag {
-    fn default() -> Self {
-        unimplemented!()
-    }
-}
-
 pub type Color = [u8; 4];
 
 impl ChunkData {
-    pub fn new(data: ChunkBlockData, position: Vector3<i32>) -> ChunkData {
+    pub fn new(data: RawChunkData, position: Vector3<i32>) -> ChunkData {
         ChunkData {
-            world: data.0,
+            world: data,
             opaque_model: MeshData::default(),
             translucent_model: MeshData::default(),
             model_bind_group: None,
@@ -66,20 +53,19 @@ impl ChunkData {
 
 pub type RawChunkData = [[[u32; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
 pub type RawLightingData = [[[Color; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
-pub type ChunkBlockData = (RawChunkData, Vec<Block>);
 
 pub struct Chunks<'a> {
-    data: Option<&'a [MaybeUninit<ChunkData>]>,
-    data_mut: Option<&'a mut [MaybeUninit<ChunkData>]>,
+    data: Option<Vec<&'a ChunkData>>,
+    data_mut: Option<Vec<&'a mut ChunkData>>,
     map: HashMap<Vector3<i32>, usize>,
 }
 
 impl Chunks<'_> {
-    pub fn new<'a>(data: &'a [MaybeUninit<ChunkData>]) -> Chunks<'a> {
+    pub fn new(data: Vec<&ChunkData>) -> Chunks {
         let mut map = HashMap::new();
         for (i, chunk) in data.iter().enumerate() {
             unsafe {
-                map.insert((*chunk.as_ptr()).position, i);
+                map.insert(chunk.position, i);
             }
         }
 
@@ -89,11 +75,11 @@ impl Chunks<'_> {
             map,
         }
     }
-    pub fn new_mut<'a>(data_mut: &'a mut [MaybeUninit<ChunkData>]) -> Chunks<'a> {
+    pub fn new_mut(data_mut: Vec<&mut ChunkData>) -> Chunks {
         let mut map = HashMap::new();
         for (i, chunk) in data_mut.iter().enumerate() {
             unsafe {
-                map.insert((*chunk.as_ptr()).position, i);
+                map.insert(chunk.position, i);
             }
         }
 
@@ -106,7 +92,7 @@ impl Chunks<'_> {
 
     pub fn get_loc(&self, loc: Vector3<i32>) -> Option<&ChunkData> {
         if let Option::Some(index) = self.map.get(&loc) {
-            unsafe { Some(&(*self.data.unwrap()[*index].as_ptr())) }
+            Some(self.data.as_ref().unwrap()[*index])
         } else {
             None
         }
@@ -114,7 +100,7 @@ impl Chunks<'_> {
 
     pub fn get_mut_loc(&mut self, loc: Vector3<i32>) -> Option<&mut ChunkData> {
         if let Option::Some(index) = self.map.get(&loc) {
-            unsafe { Some(&mut (*self.data_mut.as_mut().unwrap()[*index].as_mut_ptr())) }
+            Some(self.data_mut.as_mut().unwrap()[*index])
         } else {
             None
         }

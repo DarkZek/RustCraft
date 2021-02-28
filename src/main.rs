@@ -1,9 +1,9 @@
 #![feature(once_cell)]
+#![feature(maybe_uninit_ref)]
 
+extern crate lazy_static;
 extern crate log;
 extern crate zerocopy;
-#[macro_use]
-extern crate lazy_static;
 
 use crate::game::Game;
 

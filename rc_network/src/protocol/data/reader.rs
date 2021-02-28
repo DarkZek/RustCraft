@@ -1,7 +1,7 @@
-use crate::protocol::types::{PVarTypeTemplate, PVarType};
-use crate::stream::NetworkStream;
-use crate::protocol::data::read_types::{read_varint, length_as_varint, read_string};
+use crate::protocol::data::read_types::{length_as_varint, read_string, read_varint};
 use crate::protocol::data::Packet;
+use crate::protocol::types::{PVarType, PVarTypeTemplate};
+use crate::stream::NetworkStream;
 use std::io::Read;
 
 pub struct PacketReader {
@@ -42,7 +42,7 @@ impl PacketReader {
                     let len = read_varint(stream);
 
                     let mut data = vec![0; len as usize];
-                    stream.read_exact(&mut data);
+                    stream.read_exact(&mut data).unwrap();
 
                     tokens.push(PVarType::VarIntByteArray(data));
                 }

@@ -34,7 +34,7 @@ impl<'a> System<'a> for FpsDisplayingSystem {
                     .fonts
                     .create_text()
                     .set_text(&format!("FPS: {}", render_state.fps))
-                    .set_size(20.0)
+                    .set_size(24.0)
                     .set_text_alignment(ObjectAlignment::TopLeft)
                     .set_object_alignment(ObjectAlignment::TopLeft)
                     .set_positioning(Positioning::Relative)
