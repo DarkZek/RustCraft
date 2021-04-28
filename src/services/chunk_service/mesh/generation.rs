@@ -57,64 +57,62 @@ impl ChunkData {
 
                     //Isn't air
                     if chunk[x][y][z] != 0 && viewable != 0 {
-                        unsafe {
-                            let block = match BLOCK_STATES.get() {
+                        let block = match BLOCK_STATES.get() {
+                            None => {
+                                log_error!("Blockstates list was not generated");
+                                continue;
+                            }
+                            Some(states) => match states.get_block(chunk[x][y][z] as usize) {
                                 None => {
-                                    log_error!("Blockstates list was not generated");
+                                    // TEMP commented out
+                                    // log_error!(format!(
+                                    //     "Block with invalid blockstate: X {} Y {} Z {} Block ID {}",
+                                    // x, y, z, chunk[x][y][z]
+                                    // ));
                                     continue;
                                 }
-                                Some(states) => match states.get_block(chunk[x][y][z] as usize) {
-                                    None => {
-                                        // TEMP commented out
-                                        // log_error!(format!(
-                                        //     "Block with invalid blockstate: X {} Y {} Z {} Block ID {}",
-                                        // x, y, z, chunk[x][y][z]
-                                        // ));
-                                        continue;
-                                    }
-                                    Some(block) => block,
-                                },
-                            };
+                                Some(block) => block,
+                            },
+                        };
 
-                            let applied_color = self.light_levels[x][y][z];
-                            let extra_color = self.neighboring_light_levels[x][y][z].clone();
+                        let applied_color = self.light_levels[x][y][z];
+                        let extra_color = self.neighboring_light_levels[x][y][z].clone();
 
-                            let out_color = [
-                                (applied_color[0] as u16 + extra_color[0] as u16) as u8,
-                                (applied_color[1] as u16 + extra_color[1] as u16) as u8,
-                                (applied_color[2] as u16 + extra_color[2] as u16) as u8,
-                                255,
-                            ];
+                        let out_color = [
+                            (applied_color[0] as u16 + extra_color[0] as u16) as u8,
+                            (applied_color[1] as u16 + extra_color[1] as u16) as u8,
+                            (applied_color[2] as u16 + extra_color[2] as u16) as u8,
+                            255,
+                        ];
 
-                            let vertices = if block.block_type.get_transparency()
-                                || chunk[x][y][z] == 34
-                                || chunk[x][y][z] == 230
-                            {
-                                &mut translucent_vertices
-                            } else {
-                                &mut opaque_vertices
-                            };
+                        let vertices = if block.block_type.get_transparency()
+                            || chunk[x][y][z] == 34
+                            || chunk[x][y][z] == 230
+                        {
+                            &mut translucent_vertices
+                        } else {
+                            &mut opaque_vertices
+                        };
 
-                            // Change buffer based on transparency
-                            let indices = if block.block_type.get_transparency()
-                                || chunk[x][y][z] == 34
-                                || chunk[x][y][z] == 230
-                            {
-                                &mut translucent_indices
-                            } else {
-                                &mut opaque_indices
-                            };
+                        // Change buffer based on transparency
+                        let indices = if block.block_type.get_transparency()
+                            || chunk[x][y][z] == 34
+                            || chunk[x][y][z] == 230
+                        {
+                            &mut translucent_indices
+                        } else {
+                            &mut opaque_indices
+                        };
 
-                            block.get_model().model.draw(
-                                x as f32,
-                                y as f32,
-                                z as f32,
-                                vertices,
-                                indices,
-                                out_color,
-                                ViewableDirection(viewable),
-                            );
-                        }
+                        block.get_model().model.draw(
+                            x as f32,
+                            y as f32,
+                            z as f32,
+                            vertices,
+                            indices,
+                            out_color,
+                            ViewableDirection(viewable),
+                        );
                     }
                 }
             }

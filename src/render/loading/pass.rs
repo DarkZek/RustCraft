@@ -44,6 +44,9 @@ impl LoadingScreen {
 
                 self.render(displayed_progress);
             }
+
+            // Signal we've shut down the thread and dropped the swapchain
+            *crate::render::loading::LOADING_STATE.lock().unwrap() = -1.0;
         });
     }
 
@@ -85,20 +88,23 @@ impl LoadingScreen {
             .device
             .as_ref()
             .create_buffer_init(&BufferInitDescriptor {
-                label: None,
+                label: Some("Loading verticles buffer descriptor"),
                 contents: &bytemuck::cast_slice(vertices.as_slice()),
                 usage: BufferUsage::VERTEX,
             });
 
         let frame = self.swapchain.lock().unwrap().get_current_frame().unwrap();
 
-        let mut encoder = self
-            .device
-            .as_ref()
-            .create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
+        let mut encoder =
+            self.device
+                .as_ref()
+                .create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                    label: Some("Loading command encoder descriptor"),
+                });
 
         {
             let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+                label: Some("Loading Render Pass"),
                 color_attachments: &[wgpu::RenderPassColorAttachmentDescriptor {
                     attachment: &frame.output.view,
                     resolve_target: None,

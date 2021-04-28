@@ -1,16 +1,25 @@
 use crate::helpers::chunk_by_loc_from_write;
 use crate::render::RenderState;
 use crate::services::chunk_service::chunk::{ChunkData, Chunks};
+use crate::services::chunk_service::lighting::UpdateChunkLighting;
 use crate::services::chunk_service::mesh::culling::ViewableDirection;
 use crate::services::chunk_service::mesh::MeshData;
 use crate::services::chunk_service::ChunkService;
 use crate::services::settings_service::{SettingsService, CHUNK_SIZE};
 use nalgebra::Matrix4;
 use nalgebra::Vector3;
-use specs::{Component, DenseVecStorage, Entities, Join, Read, ReadStorage};
+use specs::join::JoinParIter;
+use specs::{
+    Component, DenseVecStorage, Entities, Entity, Join, ParJoin, Read, ReadStorage, Write,
+};
 use specs::{System, WriteStorage};
+use std::sync::Mutex;
+use std::thread;
+use std::thread::JoinHandle;
+use std::time::SystemTime;
+use sysinfo::SystemExt;
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
-use wgpu::{BindGroup, BindGroupLayout, Device};
+use wgpu::{BindGroup, BindGroupLayout, BindingResource, Device};
 
 pub struct RerenderChunkFlag {
     pub chunk: Vector3<i32>,
@@ -24,6 +33,9 @@ impl Default for RerenderChunkFlag {
     }
 }
 
+pub const LOW_MEMORY_WARNING_PERIOD: f32 = 5.0;
+pub const LOW_MEMORY_MINIMUM_KB: u64 = 250000;
+
 pub struct UpdateChunkMesh {
     pub chunk: Vector3<i32>,
     pub opaque_model: MeshData,
@@ -31,14 +43,24 @@ pub struct UpdateChunkMesh {
     pub viewable_map: Option<[[[ViewableDirection; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE]>,
     pub model_bind_group: Option<BindGroup>,
 }
-impl Component for UpdateChunkMesh {
+
+pub struct UpdateChunkGraphics {
+    pub(crate) mesh: UpdateChunkMesh,
+    pub(crate) lighting: UpdateChunkLighting,
+}
+
+impl Component for UpdateChunkGraphics {
     type Storage = DenseVecStorage<Self>;
 }
-impl Default for UpdateChunkMesh {
+impl Default for UpdateChunkGraphics {
     fn default() -> Self {
         unimplemented!()
     }
 }
+
+// pub struct ChunkRerenderThread {
+//     thread: Option<JoinHandle<()>>,
+// }
 
 pub struct ChunkRerenderSystem;
 
@@ -47,41 +69,93 @@ impl<'a> System<'a> for ChunkRerenderSystem {
         WriteStorage<'a, RerenderChunkFlag>,
         ReadStorage<'a, ChunkData>,
         Read<'a, SettingsService>,
-        Read<'a, ChunkService>,
+        Write<'a, ChunkService>,
         Read<'a, RenderState>,
         Entities<'a>,
-        WriteStorage<'a, UpdateChunkMesh>,
+        WriteStorage<'a, UpdateChunkGraphics>,
     );
 
     fn run(
         &mut self,
         (
             mut flags,
-            mut chunks,
+            chunks,
             settings,
-            chunk_service,
+            mut chunk_service,
             render_system,
             entities,
-            mut update_meshes,
+            mut update_graphics,
         ): Self::SystemData,
     ) {
+        // Create indexed by location chunks array
         let chunks_loc = Chunks::new(chunks.join().collect::<Vec<&ChunkData>>());
 
-        for flag in flags.join() {
+        // Create list for parallel work to put result in to
+        let meshes = Mutex::new(Vec::new());
+
+        let mut processed = 0;
+
+        for (flag_entity, flag) in (&entities, &flags).join() {
+            chunk_service.system.refresh_memory();
+            // If the chunk exists
             if let Option::Some(chunk) = chunks_loc.get_loc(flag.chunk) {
+                // If the system has less than 0.25gb of ram refuse to build mesh
+                if chunk_service.system.get_available_memory() < LOW_MEMORY_MINIMUM_KB {
+                    // Only log message every 5 seconds
+                    if chunk_service
+                        .low_memory_reminded
+                        .elapsed()
+                        .unwrap()
+                        .as_secs_f32()
+                        > LOW_MEMORY_WARNING_PERIOD
+                    {
+                        log_warn!(format!(
+                            "Not enough memory to load chunks - {}/{}MB free ",
+                            chunk_service.system.get_available_memory() / 1000,
+                            chunk_service.system.get_total_memory() / 1000
+                        ));
+
+                        chunk_service.low_memory_reminded = SystemTime::now();
+                    }
+                    return;
+                }
+
+                // Generate mesh & gpu buffers
                 let mut update = chunk.generate_mesh(&chunks_loc, &settings);
                 update.create_buffers(
                     &render_system.device,
                     &chunk_service.model_bind_group_layout,
                 );
-                entities
-                    .build_entity()
-                    .with(update, &mut update_meshes)
-                    .build();
+                let lighting_update = chunk.calculate_lighting(&chunks_loc);
+
+                // Output result into lock
+                meshes
+                    .lock()
+                    .unwrap()
+                    .push((Some(update), Some(lighting_update), flag_entity));
+            } else {
+                meshes.lock().unwrap().push((None, None, flag_entity));
+            }
+
+            // Limit chunks loaded per frame
+            processed += 1;
+            if processed == 3 {
+                break;
             }
         }
 
-        flags.clear();
+        // Apply the results of the work
+        for (mesh, lighting, to_delete) in meshes.into_inner().unwrap() {
+            if let Option::Some(mesh) = mesh {
+                if let Option::Some(lighting) = lighting {
+                    entities
+                        .build_entity()
+                        .with(UpdateChunkGraphics { mesh, lighting }, &mut update_graphics)
+                        .build();
+                }
+            }
+            flags.remove(to_delete);
+        }
     }
 }
 
@@ -92,7 +166,7 @@ impl UpdateChunkMesh {
 
         if opaque_vertices.len() != 0 {
             let vertex_buffer = device.create_buffer_init(&BufferInitDescriptor {
-                label: None,
+                label: Some("Chunk Opaque Mesh Data Buffer"),
                 contents: &bytemuck::cast_slice(&opaque_vertices),
                 usage: wgpu::BufferUsage::VERTEX,
             });
@@ -101,7 +175,7 @@ impl UpdateChunkMesh {
 
         if translucent_vertices.len() != 0 {
             let vertex_buffer = device.create_buffer_init(&BufferInitDescriptor {
-                label: None,
+                label: Some("Chunk Translucent Mesh Data Buffer"),
                 contents: &bytemuck::cast_slice(&translucent_vertices),
                 usage: wgpu::BufferUsage::VERTEX,
             });
@@ -115,7 +189,7 @@ impl UpdateChunkMesh {
 
         if self.opaque_model.indices_buffer_len != 0 {
             let indices_buffer = device.create_buffer_init(&BufferInitDescriptor {
-                label: None,
+                label: Some("Chunk Opaque Mesh Data Indices Buffer"),
                 contents: &bytemuck::cast_slice(&opaque_indices),
                 usage: wgpu::BufferUsage::INDEX,
             });
@@ -124,7 +198,7 @@ impl UpdateChunkMesh {
 
         if self.translucent_model.indices_buffer_len != 0 {
             let indices_buffer = device.create_buffer_init(&BufferInitDescriptor {
-                label: None,
+                label: Some("Chunk Translucent Mesh Data Indices Buffer"),
                 contents: &bytemuck::cast_slice(&translucent_indices),
                 usage: wgpu::BufferUsage::INDEX,
             });
@@ -140,7 +214,7 @@ impl UpdateChunkMesh {
         .into();
 
         let model_buffer = device.create_buffer_init(&BufferInitDescriptor {
-            label: None,
+            label: Some("Chunk translation matrix buffer"),
             contents: &bytemuck::cast_slice(&[model.clone()]),
             usage: wgpu::BufferUsage::UNIFORM
                 | wgpu::BufferUsage::COPY_DST
@@ -148,15 +222,16 @@ impl UpdateChunkMesh {
         });
 
         let model_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+            label: Some("Chunk translation matrix bind group"),
             layout: &bind_group_layout,
             entries: &[wgpu::BindGroupEntry {
                 binding: 0,
-                resource: wgpu::BindingResource::Buffer(
-                    model_buffer
-                        .slice(0..std::mem::size_of::<[[f32; 4]; 4]>() as wgpu::BufferAddress),
-                ),
+                resource: BindingResource::Buffer {
+                    buffer: &model_buffer,
+                    offset: 0,
+                    size: None,
+                },
             }],
-            label: None,
         });
 
         self.model_bind_group = Some(model_bind_group);

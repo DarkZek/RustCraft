@@ -7,7 +7,7 @@ use crate::services::ui_service::{ObjectAlignment, Positioning};
 use image::DynamicImage;
 use std::collections::HashMap;
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
-use wgpu::{Buffer, Device, Texture};
+use wgpu::Device;
 use winit::dpi::PhysicalSize;
 
 /// Image Manager is a subsystem of the User Interface Service.
@@ -182,7 +182,7 @@ impl WidgetBuilder<'_> {
         text: &str,
         manager: &mut FontsManager,
     ) -> Self {
-        let mut pos = self.widget.as_ref().unwrap().pos;
+        let pos = self.widget.as_ref().unwrap().pos;
 
         //pos[0] += (self.widget.as_ref().unwrap().scale[0]) / 2.0;
 

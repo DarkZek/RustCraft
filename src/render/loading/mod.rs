@@ -8,7 +8,7 @@ use std::thread;
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{
     BindGroup, BindGroupLayout, Buffer, BufferUsage, Device, Queue, RenderPipeline, Sampler,
-    SwapChain, Texture,
+    SwapChain, Texture, TextureFormat,
 };
 use winit::dpi::PhysicalSize;
 
@@ -173,6 +173,10 @@ impl LoadingScreen {
         *crate::render::loading::LOADING_STATE.lock().unwrap() = state;
     }
 
+    pub fn has_finished() -> bool {
+        *crate::render::loading::LOADING_STATE.lock().unwrap() == -1.0
+    }
+
     pub fn wait_for_swapchain(mut swap_chain: Arc<Mutex<SwapChain>>) -> SwapChain {
         loop {
             // Try to unwrap
@@ -197,7 +201,7 @@ impl LoadingScreen {
 
 pub fn load_buffers(device: &Device) -> Buffer {
     let defaults_buffer = device.create_buffer_init(&BufferInitDescriptor {
-        label: None,
+        label: Some("Loading Verticles Buffer"),
         contents: &bytemuck::cast_slice(STANDARD_VERTICES.as_ref()),
         usage: BufferUsage::VERTEX,
     });

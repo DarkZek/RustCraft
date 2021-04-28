@@ -68,8 +68,7 @@ fn is_offset_transparent(
 
     match BLOCK_STATES.get() {
         None => {
-            // TEMP commented out
-            //log_error!("Blockstates list was not generated");
+            log_error!("Blockstates list was not generated");
             false
         }
         Some(states) => match states.get_block(block_id as usize) {
@@ -81,12 +80,19 @@ fn is_offset_transparent(
                 false
             }
             Some(block) => {
-                // If its the same block we don't want borders drawn between them
-                if src_block.is_some()
-                    && block.block_type.get_identifier()
-                        == src_block.as_ref().unwrap().block_type.get_identifier()
-                {
-                    return false;
+                // If its the same block we don't want borders drawn between them, or if they're both waterlogged
+                if src_block.is_some() {
+                    if block.block_type.is_waterlogged()
+                        && src_block.as_ref().unwrap().block_type.is_waterlogged()
+                    {
+                        return false;
+                    }
+                    if block.block_type.get_transparency()
+                        && block.block_type.get_identifier()
+                            == src_block.as_ref().unwrap().block_type.get_identifier()
+                    {
+                        return true;
+                    }
                 }
                 block.block_type.get_transparency()
             }

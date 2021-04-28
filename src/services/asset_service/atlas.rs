@@ -1,6 +1,8 @@
+use crate::helpers::Lerp;
 use crate::services::asset_service::{AssetService, ResourcePack};
 use crate::services::settings_service::SettingsService;
 use image::{DynamicImage, GenericImageView, ImageBuffer, Rgba};
+use serde::ser::Serialize;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{Read, Write};
@@ -10,7 +12,100 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{BufferUsage, CompareFunction, Device, Queue, Sampler, Texture, TextureDataLayout};
 
-pub type TextureAtlasIndex = ([f32; 2], [f32; 2]);
+#[derive(Copy, Clone, Debug, Serialize, Deserialize)]
+pub struct TextureAtlasIndex {
+    pub u_min: f32,
+    pub u_max: f32,
+    pub v_min: f32,
+    pub v_max: f32,
+}
+
+impl TextureAtlasIndex {
+    pub fn new(u_min: f32, u_max: f32, v_min: f32, v_max: f32) -> TextureAtlasIndex {
+        TextureAtlasIndex {
+            u_min,
+            u_max,
+            v_min,
+            v_max,
+        }
+    }
+
+    pub fn width(&self) -> f32 {
+        (self.u_max - self.u_min).abs()
+    }
+
+    pub fn height(&self) -> f32 {
+        (self.v_max - self.v_min).abs()
+    }
+
+    pub fn half_width(&self) -> f32 {
+        (self.u_max - self.u_min) / 2.0
+    }
+
+    pub fn half_height(&self) -> f32 {
+        (self.v_max - self.v_min) / 2.0
+    }
+
+    pub fn local_offset(
+        &self,
+        u_min: Option<f32>,
+        u_max: Option<f32>,
+        v_min: Option<f32>,
+        v_max: Option<f32>,
+    ) -> TextureAtlasIndex {
+        let mut atlas = self.clone();
+
+        if u_min.is_some() {
+            atlas.u_min += u_min.unwrap();
+        }
+
+        if u_max.is_some() {
+            atlas.u_max += u_max.unwrap();
+        }
+
+        if v_min.is_some() {
+            atlas.v_min += v_min.unwrap();
+        }
+
+        if v_max.is_some() {
+            atlas.v_max += v_max.unwrap();
+        }
+
+        atlas
+    }
+
+    pub fn sub_index(&self, index: &TextureAtlasIndex) -> TextureAtlasIndex {
+        TextureAtlasIndex::new(
+            self.u_min.lerp(self.u_max, index.u_min),
+            self.u_min.lerp(self.u_max, index.u_max),
+            self.v_min.lerp(self.v_max, index.v_min),
+            self.v_min.lerp(self.v_max, index.v_max),
+        )
+    }
+
+    pub fn multiply(&mut self, width: f32, height: f32) {
+        self.u_min *= width;
+        self.u_max *= width;
+        self.v_min *= height;
+        self.v_max *= height;
+    }
+
+    pub fn flipped(&self) -> TextureAtlasIndex {
+        let mut index = self.clone();
+
+        let temp_min = index.u_min;
+        index.u_min = index.u_max;
+        index.u_max = temp_min;
+
+        index
+    }
+}
+
+impl Default for TextureAtlasIndex {
+    fn default() -> Self {
+        TextureAtlasIndex::new(0.0, 0.0, 0.0, 0.0)
+    }
+}
 
 pub const ATLAS_WIDTH: u32 = 4096;
 pub const ATLAS_HEIGHT: u32 = (4096.0 * 2.0) as u32;
@@ -44,7 +139,7 @@ impl AssetService {
 
         //Create buffer
         let diffuse_texture = device.create_texture(&wgpu::TextureDescriptor {
-            label: None,
+            label: Some("Asset Service Texture Atlas Texture"),
             size: wgpu::Extent3d {
                 width: ATLAS_WIDTH,
                 height: ATLAS_HEIGHT,
@@ -67,7 +162,7 @@ impl AssetService {
                     Ok(mut file) => {
                         let mut info = String::new();
                         if let Result::Err(err) = file.read_to_string(&mut info) {
-                            log_error!("Error reading atlas_info file {}", err)
+                            log_error!("Error reading atlas_info file {}", err);
                         }
                         let (name, time) = info.split_at(info.find("\n").unwrap_or(0));
                         let time = time.trim().parse::<u64>().unwrap();
@@ -141,19 +236,15 @@ impl AssetService {
                         if (row_width + width) <= ATLAS_WIDTH {
                             texture_numbers_x.push(row_width + width - 1);
 
-                            // Generate a list of locations that our textures exist inside of the main atlas texture. These are in the form 1/(X POS) because this is how it's expected in the shaders.
+                            // Generate a list of locations that our textures exist inside of the src atlas texture. These are in the form 1/(X POS) because this is how it's expected in the shaders.
                             atlas_index.insert(
                                 name.clone(),
-                                (
-                                    [
-                                        (row_width as f32) / ATLAS_WIDTH as f32,
-                                        ((current_y + row_height - img.height()) as f32)
-                                            / ATLAS_HEIGHT as f32,
-                                    ],
-                                    [
-                                        ((row_width + width) as f32) / ATLAS_WIDTH as f32,
-                                        ((current_y + row_height) as f32) / ATLAS_HEIGHT as f32,
-                                    ],
+                                TextureAtlasIndex::new(
+                                    (row_width as f32) / ATLAS_WIDTH as f32,
+                                    ((row_width + width) as f32) / ATLAS_WIDTH as f32,
+                                    ((current_y + row_height - img.height()) as f32)
+                                        / ATLAS_HEIGHT as f32,
+                                    ((current_y + row_height) as f32) / ATLAS_HEIGHT as f32,
                                 ),
                             );
                         } else {
@@ -217,28 +308,6 @@ impl AssetService {
                     None => {
                         *pixel = image::Rgba([255, 255, 0, 255]);
                     }
-                }
-            }
-
-            if settings.debug_atlas {
-                for (_, coord) in atlas_index.iter() {
-                    let x = (coord.0[0] * ATLAS_WIDTH as f32) as u32;
-                    let y = (coord.0[1] * ATLAS_HEIGHT as f32) as u32;
-
-                    atlas.put_pixel(x, y, image::Rgba([255, 255, 0, 255]));
-                    atlas.put_pixel(x, y + 1, image::Rgba([255, 255, 0, 255]));
-                    atlas.put_pixel(x + 1, y, image::Rgba([255, 255, 0, 255]));
-
-                    let x = (coord.1[0] * ATLAS_WIDTH as f32) as u32;
-                    let y = (coord.1[1] * ATLAS_HEIGHT as f32) as u32;
-
-                    if atlas.dimensions().0 == x {
-                        continue;
-                    }
-
-                    atlas.put_pixel(x, y, image::Rgba([255, 255, 0, 255]));
-                    atlas.put_pixel(x, y - 1, image::Rgba([255, 255, 0, 255]));
-                    atlas.put_pixel(x - 1, y, image::Rgba([255, 255, 0, 255]));
                 }
             }
 
@@ -307,13 +376,14 @@ impl AssetService {
         };
 
         let diffuse_buffer = device.create_buffer_init(&BufferInitDescriptor {
-            label: None,
+            label: Some("Asset Service Texture Atlas Buffer"),
             contents: &diffuse_rgba,
             usage: BufferUsage::COPY_SRC,
         });
 
-        let mut encoder =
-            device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
+        let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
+            label: Some("Asset Service Texture Atlas Command Encoder"),
+        });
 
         // Add it to buffer
         encoder.copy_buffer_to_texture(
@@ -336,7 +406,7 @@ impl AssetService {
         queue.submit(Some(encoder.finish()));
 
         let diffuse_sampler_descriptor = wgpu::SamplerDescriptor {
-            label: None,
+            label: Some("Asset Service Texture Atlas Sampler"),
             address_mode_u: wgpu::AddressMode::ClampToEdge,
             address_mode_v: wgpu::AddressMode::ClampToEdge,
             address_mode_w: wgpu::AddressMode::ClampToEdge,
@@ -347,6 +417,7 @@ impl AssetService {
             lod_max_clamp: 100.0,
             compare: Some(CompareFunction::Always),
             anisotropy_clamp: None,
+            border_color: None,
         };
 
         let diffuse_sampler = device.create_sampler(&diffuse_sampler_descriptor);

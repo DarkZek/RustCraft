@@ -66,15 +66,8 @@ impl<'a> System<'a> for NetworkingSyncSystem {
                 let (_, player_physics) =
                     (&player_entity, &mut player_physics).join().last().unwrap();
                 player_physics.position =
-                    Vector3::new(packet.x as f32, packet.y as f32, packet.z as f32);
-            }
-
-            if let PacketData::PlayerListInfo(packet) = &packet {
-                game_state.state = ProgramState::IN_GAME;
-                let image = ui_service.background_image.clone();
-                ui_service.images.delete_image(image);
-
-                log!("Successfully logged in to server");
+                    Vector3::new(packet.x as f32, packet.y as f32 + 100.0, packet.z as f32);
+                println!("Spawned player!!");
             }
 
             if let PacketData::ChunkData(packet) = packet {
@@ -95,6 +88,17 @@ impl<'a> System<'a> for NetworkingSyncSystem {
                         &mut chunks_storage,
                         &mut rerendering_chunks,
                     );
+
+                    // Loaded enough to show game
+                    if chunks_storage.as_slice().len() >= 16 * 16 * 16
+                        && game_state.state != ProgramState::IN_GAME
+                    {
+                        game_state.state = ProgramState::IN_GAME;
+                        let image = ui_service.background_image.clone();
+                        ui_service.images.delete_image(image);
+
+                        log!("Successfully logged in to server");
+                    }
 
                     let chunk = Vector3::new(packet.x, y, packet.z);
 

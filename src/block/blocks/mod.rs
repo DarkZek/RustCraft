@@ -1,6 +1,7 @@
 use crate::block::blocks::model::{BlockFace, BlockModel};
 use crate::block::Block;
 use crate::game::physics::collider::BoxCollider;
+use crate::helpers::{AtlasIndex, TextureSubdivisionMethod};
 use crate::services::asset_service::atlas::TextureAtlasIndex;
 use crate::services::asset_service::atlas::ATLAS_LOOKUPS;
 use crate::services::asset_service::AssetService;
@@ -46,20 +47,20 @@ impl BlockStates {
             let mut str = String::new();
             for (i, state) in states.iter().enumerate() {
                 str = str.add(&*format!(
-                    "{}: {}",
+                    "{}: {}\n",
                     i,
                     blocks.get(state.block_number).unwrap().get_identifier()
                 ));
             }
-            if let Result::Err(error) = std::fs::write(format!("{}cache/", settings.path), str) {
+            if let Result::Err(error) =
+                std::fs::write(format!("{}cache/debug_states.txt", settings.path), str)
+            {
                 log_error!("Error writing debug states: {}", error);
             }
         }
 
-        unsafe {
-            if let Result::Err(_) = BLOCK_STATES.set(BlockStates { states, blocks }) {
-                log_error!("Error setting block states list")
-            }
+        if let Result::Err(_) = BLOCK_STATES.set(BlockStates { states, blocks }) {
+            log_error!("Error setting block states list")
         }
     }
 
@@ -87,7 +88,6 @@ fn calculate_states_len(value: &Value) -> usize {
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Copy)]
 enum PropertyType {
-    Unknown,
     Boolean(bool),
     TreeVariant(TreeVariant),
     UnsignedByte(u8),
@@ -95,6 +95,7 @@ enum PropertyType {
     Direction(Direction),
     Instrument(Instrument),
     RailShape(RailShape),
+    StairShape(StairShape),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Copy)]
@@ -154,6 +155,15 @@ pub enum RailShape {
     AscendingSouth,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Copy)]
+pub enum StairShape {
+    Straight,
+    InnerLeft,
+    InnerRight,
+    OuterLeft,
+    OuterRight,
+}
+
 impl Default for TreeVariant {
     fn default() -> Self {
         TreeVariant::Oak
@@ -177,6 +187,11 @@ impl Default for Instrument {
 impl Default for RailShape {
     fn default() -> Self {
         RailShape::AscendingEast
+    }
+}
+impl Default for StairShape {
+    fn default() -> Self {
+        StairShape::Straight
     }
 }
 
@@ -236,6 +251,7 @@ macro_rules! define_blocks {
                 $(light_color $light_color:expr,)?
                 $(light_intensity $light_intensity:expr,)?
                 $(transparent $transparent:expr,)?
+                $(waterlogged $waterlogged:expr,)?
             }
         )+
     ) => (
@@ -325,6 +341,20 @@ macro_rules! define_blocks {
                         } => {
                             $(return $full;)?
                             return true;
+                        }
+                    )+
+                }
+            }
+
+            #[allow(unused_variables, unreachable_code)]
+            pub fn is_waterlogged(&self) -> bool {
+                match *self {
+                    $(
+                        BlockType::$name {
+                            $($fname,)?
+                        } => {
+                            $(return $waterlogged;)?
+                            return false;
                         }
                     )+
                 }
@@ -581,7 +611,7 @@ define_blocks! {
                         scale: Vector3::new(1.0, 0.0, 1.0),
                         texture: lookup.clone(),
                         normal: ViewableDirectionBitMap::Top,
-                        edge: false,
+                        edge: true,
                     },
                     BlockFace {
                         bottom_left: Vector3::new(0.0, 0.0, 0.0),
@@ -623,6 +653,7 @@ define_blocks! {
         },
         collidable false,
         transparent true,
+        waterlogged true,
     }
     Lava {
         identifier "minecraft:lava",
@@ -658,13 +689,18 @@ define_blocks! {
         props {},
         model BlockModel::square_block(["block/red_sand"; 6]),
     }
-    GoldOre {
+    Gravel {
         identifier "minecraft:gravel",
+        props {},
+        model BlockModel::square_block(["block/gravel"; 6]),
+    }
+    GoldOre {
+        identifier "minecraft:gold_ore",
         props {},
         model BlockModel::square_block(["block/gold_ore"; 6]),
     }
     IronOre {
-        identifier "minecraft:gravel",
+        identifier "minecraft:iron_ore",
         props {},
         model BlockModel::square_block(["block/iron_ore"; 6]),
     }
@@ -844,7 +880,7 @@ define_blocks! {
     OakLeaves {
         identifier "minecraft:oak_leaves",
         props {
-            distance: u8 = vec![PropertyType::UnsignedByte(0),
+            distance: u8 = vec![
                 PropertyType::UnsignedByte(1),
                 PropertyType::UnsignedByte(2),
                 PropertyType::UnsignedByte(3),
@@ -853,6 +889,7 @@ define_blocks! {
                 PropertyType::UnsignedByte(6),
                 PropertyType::UnsignedByte(7)
                 ],
+            persistent: bool = vec![PropertyType::Boolean(true), PropertyType::Boolean(false)],
         },
         model BlockModel::square_block(["block/oak_leaves", "block/oak_leaves", "block/oak_leaves", "block/oak_leaves", "block/oak_leaves", "block/oak_leaves"]),
         transparent true,
@@ -860,7 +897,7 @@ define_blocks! {
     SpruceLeaves {
         identifier "minecraft:spruce_leaves",
         props {
-            distance: u8 = vec![PropertyType::UnsignedByte(0),
+            distance: u8 = vec![
                 PropertyType::UnsignedByte(1),
                 PropertyType::UnsignedByte(2),
                 PropertyType::UnsignedByte(3),
@@ -877,7 +914,7 @@ define_blocks! {
     BirchLeaves {
         identifier "minecraft:birch_leaves",
         props {
-            distance: u8 = vec![PropertyType::UnsignedByte(0),
+            distance: u8 = vec![
                 PropertyType::UnsignedByte(1),
                 PropertyType::UnsignedByte(2),
                 PropertyType::UnsignedByte(3),
@@ -894,7 +931,7 @@ define_blocks! {
     JungleLeaves {
         identifier "minecraft:jungle_leaves",
         props {
-            distance: u8 = vec![PropertyType::UnsignedByte(0),
+            distance: u8 = vec![
                 PropertyType::UnsignedByte(1),
                 PropertyType::UnsignedByte(2),
                 PropertyType::UnsignedByte(3),
@@ -911,7 +948,7 @@ define_blocks! {
     AcaciaLeaves {
         identifier "minecraft:acacia_leaves",
         props {
-            distance: u8 = vec![PropertyType::UnsignedByte(0),
+            distance: u8 = vec![
                 PropertyType::UnsignedByte(1),
                 PropertyType::UnsignedByte(2),
                 PropertyType::UnsignedByte(3),
@@ -928,7 +965,7 @@ define_blocks! {
     DarkOakLeaves {
         identifier "minecraft:dark_oak_leaves",
         props {
-            distance: u8 = vec![PropertyType::UnsignedByte(0),
+            distance: u8 = vec![
                 PropertyType::UnsignedByte(1),
                 PropertyType::UnsignedByte(2),
                 PropertyType::UnsignedByte(3),
@@ -1470,7 +1507,1360 @@ define_blocks! {
     Grass {
         identifier "minecraft:grass",
         props {},
-        model BlockModel::square_block(["block/cobweb"; 6]),
+        model {
+            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/grass").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
+
+            BlockModel {
+                faces: vec![
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        }
+                ]
+            }
+        },
         transparent true,
+    }
+    Fern {
+        identifier "minecraft:fern",
+        props {},
+        model {
+            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/fern").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
+
+            BlockModel {
+                faces: vec![
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        }
+                ]
+            }
+        },
+        transparent true,
+    }
+    DeadBush {
+        identifier "minecraft:dead_bush",
+        props {},
+        model {
+            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/dead_bush").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
+
+            BlockModel {
+                faces: vec![
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        }
+                ]
+            }
+        },
+        transparent true,
+    }
+    Seagrass {
+        identifier "minecraft:seagrass",
+        props {},
+        model {
+            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/seagrass").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
+            let water_lookup = ATLAS_LOOKUPS.get().unwrap().get("block/water_still").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
+
+            BlockModel {
+                faces: vec![
+                        //TODO: Scale this correctly, the texture is being smushed down
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 0.85, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 0.85, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 0.85, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 0.85, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        },
+                        // Water
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.85, 0.0),
+                            scale: Vector3::new(1.0, 0.0, 1.0),
+                            texture: water_lookup.clone(),
+                            normal: ViewableDirectionBitMap::Top,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 0.0, 1.0),
+                            texture: water_lookup.clone(),
+                            normal: ViewableDirectionBitMap::Bottom,
+                            edge: true,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(0.0, 0.85, 1.0),
+                            texture: water_lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: true,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(0.0, 0.85, 1.0),
+                            texture: water_lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: true,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 0.85, 0.0),
+                            texture: water_lookup.clone(),
+                            normal: ViewableDirectionBitMap::Front,
+                            edge: true,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 1.0),
+                            scale: Vector3::new(1.0, 0.85, 0.0),
+                            texture: water_lookup.clone(),
+                            normal: ViewableDirectionBitMap::Back,
+                            edge: true,
+                        },
+                ]
+            }
+        },
+        transparent true,
+        waterlogged true,
+    }
+    TallSeagrass {
+        identifier "minecraft:tall_seagrass",
+        props {
+            upper_half: bool = vec![
+                PropertyType::Boolean(true),
+                PropertyType::Boolean(false),
+            ],
+        },
+        model {
+            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/tall_seagrass_bottom").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
+            let water_lookup = ATLAS_LOOKUPS.get().unwrap().get("block/water_still").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
+
+            BlockModel {
+                faces: vec![
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        },
+                        // Water
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.85, 0.0),
+                            scale: Vector3::new(1.0, 0.0, 1.0),
+                            texture: water_lookup.clone(),
+                            normal: ViewableDirectionBitMap::Top,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 0.0, 1.0),
+                            texture: water_lookup.clone(),
+                            normal: ViewableDirectionBitMap::Bottom,
+                            edge: true,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(0.0, 0.85, 1.0),
+                            texture: water_lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: true,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(0.0, 0.85, 1.0),
+                            texture: water_lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: true,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 0.85, 0.0),
+                            texture: water_lookup.clone(),
+                            normal: ViewableDirectionBitMap::Front,
+                            edge: true,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 1.0),
+                            scale: Vector3::new(1.0, 0.85, 0.0),
+                            texture: water_lookup.clone(),
+                            normal: ViewableDirectionBitMap::Back,
+                            edge: true,
+                        },
+                ],
+            }
+        },
+        transparent true,
+        waterlogged true,
+    }
+    Piston {
+        identifier "minecraft:piston",
+        props {
+            extended: bool = vec![
+                PropertyType::Boolean(true),
+                PropertyType::Boolean(false),
+            ],
+            facing: Direction = vec![
+                PropertyType::Direction(Direction::North),
+                PropertyType::Direction(Direction::East),
+                PropertyType::Direction(Direction::South),
+                PropertyType::Direction(Direction::West),
+                PropertyType::Direction(Direction::Up),
+                PropertyType::Direction(Direction::Down),
+            ],
+        },
+        model BlockModel::square_block(["block/piston_side", "block/piston_side", "block/piston_side", "block/piston_side", "block/piston_top", "block/piston_bottom"]),
+        collidable false,
+        full false,
+    }
+    PistonHead {
+        identifier "minecraft:piston_head",
+        props {
+            facing: Direction = vec![
+                PropertyType::Direction(Direction::North),
+                PropertyType::Direction(Direction::East),
+                PropertyType::Direction(Direction::South),
+                PropertyType::Direction(Direction::West),
+                PropertyType::Direction(Direction::Up),
+                PropertyType::Direction(Direction::Down),
+            ],
+            short: bool = vec![
+                PropertyType::Boolean(true),
+                PropertyType::Boolean(false),
+            ],
+            is_sticky: bool = vec![
+                PropertyType::Boolean(false),
+                PropertyType::Boolean(true),
+            ],
+        },
+        model BlockModel::square_block(["block/piston_side", "block/piston_side", "block/piston_side", "block/piston_side", "block/piston_top", "block/piston_bottom"]),
+        collidable false,
+        full false,
+    }
+    WhiteWool {
+        identifier "minecraft:white_wool",
+        props {},
+        model BlockModel::square_block(["block/white_wool"; 6]),
+    }
+    OrangeWool {
+        identifier "minecraft:orange_wool",
+        props {},
+        model BlockModel::square_block(["block/orange_wool"; 6]),
+    }
+    MagentaWool {
+        identifier "minecraft:magenta_wool",
+        props {},
+        model BlockModel::square_block(["block/magenta_wool"; 6]),
+    }
+    LightBlueWool {
+        identifier "minecraft:light_blue_wool",
+        props {},
+        model BlockModel::square_block(["block/light_blue_wool"; 6]),
+    }
+    YellowWool {
+        identifier "minecraft:yellow_wool",
+        props {},
+        model BlockModel::square_block(["block/yellow_wool"; 6]),
+    }
+    LimeWool {
+        identifier "minecraft:lime_wool",
+        props {},
+        model BlockModel::square_block(["block/lime_wool"; 6]),
+    }
+    PinkWool {
+        identifier "minecraft:pink_wool",
+        props {},
+        model BlockModel::square_block(["block/pink_wool"; 6]),
+    }
+    GrayWool {
+        identifier "minecraft:gray_wool",
+        props {},
+        model BlockModel::square_block(["block/gray_wool"; 6]),
+    }
+    LightGrayWool {
+        identifier "minecraft:light_gray_wool",
+        props {},
+        model BlockModel::square_block(["block/light_gray_wool"; 6]),
+    }
+    CyanWool {
+        identifier "minecraft:cyan_wool",
+        props {},
+        model BlockModel::square_block(["block/cyan_wool"; 6]),
+    }
+    PurpleWool {
+        identifier "minecraft:purple_wool",
+        props {},
+        model BlockModel::square_block(["block/purple_wool"; 6]),
+    }
+    BlueWool {
+        identifier "minecraft:blue_wool",
+        props {},
+        model BlockModel::square_block(["block/blue_wool"; 6]),
+    }
+    BrownWool {
+        identifier "minecraft:brown_wool",
+        props {},
+        model BlockModel::square_block(["block/brown_wool"; 6]),
+    }
+    GreenWool {
+        identifier "minecraft:green_wool",
+        props {},
+        model BlockModel::square_block(["block/green_wool"; 6]),
+    }
+    RedWool {
+        identifier "minecraft:red_wool",
+        props {},
+        model BlockModel::square_block(["block/red_wool"; 6]),
+    }
+    BlackWool {
+        identifier "minecraft:black_wool",
+        props {},
+        model BlockModel::square_block(["block/black_wool"; 6]),
+    }
+    MovingPiston {
+        identifier "minecraft:moving_piston",
+        props {
+            facing: Direction = vec![
+                PropertyType::Direction(Direction::North),
+                PropertyType::Direction(Direction::East),
+                PropertyType::Direction(Direction::South),
+                PropertyType::Direction(Direction::West),
+                PropertyType::Direction(Direction::Up),
+                PropertyType::Direction(Direction::Down),
+            ],
+            is_sticky: bool = vec![
+                PropertyType::Boolean(false),
+                PropertyType::Boolean(true),
+            ],
+        },
+        model BlockModel::square_block(["block/piston_side", "block/piston_side", "block/piston_side", "block/piston_side", "block/piston_top", "block/piston_bottom"]),
+    }
+    Dandelion {
+        identifier "minecraft:dandelion",
+        props {},
+        model {
+            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/dandelion").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
+
+            BlockModel {
+                faces: vec![
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        }
+                ]
+            }
+        },
+        transparent true,
+    }
+    Poppy {
+        identifier "minecraft:poppy",
+        props {},
+        model {
+            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/poppy").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
+
+            BlockModel {
+                faces: vec![
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        }
+                ],
+            }
+        },
+        transparent true,
+    }
+    BlueOrchid {
+        identifier "minecraft:blue_orchid",
+        props {},
+        model {
+            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/blue_orchid").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
+
+            BlockModel {
+                faces: vec![
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        }
+                ]
+            }
+        },
+        transparent true,
+    }
+    Allium {
+        identifier "minecraft:allium",
+        props {},
+        model {
+            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/allium").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
+
+            BlockModel {
+                faces: vec![
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        }
+                ]
+            }
+        },
+        transparent true,
+    }
+    AzureBluet {
+        identifier "minecraft:azure_bluet",
+        props {},
+        model {
+            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/azure_bluet").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
+
+            BlockModel {
+                faces: vec![
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        }
+                ]
+            }
+        },
+        transparent true,
+    }
+    RedTulip {
+        identifier "minecraft:red_tulip",
+        props {},
+        model {
+            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/red_tulip").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
+
+            BlockModel {
+                faces: vec![
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        }
+                ]
+            }
+        },
+        transparent true,
+    }
+    OrangeTulip {
+        identifier "minecraft:orange_tulip",
+        props {},
+        model {
+            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/orange_tulip").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
+
+            BlockModel {
+                faces: vec![
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        }
+                ]
+            }
+        },
+        transparent true,
+    }
+    WhiteTulip {
+        identifier "minecraft:white_tulip",
+        props {},
+        model {
+            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/white_tulip").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
+
+            BlockModel {
+                faces: vec![
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        }
+                ]
+            }
+        },
+        transparent true,
+    }
+    PinkTulip {
+        identifier "minecraft:pink_tulip",
+        props {},
+        model {
+            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/pink_tulip").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
+
+            BlockModel {
+                faces: vec![
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        }
+                ]
+            }
+        },
+        transparent true,
+    }
+    OxeyeDaisy {
+        identifier "minecraft:oxeye_daisy",
+        props {},
+        model {
+            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/oxeye_daisy").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
+
+            BlockModel {
+                faces: vec![
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        }
+                ]
+            }
+        },
+        transparent true,
+    }
+    Cornflower {
+        identifier "minecraft:cornflower",
+        props {},
+        model {
+            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/cornflower").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
+
+            BlockModel {
+                faces: vec![
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        }
+                ]
+            }
+        },
+        transparent true,
+    }
+    WitherRose {
+        identifier "minecraft:wither_rose",
+        props {},
+        model {
+            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/wither_rose").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
+
+            BlockModel {
+                faces: vec![
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        }
+                ]
+            }
+        },
+        transparent true,
+    }
+    LilOfTheValley {
+        identifier "minecraft:lily_of_the_valley",
+        props {},
+        model {
+            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/lily_of_the_valley").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
+
+            BlockModel {
+                faces: vec![
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        }
+                ]
+            }
+        },
+        transparent true,
+    }
+    BrownMushroom {
+        identifier "minecraft:brown_mushroom",
+        props {},
+        model {
+            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/brown_mushroom").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
+
+            BlockModel {
+                faces: vec![
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        }
+                ]
+            }
+        },
+        transparent true,
+    }
+    RedMushroom {
+        identifier "minecraft:red_mushroom",
+        props {},
+        model {
+            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/red_mushroom").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
+
+            BlockModel {
+                faces: vec![
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        }
+                ]
+            }
+        },
+        transparent true,
+    }
+    GoldBlock {
+        identifier "minecraft:gold_block",
+        props {},
+        model BlockModel::square_block(["block/gold_block"; 6]),
+    }
+    IronBlock {
+        identifier "minecraft:iron_block",
+        props {},
+        model BlockModel::square_block(["block/iron_block"; 6]),
+    }
+    Bricks {
+        identifier "minecraft:bricks",
+        props {},
+        model BlockModel::square_block(["block/bricks"; 6]),
+    }
+    TNT {
+        identifier "minecraft:tnt",
+        props {
+            unstable: bool = vec![
+                PropertyType::Boolean(true),
+                PropertyType::Boolean(false),
+            ],
+        },
+        model BlockModel::square_block(["block/tnt_top", "block/tnt_bottom", "block/tnt_side", "block/tnt_side", "block/tnt_side", "block/tnt_side"]),
+    }
+    Bookshelf {
+        identifier "minecraft:bookshelf",
+        props {},
+        model BlockModel::square_block(["block/oak_planks", "block/oak_planks", "block/bookshelf", "block/bookshelf", "block/bookshelf", "block/bookshelf"]),
+    }
+    MossyCobblestone {
+        identifier "minecraft:mossy_cobblestone",
+        props {},
+        model BlockModel::square_block(["block/bricks"; 6]),
+    }
+    Obsidian {
+        identifier "minecraft:obsidian",
+        props {},
+        model BlockModel::square_block(["block/obsidian"; 6]),
+    }
+    Torch {
+        identifier "minecraft:torch",
+        props {},
+        model {
+            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/torch").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
+
+            BlockModel {
+                faces: vec![
+                        BlockFace {
+                            bottom_left: Vector3::new(0.4375, 0.0, 0.0),
+                            scale: Vector3::new(0.125, 0.625, 0.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(0.625, 0.0, 0.0),
+                            scale: Vector3::new(0.125, 0.625, 0.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.4375),
+                            scale: Vector3::new(0.0, 0.625, 0.125),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.625),
+                            scale: Vector3::new(0.0, 0.625, 0.125),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        }
+                ]
+            }
+        },
+        collidable false,
+        light_color [255; 3],
+        light_intensity 14,
+    }
+    WallTorch {
+        identifier "minecraft:wall_torch",
+        props {
+            facing: Direction = vec![
+                PropertyType::Direction(Direction::North),
+                PropertyType::Direction(Direction::South),
+                PropertyType::Direction(Direction::West),
+                PropertyType::Direction(Direction::East),
+            ],
+        },
+        model {
+            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/torch").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
+
+            BlockModel {
+                faces: vec![
+                        BlockFace {
+                            bottom_left: Vector3::new(0.4375, 0.0, 0.4375),
+                            scale: Vector3::new(0.125, 0.625, 0.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(0.4375, 0.0, 0.5625),
+                            scale: Vector3::new(0.125, 0.625, 0.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(0.5625, 0.0, 0.4375),
+                            scale: Vector3::new(0.0, 0.625, 0.125),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Front,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(0.4375, 0.0, 0.4375),
+                            scale: Vector3::new(0.0, 0.625, 0.125),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Back,
+                            edge: false,
+                        }
+                ]
+            }
+        },
+        collidable false,
+        light_color [255; 3],
+        light_intensity 14,
+    }
+    Fire {
+        identifier "minecraft:fire",
+        props {
+            age: u8 = vec![
+                PropertyType::UnsignedByte(0),
+                PropertyType::UnsignedByte(1),
+                PropertyType::UnsignedByte(2),
+                PropertyType::UnsignedByte(3),
+                PropertyType::UnsignedByte(4),
+                PropertyType::UnsignedByte(5),
+                PropertyType::UnsignedByte(6),
+                PropertyType::UnsignedByte(7),
+                PropertyType::UnsignedByte(8),
+                PropertyType::UnsignedByte(9),
+                PropertyType::UnsignedByte(10),
+                PropertyType::UnsignedByte(11),
+                PropertyType::UnsignedByte(12),
+                PropertyType::UnsignedByte(13),
+                PropertyType::UnsignedByte(14),
+                PropertyType::UnsignedByte(15),
+            ],
+            east: bool = vec![
+                PropertyType::Boolean(true),
+                PropertyType::Boolean(false),
+            ],
+            north: bool = vec![
+                PropertyType::Boolean(true),
+                PropertyType::Boolean(false),
+            ],
+            south: bool = vec![
+                PropertyType::Boolean(true),
+                PropertyType::Boolean(false),
+            ],
+            up: bool = vec![
+                PropertyType::Boolean(true),
+                PropertyType::Boolean(false),
+            ],
+            west: bool = vec![
+                PropertyType::Boolean(true),
+                PropertyType::Boolean(false),
+            ],
+        },
+        model BlockModel::square_block(["block/fire_0", "block/fire_0", "block/fire_0", "block/fire_0", "block/fire_0", "block/fire_0"]),
+        collidable false,
+        light_color [255; 3],
+        light_intensity 14,
+    }
+    Spawner {
+        identifier "minecraft:spawner",
+        props {},
+        model BlockModel::square_block(["block/spawner"; 6]),
+    }
+    OakStairs {
+        identifier "minecraft:oak_stairs",
+        props {
+            facing: Direction = vec![
+                PropertyType::Direction(Direction::North),
+                PropertyType::Direction(Direction::South),
+                PropertyType::Direction(Direction::West),
+                PropertyType::Direction(Direction::East)
+            ],
+            top: bool = vec![
+                PropertyType::Boolean(true),
+                PropertyType::Boolean(false),
+            ],
+            shape: StairShape = vec![
+                PropertyType::StairShape(StairShape::Straight),
+                PropertyType::StairShape(StairShape::InnerLeft),
+                PropertyType::StairShape(StairShape::InnerRight),
+                PropertyType::StairShape(StairShape::OuterLeft),
+                PropertyType::StairShape(StairShape::OuterRight),
+            ],
+            waterlogged: bool = vec![
+                PropertyType::Boolean(true),
+                PropertyType::Boolean(false),
+            ],
+        },
+        model {
+            let lookup = AtlasIndex::new_lookup("block/oak_planks");
+
+            BlockModel {
+                faces: vec![
+                    // Back faces
+                    BlockFace {
+                        bottom_left: Vector3::new(0.0, 0.0, 1.0),
+                        scale: Vector3::new(0.5, 1.0, 0.0),
+                        texture: lookup.get_subdivision(TextureSubdivisionMethod::Left),
+                        normal: ViewableDirectionBitMap::Back,
+                        edge: true,
+                    },
+                    BlockFace {
+                        bottom_left: Vector3::new(0.5, 0.0, 1.0),
+                        scale: Vector3::new(0.5, 0.5, 0.0),
+                        texture: lookup.get_subdivision(TextureSubdivisionMethod::BottomRight),
+                        normal: ViewableDirectionBitMap::Back,
+                        edge: true,
+                    },
+
+                    // Front faces
+                    BlockFace {
+                        bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                        scale: Vector3::new(0.5, 1.0, 0.0),
+                        texture: lookup.get_subdivision(TextureSubdivisionMethod::Left),
+                        normal: ViewableDirectionBitMap::Front,
+                        edge: true,
+                    },
+                    BlockFace {
+                        bottom_left: Vector3::new(0.5, 0.0, 0.0),
+                        scale: Vector3::new(0.5, 0.5, 0.0),
+                        texture: lookup.get_subdivision(TextureSubdivisionMethod::BottomRight),
+                        normal: ViewableDirectionBitMap::Front,
+                        edge: true,
+                    },
+
+                    // Top faces
+                    BlockFace {
+                        bottom_left: Vector3::new(0.0, 1.0, 0.0),
+                        scale: Vector3::new(0.5, 0.0, 1.0),
+                        texture: lookup.get_subdivision(TextureSubdivisionMethod::Top),
+                        normal: ViewableDirectionBitMap::Top,
+                        edge: true,
+                    },
+                    BlockFace {
+                        bottom_left: Vector3::new(0.5, 0.5, 0.0),
+                        scale: Vector3::new(0.5, 0.0, 1.0),
+                        texture: lookup.get_subdivision(TextureSubdivisionMethod::Bottom),
+                        normal: ViewableDirectionBitMap::Top,
+                        edge: false,
+                    },
+
+                    // Right faces
+                    BlockFace {
+                        bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                        scale: Vector3::new(0.0, 0.5, 1.0),
+                        texture: lookup.get_subdivision(TextureSubdivisionMethod::Top),
+                        normal: ViewableDirectionBitMap::Right,
+                        edge: true,
+                    },
+                    BlockFace {
+                        bottom_left: Vector3::new(0.5, 0.5, 0.0),
+                        scale: Vector3::new(0.0, 0.5, 1.0),
+                        texture: lookup.get_subdivision(TextureSubdivisionMethod::Bottom),
+                        normal: ViewableDirectionBitMap::Right,
+                        edge: false,
+                    },
+
+                    // Left face
+                    BlockFace {
+                        bottom_left: Vector3::new(1.0, 0.0, 1.0),
+                        scale: Vector3::new(0.0, 1.0, 1.0),
+                        texture: lookup.get_subdivision(TextureSubdivisionMethod::Full),
+                        normal: ViewableDirectionBitMap::Left,
+                        edge: true,
+                    },
+
+                    // Bottom face
+                    BlockFace {
+                        bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                        scale: Vector3::new(1.0, 0.0, 1.0),
+                        texture: lookup.get_subdivision(TextureSubdivisionMethod::Full),
+                        normal: ViewableDirectionBitMap::Bottom,
+                        edge: true,
+                    },
+                ]
+            }
+        },
+
     }
 }

@@ -1,7 +1,7 @@
 use crate::render::camera::Camera;
 use nalgebra::Matrix4;
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
-use wgpu::{BindGroup, BindGroupLayout, Buffer, Device};
+use wgpu::{BindGroup, BindGroupLayout, Buffer, BufferBindingType, Device};
 use zerocopy::{AsBytes, FromBytes};
 
 #[repr(C)]
@@ -26,7 +26,7 @@ impl Uniforms {
 
     pub fn create_uniform_buffers(self, device: &Device) -> (Buffer, BindGroupLayout, BindGroup) {
         let uniform_buffer = device.create_buffer_init(&BufferInitDescriptor {
-            label: None,
+            label: Some("Unknown uniform buffer"),
             contents: &bytemuck::cast_slice(&self.view_proj),
             usage: wgpu::BufferUsage::UNIFORM
                 | wgpu::BufferUsage::COPY_DST
@@ -38,24 +38,27 @@ impl Uniforms {
                 entries: &[wgpu::BindGroupLayoutEntry {
                     binding: 0,
                     visibility: wgpu::ShaderStage::VERTEX,
-                    ty: wgpu::BindingType::UniformBuffer {
-                        dynamic: false,
+                    ty: wgpu::BindingType::Buffer {
+                        ty: BufferBindingType::Uniform,
                         min_binding_size: None,
+                        has_dynamic_offset: false,
                     },
                     count: None,
                 }],
-                label: None,
+                label: Some("Unknown uniform buffer bind group layout"),
             });
 
         let uniform_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
             layout: &uniform_bind_group_layout,
             entries: &[wgpu::BindGroupEntry {
                 binding: 0,
-                resource: wgpu::BindingResource::Buffer(
-                    uniform_buffer.slice(0..std::mem::size_of_val(&self) as wgpu::BufferAddress),
-                ),
+                resource: wgpu::BindingResource::Buffer {
+                    buffer: &uniform_buffer,
+                    offset: 0,
+                    size: None,
+                },
             }],
-            label: None,
+            label: Some("Unknown uniform buffer bind group"),
         });
 
         (

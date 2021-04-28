@@ -1,10 +1,10 @@
+use crate::helpers::Lerp;
 use crate::services::asset_service::atlas::TextureAtlasIndex;
 use crate::services::chunk_service::mesh::UIVertex;
 use crate::services::ui_service::draw::{draw_rect, draw_sprite};
 use crate::services::ui_service::fonts::{FontAtlasIndexs, FONT_TEXTURE_SIZE, LETTER_SPACING};
 use crate::services::ui_service::{ObjectAlignment, Positioning};
 use winit::dpi::PhysicalSize;
-use crate::helpers::Lerp;
 
 pub struct Text {
     pub text: String,
@@ -161,40 +161,16 @@ pub fn calculate_texture_coords(byte: u8, fonts: &FontAtlasIndexs) -> TextureAtl
     let row = (byte as f32 / FONT_TEXTURE_SIZE).floor();
 
     // Calculate the local offset of the character inside the character sheets
-    let local_top_left = [
+    let local_offset = TextureAtlasIndex::new(
         (byte as f32 % FONT_TEXTURE_SIZE as f32) / FONT_TEXTURE_SIZE,
+        ((byte as f32 % FONT_TEXTURE_SIZE as f32) / FONT_TEXTURE_SIZE) + (1.0 / FONT_TEXTURE_SIZE),
+        (row / FONT_TEXTURE_SIZE) + (1.0 / FONT_TEXTURE_SIZE),
         row / FONT_TEXTURE_SIZE,
-    ];
-    let local_bottom_right = [
-        local_top_left[0] + (1.0 / FONT_TEXTURE_SIZE),
-        local_top_left[1] + (1.0 / FONT_TEXTURE_SIZE),
-    ];
+    );
 
     // Get the position of the character sheet inside the texture atlas
-    let (character_sheet_top_left, character_sheet_bottom_right) = &fonts.ascii;
+    let character_sheet = &fonts.ascii;
 
     // Calculate the uv maps from both the local and the absolute
-    let uv_top_left = [
-        character_sheet_top_left[0].lerp(
-            character_sheet_bottom_right[0],
-            local_top_left[0]
-        ),
-        character_sheet_top_left[1].lerp(
-            character_sheet_bottom_right[1],
-            local_top_left[1],
-        ),
-    ];
-
-    let uv_bottom_right = [
-        character_sheet_top_left[0].lerp(
-            character_sheet_bottom_right[0],
-            local_bottom_right[0],
-        ),
-        character_sheet_top_left[1].lerp(
-            character_sheet_bottom_right[1],
-            local_bottom_right[1],
-        ),
-    ];
-
-    (uv_top_left, uv_bottom_right)
+    character_sheet.sub_index(&local_offset)
 }

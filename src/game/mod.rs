@@ -2,7 +2,7 @@ use crate::block::blocks::BlockStates;
 use crate::entity::player::{
     PlayerEntity, PlayerEntityCameraSyncSystem, PlayerEntityColliderGeneratingSystem,
 };
-use crate::game::game_state::{GameState, PlayerMovementSystem};
+use crate::game::game_state::{GameState, PlayerMovementSystem, ProgramState};
 use crate::game::physics::interpolator::{PhysicsInterpolationFactor, PhysicsInterpolationSystem};
 use crate::game::physics::{PhysicsObject, PhysicsProcessingSystem};
 use crate::game::systems::DeltaTime;
@@ -14,16 +14,16 @@ use crate::services::asset_service::AssetService;
 use crate::services::chunk_service::chunk::ChunkData;
 use crate::services::chunk_service::frustum_culling::FrustumCullingSystem;
 use crate::services::chunk_service::mesh::rerendering::{
-    ChunkRerenderSystem, RerenderChunkFlag, UpdateChunkMesh,
+    ChunkRerenderSystem, RerenderChunkFlag, UpdateChunkGraphics,
 };
 use crate::services::chunk_service::mesh::update::ChunkMeshUpdateSystem;
+use crate::services::debugging_service::system::DebuggingOverlaySystem;
 use crate::services::input_service::input::GameChanges;
 use crate::services::logging_service::LoggingSystem;
 use crate::services::networking_service::system::NetworkingSyncSystem;
 use crate::services::networking_service::NetworkingService;
 use crate::services::settings_service::SettingsService;
 use crate::services::ui_service::fonts::system::FontComputingSystem;
-use crate::services::ui_service::fps_system::FpsDisplayingSystem;
 use crate::services::ui_service::UIService;
 use specs::{DispatcherBuilder, World, WorldExt};
 use std::borrow::Borrow;
@@ -61,7 +61,7 @@ impl Game {
         universe.register::<PlayerEntity>();
         universe.register::<ChunkData>();
         universe.register::<RerenderChunkFlag>();
-        universe.register::<UpdateChunkMesh>();
+        universe.register::<UpdateChunkGraphics>();
 
         let render_state = RenderState::new(&mut universe, &event_loop);
         let game_state = GameState::new(&mut universe);
@@ -103,7 +103,11 @@ impl Game {
             .with(NetworkingSyncSystem, "networking_sync", &[])
             .with(PlayerMovementSystem, "player_movement", &["pre_frame"])
             .with(FontComputingSystem, "font_computing", &["pre_frame"])
-            .with(FpsDisplayingSystem, "fps_displayer", &["pre_frame"])
+            .with(
+                DebuggingOverlaySystem,
+                "debugging_overlay_system",
+                &["pre_frame"],
+            )
             .with(LoggingSystem, "logging_system", &["pre_frame"])
             .with(
                 PhysicsInterpolationSystem,
@@ -126,7 +130,6 @@ impl Game {
                 &[
                     "player_movement",
                     "font_computing",
-                    "fps_displayer",
                     "logging_system",
                     "frustum_culling",
                     "physics_interpolation",
@@ -210,18 +213,20 @@ impl Game {
                 },
                 Event::MainEventsCleared => {
                     // Update physics in a fixed step loop
-                    while time_since_physics.elapsed() > physics_loop_length {
-                        time_since_physics += physics_loop_length;
+                    if self.universe.read_resource::<GameState>().state == ProgramState::IN_GAME {
+                        while time_since_physics.elapsed() > physics_loop_length {
+                            time_since_physics += physics_loop_length;
 
-                        physics_dispatcher.dispatch(&mut self.universe);
+                            physics_dispatcher.dispatch(&mut self.universe);
+                        }
+
+                        // Calculates a scale from 0 - 1 on the time between the previous and next physics frame
+                        let time = time_since_physics.elapsed().as_nanos() as f32
+                            / physics_loop_length.as_nanos() as f32;
+                        self.universe
+                            .write_resource::<PhysicsInterpolationFactor>()
+                            .0 = time;
                     }
-
-                    // Calculates a scale from 0 - 1 on the time between the previous and next physics frame
-                    let time = time_since_physics.elapsed().as_nanos() as f32
-                        / physics_loop_length.as_nanos() as f32;
-                    self.universe
-                        .write_resource::<PhysicsInterpolationFactor>()
-                        .0 = time;
 
                     frame_dispatcher.dispatch(&mut self.universe);
                     self.universe.maintain();

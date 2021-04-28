@@ -5,14 +5,12 @@ use pipeline::generate_render_pipeline;
 
 use crate::services::asset_service::AssetService;
 use crate::services::ui_service::fonts::FontsManager;
-use crate::services::ui_service::fps_system::FpsDisplayingSystemContext;
 use crate::services::ui_service::image::{Image, ImageManager, ImageType, ImageView};
 use crate::services::ui_service::widgets::{ButtonState, WidgetManager};
 use crate::services::ServicesContext;
 
 pub mod draw;
 pub mod fonts;
-pub mod fps_system;
 pub mod image;
 pub mod meshdata;
 pub mod pipeline;
@@ -41,10 +39,10 @@ impl UIService {
         assets: &AssetService,
         universe: &mut World,
     ) -> UIService {
-        let mut fonts = FontsManager::new(&assets, context.size.clone());
+        let fonts = FontsManager::new(&assets, context.size.clone());
         //TODO: Bind resize events
         let mut images = ImageManager::new(*context.size);
-        let mut widget = WidgetManager::new(*context.size);
+        let widget = WidgetManager::new(*context.size);
 
         let background_image = images
             .create_image("gui/options_background")
@@ -62,8 +60,6 @@ impl UIService {
                 &projection_bind_group_layout,
             ],
         );
-
-        universe.insert(FpsDisplayingSystemContext::new());
 
         UIService {
             fonts,

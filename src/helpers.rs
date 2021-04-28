@@ -1,3 +1,4 @@
+use crate::services::asset_service::atlas::{TextureAtlasIndex, ATLAS_LOOKUPS};
 use crate::services::chunk_service::chunk::{ChunkData, Color};
 use nalgebra::{Point3, Vector3};
 use specs::ReadStorage;
@@ -119,4 +120,88 @@ pub fn chunk_by_loc_from_write<'a>(
         }
     }
     c
+}
+
+pub enum TextureSubdivisionMethod {
+    TopLeft,
+    TopRight,
+    BottomLeft,
+    BottomRight,
+    Top,
+    Left,
+    Right,
+    Bottom,
+    Full,
+}
+
+pub struct AtlasIndex {
+    pub lookup: TextureAtlasIndex,
+}
+
+impl AtlasIndex {
+    pub fn new_lookup(name: &str) -> AtlasIndex {
+        let texture = ATLAS_LOOKUPS.get().unwrap().get(name);
+
+        let lookup = match texture {
+            Some(tex) => tex,
+            // Lookup error texture instead
+            None => ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap(),
+        };
+
+        AtlasIndex { lookup: *lookup }
+    }
+
+    pub fn get_subdivision(&self, subdivision: TextureSubdivisionMethod) -> TextureAtlasIndex {
+        match subdivision {
+            TextureSubdivisionMethod::TopLeft => {
+                let width = self.lookup.width() / 2.0;
+                let height = self.lookup.height() / 2.0;
+
+                self.lookup
+                    .local_offset(None, Some(-width), None, Some(-height))
+            }
+            TextureSubdivisionMethod::TopRight => {
+                let width = self.lookup.width() / 2.0;
+                let height = self.lookup.height() / 2.0;
+
+                self.lookup
+                    .local_offset(Some(width), None, None, Some(-height))
+            }
+            TextureSubdivisionMethod::BottomLeft => {
+                let width = self.lookup.width() / 2.0;
+                let height = self.lookup.height() / 2.0;
+
+                self.lookup
+                    .local_offset(None, Some(-width), Some(height), None)
+            }
+            TextureSubdivisionMethod::BottomRight => {
+                let width = self.lookup.width() / 2.0;
+                let height = self.lookup.height() / 2.0;
+
+                self.lookup
+                    .local_offset(Some(width), None, Some(height), None)
+            }
+            TextureSubdivisionMethod::Top => {
+                let height = self.lookup.height() / 2.0;
+
+                self.lookup.local_offset(None, None, None, Some(-height))
+            }
+            TextureSubdivisionMethod::Left => {
+                let width = self.lookup.width() / 2.0;
+
+                self.lookup.local_offset(None, Some(-width), None, None)
+            }
+            TextureSubdivisionMethod::Right => {
+                let width = self.lookup.width() / 2.0;
+
+                self.lookup.local_offset(Some(width), None, None, None)
+            }
+            TextureSubdivisionMethod::Bottom => {
+                let height = self.lookup.height() / 2.0;
+
+                self.lookup.local_offset(None, None, Some(height), None)
+            }
+            TextureSubdivisionMethod::Full => self.lookup.clone(),
+        }
+    }
 }

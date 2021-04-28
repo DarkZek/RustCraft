@@ -1,7 +1,7 @@
 use crate::services::asset_service::AssetService;
 use wgpu::{
-    BindGroup, BindGroupLayout, Device, Sampler, Texture, TextureAspect, TextureComponentType,
-    TextureFormat, TextureViewDescriptor, TextureViewDimension,
+    BindGroup, BindGroupLayout, Device, Sampler, Texture, TextureAspect, TextureFormat,
+    TextureSampleType, TextureViewDescriptor, TextureViewDimension,
 };
 
 impl AssetService {
@@ -12,7 +12,7 @@ impl AssetService {
         diffuse_sampler: &Sampler,
     ) -> (BindGroupLayout, BindGroup) {
         let diffuse_texture_view = diffuse_texture.create_view(&TextureViewDescriptor {
-            label: None,
+            label: Some("Asset Service Texture Atlas Texture View"),
             format: Some(TextureFormat::Rgba8UnormSrgb),
             dimension: Some(TextureViewDimension::D2),
             aspect: TextureAspect::All,
@@ -24,22 +24,25 @@ impl AssetService {
 
         let texture_bind_group_layout =
             device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-                label: None,
+                label: Some("Asset Service Texture Atlas Bind Group Layout"),
                 entries: &[
                     wgpu::BindGroupLayoutEntry {
                         binding: 0,
                         visibility: wgpu::ShaderStage::FRAGMENT,
-                        ty: wgpu::BindingType::SampledTexture {
+                        ty: wgpu::BindingType::Texture {
+                            sample_type: TextureSampleType::Float { filterable: false },
+                            view_dimension: TextureViewDimension::D2Array,
                             multisampled: false,
-                            dimension: wgpu::TextureViewDimension::D2Array,
-                            component_type: TextureComponentType::Float,
                         },
                         count: None,
                     },
                     wgpu::BindGroupLayoutEntry {
                         binding: 1,
                         visibility: wgpu::ShaderStage::FRAGMENT,
-                        ty: wgpu::BindingType::Sampler { comparison: true },
+                        ty: wgpu::BindingType::Sampler {
+                            filtering: false,
+                            comparison: true,
+                        },
                         count: None,
                     },
                 ],
@@ -47,7 +50,7 @@ impl AssetService {
 
         let texture_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
             layout: &texture_bind_group_layout,
-            label: None,
+            label: Some("Asset Service Texture Atlas Bind Group"),
             entries: &[
                 wgpu::BindGroupEntry {
                     binding: 0,

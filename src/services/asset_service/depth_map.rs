@@ -10,7 +10,7 @@ pub fn create_depth_texture(
     sc_desc: &wgpu::SwapChainDescriptor,
 ) -> (Texture, TextureView, Sampler) {
     let sampler_descriptor = wgpu::SamplerDescriptor {
-        label: None,
+        label: Some("Main Render Depth Map"),
         address_mode_u: wgpu::AddressMode::ClampToEdge,
         address_mode_v: wgpu::AddressMode::ClampToEdge,
         address_mode_w: wgpu::AddressMode::ClampToEdge,
@@ -21,10 +21,11 @@ pub fn create_depth_texture(
         lod_max_clamp: 100.0,
         compare: Some(wgpu::CompareFunction::Always),
         anisotropy_clamp: None,
+        border_color: None,
     };
 
     let texture_descriptor = wgpu::TextureDescriptor {
-        label: None,
+        label: Some("Main depth map texture"),
         size: Extent3d {
             width: sc_desc.width,
             height: sc_desc.height,
@@ -34,13 +35,13 @@ pub fn create_depth_texture(
         sample_count: 1,
         dimension: TextureDimension::D2,
         format: DEPTH_FORMAT,
-        usage: wgpu::TextureUsage::OUTPUT_ATTACHMENT,
+        usage: wgpu::TextureUsage::RENDER_ATTACHMENT,
     };
 
     let texture = device.create_texture(&texture_descriptor);
     let view = texture.create_view(&TextureViewDescriptor {
-        label: None,
-        format: Some(TextureFormat::Rgba8UnormSrgb),
+        label: Some("Main depth map texture view"),
+        format: Some(wgpu::TextureFormat::Rgba8UnormSrgb),
         dimension: Some(TextureViewDimension::D2),
         aspect: TextureAspect::All,
         base_mip_level: 0,

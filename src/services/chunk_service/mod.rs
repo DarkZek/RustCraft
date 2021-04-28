@@ -8,11 +8,13 @@ use crate::services::chunk_service::frustum_culling::calculate_frustum_culling;
 use crate::services::settings_service::SettingsService;
 use crate::services::ServicesContext;
 use nalgebra::Vector3;
-use specs::{Entities, ReadStorage, World, WriteStorage};
+use specs::{Entities, Join, ReadStorage, World, WriteStorage};
 
 use crate::services::chunk_service::mesh::rerendering::RerenderChunkFlag;
 use std::cmp::Ordering;
-use wgpu::BindGroupLayout;
+use std::time::SystemTime;
+use sysinfo::SystemExt;
+use wgpu::{BindGroupLayout, BufferBindingType};
 
 pub mod blocks;
 pub mod chunk;
@@ -27,9 +29,14 @@ pub struct ChunkService {
     pub vertices_count: u64,
     pub chunk_keys: Vec<Vector3<i32>>,
 
-    //Temp
+    //Pos when we last culled
     previous_player_yaw: f32,
     previous_player_pitch: f32,
+    previous_player_pos: Vector3<f32>,
+
+    system: sysinfo::System,
+    low_memory_reminded: SystemTime,
+    update_culling: bool,
 }
 
 impl ChunkService {
@@ -42,13 +49,14 @@ impl ChunkService {
             entries: &[wgpu::BindGroupLayoutEntry {
                 binding: 0,
                 visibility: wgpu::ShaderStage::VERTEX,
-                ty: wgpu::BindingType::UniformBuffer {
-                    dynamic: true,
+                ty: wgpu::BindingType::Buffer {
+                    ty: BufferBindingType::Uniform,
                     min_binding_size: None,
+                    has_dynamic_offset: false,
                 },
                 count: None,
             }],
-            label: None,
+            label: Some("Chunk Bind Group"),
         };
 
         // Create the chunk bind group layout
@@ -64,6 +72,10 @@ impl ChunkService {
             chunk_keys: Vec::new(),
             previous_player_yaw: 0.0,
             previous_player_pitch: 0.0,
+            previous_player_pos: Vector3::zeros(),
+            system: sysinfo::System::new_all(),
+            low_memory_reminded: SystemTime::now(),
+            update_culling: false,
         };
 
         service
@@ -78,7 +90,7 @@ impl ChunkService {
         rerendering_chunks: &mut WriteStorage<RerenderChunkFlag>,
     ) {
         if data.is_some() {
-            let mut chunk = ChunkData::new(data.unwrap(), chunk_coords);
+            let chunk = ChunkData::new(data.unwrap(), chunk_coords);
 
             self.viewable_chunks.push(chunk_coords);
             if chunk.opaque_model.indices_buffer.is_some() {
@@ -118,16 +130,23 @@ impl ChunkService {
             }
 
             self.sort_chunks();
+
+            self.update_culling = true;
         }
     }
 
     pub fn update_frustum_culling(&mut self, camera: &Camera, chunks: &ReadStorage<ChunkData>) {
         // To 3 dp
-        if (camera.yaw * 100.0).round() == self.previous_player_yaw
-            && (camera.pitch * 100.0).round() == self.previous_player_pitch
+        if ((camera.yaw * 100.0).round() == self.previous_player_yaw
+            && (camera.pitch * 100.0).round() == self.previous_player_pitch)
+            && !self.update_culling
+            && self.previous_player_pos.metric_distance(&camera.eye.coords) < 1.0
         {
             return;
         }
+
+        self.update_culling = false;
+        self.previous_player_pos = Vector3::new(camera.eye.x, camera.eye.y, camera.eye.z);
 
         self.previous_player_yaw = (camera.yaw * 100.0).round();
         self.previous_player_pitch = (camera.pitch * 100.0).round();

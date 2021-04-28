@@ -132,9 +132,9 @@ impl PacketDecoder {
         };
 
         if len - stream.get_bytes_read() as i64 > 0 {
-            println!("Remaining Length: {}", len - stream.get_bytes_read() as i64);
+            log!("Remaining Length: {}", len - stream.get_bytes_read() as i64);
         } else if (len - stream.get_bytes_read() as i64) < 0 {
-            println!("Read {} too many bytes on packet type 0x{:x}", stream.get_bytes_read() as i64 - len, packet_id);
+            log_error!("{}", format!("Read {} too many bytes on packet type 0x{:x}", stream.get_bytes_read() as i64 - len, packet_id))
         }
 
         while len - stream.get_bytes_read() as i64 > 0 {

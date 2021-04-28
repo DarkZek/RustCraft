@@ -3,7 +3,7 @@ use crate::services::ui_service::UIService;
 use crate::services::ServicesContext;
 use nalgebra::{Matrix4, Orthographic3};
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
-use wgpu::{BindGroup, BindGroupLayout, Buffer};
+use wgpu::{BindGroup, BindGroupLayout, Buffer, BufferBindingType};
 use winit::dpi::PhysicalSize;
 
 impl UIService {
@@ -29,19 +29,20 @@ impl UIService {
             entries: &[wgpu::BindGroupLayoutEntry {
                 binding: 0,
                 visibility: wgpu::ShaderStage::VERTEX,
-                ty: wgpu::BindingType::UniformBuffer {
-                    dynamic: false,
+                ty: wgpu::BindingType::Buffer {
+                    ty: BufferBindingType::Uniform,
                     min_binding_size: None,
+                    has_dynamic_offset: false,
                 },
                 count: None,
             }],
-            label: None,
+            label: Some("Main UI Projection Matrix Bind Group Layout"),
         };
 
         let matrix: Matrix4<f32> = projection.into();
 
         let matrix_buffer = context.device.create_buffer_init(&BufferInitDescriptor {
-            label: None,
+            label: Some("Main UI Projection Matrix Buffer"),
             contents: &bytemuck::cast_slice(matrix.as_slice()),
             usage: wgpu::BufferUsage::UNIFORM
                 | wgpu::BufferUsage::COPY_DST
@@ -56,11 +57,13 @@ impl UIService {
             layout: &matrix_bind_group_layout,
             entries: &[wgpu::BindGroupEntry {
                 binding: 0,
-                resource: wgpu::BindingResource::Buffer(
-                    matrix_buffer.slice(0..std::mem::size_of_val(&matrix) as wgpu::BufferAddress),
-                ),
+                resource: wgpu::BindingResource::Buffer {
+                    buffer: &matrix_buffer,
+                    offset: 0,
+                    size: None,
+                },
             }],
-            label: None,
+            label: Some("Main UI Projection Matrix Bind Group"),
         };
 
         let matrix_bind_group = context
@@ -89,10 +92,12 @@ impl UIService {
 
         let mut encoder = render
             .device
-            .create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
+            .create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                label: Some("Main Projection Matrix Command Encoder"),
+            });
 
         let matrix_buffer = render.device.create_buffer_init(&BufferInitDescriptor {
-            label: None,
+            label: Some("Main ui projection matrix buffer"),
             contents: &bytemuck::cast_slice(matrix.as_slice()),
             usage: wgpu::BufferUsage::UNIFORM
                 | wgpu::BufferUsage::COPY_DST

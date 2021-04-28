@@ -5,7 +5,7 @@ use crate::services::chunk_service::chunk::{ChunkData, Chunks};
 use crate::services::chunk_service::ChunkService;
 use crate::services::ui_service::UIService;
 use specs::{Read, ReadStorage, System, Write};
-use wgpu::{Color, LoadOp, Operations};
+use wgpu::{Color, IndexFormat, LoadOp, Operations};
 
 pub mod buffer;
 pub mod prepass;
@@ -45,13 +45,17 @@ impl<'a> System<'a> for RenderSystem {
             .get_current_frame()
             .unwrap();
 
-        let mut encoder = render_state
-            .device
-            .create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
+        let mut encoder =
+            render_state
+                .device
+                .create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                    label: Some("Main Render Loop Command Encoder"),
+                });
 
         {
             if game_state.state == ProgramState::IN_GAME {
                 let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+                    label: Some("Main Render Loop Render Pass"),
                     color_attachments: &[wgpu::RenderPassColorAttachmentDescriptor {
                         attachment: &frame.output.view,
                         resolve_target: None,
@@ -90,9 +94,9 @@ impl<'a> System<'a> for RenderSystem {
                     let vertices_buffer = chunk.opaque_model.vertices_buffer.as_ref().unwrap();
                     let model_bind_group = chunk.model_bind_group.as_ref().unwrap();
 
-                    render_pass.set_bind_group(2, model_bind_group, &[0]);
+                    render_pass.set_bind_group(2, model_bind_group, &[]);
                     render_pass.set_vertex_buffer(0, vertices_buffer.slice(..));
-                    render_pass.set_index_buffer(indices_buffer.slice(..));
+                    render_pass.set_index_buffer(indices_buffer.slice(..), IndexFormat::Uint16);
                     render_pass.draw_indexed(0..chunk.opaque_model.indices_buffer_len, 0, 0..1);
                 }
 
@@ -107,9 +111,9 @@ impl<'a> System<'a> for RenderSystem {
                     let vertices_buffer = chunk.translucent_model.vertices_buffer.as_ref().unwrap();
                     let model_bind_group = chunk.model_bind_group.as_ref().unwrap();
 
-                    render_pass.set_bind_group(2, model_bind_group, &[0]);
+                    render_pass.set_bind_group(2, model_bind_group, &[]);
                     render_pass.set_vertex_buffer(0, vertices_buffer.slice(..));
-                    render_pass.set_index_buffer(indices_buffer.slice(..));
+                    render_pass.set_index_buffer(indices_buffer.slice(..), IndexFormat::Uint16);
                     render_pass.draw_indexed(
                         0..chunk.translucent_model.indices_buffer_len,
                         0,

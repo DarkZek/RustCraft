@@ -40,18 +40,22 @@ impl BufferGroup {
 
     pub fn generate<A: Pod>(&mut self, data: &[A], device: &Device) {
         let buffer = device.create_buffer_init(&BufferInitDescriptor {
-            label: None,
+            label: Some("Unknown buffer group"),
             contents: &bytemuck::cast_slice(data),
             usage: self.usage,
         });
 
         let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+            label: Some("Unknown bind group"),
             layout: &self.bind_group_layout,
             entries: &[BindGroupEntry {
                 binding: 0,
-                resource: BindingResource::Buffer(buffer.slice(..)),
+                resource: BindingResource::Buffer {
+                    buffer: &buffer,
+                    offset: 0,
+                    size: None,
+                },
             }],
-            label: None,
         });
 
         self.bind_group = Some(bind_group);

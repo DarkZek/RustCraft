@@ -5,37 +5,29 @@ use image::GenericImageView;
 
 /// Create a map of the widths of each character so we can display them nicely on the screen without them being monospaced.
 pub fn generate_variable_width_map(assets: &AssetService) -> [u8; 127] {
-    let ascii_atlas_uv_index = assets
+    let mut ascii_atlas_uv = assets
         .atlas_index
         .as_ref()
         .unwrap()
         .get("font/ascii")
-        .unwrap();
+        .unwrap()
+        .clone();
+
+    println!("{:?}", ascii_atlas_uv);
 
     let mut image = assets.atlas_image.as_ref().unwrap().clone();
 
-    let absolute_ascii_atlas_uv_index = [
-        [
-            ascii_atlas_uv_index.0[0] * ATLAS_WIDTH as f32,
-            ascii_atlas_uv_index.0[1] * ATLAS_HEIGHT as f32,
-        ],
-        [
-            ascii_atlas_uv_index.1[0] * ATLAS_WIDTH as f32,
-            ascii_atlas_uv_index.1[1] * ATLAS_HEIGHT as f32,
-        ],
-    ];
+    ascii_atlas_uv.multiply(ATLAS_WIDTH as f32, ATLAS_HEIGHT as f32);
 
     // Reduce the size so we can focus on only the ascii texture
     image = image.crop(
-        absolute_ascii_atlas_uv_index[0][0] as u32,
-        absolute_ascii_atlas_uv_index[0][1] as u32,
-        absolute_ascii_atlas_uv_index[1][0] as u32 - absolute_ascii_atlas_uv_index[0][0] as u32,
-        absolute_ascii_atlas_uv_index[1][1] as u32 - absolute_ascii_atlas_uv_index[0][1] as u32,
+        ascii_atlas_uv.u_min as u32,
+        ascii_atlas_uv.v_min as u32,
+        ascii_atlas_uv.width() as u32,
+        ascii_atlas_uv.height() as u32,
     );
 
-    let letter_size = (absolute_ascii_atlas_uv_index[1][0] - absolute_ascii_atlas_uv_index[0][0])
-        as i32
-        / FONT_TEXTURE_SIZE as i32;
+    let letter_size = ascii_atlas_uv.width() as i32 / FONT_TEXTURE_SIZE as i32;
 
     let mut width = [0; 127];
 
@@ -65,6 +57,9 @@ pub fn generate_variable_width_map(assets: &AssetService) -> [u8; 127] {
 
         width[i] = ((rightmost_pixel as f32 / letter_size as f32) * 255.0) as u8;
     }
+
+    // Make space width smaller
+    width[32] /= 3;
 
     width
 }

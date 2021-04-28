@@ -1,14 +1,15 @@
 use crate::render::loading::LoadingScreen;
+use crate::services::debugging_service::DebuggingService;
 use crate::services::input_service::InputService;
 use crate::services::networking_service::NetworkingService;
 use crate::services::{
     asset_service::AssetService,
     audio_service::AudioService,
     chunk_service::ChunkService,
-    logging_service::LoggingService,
     settings_service::SettingsService,
     ui_service::{ObjectAlignment, Positioning, UIService},
 };
+use rc_logging::LoggingService;
 use specs::World;
 use std::sync::{Arc, Mutex};
 use wgpu::{Device, Queue};
@@ -20,6 +21,7 @@ pub mod logging_service;
 pub mod asset_service;
 pub mod audio_service;
 pub mod chunk_service;
+pub mod debugging_service;
 pub mod input_service;
 pub mod networking_service;
 pub mod settings_service;
@@ -52,7 +54,8 @@ impl<'a> ServicesContext<'_> {
 /// Tells all of the services to load in order.
 pub fn load_services(mut context: ServicesContext, universe: &mut World) {
     let settings = SettingsService::new();
-    let logging = LoggingService::new(&settings);
+    let debugging_service = DebuggingService::new(&settings, universe);
+    let logging = LoggingService::new(&settings.path);
     LoadingScreen::update_state(10.0);
 
     let asset = AssetService::new(&settings, &mut context);
@@ -61,40 +64,10 @@ pub fn load_services(mut context: ServicesContext, universe: &mut World) {
     let chunk = ChunkService::new(&settings, &mut context, universe);
     LoadingScreen::update_state(80.0);
     let audio = AudioService::new();
-    let mut ui = UIService::new(&mut context, &asset, universe);
+    let ui = UIService::new(&mut context, &asset, universe);
     let input = InputService::new(&mut context, universe);
     let networking_service = NetworkingService::new(universe);
     LoadingScreen::update_state(90.0);
-
-    //TEMP
-    //region
-    ui.fonts
-        .create_text()
-        .set_text("Rustcraft V0.01 Alpha")
-        .set_size(24.0)
-        .set_text_alignment(ObjectAlignment::TopLeft)
-        .set_object_alignment(ObjectAlignment::TopLeft)
-        .set_positioning(Positioning::Relative)
-        .set_background(true)
-        .set_offset([0.0, 0.0])
-        .build();
-
-    ui.fonts
-        .create_text()
-        .set_text(&format!(
-            "Chunks: {}x16x{} ({} Total)",
-            settings.render_distance * 2,
-            settings.render_distance * 2,
-            (settings.render_distance * 2) * (settings.render_distance * 2) * 16
-        ))
-        .set_size(24.0)
-        .set_text_alignment(ObjectAlignment::TopLeft)
-        .set_object_alignment(ObjectAlignment::TopLeft)
-        .set_positioning(Positioning::Relative)
-        .set_background(true)
-        .set_offset([0.0, 60.0])
-        .build();
-    //endregion
 
     logging.flush_buffer();
 
@@ -106,4 +79,5 @@ pub fn load_services(mut context: ServicesContext, universe: &mut World) {
     universe.insert(ui);
     universe.insert(input);
     universe.insert(networking_service);
+    universe.insert(debugging_service);
 }

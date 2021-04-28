@@ -18,23 +18,23 @@ pub fn draw_sprite<'a>(
     let vertices_count = vertices.len() as u16;
 
     vertices.push(UIVertex {
-        position: [pos[0], pos[1]],
-        tex_coords: texture.0.clone(),
+        position: [pos[0] + scale[0], pos[1] + scale[1]],
+        tex_coords: [texture.u_max, texture.v_min],
         color,
     });
     vertices.push(UIVertex {
         position: [pos[0], pos[1] + scale[1]],
-        tex_coords: [texture.0[0], texture.1[1]],
+        tex_coords: [texture.u_min, texture.v_min],
         color,
     });
     vertices.push(UIVertex {
         position: [pos[0] + scale[0], pos[1]],
-        tex_coords: [texture.1[0], texture.0[1]],
+        tex_coords: [texture.u_max, texture.v_max],
         color,
     });
     vertices.push(UIVertex {
-        position: [pos[0] + scale[0], pos[1] + scale[1]],
-        tex_coords: texture.1,
+        position: [pos[0], pos[1]],
+        tex_coords: [texture.u_min, texture.v_max],
         color,
     });
 

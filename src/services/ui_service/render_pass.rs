@@ -1,6 +1,6 @@
 use crate::services::asset_service::AssetService;
 use crate::services::ui_service::UIService;
-use wgpu::{CommandEncoder, Device, LoadOp, Operations, SwapChainFrame};
+use wgpu::{CommandEncoder, Device, IndexFormat, LoadOp, Operations, SwapChainFrame};
 
 impl UIService {
     /// Renders the user interface. This also runs all of the sub managers render functions.
@@ -12,6 +12,7 @@ impl UIService {
         asset_service: &AssetService,
     ) {
         let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+            label: Some("UI Render Pass"),
             color_attachments: &[wgpu::RenderPassColorAttachmentDescriptor {
                 attachment: &frame.output.view,
                 resolve_target: None,
@@ -34,7 +35,7 @@ impl UIService {
             let indices = self.images.model.total_indices_buffer.as_ref().unwrap();
 
             render_pass.set_vertex_buffer(0, vertices.slice(..));
-            render_pass.set_index_buffer(indices.slice(..));
+            render_pass.set_index_buffer(indices.slice(..), IndexFormat::Uint16);
             render_pass.draw_indexed(0..indices_len, 0, 0..1);
         }
 
@@ -45,7 +46,7 @@ impl UIService {
             let indices = self.widget.model.total_indices_buffer.as_ref().unwrap();
 
             render_pass.set_vertex_buffer(0, vertices.slice(..));
-            render_pass.set_index_buffer(indices.slice(..));
+            render_pass.set_index_buffer(indices.slice(..), IndexFormat::Uint16);
             render_pass.draw_indexed(0..indices_len, 0, 0..1);
         }
 
@@ -56,7 +57,7 @@ impl UIService {
             let indices = self.fonts.model.total_indices_buffer.as_ref().unwrap();
 
             render_pass.set_vertex_buffer(0, vertices.slice(..));
-            render_pass.set_index_buffer(indices.slice(..));
+            render_pass.set_index_buffer(indices.slice(..), IndexFormat::Uint16);
             render_pass.draw_indexed(0..indices_len, 0, 0..1);
         }
     }

@@ -15,6 +15,9 @@ pub mod messaging;
 pub mod protocol;
 pub mod stream;
 
+#[macro_use]
+extern crate rc_logging;
+
 #[derive(Clone)]
 pub struct RustcraftNetworking {
     messaging_channel: Arc<Mutex<Vec<NetworkingMessage>>>,

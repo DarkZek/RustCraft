@@ -1,8 +1,9 @@
+use crate::render::TEXTURE_FORMAT;
 use image::ImageFormat;
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{
     BindGroup, BindGroupLayout, BufferUsage, CompareFunction, Device, Queue, Sampler, Texture,
-    TextureAspect, TextureComponentType, TextureDataLayout, TextureFormat, TextureViewDescriptor,
+    TextureAspect, TextureDataLayout, TextureSampleType, TextureViewDescriptor,
     TextureViewDimension,
 };
 
@@ -23,16 +24,17 @@ pub fn load_splash(
     };
 
     let diffuse_buffer = device.create_buffer_init(&BufferInitDescriptor {
-        label: None,
+        label: Some("Loading splash screen image buffer"),
         contents: &diffuse_rgba,
         usage: BufferUsage::COPY_SRC,
     });
 
-    let mut encoder =
-        device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
+    let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
+        label: Some("Loading splash screen command encoder"),
+    });
 
     let diffuse_texture = device.create_texture(&wgpu::TextureDescriptor {
-        label: None,
+        label: Some("Loading splash screen texture"),
         size,
         mip_level_count: 1,
         sample_count: 1,
@@ -62,7 +64,7 @@ pub fn load_splash(
     queue.submit(Some(encoder.finish()));
 
     let diffuse_sampler_descriptor = wgpu::SamplerDescriptor {
-        label: None,
+        label: Some("Loading splash screen sampler"),
         address_mode_u: wgpu::AddressMode::ClampToEdge,
         address_mode_v: wgpu::AddressMode::ClampToEdge,
         address_mode_w: wgpu::AddressMode::ClampToEdge,
@@ -71,8 +73,9 @@ pub fn load_splash(
         mipmap_filter: wgpu::FilterMode::Nearest,
         lod_min_clamp: -100.0,
         lod_max_clamp: 100.0,
-        compare: Some(CompareFunction::Always),
+        compare: Some(CompareFunction::Equal),
         anisotropy_clamp: None,
+        border_color: None,
     };
 
     let diffuse_sampler = device.create_sampler(&diffuse_sampler_descriptor);
@@ -88,8 +91,8 @@ pub fn load_splash_image_bindings(
     diffuse_sampler: &Sampler,
 ) -> (BindGroupLayout, BindGroup) {
     let diffuse_texture_view = diffuse_texture.create_view(&TextureViewDescriptor {
-        label: None,
-        format: Some(TextureFormat::Rgba8UnormSrgb),
+        label: Some("Loading splash screen texture descriptor"),
+        format: Some(TEXTURE_FORMAT.get().unwrap().clone()),
         dimension: Some(TextureViewDimension::D2),
         aspect: TextureAspect::All,
         base_mip_level: 0,
@@ -104,21 +107,24 @@ pub fn load_splash_image_bindings(
                 wgpu::BindGroupLayoutEntry {
                     binding: 0,
                     visibility: wgpu::ShaderStage::FRAGMENT,
-                    ty: wgpu::BindingType::SampledTexture {
+                    ty: wgpu::BindingType::Texture {
+                        sample_type: TextureSampleType::Float { filterable: false },
+                        view_dimension: TextureViewDimension::D2Array,
                         multisampled: false,
-                        dimension: wgpu::TextureViewDimension::D2Array,
-                        component_type: TextureComponentType::Float,
                     },
                     count: None,
                 },
                 wgpu::BindGroupLayoutEntry {
                     binding: 1,
                     visibility: wgpu::ShaderStage::FRAGMENT,
-                    ty: wgpu::BindingType::Sampler { comparison: true },
+                    ty: wgpu::BindingType::Sampler {
+                        filtering: false,
+                        comparison: true,
+                    },
                     count: None,
                 },
             ],
-            label: None,
+            label: Some("Loading splash screen bind group"),
         });
 
     let texture_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
@@ -133,48 +139,8 @@ pub fn load_splash_image_bindings(
                 resource: wgpu::BindingResource::Sampler(diffuse_sampler),
             },
         ],
-        label: None,
+        label: Some("Loading splash screen bind group"),
     });
 
     (texture_bind_group_layout, texture_bind_group)
 }
-
-// pub fn load_view_matrix(device: &Device) {
-//
-//     let uniform_buffer = device.create_buffer_init(
-//         bytemuck::cast_slice(&self.view_proj),
-//         wgpu::BufferUsage::UNIFORM | wgpu::BufferUsage::COPY_DST | wgpu::BufferUsage::COPY_SRC,
-//     );
-//
-//     let uniform_bind_group_layout =
-//         device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-//             bindings: &[wgpu::BindGroupLayoutEntry {
-//                 binding: 0,
-//                 visibility: wgpu::ShaderStage::VERTEX,
-//                 ty: wgpu::BindingType::UniformBuffer {
-//                     dynamic: false,
-//                     min_binding_size: None,
-//                 },
-//                 count: None,
-//                 _non_exhaustive: Default::default(),
-//             }],
-//             label: None,
-//         });
-//
-//     let uniform_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
-//         layout: &uniform_bind_group_layout,
-//         bindings: &[wgpu::Binding {
-//             binding: 0,
-//             resource: wgpu::BindingResource::Buffer(
-//                 uniform_buffer.slice(0..std::mem::size_of_val(&self) as wgpu::BufferAddress),
-//             ),
-//         }],
-//         label: None,
-//     });
-//
-//     (
-//         uniform_buffer,
-//         uniform_bind_group_layout,
-//         uniform_bind_group,
-//     )
-// }

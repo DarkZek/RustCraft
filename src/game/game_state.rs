@@ -71,7 +71,9 @@ impl<'a> System<'a> for PlayerMovementSystem {
     ) {
         let mut encoder = render
             .device
-            .create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
+            .create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                label: Some("Player movement command encoder"),
+            });
 
         if events.look != [0.0, 0.0] {
             let player = &mut game_state.player;
@@ -116,7 +118,7 @@ impl<'a> System<'a> for PlayerMovementSystem {
         render.uniforms.update_view_proj(&mut camera);
 
         let uniform_buffer = render.device.create_buffer_init(&BufferInitDescriptor {
-            label: None,
+            label: Some("View Projection Buffer"),
             contents: &bytemuck::cast_slice(&render.uniforms.view_proj),
             usage: wgpu::BufferUsage::UNIFORM
                 | wgpu::BufferUsage::COPY_DST

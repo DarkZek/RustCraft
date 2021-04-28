@@ -64,9 +64,7 @@ impl Chunks<'_> {
     pub fn new(data: Vec<&ChunkData>) -> Chunks {
         let mut map = HashMap::new();
         for (i, chunk) in data.iter().enumerate() {
-            unsafe {
-                map.insert(chunk.position, i);
-            }
+            map.insert(chunk.position, i);
         }
 
         Chunks {

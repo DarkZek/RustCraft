@@ -1,10 +1,8 @@
-use crate::block::BlockDirection;
 use crate::services::asset_service::atlas::{TextureAtlasIndex, ATLAS_LOOKUPS};
 use crate::services::chunk_service::chunk::Color;
 use crate::services::chunk_service::mesh::culling::ViewableDirection;
 use crate::services::chunk_service::mesh::{Vertex, ViewableDirectionBitMap};
 use nalgebra::Vector3;
-use std::collections::HashMap;
 use std::ops::{Mul, Neg};
 
 pub struct BlockModel {
@@ -20,34 +18,18 @@ pub struct BlockFace {
     pub edge: bool,
 }
 
-fn calculate_normals(face: &BlockFace) -> Vector3<f32> {
-    let calc = |x1: f32, x2: f32| {
-        if x1 == x2 {
-            x1.signum()
-        } else {
-            0.0
-        }
-    };
-
-    let x = calc(face.scale.x, face.bottom_left.x);
-    let y = calc(face.scale.y, face.bottom_left.y);
-    let z = calc(face.scale.z, face.bottom_left.z);
-
-    Vector3::new(x, y, z)
-}
-
 impl BlockModel {
     pub fn square_block(textures: [&str; 6]) -> BlockModel {
         let mut faces = Vec::new();
 
-        let mut face_textures = [&([0.0; 2], [0.0; 2]); 6];
+        let mut face_textures = [TextureAtlasIndex::default(); 6];
         for i in 0..6 {
             match ATLAS_LOOKUPS.get().unwrap().get(textures[i]) {
                 None => {
                     log_error!("No texture found for block with textures: {:?}", textures);
-                    face_textures[i] = ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap();
+                    face_textures[i] = *ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap();
                 }
-                Some(texture) => face_textures[i] = texture,
+                Some(texture) => face_textures[i] = *texture,
             }
         }
 
@@ -55,7 +37,7 @@ impl BlockModel {
         faces.push(BlockFace {
             bottom_left: Vector3::new(0.0, 1.0, 0.0),
             scale: Vector3::new(1.0, 0.0, 1.0),
-            texture: *face_textures[0],
+            texture: face_textures[0],
             normal: ViewableDirectionBitMap::Top,
             edge: true,
         });
@@ -64,7 +46,7 @@ impl BlockModel {
         faces.push(BlockFace {
             bottom_left: Vector3::new(0.0, 0.0, 0.0),
             scale: Vector3::new(1.0, 0.0, 1.0),
-            texture: *face_textures[1],
+            texture: face_textures[1],
             normal: ViewableDirectionBitMap::Bottom,
             edge: true,
         });
@@ -73,7 +55,7 @@ impl BlockModel {
         faces.push(BlockFace {
             bottom_left: Vector3::new(0.0, 0.0, 0.0),
             scale: Vector3::new(0.0, 1.0, 1.0),
-            texture: *face_textures[2],
+            texture: face_textures[2],
             normal: ViewableDirectionBitMap::Left,
             edge: true,
         });
@@ -82,7 +64,7 @@ impl BlockModel {
         faces.push(BlockFace {
             bottom_left: Vector3::new(1.0, 0.0, 0.0),
             scale: Vector3::new(0.0, 1.0, 1.0),
-            texture: *face_textures[3],
+            texture: face_textures[3],
             normal: ViewableDirectionBitMap::Right,
             edge: true,
         });
@@ -91,7 +73,7 @@ impl BlockModel {
         faces.push(BlockFace {
             bottom_left: Vector3::new(0.0, 0.0, 0.0),
             scale: Vector3::new(1.0, 1.0, 0.0),
-            texture: *face_textures[4],
+            texture: face_textures[4],
             normal: ViewableDirectionBitMap::Front,
             edge: true,
         });
@@ -100,7 +82,7 @@ impl BlockModel {
         faces.push(BlockFace {
             bottom_left: Vector3::new(0.0, 0.0, 1.0),
             scale: Vector3::new(1.0, 1.0, 0.0),
-            texture: *face_textures[5],
+            texture: face_textures[5],
             normal: ViewableDirectionBitMap::Back,
             edge: true,
         });
@@ -124,7 +106,7 @@ impl BlockModel {
                 continue;
             }
 
-            let (start_atlas, end_atlas) = face.texture.clone();
+            let atlas_index = face.texture.clone();
 
             let mut invert_normals = false;
 
@@ -160,7 +142,7 @@ impl BlockModel {
                             y + face.bottom_left[1] + face.scale.y,
                             z + face.bottom_left[2],
                         ],
-                        tex_coords: [end_atlas[0], start_atlas[1]],
+                        tex_coords: [atlas_index.u_max, atlas_index.v_max],
                         normals,
                         applied_color,
                     });
@@ -170,7 +152,7 @@ impl BlockModel {
                             y + face.bottom_left[1] + face.scale.y,
                             z + face.bottom_left[2] + face.scale.z,
                         ],
-                        tex_coords: [end_atlas[0], end_atlas[1]],
+                        tex_coords: [atlas_index.u_max, atlas_index.v_min],
                         normals,
                         applied_color,
                     });
@@ -180,7 +162,7 @@ impl BlockModel {
                             y + face.bottom_left[1] + face.scale.y,
                             z + face.bottom_left[2] + face.scale.z,
                         ],
-                        tex_coords: [start_atlas[0], end_atlas[1]],
+                        tex_coords: [atlas_index.u_min, atlas_index.v_min],
                         normals,
                         applied_color,
                     });
@@ -190,7 +172,7 @@ impl BlockModel {
                             y + face.bottom_left[1] + face.scale.y,
                             z + face.bottom_left[2],
                         ],
-                        tex_coords: [start_atlas[0], start_atlas[1]],
+                        tex_coords: [atlas_index.u_min, atlas_index.v_max],
                         normals,
                         applied_color,
                     });
@@ -205,7 +187,7 @@ impl BlockModel {
                             y + face.bottom_left[1],
                             z + face.bottom_left[2] + face.scale.z,
                         ],
-                        tex_coords: [end_atlas[0], end_atlas[1]],
+                        tex_coords: [atlas_index.u_min, atlas_index.v_max],
                         normals,
                         applied_color,
                     });
@@ -215,7 +197,7 @@ impl BlockModel {
                             y + face.bottom_left[1] + face.scale.y,
                             z + face.bottom_left[2] + face.scale.z,
                         ],
-                        tex_coords: [end_atlas[0], start_atlas[1]],
+                        tex_coords: [atlas_index.u_min, atlas_index.v_min],
                         normals,
                         applied_color,
                     });
@@ -225,7 +207,7 @@ impl BlockModel {
                             y + face.bottom_left[1] + face.scale.y,
                             z + face.bottom_left[2],
                         ],
-                        tex_coords: [start_atlas[0], start_atlas[1]],
+                        tex_coords: [atlas_index.u_max, atlas_index.v_min],
                         normals,
                         applied_color,
                     });
@@ -235,7 +217,7 @@ impl BlockModel {
                             y + face.bottom_left[1],
                             z + face.bottom_left[2],
                         ],
-                        tex_coords: [start_atlas[0], end_atlas[1]],
+                        tex_coords: [atlas_index.u_max, atlas_index.v_max],
                         normals,
                         applied_color,
                     });

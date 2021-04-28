@@ -26,13 +26,13 @@ impl UIMeshData {
 
     pub fn build_buf(&mut self, device: &Device) {
         self.total_vertex_buffer = Some(device.create_buffer_init(&BufferInitDescriptor {
-            label: None,
+            label: Some("UI Mesh Data Vertex Buffer"),
             contents: &bytemuck::cast_slice(&self.total_vertices),
             usage: wgpu::BufferUsage::VERTEX,
         }));
 
         self.total_indices_buffer = Some(device.create_buffer_init(&BufferInitDescriptor {
-            label: None,
+            label: Some("UI Mesh Data Indices Buffer"),
             contents: &bytemuck::cast_slice(&self.total_indices),
             usage: wgpu::BufferUsage::INDEX,
         }));

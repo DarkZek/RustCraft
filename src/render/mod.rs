@@ -7,15 +7,19 @@ use crate::services::asset_service::AssetService;
 use crate::services::chunk_service::mesh::Vertex;
 use crate::services::chunk_service::ChunkService;
 use crate::services::{load_services, ServicesContext};
+use core::mem;
 use image::ImageFormat;
 use specs::{World, WorldExt};
 use std::borrow::Borrow;
+use std::lazy::SyncOnceCell;
 use std::sync::{Arc, Mutex};
+use std::thread;
 use std::time::{Duration, Instant, SystemTime};
 use systemstat::{Platform, System};
 use wgpu::{
-    AdapterInfo, BindGroupLayout, BlendFactor, BlendOperation, Device, RenderPipeline, Sampler,
-    StencilStateDescriptor, SwapChainDescriptor, Texture, TextureView, VertexStateDescriptor,
+    AdapterInfo, BindGroupLayout, CullMode, DepthBiasState, Device, FrontFace, MultisampleState,
+    PolygonMode, PrimitiveState, PrimitiveTopology, RenderPipeline, Sampler, StencilState,
+    SwapChainDescriptor, Texture, TextureFormat, TextureView, VertexState,
 };
 use winit::dpi::PhysicalSize;
 use winit::event_loop::EventLoop;
@@ -27,6 +31,10 @@ pub mod loading;
 pub mod pass;
 pub mod screens;
 pub mod shaders;
+
+lazy_static! {
+    pub static ref TEXTURE_FORMAT: SyncOnceCell<TextureFormat> = SyncOnceCell::new();
+}
 
 /// Stores the current state of the rendering side of the game. This includes all of the vulkan attributes, fps, gpu info and currently the services which need to be moved.
 #[allow(dead_code)]
@@ -86,7 +94,8 @@ impl RenderState {
         );
 
         // Get the window setup ASAP so we can show loading screen
-        let (size, surface, gpu_info, device, queue) = RenderState::get_devices(window.borrow());
+        let (size, surface, gpu_info, device, queue, adapter) =
+            RenderState::get_devices(window.borrow());
 
         // Convert to forms that can be used in multiple places
         let device = Arc::new(device);
@@ -94,12 +103,16 @@ impl RenderState {
 
         // Limited to vsync here
         let sc_desc = wgpu::SwapChainDescriptor {
-            usage: wgpu::TextureUsage::OUTPUT_ATTACHMENT,
-            format: wgpu::TextureFormat::Bgra8UnormSrgb,
+            usage: wgpu::TextureUsage::RENDER_ATTACHMENT,
+            format: TextureFormat::Bgra8UnormSrgb,
             width: size.width,
             height: size.height,
             present_mode: wgpu::PresentMode::Immediate,
         };
+
+        TEXTURE_FORMAT
+            .set(sc_desc.format)
+            .expect("Failed to update texture format description");
 
         let swap_chain = device.create_swap_chain(&surface, &sc_desc);
         let swap_chain = Arc::new(Mutex::new(swap_chain));
@@ -149,7 +162,15 @@ impl RenderState {
         // Send the notice to shut the loading screen down
         LoadingScreen::update_state(100.0);
 
-        // Spin lock until the background loading thread shuts down
+        // Loop until it has
+        loop {
+            if LoadingScreen::has_finished() {
+                break;
+            }
+            thread::sleep(Duration::from_millis(25));
+        }
+
+        // Spin lock until the background loading thread shuts down, and has dropped the swapchain
         let swap_chain = LoadingScreen::wait_for_swapchain(swap_chain);
 
         let queue = Arc::try_unwrap(queue).ok().unwrap().into_inner().unwrap();
@@ -185,6 +206,12 @@ impl RenderState {
         self.size = new_size;
         self.sc_desc.width = new_size.width;
         self.sc_desc.height = new_size.height;
+
+        // Current swapchain must be dropped before creating a new one
+        {
+            self.swap_chain.take();
+        }
+
         self.swap_chain = Some(self.device.create_swap_chain(&self.surface, &self.sc_desc));
         self.depth_texture = create_depth_texture(&self.device, &self.sc_desc);
     }
@@ -211,66 +238,61 @@ fn generate_render_pipeline(
     );
 
     let render_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-        label: None,
+        label: Some("Main render pipeline layout"),
         bind_group_layouts,
         push_constant_ranges: &[],
     });
 
     device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-        label: None,
+        label: Some("Main render pipeline"),
         layout: Some(&render_pipeline_layout),
-        vertex_stage: wgpu::ProgrammableStageDescriptor {
+        vertex: VertexState {
             module: &vs_module,
             entry_point: "main",
+            buffers: &[Vertex::desc()],
         },
-        fragment_stage: Some(wgpu::ProgrammableStageDescriptor {
-            module: &fs_module,
-            entry_point: "main",
-        }),
-        rasterization_state: Some(wgpu::RasterizationStateDescriptor {
-            front_face: wgpu::FrontFace::Cw,
-            cull_mode: if culling {
-                wgpu::CullMode::Back
-            } else {
-                wgpu::CullMode::None
-            },
-            clamp_depth: false,
-            depth_bias: 0,
-            depth_bias_slope_scale: 0.0,
-            depth_bias_clamp: 0.0,
-        }),
-        color_states: &[wgpu::ColorStateDescriptor {
-            format: sc_desc.format,
-            color_blend: wgpu::BlendDescriptor {
-                src_factor: BlendFactor::SrcAlpha,
-                dst_factor: BlendFactor::OneMinusSrcAlpha,
-                operation: BlendOperation::Add,
-            },
-            alpha_blend: wgpu::BlendDescriptor {
-                src_factor: BlendFactor::One,
-                dst_factor: BlendFactor::Zero,
-                operation: BlendOperation::Subtract,
-            },
-            write_mask: wgpu::ColorWrite::ALL,
-        }],
-        primitive_topology: wgpu::PrimitiveTopology::TriangleList,
-        depth_stencil_state: Some(wgpu::DepthStencilStateDescriptor {
+        primitive: PrimitiveState {
+            topology: PrimitiveTopology::TriangleList,
+            strip_index_format: None,
+            front_face: FrontFace::Cw,
+            cull_mode: CullMode::Back,
+            polygon_mode: PolygonMode::Fill,
+        },
+        depth_stencil: Some(wgpu::DepthStencilState {
             format: DEPTH_FORMAT,
             depth_write_enabled: true,
             depth_compare: wgpu::CompareFunction::Less,
-            stencil: StencilStateDescriptor {
-                front: wgpu::StencilStateFaceDescriptor::IGNORE,
-                back: wgpu::StencilStateFaceDescriptor::IGNORE,
+            stencil: StencilState {
+                front: wgpu::StencilFaceState::IGNORE,
+                back: wgpu::StencilFaceState::IGNORE,
                 read_mask: 0,
                 write_mask: 0,
             },
+            bias: DepthBiasState::default(),
+            clamp_depth: false,
         }),
-        vertex_state: VertexStateDescriptor {
-            index_format: wgpu::IndexFormat::Uint16,
-            vertex_buffers: &[Vertex::desc()],
+        multisample: MultisampleState {
+            count: 1,
+            mask: !0,
+            alpha_to_coverage_enabled: false,
         },
-        sample_count: 1,
-        sample_mask: !0,
-        alpha_to_coverage_enabled: false,
+        fragment: Some(wgpu::FragmentState {
+            module: &fs_module,
+            entry_point: "main",
+            targets: &[wgpu::ColorTargetState {
+                format: TEXTURE_FORMAT.get().unwrap().clone(),
+                alpha_blend: wgpu::BlendState {
+                    src_factor: wgpu::BlendFactor::One,
+                    dst_factor: wgpu::BlendFactor::Zero,
+                    operation: wgpu::BlendOperation::Add,
+                },
+                color_blend: wgpu::BlendState {
+                    src_factor: wgpu::BlendFactor::SrcAlpha,
+                    dst_factor: wgpu::BlendFactor::OneMinusSrcAlpha,
+                    operation: wgpu::BlendOperation::Add,
+                },
+                write_mask: wgpu::ColorWrite::ALL,
+            }],
+        }),
     })
 }

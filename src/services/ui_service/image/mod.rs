@@ -69,7 +69,7 @@ impl ImageManager {
 
         for (id, image) in self.images.iter() {
             let atlas_lookup = if image.flipped {
-                (image.atlas_lookup.1, image.atlas_lookup.0)
+                image.atlas_lookup.flipped()
             } else {
                 image.atlas_lookup
             };

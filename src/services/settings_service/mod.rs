@@ -109,7 +109,7 @@ impl SettingsService {
             debug_atlas: false,
             backface_culling: true,
             chunk_edge_faces: true,
-            debug_states: false,
+            debug_states: true,
         }
     }
 }

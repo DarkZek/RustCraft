@@ -1,14 +1,14 @@
+use crate::protocol::data::read_types::read_varint;
 use crate::protocol::packet::PacketType;
-use crate::protocol::data::read_types::{read_varint};
-use std::io::{Cursor};
 use crate::protocol::types::slot::Slot;
+use std::io::Cursor;
 
 #[derive(Debug)]
 pub struct EntityEquipmentPacket {
     pub entity_id: i64,
-    // 0: main hand, 1: off hand, 2–5: armor slot (2: boots, 3: leggings, 4: chestplate, 5: helmet)
+    // 0: src hand, 1: off hand, 2–5: armor slot (2: boots, 3: leggings, 4: chestplate, 5: helmet)
     pub slot: i64,
-    pub item: Slot
+    pub item: Slot,
 }
 
 impl PacketType for EntityEquipmentPacket {
@@ -20,7 +20,7 @@ impl PacketType for EntityEquipmentPacket {
         Box::new(EntityEquipmentPacket {
             entity_id,
             slot,
-            item
+            item,
         })
     }
 }

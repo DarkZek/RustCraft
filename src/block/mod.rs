@@ -1,6 +1,6 @@
 use crate::block::blocks::model::BlockModel;
 use crate::block::blocks::BlockType;
-use crate::services::asset_service::atlas::{TextureAtlasIndex, ATLAS_LOOKUPS};
+use crate::services::asset_service::atlas::ATLAS_LOOKUPS;
 use nalgebra::Vector3;
 use std::collections::HashMap;
 
@@ -31,8 +31,6 @@ pub struct BlockState {
     pub model_transform_rot: Vector3<f32>,
     pub model_transform_pos: Vector3<f32>,
 }
-
-enum BlockPropertiesValue {}
 
 #[derive(Clone)]
 pub enum ToolType {
