@@ -1,11 +1,9 @@
-use crate::services::asset_service::atlas::{TextureAtlasIndex, ATLAS_LOOKUPS};
-use crate::services::chunk_service::mesh::UIVertex;
+use crate::services::asset_service::atlas::ATLAS_LOOKUPS;
+use crate::services::asset_service::index::TextureAtlasIndex;
 use crate::services::ui_service::draw::draw_sprite;
 use crate::services::ui_service::meshdata::UIMeshData;
-use image::DynamicImage;
 use std::collections::HashMap;
-use wgpu::util::{BufferInitDescriptor, DeviceExt};
-use wgpu::{Buffer, Device, Texture};
+use wgpu::Device;
 use winit::dpi::PhysicalSize;
 
 /// Image Manager is a subsystem of the User Interface Service.

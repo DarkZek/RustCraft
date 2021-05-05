@@ -17,15 +17,13 @@ impl<'a> System<'a> for PhysicsProcessingSystem {
     fn run(&mut self, (mut physics_objects, chunks): Self::SystemData) {
         (&mut physics_objects).par_join().for_each(|entity| {
             // Check collisions
-
             let slipperiness = 0.6;
 
             entity.velocity.x *= slipperiness;
             entity.velocity.z *= slipperiness;
 
             // Add gravity
-            //entity.velocity.y -= 0.08;
-            entity.velocity.y -= 0.04;
+            entity.velocity.y -= 0.08;
 
             // Air Drag
             entity.velocity.y *= 0.98;
@@ -74,9 +72,9 @@ impl PhysicsObject {
     pub fn new() -> PhysicsObject {
         PhysicsObject {
             velocity: Vector3::new(0.0, 0.0, 0.0),
-            position: Vector3::new(0.0, 100.0, 0.0),
-            old_position: Vector3::new(0.0, 100.0, 0.0),
-            new_position: Vector3::new(0.0, 100.0, 0.0),
+            position: Vector3::new(0.0, 70.0, 0.0),
+            old_position: Vector3::new(0.0, 70.0, 0.0),
+            new_position: Vector3::new(0.0, 70.0, 0.0),
             collider: BoxCollider::blank(),
             touching_ground: false,
         }

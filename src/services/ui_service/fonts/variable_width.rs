@@ -13,8 +13,6 @@ pub fn generate_variable_width_map(assets: &AssetService) -> [u8; 127] {
         .unwrap()
         .clone();
 
-    println!("{:?}", ascii_atlas_uv);
-
     let mut image = assets.atlas_image.as_ref().unwrap().clone();
 
     ascii_atlas_uv.multiply(ATLAS_WIDTH as f32, ATLAS_HEIGHT as f32);

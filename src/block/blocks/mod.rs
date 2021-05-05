@@ -2,8 +2,8 @@ use crate::block::blocks::model::{BlockFace, BlockModel};
 use crate::block::Block;
 use crate::game::physics::collider::BoxCollider;
 use crate::helpers::{AtlasIndex, TextureSubdivisionMethod};
-use crate::services::asset_service::atlas::TextureAtlasIndex;
 use crate::services::asset_service::atlas::ATLAS_LOOKUPS;
+use crate::services::asset_service::index::TextureAtlasIndex;
 use crate::services::asset_service::AssetService;
 use crate::services::chunk_service::mesh::ViewableDirectionBitMap;
 use crate::services::settings_service::SettingsService;
@@ -993,6 +993,7 @@ define_blocks! {
         identifier "minecraft:glass",
         props {},
         model BlockModel::square_block(["block/glass"; 6]),
+        transparent true,
     }
     LapisOre {
         identifier "minecraft:lapis_ore",
@@ -1025,7 +1026,7 @@ define_blocks! {
     Sandstone {
         identifier "minecraft:sandstone",
         props {},
-        model BlockModel::square_block(["block/sandstone"; 6]),
+        model BlockModel::square_block(["block/sandstone_top", "block/sandstone_top", "block/sandstone", "block/sandstone", "block/sandstone", "block/sandstone"]),
     }
     ChiseledSandstone {
         identifier "minecraft:chiseled_sandstone",
@@ -1543,7 +1544,9 @@ define_blocks! {
                 ]
             }
         },
+        collidable false,
         transparent true,
+
     }
     Fern {
         identifier "minecraft:fern",
@@ -1584,6 +1587,7 @@ define_blocks! {
                 ]
             }
         },
+        collidable false,
         transparent true,
     }
     DeadBush {
@@ -2642,6 +2646,7 @@ define_blocks! {
             }
         },
         collidable false,
+        full false,
         light_color [255; 3],
         light_intensity 14,
     }
@@ -2692,6 +2697,7 @@ define_blocks! {
             }
         },
         collidable false,
+        full false,
         light_color [255; 3],
         light_intensity 14,
     }
@@ -2739,6 +2745,7 @@ define_blocks! {
         },
         model BlockModel::square_block(["block/fire_0", "block/fire_0", "block/fire_0", "block/fire_0", "block/fire_0", "block/fire_0"]),
         collidable false,
+        full false,
         light_color [255; 3],
         light_intensity 14,
     }
@@ -2813,14 +2820,14 @@ define_blocks! {
                     BlockFace {
                         bottom_left: Vector3::new(0.0, 1.0, 0.0),
                         scale: Vector3::new(0.5, 0.0, 1.0),
-                        texture: lookup.get_subdivision(TextureSubdivisionMethod::Top),
+                        texture: lookup.get_subdivision(TextureSubdivisionMethod::Left),
                         normal: ViewableDirectionBitMap::Top,
                         edge: true,
                     },
                     BlockFace {
                         bottom_left: Vector3::new(0.5, 0.5, 0.0),
                         scale: Vector3::new(0.5, 0.0, 1.0),
-                        texture: lookup.get_subdivision(TextureSubdivisionMethod::Bottom),
+                        texture: lookup.get_subdivision(TextureSubdivisionMethod::Right),
                         normal: ViewableDirectionBitMap::Top,
                         edge: false,
                     },
@@ -2843,7 +2850,7 @@ define_blocks! {
 
                     // Left face
                     BlockFace {
-                        bottom_left: Vector3::new(1.0, 0.0, 1.0),
+                        bottom_left: Vector3::new(0.0, 0.0, 0.0),
                         scale: Vector3::new(0.0, 1.0, 1.0),
                         texture: lookup.get_subdivision(TextureSubdivisionMethod::Full),
                         normal: ViewableDirectionBitMap::Left,

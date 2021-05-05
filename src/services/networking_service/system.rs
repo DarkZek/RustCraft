@@ -1,18 +1,15 @@
 use crate::entity::player::PlayerEntity;
 use crate::game::physics::PhysicsObject;
-use crate::render::RenderState;
-use crate::services::chunk_service::chunk::{ChunkData, Chunks};
+use crate::services::chunk_service::chunk::ChunkData;
 use crate::services::chunk_service::ChunkService;
 use crate::services::networking_service::NetworkingService;
-use crate::services::settings_service::SettingsService;
 use nalgebra::Vector3;
 use rc_network::protocol::packet::PacketData;
 
 use crate::game::game_state::{GameState, ProgramState};
-use crate::helpers::chunk_by_loc_from_write;
-use crate::services::chunk_service::mesh::rerendering::{RerenderChunkFlag, UpdateChunkMesh};
+use crate::services::chunk_service::mesh::rerendering::RerenderChunkFlag;
 use crate::services::ui_service::UIService;
-use specs::{Entities, Join, Read, ReadStorage, System, Write, WriteStorage};
+use specs::{Entities, Join, ReadStorage, System, Write, WriteStorage};
 
 pub struct ReceivedNetworkPackets {
     pub(crate) packets: Vec<PacketData>,

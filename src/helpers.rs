@@ -1,4 +1,5 @@
-use crate::services::asset_service::atlas::{TextureAtlasIndex, ATLAS_LOOKUPS};
+use crate::services::asset_service::atlas::ATLAS_LOOKUPS;
+use crate::services::asset_service::index::TextureAtlasIndex;
 use crate::services::chunk_service::chunk::{ChunkData, Color};
 use nalgebra::{Point3, Vector3};
 use specs::ReadStorage;

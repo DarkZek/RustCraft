@@ -1,9 +1,9 @@
-use crate::services::asset_service::atlas::{TextureAtlasIndex, ATLAS_LOOKUPS};
+use crate::services::asset_service::atlas::ATLAS_LOOKUPS;
+use crate::services::asset_service::index::TextureAtlasIndex;
 use crate::services::chunk_service::chunk::Color;
 use crate::services::chunk_service::mesh::culling::ViewableDirection;
 use crate::services::chunk_service::mesh::{Vertex, ViewableDirectionBitMap};
 use nalgebra::Vector3;
-use std::ops::{Mul, Neg};
 
 pub struct BlockModel {
     pub faces: Vec<BlockFace>,

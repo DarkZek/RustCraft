@@ -1,5 +1,4 @@
-use crate::helpers::Lerp;
-use crate::services::asset_service::atlas::TextureAtlasIndex;
+use crate::services::asset_service::index::TextureAtlasIndex;
 use crate::services::chunk_service::mesh::UIVertex;
 use crate::services::ui_service::draw::{draw_rect, draw_sprite};
 use crate::services::ui_service::fonts::{FontAtlasIndexs, FONT_TEXTURE_SIZE, LETTER_SPACING};

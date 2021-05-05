@@ -8,7 +8,7 @@ use std::thread;
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{
     BindGroup, BindGroupLayout, Buffer, BufferUsage, Device, Queue, RenderPipeline, Sampler,
-    SwapChain, Texture, TextureFormat,
+    SwapChain, Texture,
 };
 use winit::dpi::PhysicalSize;
 

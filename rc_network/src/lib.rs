@@ -59,64 +59,67 @@ impl RustcraftNetworking {
         let received_packets = self.received_packets.clone();
         let _send_packets = self.send_packets.clone();
 
-        thread::spawn(move || {
-            let _context = NetworkingContext::new();
-            let mut connection: Option<NetworkStream> = None;
+        let handler = thread::Builder::new()
+            .name("Networking Thread".into())
+            .spawn(move || {
+                let _context = NetworkingContext::new();
+                let mut connection: Option<NetworkStream> = None;
 
-            loop {
-                // Listen to messages
-                match messaging_channel.lock() {
-                    Ok(mut messages) => {
-                        handle_messages(&mut *messages, &mut connection);
-                    }
-                    Err(e) => println!("Poison Error: {}", e),
-                }
-
-                if connection.is_none() {
-                    continue;
-                }
-
-                match PacketDecoder::decode(&mut connection.as_mut().unwrap()) {
-                    Ok(packet) => {
-                        // Answer callbacks
-                        if let PacketData::KeepAlive(packet) = packet {
-                            // Send packet back
-                            let mut builder = PacketBuilder::new(0x0F);
-                            builder
-                                .data
-                                .write_i64::<BigEndian>(packet.keep_alive_id)
-                                .unwrap();
-                            builder.send(connection.as_mut().unwrap());
-                            continue;
+                loop {
+                    // Listen to messages
+                    match messaging_channel.lock() {
+                        Ok(mut messages) => {
+                            handle_messages(&mut *messages, &mut connection);
                         }
+                        Err(e) => println!("Poison Error: {}", e),
+                    }
 
-                        if let PacketData::ChunkData(chunk) = &packet {
-                            if chunk.x == 5 && chunk.z == 9 {
-                                println!("Chunk: {:?}", chunk);
+                    if connection.is_none() {
+                        continue;
+                    }
+
+                    match PacketDecoder::decode(&mut connection.as_mut().unwrap()) {
+                        Ok(packet) => {
+                            // Answer callbacks
+                            if let PacketData::KeepAlive(packet) = packet {
+                                // Send packet back
+                                let mut builder = PacketBuilder::new(0x0F);
+                                builder
+                                    .data
+                                    .write_i64::<BigEndian>(packet.keep_alive_id)
+                                    .unwrap();
+                                builder.send(connection.as_mut().unwrap());
+                                continue;
+                            }
+
+                            if let PacketData::ChunkData(chunk) = &packet {
+                                if chunk.x == 5 && chunk.z == 9 {
+                                    println!("Chunk: {:?}", chunk);
+                                }
+                            }
+
+                            // Handle disconnects
+                            if let PacketData::Disconnect(packet) = packet {
+                                // Send packet back
+                                connection = None;
+                                println!("Disconnected: {}", packet.reason);
+                                continue;
+                            }
+
+                            match received_packets.lock() {
+                                Ok(mut received_packets) => {
+                                    received_packets.push(packet);
+                                }
+                                Err(e) => println!("Mutex Poison Error {}", e),
                             }
                         }
-
-                        // Handle disconnects
-                        if let PacketData::Disconnect(packet) = packet {
-                            // Send packet back
-                            connection = None;
-                            println!("Disconnected: {}", packet.reason);
-                            continue;
+                        Err(e) => {
+                            println!("Error parsing packet {}", e);
                         }
-
-                        match received_packets.lock() {
-                            Ok(mut received_packets) => {
-                                received_packets.push(packet);
-                            }
-                            Err(e) => println!("Mutex Poison Error {}", e),
-                        }
-                    }
-                    Err(e) => {
-                        println!("Error parsing packet {}", e);
                     }
                 }
-            }
-        });
+            })
+            .unwrap();
     }
 
     pub fn send_message(&self, message: NetworkingMessage) {

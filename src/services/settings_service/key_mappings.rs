@@ -9,6 +9,7 @@ pub struct KeyMapping {
     pub pause: VirtualKeyCode,
     pub jump: VirtualKeyCode,
     pub sneak: VirtualKeyCode,
+    pub ctrl: VirtualKeyCode,
 }
 
 impl KeyMapping {
@@ -21,6 +22,7 @@ impl KeyMapping {
             pause: VirtualKeyCode::Escape,
             jump: VirtualKeyCode::Space,
             sneak: VirtualKeyCode::LShift,
+            ctrl: VirtualKeyCode::LControl,
         }
     }
 }

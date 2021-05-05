@@ -3,7 +3,6 @@ use crate::render::shaders::load_shaders;
 use crate::render::TEXTURE_FORMAT;
 use crate::services::chunk_service::mesh::UIVertex;
 use nalgebra::{Matrix4, Orthographic3};
-use std::borrow::Cow;
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{
     BindGroup, BindGroupLayout, Buffer, BufferBindingType, Device, RenderPipeline, VertexState,

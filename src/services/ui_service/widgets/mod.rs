@@ -1,12 +1,10 @@
-use crate::services::asset_service::atlas::{TextureAtlasIndex, ATLAS_LOOKUPS};
+use crate::services::asset_service::atlas::ATLAS_LOOKUPS;
 use crate::services::chunk_service::mesh::UIVertex;
 use crate::services::ui_service::draw::draw_sprite;
 use crate::services::ui_service::fonts::{FontsManager, TextView};
 use crate::services::ui_service::meshdata::UIMeshData;
 use crate::services::ui_service::{ObjectAlignment, Positioning};
-use image::DynamicImage;
 use std::collections::HashMap;
-use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::Device;
 use winit::dpi::PhysicalSize;
 

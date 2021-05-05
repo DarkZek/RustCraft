@@ -2,11 +2,8 @@ use crate::block::blocks::model::BlockModel;
 use crate::block::blocks::BlockType;
 use crate::services::asset_service::atlas::ATLAS_LOOKUPS;
 use nalgebra::Vector3;
-use std::collections::HashMap;
 
 pub mod blocks;
-
-//TODO: Update with real information about real in game blocks.
 
 /// A struct to hold all of a blocks information. This is purely for internal purposes to store all blocks that exist in the game.
 /// For physical blocks placed in the game use `PhysicalBlock`

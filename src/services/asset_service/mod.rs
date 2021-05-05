@@ -2,7 +2,7 @@
 // Handles loading assets, the texture atlas and resource packs
 //
 
-use crate::services::asset_service::atlas::TextureAtlasIndex;
+use crate::services::asset_service::index::TextureAtlasIndex;
 use crate::services::settings_service::SettingsService;
 use crate::services::ServicesContext;
 use image::DynamicImage;
@@ -14,6 +14,7 @@ use wgpu::{BindGroup, BindGroupLayout, Sampler, Texture};
 pub mod atlas;
 pub mod binding;
 pub mod depth_map;
+pub mod index;
 pub mod packs;
 
 #[allow(dead_code)]
@@ -22,6 +23,8 @@ pub struct AssetService {
     selected_pack: Option<ResourcePack>,
     pub atlas_image: Option<DynamicImage>,
     pub atlas: Option<Texture>,
+    // TODO: Change from using string based lookup system to using hashed id's internally, and also add direct access via vec and make hashmap simply give index to vec
+    // also cache popular block models for faster chunk gen
     pub atlas_index: Option<HashMap<String, TextureAtlasIndex>>,
     pub atlas_sampler: Option<Sampler>,
     pub atlas_bind_group_layout: Option<BindGroupLayout>,

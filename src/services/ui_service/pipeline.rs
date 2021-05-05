@@ -1,7 +1,7 @@
 use crate::render::shaders::load_shaders;
 use crate::render::TEXTURE_FORMAT;
 use crate::services::chunk_service::mesh::UIVertex;
-use wgpu::{BindGroupLayout, Device, MultisampleState, RenderPipeline, ShaderModule, VertexState};
+use wgpu::{BindGroupLayout, Device, MultisampleState, RenderPipeline, VertexState};
 
 /// Creates the user inferace render pipeline. This includes things like loading shaders.
 /// This happens because we have one render pass for the chunks, and a separate for user interfaces. This lets us use 2d vertices for UI as well as have more control over depth and perspective.

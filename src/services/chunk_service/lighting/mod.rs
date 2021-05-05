@@ -3,7 +3,7 @@ use crate::helpers::lerp_color;
 use crate::services::chunk_service::chunk::{ChunkData, Chunks, RawLightingData};
 use crate::services::settings_service::CHUNK_SIZE;
 use nalgebra::{Point3, Vector3};
-use specs::{Component, DenseVecStorage, ReadStorage};
+use specs::{Component, DenseVecStorage};
 use std::collections::HashMap;
 
 impl ChunkData {

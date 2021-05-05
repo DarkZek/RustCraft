@@ -49,7 +49,7 @@ pub fn calculate_frustum_culling(
         if chunk.opaque_model.vertices_buffer.is_some()
             || chunk.translucent_model.vertices_buffer.is_some()
         {
-            if frustum.is_visible(relative_pos, 22.0) {
+            if frustum.is_visible(relative_pos, 25.0) {
                 visible_chunks.push(pos.clone());
             }
         }

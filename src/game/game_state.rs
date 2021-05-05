@@ -4,9 +4,11 @@ use crate::helpers::Clamp;
 use crate::render::camera::Camera;
 use crate::render::RenderState;
 use crate::services::input_service::actions::ActionSheet;
-use crate::services::input_service::input::GameChanges;
+use crate::services::input_service::input::{GameChanges, InputChange};
+use nalgebra::Vector3;
 use specs::{Builder, Join, Read, ReadStorage, System, World, WorldExt, Write, WriteStorage};
 use std::f32::consts::PI;
+use std::ops::Mul;
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
 
 /// Stores the current state of the game. Currently this is mostly just looking after player movement.
@@ -95,13 +97,23 @@ impl<'a> System<'a> for PlayerMovementSystem {
             camera.pitch = player.rot[1] - (PI / 2.0);
         }
 
+        let mut movement_modifier = 0.25;
+
+        if actionsheet.get_sprinting() {
+            movement_modifier *= 2.3;
+        }
+
         if events.movement != [0, 0] {
             //TODO: Try make a macro out of this, I tried once but it kept saying it could find the macro :(
             let (_, player_physics) = (&player_entity, &mut player_physics).join().last().unwrap();
 
             // Update camera with change (assumes first person for now)
-            player_physics.velocity =
+            let movement: Vector3<f32> =
                 move_forwards(&events.movement, game_state.player.rot[0]).into();
+
+            player_physics.position += movement.mul(movement_modifier);
+            // Add only a 1/10 of the force to the velocity so it still feels like we have force, but without the effects of stacking velocity
+            player_physics.velocity += movement.mul(movement_modifier / 10.0);
         }
 
         if events.jump {
@@ -111,7 +123,15 @@ impl<'a> System<'a> for PlayerMovementSystem {
         if actionsheet.get_jump() {
             let (_, player_physics) = (&player_entity, &mut player_physics).join().last().unwrap();
             if player_physics.touching_ground {
-                player_physics.velocity.y += 0.42;
+                player_physics.velocity.y += 0.42 * 1.25;
+            }
+        }
+
+        if events.ctrl != InputChange::None {
+            if events.ctrl == InputChange::Released {
+                actionsheet.set_sprinting(false)
+            } else {
+                actionsheet.set_sprinting(true)
             }
         }
 

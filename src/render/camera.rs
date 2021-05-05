@@ -14,7 +14,7 @@ pub struct Camera {
     pub projection_matrix: Matrix4<f32>,
 }
 
-const FIRST_PERSON_OFFSET: [f32; 3] = [0.0, 0.0, 0.0];
+const FIRST_PERSON_OFFSET: [f32; 3] = [0.0, 1.6, 0.0];
 const PI: f32 = std::f32::consts::PI;
 
 impl Camera {

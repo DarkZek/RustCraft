@@ -5,6 +5,13 @@ use winit::dpi::{PhysicalPosition, PhysicalSize};
 use winit::event::{ElementState, MouseButton, VirtualKeyCode, WindowEvent};
 use winit::window::Window;
 
+#[derive(PartialEq)]
+pub enum InputChange {
+    Pressed,
+    Released,
+    None,
+}
+
 /// Tracks user input_service's since the last frame.
 /// Naming them things like movement instead of WASD keys makes it easier to support multiple input_service device types.
 pub struct GameChanges {
@@ -15,6 +22,7 @@ pub struct GameChanges {
     pub pause: bool,
     pub jump: bool,
     pub sneak: bool,
+    pub ctrl: InputChange,
     pub mouse: Option<PhysicalPosition<f64>>,
 
     pub mappings: KeyMapping,
@@ -33,6 +41,7 @@ impl GameChanges {
             pause: false,
             jump: false,
             sneak: false,
+            ctrl: InputChange::None,
             mouse: None,
             mappings: KeyMapping::default(),
             mouse_home: PhysicalPosition::new(0, 0),
@@ -158,6 +167,10 @@ impl GameChanges {
             if key == self.mappings.sneak {
                 self.sneak = true;
             }
+
+            if key == self.mappings.ctrl {
+                self.ctrl = InputChange::Pressed;
+            }
         } else {
             if key == self.mappings.pause {
                 self.pause = false;
@@ -177,6 +190,10 @@ impl GameChanges {
 
             if key == self.mappings.sneak {
                 self.sneak = false;
+            }
+
+            if key == self.mappings.ctrl {
+                self.ctrl = InputChange::Released;
             }
         }
     }

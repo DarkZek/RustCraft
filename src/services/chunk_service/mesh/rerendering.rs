@@ -1,4 +1,3 @@
-use crate::helpers::chunk_by_loc_from_write;
 use crate::render::RenderState;
 use crate::services::chunk_service::chunk::{ChunkData, Chunks};
 use crate::services::chunk_service::lighting::UpdateChunkLighting;
@@ -8,18 +7,15 @@ use crate::services::chunk_service::ChunkService;
 use crate::services::settings_service::{SettingsService, CHUNK_SIZE};
 use nalgebra::Matrix4;
 use nalgebra::Vector3;
-use specs::join::JoinParIter;
-use specs::{
-    Component, DenseVecStorage, Entities, Entity, Join, ParJoin, Read, ReadStorage, Write,
-};
+use specs::{Component, DenseVecStorage, Entities, Join, Read, ReadStorage, Write};
 use specs::{System, WriteStorage};
 use std::sync::Mutex;
-use std::thread;
-use std::thread::JoinHandle;
 use std::time::SystemTime;
 use sysinfo::SystemExt;
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{BindGroup, BindGroupLayout, BindingResource, Device};
+
+// TODO: Prioritise rendering visible chunks first
 
 pub struct RerenderChunkFlag {
     pub chunk: Vector3<i32>,
@@ -137,9 +133,9 @@ impl<'a> System<'a> for ChunkRerenderSystem {
                 meshes.lock().unwrap().push((None, None, flag_entity));
             }
 
-            // Limit chunks loaded per frame
+            // Limit chunks loaded per frame, a column
             processed += 1;
-            if processed == 3 {
+            if processed == 24 {
                 break;
             }
         }

@@ -21,7 +21,6 @@ pub const CHUNK_SIZE: usize = 16;
 ///
 pub struct SettingsService {
     pub path: String,
-    //TODO: Implement
     pub atlas_cache_reading: bool,
     pub atlas_cache_writing: bool,
     pub render_distance: u32,

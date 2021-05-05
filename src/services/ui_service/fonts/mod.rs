@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use wgpu::Device;
 use winit::dpi::PhysicalSize;
 
-use crate::services::asset_service::atlas::TextureAtlasIndex;
+use crate::services::asset_service::index::TextureAtlasIndex;
 use crate::services::asset_service::AssetService;
 use crate::services::ui_service::fonts::text::Text;
 use crate::services::ui_service::fonts::text_builder::TextBuilder;

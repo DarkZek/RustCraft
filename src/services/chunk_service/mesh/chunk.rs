@@ -1,4 +1,4 @@
-use crate::block::blocks::{BlockType, BLOCK_STATES};
+use crate::block::blocks::BLOCK_STATES;
 use crate::block::Block;
 use crate::services::chunk_service::chunk::ChunkData;
 use crate::services::chunk_service::mesh::culling::{calculate_viewable, ViewableDirection};
@@ -6,8 +6,6 @@ use crate::services::chunk_service::mesh::{Vertex, ViewableDirectionBitMap};
 use crate::services::settings_service::CHUNK_SIZE;
 use nalgebra::{Matrix4, Vector3};
 use std::collections::HashMap;
-use wgpu::util::{BufferInitDescriptor, DeviceExt};
-use wgpu::{BindGroupLayout, Device};
 
 pub struct ChunkMeshData {
     pub viewable: Option<[[[ViewableDirection; 16]; 16]; 16]>,

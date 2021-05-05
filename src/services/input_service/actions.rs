@@ -6,7 +6,8 @@ pub struct ActionSheet {
     jump: (Instant, bool),
     toggle_hud: (Instant, bool),
     toggle_fullscreen: (Instant, bool),
-    screenshot: (Instant, bool)
+    screenshot: (Instant, bool),
+    sprinting: bool,
 }
 
 impl ActionSheet {
@@ -16,8 +17,17 @@ impl ActionSheet {
             jump: (Instant::now(), false),
             toggle_hud: (Instant::now(), false),
             toggle_fullscreen: (Instant::now(), false),
-            screenshot: (Instant::now(), false)
+            screenshot: (Instant::now(), false),
+            sprinting: false,
         }
+    }
+
+    pub fn set_sprinting(&mut self, sprinting: bool) {
+        self.sprinting = sprinting;
+    }
+
+    pub fn get_sprinting(&mut self) -> bool {
+        self.sprinting
     }
 
     pub fn get_jump(&mut self) -> bool {

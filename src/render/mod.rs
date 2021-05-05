@@ -7,7 +7,6 @@ use crate::services::asset_service::AssetService;
 use crate::services::chunk_service::mesh::Vertex;
 use crate::services::chunk_service::ChunkService;
 use crate::services::{load_services, ServicesContext};
-use core::mem;
 use image::ImageFormat;
 use specs::{World, WorldExt};
 use std::borrow::Borrow;
