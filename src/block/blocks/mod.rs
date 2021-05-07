@@ -519,7 +519,7 @@ define_blocks! {
                     PropertyType::Boolean(false)
                 ],
         },
-        model BlockModel::square_block(["block/podzol"; 6]),
+        model BlockModel::square_block(["block/podzol_top", "block/dirt", "block/podzol_side", "block/podzol_side", "block/podzol_side", "block/podzol_side"]),
     }
     Cobblestone {
         identifier "minecraft:cobblestone",
@@ -2615,31 +2615,31 @@ define_blocks! {
             BlockModel {
                 faces: vec![
                         BlockFace {
-                            bottom_left: Vector3::new(0.4375, 0.0, 0.0),
-                            scale: Vector3::new(0.125, 0.625, 0.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(0.625, 0.0, 0.0),
+                            bottom_left: Vector3::new(0.4375, 0.0, 0.4375),
                             scale: Vector3::new(0.125, 0.625, 0.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
                             edge: false,
                         },
                         BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.4375),
-                            scale: Vector3::new(0.0, 0.625, 0.125),
+                            bottom_left: Vector3::new(0.4375, 0.0, 0.5625),
+                            scale: Vector3::new(0.125, 0.625, 0.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
                             edge: false,
                         },
                         BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.625),
+                            bottom_left: Vector3::new(0.5625, 0.0, 0.4375),
                             scale: Vector3::new(0.0, 0.625, 0.125),
                             texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
+                            normal: ViewableDirectionBitMap::Front,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(0.4375, 0.0, 0.4375),
+                            scale: Vector3::new(0.0, 0.625, 0.125),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Back,
                             edge: false,
                         }
                 ]

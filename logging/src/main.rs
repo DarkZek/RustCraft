@@ -1,5 +1,6 @@
 use std::fs::File;
 use std::io::Write;
+use std::ops::Add;
 use std::sync::{Arc, Mutex};
 use std::thread;
 
@@ -42,7 +43,7 @@ impl LoggingService {
                     format!("[INFO] {}", message)
                 };
 
-                if let Err(e) = file.write_all(msg.as_bytes()) {
+                if let Err(e) = file.write_all(msg.add("\n").as_bytes()) {
                     println!("\n\n\n\nERROR: CANNOT WRITE TO LOG FILE info.log IN MAIN APPLICATION FOLDER {} \n\n\n\n", e);
                 }
             }
