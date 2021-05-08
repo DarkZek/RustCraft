@@ -22,7 +22,6 @@ void main() {
     v_normal = normal;
     v_tex_coords = a_tex_coords;
 
-
     mat4 modelviewproj = u_view_proj * model;
     gl_Position = modelviewproj * vec4(a_position, 1.0);
 }
