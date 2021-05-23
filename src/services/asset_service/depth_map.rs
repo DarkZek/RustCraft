@@ -29,7 +29,7 @@ pub fn create_depth_texture(
         size: Extent3d {
             width: sc_desc.width,
             height: sc_desc.height,
-            depth: 1,
+            depth_or_array_layers: 1,
         },
         mip_level_count: 1,
         sample_count: 1,
@@ -42,12 +42,12 @@ pub fn create_depth_texture(
     let view = texture.create_view(&TextureViewDescriptor {
         label: Some("Main depth map texture view"),
         format: Some(wgpu::TextureFormat::Rgba8UnormSrgb),
-        dimension: Some(TextureViewDimension::D2),
+        dimension: Some(TextureViewDimension::D2Array),
         aspect: TextureAspect::All,
         base_mip_level: 0,
-        level_count: None,
         base_array_layer: 0,
         array_layer_count: None,
+        mip_level_count: None,
     });
     let sampler = device.create_sampler(&sampler_descriptor);
 

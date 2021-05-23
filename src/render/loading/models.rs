@@ -1,9 +1,11 @@
 use crate::render::TEXTURE_FORMAT;
 use image::ImageFormat;
+use std::convert::TryFrom;
+use std::num::NonZeroU32;
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{
-    BindGroup, BindGroupLayout, BufferUsage, CompareFunction, Device, Queue, Sampler, Texture,
-    TextureAspect, TextureDataLayout, TextureSampleType, TextureViewDescriptor,
+    BindGroup, BindGroupLayout, BufferUsage, CompareFunction, Device, ImageDataLayout, Queue,
+    Sampler, Texture, TextureAspect, TextureSampleType, TextureViewDescriptor,
     TextureViewDimension,
 };
 
@@ -20,7 +22,7 @@ pub fn load_splash(
     let size = wgpu::Extent3d {
         width: dimensions.0,
         height: dimensions.1,
-        depth: 1,
+        depth_or_array_layers: 1,
     };
 
     let diffuse_buffer = device.create_buffer_init(&BufferInitDescriptor {
@@ -45,15 +47,15 @@ pub fn load_splash(
 
     // Add it to buffer
     encoder.copy_buffer_to_texture(
-        wgpu::BufferCopyView {
+        wgpu::ImageCopyBuffer {
             buffer: &diffuse_buffer,
-            layout: TextureDataLayout {
+            layout: ImageDataLayout {
                 offset: 0,
-                bytes_per_row: 4 * size.width,
-                rows_per_image: size.height,
+                bytes_per_row: Some(NonZeroU32::try_from(4 * size.width).unwrap()),
+                rows_per_image: Some(NonZeroU32::try_from(size.height).unwrap()),
             },
         },
-        wgpu::TextureCopyView {
+        wgpu::ImageCopyTexture {
             texture: &diffuse_texture,
             mip_level: 0,
             origin: wgpu::Origin3d::ZERO,
@@ -93,10 +95,10 @@ pub fn load_splash_image_bindings(
     let diffuse_texture_view = diffuse_texture.create_view(&TextureViewDescriptor {
         label: Some("Loading splash screen texture descriptor"),
         format: Some(TEXTURE_FORMAT.get().unwrap().clone()),
-        dimension: Some(TextureViewDimension::D2),
+        dimension: Some(TextureViewDimension::D2Array),
         aspect: TextureAspect::All,
         base_mip_level: 0,
-        level_count: None,
+        mip_level_count: None,
         base_array_layer: 0,
         array_layer_count: None,
     });
@@ -124,7 +126,7 @@ pub fn load_splash_image_bindings(
                     count: None,
                 },
             ],
-            label: Some("Loading splash screen bind group"),
+            label: Some("Loading splash screen bind group layout"),
         });
 
     let texture_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {

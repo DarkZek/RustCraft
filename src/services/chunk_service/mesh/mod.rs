@@ -102,18 +102,18 @@ impl Vertex {
                 wgpu::VertexAttribute {
                     offset: 0,
                     shader_location: 0,
-                    format: wgpu::VertexFormat::Float3,
+                    format: wgpu::VertexFormat::Float32x3,
                 },
                 wgpu::VertexAttribute {
                     offset: mem::size_of::<[f32; 3]>() as wgpu::BufferAddress,
                     shader_location: 1,
-                    format: wgpu::VertexFormat::Float2,
+                    format: wgpu::VertexFormat::Float32x2,
                 },
                 wgpu::VertexAttribute {
                     offset: (mem::size_of::<[f32; 3]>() + mem::size_of::<[f32; 2]>())
                         as wgpu::BufferAddress,
                     shader_location: 2,
-                    format: wgpu::VertexFormat::Float3,
+                    format: wgpu::VertexFormat::Float32x3,
                 },
                 wgpu::VertexAttribute {
                     offset: (mem::size_of::<[f32; 3]>()
@@ -121,7 +121,7 @@ impl Vertex {
                         + mem::size_of::<[f32; 3]>())
                         as wgpu::BufferAddress,
                     shader_location: 3,
-                    format: wgpu::VertexFormat::Uchar4Norm,
+                    format: wgpu::VertexFormat::Float32x4,
                 },
             ],
         }
@@ -138,17 +138,17 @@ impl UIVertex {
                 wgpu::VertexAttribute {
                     offset: 0,
                     shader_location: 0,
-                    format: wgpu::VertexFormat::Float2,
+                    format: wgpu::VertexFormat::Float32x2,
                 },
                 wgpu::VertexAttribute {
                     offset: mem::size_of::<[f32; 2]>() as wgpu::BufferAddress,
                     shader_location: 1,
-                    format: wgpu::VertexFormat::Float2,
+                    format: wgpu::VertexFormat::Float32x2,
                 },
                 wgpu::VertexAttribute {
                     offset: (2 * mem::size_of::<[f32; 2]>()) as wgpu::BufferAddress,
                     shader_location: 2,
-                    format: wgpu::VertexFormat::Float4,
+                    format: wgpu::VertexFormat::Float32x4,
                 },
             ],
         }

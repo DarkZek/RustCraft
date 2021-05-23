@@ -14,10 +14,10 @@ impl AssetService {
         let diffuse_texture_view = diffuse_texture.create_view(&TextureViewDescriptor {
             label: Some("Asset Service Texture Atlas Texture View"),
             format: Some(TextureFormat::Rgba8UnormSrgb),
-            dimension: Some(TextureViewDimension::D2),
+            dimension: Some(TextureViewDimension::D2Array),
             aspect: TextureAspect::All,
             base_mip_level: 0,
-            level_count: None,
+            mip_level_count: None,
             base_array_layer: 0,
             array_layer_count: None,
         });

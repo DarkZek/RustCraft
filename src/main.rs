@@ -1,5 +1,6 @@
 #![feature(once_cell)]
 #![feature(maybe_uninit_ref)]
+#![feature(trivial_bounds)]
 
 #[macro_use]
 extern crate lazy_static;

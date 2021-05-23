@@ -56,24 +56,22 @@ impl<'a> System<'a> for RenderSystem {
             if game_state.state == ProgramState::IN_GAME {
                 let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
                     label: Some("Main Render Loop Render Pass"),
-                    color_attachments: &[wgpu::RenderPassColorAttachmentDescriptor {
-                        attachment: &frame.output.view,
+                    color_attachments: &[wgpu::RenderPassColorAttachment {
+                        view: &frame.output.view,
                         resolve_target: None,
                         ops: Operations {
                             load: LoadOp::Clear(CLEAR_COLOR),
                             store: true,
                         },
                     }],
-                    depth_stencil_attachment: Some(
-                        wgpu::RenderPassDepthStencilAttachmentDescriptor {
-                            attachment: &render_state.depth_texture.1,
-                            depth_ops: Some(Operations {
-                                load: LoadOp::Clear(1.0),
-                                store: true,
-                            }),
-                            stencil_ops: None,
-                        },
-                    ),
+                    depth_stencil_attachment: Some(wgpu::RenderPassDepthStencilAttachment {
+                        view: &render_state.depth_texture.1,
+                        depth_ops: Some(Operations {
+                            load: LoadOp::Clear(1.0),
+                            store: true,
+                        }),
+                        stencil_ops: None,
+                    }),
                 });
 
                 render_pass.set_pipeline(&render_state.render_pipeline);

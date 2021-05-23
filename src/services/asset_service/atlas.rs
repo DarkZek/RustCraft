@@ -2,16 +2,18 @@ use crate::helpers::Lerp;
 use crate::services::asset_service::index::TextureAtlasIndex;
 use crate::services::asset_service::{AssetService, ResourcePack};
 use crate::services::settings_service::SettingsService;
+use core::num::NonZeroU32;
 use image::{DynamicImage, GenericImageView, ImageBuffer, Rgba};
 use serde::ser::Serialize;
 use std::collections::HashMap;
+use std::convert::TryFrom;
 use std::fs::File;
 use std::io::{Read, Write};
 use std::lazy::SyncOnceCell;
 use std::path::Path;
 use std::time::{SystemTime, UNIX_EPOCH};
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
-use wgpu::{BufferUsage, CompareFunction, Device, Queue, Sampler, Texture, TextureDataLayout};
+use wgpu::{BufferUsage, CompareFunction, Device, ImageDataLayout, Queue, Sampler, Texture};
 
 pub const ATLAS_WIDTH: u32 = 4096;
 pub const ATLAS_HEIGHT: u32 = (4096.0 * 2.0) as u32;
@@ -49,7 +51,7 @@ impl AssetService {
             size: wgpu::Extent3d {
                 width: ATLAS_WIDTH,
                 height: ATLAS_HEIGHT,
-                depth: 1,
+                depth_or_array_layers: 1,
             },
             mip_level_count: 1,
             sample_count: 1,
@@ -278,7 +280,7 @@ impl AssetService {
         let size = wgpu::Extent3d {
             width: dimensions.0,
             height: dimensions.1,
-            depth: 1,
+            depth_or_array_layers: 1,
         };
 
         let diffuse_buffer = device.create_buffer_init(&BufferInitDescriptor {
@@ -293,15 +295,15 @@ impl AssetService {
 
         // Add it to buffer
         encoder.copy_buffer_to_texture(
-            wgpu::BufferCopyView {
+            wgpu::ImageCopyBuffer {
                 buffer: &diffuse_buffer,
-                layout: TextureDataLayout {
+                layout: ImageDataLayout {
                     offset: 0,
-                    bytes_per_row: 4 * size.width,
-                    rows_per_image: size.height,
+                    bytes_per_row: Some(NonZeroU32::try_from(4 * size.width).unwrap()),
+                    rows_per_image: Some(NonZeroU32::try_from(size.height).unwrap()),
                 },
             },
-            wgpu::TextureCopyView {
+            wgpu::ImageCopyTexture {
                 texture: &diffuse_texture,
                 mip_level: 0,
                 origin: wgpu::Origin3d::ZERO,

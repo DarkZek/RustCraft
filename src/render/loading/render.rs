@@ -5,7 +5,8 @@ use crate::services::chunk_service::mesh::UIVertex;
 use nalgebra::{Matrix4, Orthographic3};
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{
-    BindGroup, BindGroupLayout, Buffer, BufferBindingType, Device, RenderPipeline, VertexState,
+    BindGroup, BindGroupLayout, BlendComponent, BlendState, Buffer, BufferBinding,
+    BufferBindingType, Device, RenderPipeline, VertexState,
 };
 use winit::dpi::PhysicalSize;
 
@@ -41,8 +42,10 @@ impl LoadingScreen {
                 topology: wgpu::PrimitiveTopology::TriangleList,
                 strip_index_format: None,
                 front_face: wgpu::FrontFace::Ccw,
-                cull_mode: wgpu::CullMode::None,
+                cull_mode: None,
+                clamp_depth: false,
                 polygon_mode: wgpu::PolygonMode::Fill,
+                conservative: false,
             },
             depth_stencil: None,
             multisample: wgpu::MultisampleState {
@@ -55,17 +58,19 @@ impl LoadingScreen {
                 entry_point: "main",
                 targets: &[wgpu::ColorTargetState {
                     format: TEXTURE_FORMAT.get().unwrap().clone(),
-                    alpha_blend: wgpu::BlendState {
-                        src_factor: wgpu::BlendFactor::One,
-                        dst_factor: wgpu::BlendFactor::Zero,
-                        operation: wgpu::BlendOperation::Add,
-                    },
-                    color_blend: wgpu::BlendState {
-                        src_factor: wgpu::BlendFactor::SrcAlpha,
-                        dst_factor: wgpu::BlendFactor::OneMinusSrcAlpha,
-                        operation: wgpu::BlendOperation::Add,
-                    },
                     write_mask: wgpu::ColorWrite::ALL,
+                    blend: Some(BlendState {
+                        color: BlendComponent {
+                            src_factor: wgpu::BlendFactor::SrcAlpha,
+                            dst_factor: wgpu::BlendFactor::OneMinusSrcAlpha,
+                            operation: wgpu::BlendOperation::Add,
+                        },
+                        alpha: BlendComponent {
+                            src_factor: wgpu::BlendFactor::One,
+                            dst_factor: wgpu::BlendFactor::Zero,
+                            operation: wgpu::BlendOperation::Add,
+                        },
+                    }),
                 }],
             }),
         })
@@ -110,11 +115,11 @@ impl LoadingScreen {
             layout: &matrix_bind_group_layout,
             entries: &[wgpu::BindGroupEntry {
                 binding: 0,
-                resource: wgpu::BindingResource::Buffer {
+                resource: wgpu::BindingResource::Buffer(BufferBinding {
                     buffer: &matrix_buffer,
                     offset: 0,
                     size: None,
-                },
+                }),
             }],
             label: Some("Loading screen projection matrix bind group"),
         };

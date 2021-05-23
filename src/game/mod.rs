@@ -28,8 +28,7 @@ use crate::services::ui_service::UIService;
 use specs::{DispatcherBuilder, World, WorldExt};
 use std::borrow::Borrow;
 use std::ops::Deref;
-use std::time::Instant;
-use systemstat::Duration;
+use std::time::{Duration, Instant};
 use winit::event::StartCause;
 use winit::{
     event::{Event, WindowEvent},
@@ -39,6 +38,7 @@ use winit::{
 
 pub mod game_state;
 pub mod physics;
+pub mod resources;
 pub mod systems;
 
 pub struct Game {
@@ -49,7 +49,11 @@ pub struct Game {
 
 impl Game {
     pub fn new() -> Game {
-        env_logger::init();
+        for arg in std::env::args() {
+            if arg == "GRAPHICS_LOGGING" {
+                env_logger::init();
+            }
+        }
 
         let start = Instant::now();
 

@@ -11,9 +11,8 @@ use specs::{Component, DenseVecStorage, Entities, Join, Read, ReadStorage, Write
 use specs::{System, WriteStorage};
 use std::sync::Mutex;
 use std::time::SystemTime;
-use sysinfo::SystemExt;
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
-use wgpu::{BindGroup, BindGroupLayout, BindingResource, Device};
+use wgpu::{BindGroup, BindGroupLayout, BindingResource, BufferBinding, Device};
 
 // TODO: Prioritise rendering visible chunks first
 
@@ -92,11 +91,12 @@ impl<'a> System<'a> for ChunkRerenderSystem {
         let mut processed = 0;
 
         for (flag_entity, flag) in (&entities, &flags).join() {
-            chunk_service.system.refresh_memory();
+            chunk_service.system.poll();
+
             // If the chunk exists
             if let Option::Some(chunk) = chunks_loc.get_loc(flag.chunk) {
                 // If the system has less than 0.25gb of ram refuse to build mesh
-                if chunk_service.system.get_available_memory() < LOW_MEMORY_MINIMUM_KB {
+                if !chunk_service.system.should_alloc(LOW_MEMORY_MINIMUM_KB) {
                     // Only log message every 5 seconds
                     if chunk_service
                         .low_memory_reminded
@@ -105,11 +105,7 @@ impl<'a> System<'a> for ChunkRerenderSystem {
                         .as_secs_f32()
                         > LOW_MEMORY_WARNING_PERIOD
                     {
-                        log_warn!(format!(
-                            "Not enough memory to load chunks - {}/{}MB free ",
-                            chunk_service.system.get_available_memory() / 1000,
-                            chunk_service.system.get_total_memory() / 1000
-                        ));
+                        chunk_service.system.memory_warn();
 
                         chunk_service.low_memory_reminded = SystemTime::now();
                     }
@@ -222,11 +218,11 @@ impl UpdateChunkMesh {
             layout: &bind_group_layout,
             entries: &[wgpu::BindGroupEntry {
                 binding: 0,
-                resource: BindingResource::Buffer {
+                resource: BindingResource::Buffer(BufferBinding {
                     buffer: &model_buffer,
                     offset: 0,
                     size: None,
-                },
+                }),
             }],
         });
 

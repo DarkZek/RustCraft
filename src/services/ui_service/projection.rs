@@ -3,7 +3,7 @@ use crate::services::ui_service::UIService;
 use crate::services::ServicesContext;
 use nalgebra::{Matrix4, Orthographic3};
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
-use wgpu::{BindGroup, BindGroupLayout, Buffer, BufferBindingType};
+use wgpu::{BindGroup, BindGroupLayout, Buffer, BufferBinding, BufferBindingType};
 use winit::dpi::PhysicalSize;
 
 impl UIService {
@@ -57,11 +57,11 @@ impl UIService {
             layout: &matrix_bind_group_layout,
             entries: &[wgpu::BindGroupEntry {
                 binding: 0,
-                resource: wgpu::BindingResource::Buffer {
+                resource: wgpu::BindingResource::Buffer(BufferBinding {
                     buffer: &matrix_buffer,
                     offset: 0,
                     size: None,
-                },
+                }),
             }],
             label: Some("Main UI Projection Matrix Bind Group"),
         };

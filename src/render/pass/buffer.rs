@@ -3,7 +3,7 @@ use std::sync::Arc;
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{
     BindGroup, BindGroupEntry, BindGroupLayout, BindGroupLayoutDescriptor, BindingResource, Buffer,
-    BufferUsage, Device,
+    BufferBinding, BufferUsage, Device,
 };
 
 pub struct BufferGroup {
@@ -50,11 +50,11 @@ impl BufferGroup {
             layout: &self.bind_group_layout,
             entries: &[BindGroupEntry {
                 binding: 0,
-                resource: BindingResource::Buffer {
+                resource: BindingResource::Buffer(BufferBinding {
                     buffer: &buffer,
                     offset: 0,
                     size: None,
-                },
+                }),
             }],
         });
 

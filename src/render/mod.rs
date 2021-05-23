@@ -14,11 +14,10 @@ use std::lazy::SyncOnceCell;
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::{Duration, Instant, SystemTime};
-use systemstat::{Platform, System};
 use wgpu::{
-    AdapterInfo, BindGroupLayout, CullMode, DepthBiasState, Device, FrontFace, MultisampleState,
-    PolygonMode, PrimitiveState, PrimitiveTopology, RenderPipeline, Sampler, StencilState,
-    SwapChainDescriptor, Texture, TextureFormat, TextureView, VertexState,
+    AdapterInfo, BindGroupLayout, BlendComponent, DepthBiasState, Device, Face, FrontFace,
+    MultisampleState, PolygonMode, PrimitiveState, PrimitiveTopology, RenderPipeline, Sampler,
+    StencilState, SwapChainDescriptor, Texture, TextureFormat, TextureView, VertexState,
 };
 use winit::dpi::PhysicalSize;
 use winit::event_loop::EventLoop;
@@ -61,7 +60,6 @@ pub struct RenderState {
     frame_capture_time: Instant,
 
     gpu_info: AdapterInfo,
-    system_info: System,
 
     last_frame_time: SystemTime,
     delta_time: Duration,
@@ -156,8 +154,6 @@ impl RenderState {
             ],
         );
 
-        let system_info = System::new();
-
         // Send the notice to shut the loading screen down
         LoadingScreen::update_state(100.0);
 
@@ -195,7 +191,6 @@ impl RenderState {
             frames: 0,
             frame_capture_time: Instant::now(),
             gpu_info,
-            system_info,
             last_frame_time,
             delta_time,
         }
@@ -254,8 +249,10 @@ fn generate_render_pipeline(
             topology: PrimitiveTopology::TriangleList,
             strip_index_format: None,
             front_face: FrontFace::Cw,
-            cull_mode: CullMode::Back,
+            cull_mode: Some(Face::Back),
+            clamp_depth: false,
             polygon_mode: PolygonMode::Fill,
+            conservative: false,
         },
         depth_stencil: Some(wgpu::DepthStencilState {
             format: DEPTH_FORMAT,
@@ -268,7 +265,6 @@ fn generate_render_pipeline(
                 write_mask: 0,
             },
             bias: DepthBiasState::default(),
-            clamp_depth: false,
         }),
         multisample: MultisampleState {
             count: 1,
@@ -280,17 +276,19 @@ fn generate_render_pipeline(
             entry_point: "main",
             targets: &[wgpu::ColorTargetState {
                 format: TEXTURE_FORMAT.get().unwrap().clone(),
-                alpha_blend: wgpu::BlendState {
-                    src_factor: wgpu::BlendFactor::One,
-                    dst_factor: wgpu::BlendFactor::Zero,
-                    operation: wgpu::BlendOperation::Add,
-                },
-                color_blend: wgpu::BlendState {
-                    src_factor: wgpu::BlendFactor::SrcAlpha,
-                    dst_factor: wgpu::BlendFactor::OneMinusSrcAlpha,
-                    operation: wgpu::BlendOperation::Add,
-                },
                 write_mask: wgpu::ColorWrite::ALL,
+                blend: Some(wgpu::BlendState {
+                    color: BlendComponent {
+                        src_factor: wgpu::BlendFactor::SrcAlpha,
+                        dst_factor: wgpu::BlendFactor::OneMinusSrcAlpha,
+                        operation: wgpu::BlendOperation::Add,
+                    },
+                    alpha: BlendComponent {
+                        src_factor: wgpu::BlendFactor::One,
+                        dst_factor: wgpu::BlendFactor::Zero,
+                        operation: wgpu::BlendOperation::Add,
+                    },
+                }),
             }],
         }),
     })

@@ -10,10 +10,10 @@ use crate::services::ServicesContext;
 use nalgebra::Vector3;
 use specs::{Entities, Join, ReadStorage, World, WriteStorage};
 
+use crate::game::resources::SystemResources;
 use crate::services::chunk_service::mesh::rerendering::RerenderChunkFlag;
 use std::cmp::Ordering;
 use std::time::SystemTime;
-use sysinfo::SystemExt;
 use wgpu::{BindGroupLayout, BufferBindingType};
 
 pub mod blocks;
@@ -34,7 +34,7 @@ pub struct ChunkService {
     previous_player_pitch: f32,
     previous_player_pos: Vector3<f32>,
 
-    system: sysinfo::System,
+    system: SystemResources,
     low_memory_reminded: SystemTime,
     update_culling: bool,
 }
@@ -73,7 +73,7 @@ impl ChunkService {
             previous_player_yaw: 0.0,
             previous_player_pitch: 0.0,
             previous_player_pos: Vector3::zeros(),
-            system: sysinfo::System::new_all(),
+            system: SystemResources::new(),
             low_memory_reminded: SystemTime::now(),
             update_culling: false,
         };

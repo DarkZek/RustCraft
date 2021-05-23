@@ -1,7 +1,7 @@
 use crate::render::camera::Camera;
 use nalgebra::Matrix4;
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
-use wgpu::{BindGroup, BindGroupLayout, Buffer, BufferBindingType, Device};
+use wgpu::{BindGroup, BindGroupLayout, Buffer, BufferBinding, BufferBindingType, Device};
 use zerocopy::{AsBytes, FromBytes};
 
 #[repr(C)]
@@ -52,11 +52,11 @@ impl Uniforms {
             layout: &uniform_bind_group_layout,
             entries: &[wgpu::BindGroupEntry {
                 binding: 0,
-                resource: wgpu::BindingResource::Buffer {
+                resource: wgpu::BindingResource::Buffer(BufferBinding {
                     buffer: &uniform_buffer,
                     offset: 0,
                     size: None,
-                },
+                }),
             }],
             label: Some("Unknown uniform buffer bind group"),
         });

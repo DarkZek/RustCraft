@@ -4,7 +4,7 @@ use crate::services::chunk_service::chunk::{ChunkData, RawChunkData};
 use crate::services::settings_service::CHUNK_SIZE;
 use nalgebra::Vector3;
 use specs::prelude::ParallelIterator;
-use specs::{Component, ParJoin, ReadStorage, System, VecStorage, WriteStorage};
+use specs::{Component, Join, ReadStorage, System, VecStorage, WriteStorage};
 
 pub mod collider;
 pub mod interpolator;
@@ -15,7 +15,8 @@ impl<'a> System<'a> for PhysicsProcessingSystem {
     type SystemData = (WriteStorage<'a, PhysicsObject>, ReadStorage<'a, ChunkData>);
 
     fn run(&mut self, (mut physics_objects, chunks): Self::SystemData) {
-        (&mut physics_objects).par_join().for_each(|entity| {
+        use crate::helpers::TryParJoin;
+        (&mut physics_objects).try_par_join().for_each(|entity| {
             // Check collisions
             let slipperiness = 0.6;
 

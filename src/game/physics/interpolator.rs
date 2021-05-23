@@ -1,8 +1,8 @@
-use specs::{System, WriteStorage, Read, ParJoin};
 use crate::game::physics::PhysicsObject;
-use nalgebra::{Vector3};
+use crate::helpers::{Lerp, TryParJoin};
+use nalgebra::Vector3;
 use specs::prelude::ParallelIterator;
-use crate::helpers::Lerp;
+use specs::{Read, System, WriteStorage};
 
 pub struct PhysicsInterpolationFactor(pub f32);
 
@@ -15,14 +15,20 @@ impl Default for PhysicsInterpolationFactor {
 pub struct PhysicsInterpolationSystem;
 
 impl<'a> System<'a> for PhysicsInterpolationSystem {
-    type SystemData = (WriteStorage<'a, PhysicsObject>, Read<'a, PhysicsInterpolationFactor>);
+    type SystemData = (
+        WriteStorage<'a, PhysicsObject>,
+        Read<'a, PhysicsInterpolationFactor>,
+    );
 
     fn run(&mut self, (mut physics_objects, interpolation_factor): Self::SystemData) {
         // Loop over each entity in parallel and lerp between positions
-        (&mut physics_objects).par_join()
-            .for_each(|entity| {
-                entity.position = lerp_vec3(&entity.old_position, &entity.new_position, interpolation_factor.0);
-            });
+        (&mut physics_objects).try_par_join().for_each(|entity| {
+            entity.position = lerp_vec3(
+                &entity.old_position,
+                &entity.new_position,
+                interpolation_factor.0,
+            );
+        });
     }
 }
 

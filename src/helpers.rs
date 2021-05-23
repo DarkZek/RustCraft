@@ -1,9 +1,11 @@
 use crate::services::asset_service::atlas::ATLAS_LOOKUPS;
 use crate::services::asset_service::index::TextureAtlasIndex;
 use crate::services::chunk_service::chunk::{ChunkData, Color};
+use futures::StreamExt;
 use nalgebra::{Point3, Vector3};
-use specs::ReadStorage;
+use specs::join::{JoinIter, MaybeJoin};
 use specs::{Join, WriteStorage};
+use specs::{ParJoin, ReadStorage};
 use std::ops::Add;
 
 /// Formats a u32 with American comma placement.
@@ -204,5 +206,48 @@ impl AtlasIndex {
             }
             TextureSubdivisionMethod::Full => self.lookup.clone(),
         }
+    }
+}
+
+#[cfg(target_arch = "wasm32")]
+pub trait TryParJoin: Join {
+    fn try_par_join(self) -> JoinIter<Self>
+    where
+        Self: Sized;
+}
+
+#[cfg(target_arch = "wasm32")]
+impl<T> TryParJoin for T
+where
+    T: Join,
+{
+    fn try_par_join(self) -> JoinIter<Self>
+    where
+        Self: Sized,
+    {
+        self.join()
+    }
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+pub trait TryParJoin: Join {
+    fn try_par_join(self) -> JoinParIter<Self>
+    where
+        Self: Sized;
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+use specs::join::JoinParIter;
+
+#[cfg(not(target_arch = "wasm32"))]
+impl<T: ParJoin> TryParJoin for T
+where
+    T: Join,
+{
+    fn try_par_join(self) -> specs::join::JoinParIter<Self>
+    where
+        Self: Sized,
+    {
+        self.par_join()
     }
 }
