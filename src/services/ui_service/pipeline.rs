@@ -15,8 +15,8 @@ pub fn generate_render_pipeline(
     let (vs_module, fs_module) = load_shaders(
         device,
         (
-            include_bytes!("../../../assets/shaders/ui_text_vert.spv"),
-            include_bytes!("../../../assets/shaders/ui_text_frag.spv"),
+            include_bytes!("../../../../RustCraft/assets/shaders/ui_text_vert.spv"),
+            include_bytes!("../../../../RustCraft/assets/shaders/ui_text_frag.spv"),
         ),
     );
 

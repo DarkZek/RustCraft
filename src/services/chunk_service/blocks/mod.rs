@@ -12,6 +12,6 @@ impl BlockManager {
 }
 
 fn get_data() -> Value {
-    let data = include_str!("../../../../assets/blocks.json");
+    let data = include_str!("../../../../../RustCraft/assets/blocks.json");
     serde_json::from_str(data).unwrap()
 }

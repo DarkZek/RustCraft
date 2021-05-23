@@ -18,7 +18,7 @@ impl SystemResources {
 
     pub fn poll(&mut self) {
         use sysinfo::SystemExt;
-        self.info.refresh_all();
+        self.info.refresh_memory();
     }
 
     pub fn should_alloc(&self, bytes: u64) -> bool {

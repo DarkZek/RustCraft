@@ -25,8 +25,8 @@ impl LoadingScreen {
         let (vs_module, fs_module) = load_shaders(
             &device,
             (
-                include_bytes!("../../../assets/shaders/loading_vert.spv"),
-                include_bytes!("../../../assets/shaders/loading_frag.spv"),
+                include_bytes!("../../../../RustCraft/assets/shaders/loading_vert.spv"),
+                include_bytes!("../../../../RustCraft/assets/shaders/loading_frag.spv"),
             ),
         );
 

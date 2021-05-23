@@ -71,7 +71,7 @@ impl RenderState {
         let delta_time = Duration::from_millis(0);
 
         let icon_img = image::load_from_memory_with_format(
-            include_bytes!("../../assets/logo.png"),
+            include_bytes!("../../../RustCraft/assets/logo.png"),
             ImageFormat::Png,
         )
         .unwrap();
@@ -226,8 +226,8 @@ fn generate_render_pipeline(
     let (vs_module, fs_module) = load_shaders(
         device,
         (
-            include_bytes!("../../assets/shaders/shader_vert.spv"),
-            include_bytes!("../../assets/shaders/shader_frag.spv"),
+            include_bytes!("../../../RustCraft/assets/shaders/shader_vert.spv"),
+            include_bytes!("../../../RustCraft/assets/shaders/shader_frag.spv"),
         ),
     );
 

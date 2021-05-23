@@ -1,7 +1,6 @@
 use crate::game::physics::PhysicsObject;
 use crate::helpers::{Lerp, TryParJoin};
 use nalgebra::Vector3;
-use specs::prelude::ParallelIterator;
 use specs::{Read, System, WriteStorage};
 
 pub struct PhysicsInterpolationFactor(pub f32);
@@ -21,6 +20,9 @@ impl<'a> System<'a> for PhysicsInterpolationSystem {
     );
 
     fn run(&mut self, (mut physics_objects, interpolation_factor): Self::SystemData) {
+        #[cfg(not(target_arch = "wasm32"))]
+        use specs::prelude::ParallelIterator;
+
         // Loop over each entity in parallel and lerp between positions
         (&mut physics_objects).try_par_join().for_each(|entity| {
             entity.position = lerp_vec3(

@@ -13,7 +13,7 @@ pub fn load_splash(
     device: &Device,
     queue: &mut Queue,
 ) -> (Texture, Sampler, BindGroupLayout, BindGroup) {
-    let splash_image = include_bytes!("../../../assets/splash.png");
+    let splash_image = include_bytes!("../../../../RustCraft/assets/splash.png");
     let splash_image = image::load_from_memory_with_format(splash_image, ImageFormat::Png).unwrap();
 
     let diffuse_rgba = splash_image.as_rgba8().unwrap();

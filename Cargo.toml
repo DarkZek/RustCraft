@@ -18,20 +18,16 @@ debug = 0
 panic = 'abort'
 codegen-units = 1
 
-[build]
-target = "wasm32-unknown-unknown"
-
-[target.'cfg(target_arch = "wasm32")'.release]
+[profile.wasm]
+inherits = "release"
 opt-level = 's'
 
 [dependencies]
 rc_network = { path = "./rc_network" }
 rc_logging = { path = "./logging" }
 wgpu = "0.8.1"
-gfx-hal = "0.5.3"
 nalgebra = "0.21.0"
-noise = "0.6.0"
-image = "0.23.3"
+image = { version = "0.23.3", default-features = false, features = ["png"] }
 zerocopy = "0.2.8"
 lazy_static = "1.4.0"
 serde = { version = "1.0", default-features = false, features = ["derive", "std"] }
@@ -42,18 +38,18 @@ futures = { version = "0.3", features = ["compat"] }
 byteorder = "1.3.4"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-specs = {version = "0.16.1"} #specs = {version = "0.16.1", default-features = false}
-winit = { version = "0.22.2"}
+specs = {version = "0.16.1", default-features = false} #specs = {version = "0.16.1", default-features = false}
+winit = { version = "0.25.0"}
 instant = { version = "0.1" }
 systemstat = "0.1.5"
-zip = {version = "0.5.5", default-features = false}
+zip = {version = "0.5.5", default-features = false, features = ["deflate"]}
 rand = { version = "0.7.3" }
 sysinfo = "0.16.4"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 rand = { version = "0.7.3", features = ["wasm-bindgen"] }
 instant = { version = "0.1", features = [ "now", "wasm-bindgen" ] }
-winit = { version = "0.22.2", features = ["web-sys"]}
+winit = { version = "0.25.0", features = ["web-sys"]}
 zip = {version = "0.5.5", default-features = false, features = ["deflate"]}
 wasm-bindgen = "0.2.73"
 js-sys = "0.3.39"

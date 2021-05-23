@@ -4,8 +4,8 @@ use crate::services::chunk_service::chunk::{ChunkData, Color};
 use futures::StreamExt;
 use nalgebra::{Point3, Vector3};
 use specs::join::{JoinIter, MaybeJoin};
+use specs::ReadStorage;
 use specs::{Join, WriteStorage};
-use specs::{ParJoin, ReadStorage};
 use std::ops::Add;
 
 /// Formats a u32 with American comma placement.
@@ -237,7 +237,7 @@ pub trait TryParJoin: Join {
 }
 
 #[cfg(not(target_arch = "wasm32"))]
-use specs::join::JoinParIter;
+use specs::join::{JoinParIter, ParJoin};
 
 #[cfg(not(target_arch = "wasm32"))]
 impl<T: ParJoin> TryParJoin for T
