@@ -44,7 +44,7 @@ impl PacketType for ChunkDataPacket {
         }
 
         let mut chunk_data = Cursor::new(data);
-        let chunks = NetworkChunk::deserialize(&mut chunk_data, primary_bit_mask);
+        let chunks = NetworkChunk::deserialize(&mut chunk_data, primary_bit_mask, false); //(z == -1 && x == 0));
 
         let block_entities_len = read_varint(buf);
         let mut block_entities = Vec::new();

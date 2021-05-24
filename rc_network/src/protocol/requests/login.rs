@@ -3,7 +3,7 @@ use crate::protocol::data::write_types::{write_string, write_ushort, write_varin
 use crate::protocol::data::writer::PacketBuilder;
 use crate::protocol::types::{PVarType, PVarTypeTemplate};
 use crate::stream::NetworkStream;
-use openssl::sha::Sha1;
+//use openssl::sha::Sha1;
 
 pub struct LoginRequest {
     pub(crate) connection_host: String,
@@ -115,35 +115,35 @@ impl LoginRequest {
 
 /// Custom hashing function
 /// https://wiki.vg/Protocol_Encryption
-pub fn calc_hash(input: &mut Vec<u8>) -> String {
-    let mut hasher = Sha1::new();
-
-    hasher.update(input);
-
-    let mut hash = hasher.finish().to_vec();
-    // Option 1
-    let negative = (hash.get(0).unwrap() & 0x80) == 0x80;
-
-    if negative {
-        two_complement(&mut hash);
-    }
-
-    let mut out = String::with_capacity(20);
-
-    for t in hash.iter() {
-        out.push_str(&format!("{:02x}", t));
-    }
-
-    if out.starts_with('0') {
-        out = out.split_at(1).1.to_string();
-    }
-
-    if negative {
-        out = String::from(" - ") + &out;
-    }
-
-    return out;
-}
+// pub fn calc_hash(input: &mut Vec<u8>) -> String {
+//     let mut hasher = Sha1::new();
+//
+//     hasher.update(input);
+//
+//     let mut hash = hasher.finish().to_vec();
+//     // Option 1
+//     let negative = (hash.get(0).unwrap() & 0x80) == 0x80;
+//
+//     if negative {
+//         two_complement(&mut hash);
+//     }
+//
+//     let mut out = String::with_capacity(20);
+//
+//     for t in hash.iter() {
+//         out.push_str(&format!("{:02x}", t));
+//     }
+//
+//     if out.starts_with('0') {
+//         out = out.split_at(1).1.to_string();
+//     }
+//
+//     if negative {
+//         out = String::from(" - ") + &out;
+//     }
+//
+//     return out;
+// }
 
 fn two_complement(bytes: &mut Vec<u8>) {
     let mut carry = true;

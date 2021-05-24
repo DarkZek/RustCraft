@@ -10,19 +10,19 @@ pub struct NetworkChunk {
 }
 
 impl NetworkChunk {
-    pub fn deserialize<T: Read>(buf: &mut T, len: i64) -> Vec<NetworkChunk> {
+    pub fn deserialize<T: Read>(buf: &mut T, len: i64, debug: bool) -> Vec<NetworkChunk> {
         let chunks_count = bits_set(len);
         let mut chunks = Vec::with_capacity(chunks_count as usize);
 
         for _ in 0..chunks_count {
-            chunks.push(NetworkChunk::load(buf));
+            chunks.push(NetworkChunk::load(buf, debug));
         }
 
         chunks
     }
 
     // https://web.archive.org/web/20201111224656/https://wiki.vg/Chunk_Format#Data_structure
-    pub fn load<T: Read>(stream: &mut T) -> NetworkChunk {
+    pub fn load<T: Read>(stream: &mut T, debug: bool) -> NetworkChunk {
         let block_count = read_short(stream);
 
         let mut bits_per_block = read_unsignedbyte(stream);
@@ -41,6 +41,10 @@ impl NetworkChunk {
         } else {
             None
         };
+        if debug {
+            log!("Bits: {}", bits_per_block);
+            log!("Palette: {:?}", palette);
+        }
 
         // Technically we should use longs here, but bytes are so much easier to work with.
         let longs_len = read_varint(stream);
@@ -50,6 +54,11 @@ impl NetworkChunk {
             data_vec.push(stream.read_u64::<BigEndian>().unwrap().reverse_bits());
         }
 
+        if debug {
+            for t in data_vec.iter() {
+                log!("{:#066b},", t);
+            }
+        }
         let mut data = BitStreamReader::new(data_vec.clone());
 
         let mut block_map: [[[u32; 16]; 16]; 16] = [[[0; 16]; 16]; 16];
@@ -63,11 +72,11 @@ impl NetworkChunk {
                     let id = if palette.is_some() {
                         let palette = palette.as_ref().unwrap();
                         if val >= palette.len() as u64 {
-                            println!(
+                            log_error!(format!(
                                 "Value ({}) out of range of palette ({})",
                                 val,
                                 palette.len()
-                            );
+                            ));
                             return NetworkChunk {
                                 block_count,
                                 bits_per_block,
