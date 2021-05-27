@@ -64,7 +64,7 @@ impl<'a> System<'a> for NetworkingSyncSystem {
                     (&player_entity, &mut player_physics).join().last().unwrap();
                 player_physics.position =
                     Vector3::new(packet.x as f32, packet.y as f32 + 100.0, packet.z as f32);
-                println!("Spawned player!!");
+                log!("Spawned player!!");
             }
 
             if let PacketData::ChunkData(packet) = packet {

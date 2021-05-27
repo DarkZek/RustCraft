@@ -6,6 +6,8 @@ use nalgebra::{Point3, Vector3};
 use specs::{Component, DenseVecStorage};
 use std::collections::HashMap;
 
+static INTENSITY_TO_RGB: u8 = 12;
+
 impl ChunkData {
     pub fn calculate_lighting(&self, chunks: &Chunks) -> UpdateChunkLighting {
         let mut lights = Vec::new();
@@ -48,7 +50,7 @@ impl ChunkData {
         chunks: &Chunks,
         update: &mut UpdateChunkLighting,
     ) {
-        let mut points = Vec::new();
+        let mut points = Vec::with_capacity(100);
         let mut new_points = Vec::new();
 
         let mut current_intensity = intensity;
@@ -66,8 +68,21 @@ impl ChunkData {
                 painted_positions.push(*pos);
 
                 // Add color to current points
-                let new_color = [color[0], color[1], color[2], 255];
-                apply_color_to_chunk(self, pos.clone(), new_color, intensity, chunks, update);
+                let new_color = [
+                    color[0],
+                    color[1],
+                    color[2],
+                    current_intensity * INTENSITY_TO_RGB,
+                ];
+
+                apply_color_to_chunk(
+                    self,
+                    pos.clone(),
+                    new_color,
+                    current_intensity,
+                    chunks,
+                    update,
+                );
 
                 // Add adjacent tiles
                 new_points.push([pos[0] + 1, pos[1], pos[2]]);
@@ -100,16 +115,10 @@ fn apply_color_to_chunk(
     if pos[0] >= 0 && pos[0] <= 15 && pos[1] >= 0 && pos[1] <= 15 && pos[2] >= 0 && pos[2] <= 15 {
         // Its in current chunk.
         let current_color = &mut update.chunk[pos[0] as usize][pos[1] as usize][pos[2] as usize];
-        let intensity_to_rgb = 25.0;
 
-        let new_intensity = (current_color[3] as f32)
-            .max(intensity as f32 * intensity_to_rgb)
-            .max(intensity_to_rgb) as u8;
-        *current_color = if current_color == &[0, 0, 0, 50] {
-            color
-        } else {
-            lerp_color(current_color.clone(), color, 0.5)
-        };
+        let new_intensity = current_color[3].max(intensity * INTENSITY_TO_RGB);
+
+        *current_color = lerp_color(current_color.clone(), color, intensity as f32 / 16.0);
         current_color[3] = new_intensity;
     } else {
         // Its in other chunk
@@ -152,16 +161,9 @@ fn apply_color_to_chunk(
 
         let current_color = &mut adjacent_chunk[pos[0] as usize][pos[1] as usize][pos[2] as usize];
 
-        let intensity_to_rgb = 20.0;
+        let new_intensity = current_color[3].max(intensity * INTENSITY_TO_RGB);
 
-        let new_intensity = (current_color[3] as f32)
-            .max(intensity as f32 * intensity_to_rgb)
-            .max(intensity_to_rgb) as u8;
-        *current_color = if current_color == &[0, 0, 0, 50] {
-            color
-        } else {
-            lerp_color(current_color.clone(), color, 0.5)
-        };
+        *current_color = lerp_color(current_color.clone(), color, intensity as f32 / 16.0);
         current_color[3] = new_intensity;
     }
 }
@@ -174,7 +176,7 @@ pub struct UpdateChunkLighting {
 impl UpdateChunkLighting {
     pub fn new() -> UpdateChunkLighting {
         UpdateChunkLighting {
-            chunk: [[[[0, 0, 0, 50]; 16]; 16]; 16],
+            chunk: [[[[255, 255, 255, 0]; 16]; 16]; 16],
             adjacent: HashMap::new(),
         }
     }

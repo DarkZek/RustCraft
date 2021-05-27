@@ -25,7 +25,7 @@ impl AssetService {
                 packs
             }
             Err(e) => {
-                println!("Failed to load resource packs directory: {}", e);
+                log_error!("Failed to load resource packs directory: {}", e);
                 Vec::new()
             }
         }

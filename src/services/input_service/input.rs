@@ -207,14 +207,14 @@ impl<'a> Default for GameChanges {
 
 fn capture_mouse(window: &Window) {
     if let Err(e) = window.set_cursor_grab(true) {
-        println!("Error grabbing cursor: {}", e);
+        log_error!("Error grabbing cursor: {}", e);
     }
     window.set_cursor_visible(false);
 }
 
 fn uncapture_mouse(window: &Window) {
     if let Err(e) = window.set_cursor_grab(false) {
-        println!("Error releasing cursor: {}", e);
+        log_error!("Error releasing cursor: {}", e);
     }
     window.set_cursor_visible(true);
 }

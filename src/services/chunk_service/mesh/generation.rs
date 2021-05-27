@@ -1,4 +1,5 @@
 use crate::block::blocks::BLOCK_STATES;
+use crate::helpers::Lerp;
 use crate::services::chunk_service::chunk::{ChunkData, Chunks};
 use crate::services::chunk_service::mesh::culling::ViewableDirection;
 use crate::services::chunk_service::mesh::rerendering::UpdateChunkMesh;
@@ -77,11 +78,23 @@ impl ChunkData {
                         let applied_color = self.light_levels[x][y][z];
                         let extra_color = self.neighboring_light_levels[x][y][z].clone();
 
+                        let lightness = applied_color[3].max(extra_color[3]);
+                        let lightness_ratio = match (applied_color[3], extra_color[3]) {
+                            (0, _) => 0.0,
+                            (_, 0) => 1.0,
+                            (_, _) => {
+                                extra_color[3] as f32
+                                    / (applied_color[3] as f32 + extra_color[3] as f32)
+                            }
+                        };
+
+                        println!("{}", lightness_ratio);
+
                         let out_color = [
-                            (applied_color[0] as u16 + extra_color[0] as u16) as u8,
-                            (applied_color[1] as u16 + extra_color[1] as u16) as u8,
-                            (applied_color[2] as u16 + extra_color[2] as u16) as u8,
-                            255,
+                            applied_color[0].lerp(extra_color[0], lightness_ratio),
+                            applied_color[1].lerp(extra_color[1], lightness_ratio),
+                            applied_color[2].lerp(extra_color[2], lightness_ratio),
+                            lightness,
                         ];
 
                         let vertices = if block.block_type.get_transparency()

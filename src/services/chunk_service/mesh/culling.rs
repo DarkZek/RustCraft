@@ -87,10 +87,13 @@ fn should_draw_betweens(
                     {
                         return false;
                     }
-                    if block.block_type.get_transparency()
+                    if (block.block_type.get_transparency())
                         && block.block_type.get_identifier()
                             == src_block.as_ref().unwrap().block_type.get_identifier()
                     {
+                        return false;
+                    }
+                    if !block.block_type.is_block_full() {
                         return true;
                     }
                 }

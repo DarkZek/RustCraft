@@ -545,36 +545,264 @@ define_blocks! {
         props {
             stage: u8 = vec![PropertyType::UnsignedByte(0), PropertyType::UnsignedByte(1)],
         },
+        model {
+            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/oak_sapling").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
+
+            BlockModel {
+                faces: vec![
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        }
+                ]
+            }
+        },
+        collidable false,
+        full false,
     }
     SpruceSapling {
         identifier "minecraft:spruce_sapling",
         props {
             stage: u8 = vec![PropertyType::UnsignedByte(0), PropertyType::UnsignedByte(1)],
         },
+        model {
+            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/spruce_sapling").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
+
+            BlockModel {
+                faces: vec![
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        }
+                ]
+            }
+        },
+        collidable false,
+        full false,
     }
     BirchSapling {
         identifier "minecraft:birch_sapling",
         props {
             stage: u8 = vec![PropertyType::UnsignedByte(0), PropertyType::UnsignedByte(1)],
         },
+        model {
+            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/birch_sapling").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
+
+            BlockModel {
+                faces: vec![
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        }
+                ]
+            }
+        },
+        collidable false,
+        full false,
     }
     JungleSapling {
         identifier "minecraft:jungle_sapling",
         props {
             stage: u8 = vec![PropertyType::UnsignedByte(0), PropertyType::UnsignedByte(1)],
         },
+        model {
+            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/jungle_sapling").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
+
+            BlockModel {
+                faces: vec![
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        }
+                ]
+            }
+        },
+        collidable false,
+        full false,
     }
     AcaciaSapling {
         identifier "minecraft:acacia_sapling",
         props {
             stage: u8 = vec![PropertyType::UnsignedByte(0), PropertyType::UnsignedByte(1)],
         },
+        model {
+            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/acacia_sapling").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
+
+            BlockModel {
+                faces: vec![
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        }
+                ]
+            }
+        },
+        collidable false,
+        full false,
     }
     DarkOakSapling {
         identifier "minecraft:dark_oak_sapling",
         props {
             stage: u8 = vec![PropertyType::UnsignedByte(0), PropertyType::UnsignedByte(1)],
         },
+        model {
+            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/dark_oak_sapling").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
+
+            BlockModel {
+                faces: vec![
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                            scale: Vector3::new(1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Left,
+                            edge: false,
+                        },
+                        BlockFace {
+                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                            scale: Vector3::new(-1.0, 1.0, 1.0),
+                            texture: lookup.clone(),
+                            normal: ViewableDirectionBitMap::Right,
+                            edge: false,
+                        }
+                ]
+            }
+        },
+        collidable false,
+        full false,
     }
     Bedrock {
         identifier "minecraft:bedrock",
@@ -1546,7 +1774,6 @@ define_blocks! {
         },
         collidable false,
         transparent true,
-
     }
     Fern {
         identifier "minecraft:fern",
@@ -2698,7 +2925,7 @@ define_blocks! {
         },
         collidable false,
         full false,
-        light_color [255; 3],
+        light_color [109, 8, 100],
         light_intensity 14,
     }
     Fire {

@@ -121,7 +121,7 @@ impl Vertex {
                         + mem::size_of::<[f32; 3]>())
                         as wgpu::BufferAddress,
                     shader_location: 3,
-                    format: wgpu::VertexFormat::Float32x4,
+                    format: wgpu::VertexFormat::Unorm8x4,
                 },
             ],
         }
