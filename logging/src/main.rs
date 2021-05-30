@@ -3,6 +3,7 @@ use std::io::Write;
 use std::ops::Add;
 use std::sync::{Arc, Mutex};
 use std::thread;
+use std::path::PathBuf;
 
 #[macro_use]
 extern crate lazy_static;
@@ -14,9 +15,16 @@ pub struct LoggingService {
 }
 
 impl LoggingService {
-    pub fn new(path: &String) -> LoggingService {
-        let info_file = File::create(format!("{}info.log", path))
-            .expect(&format!("Cannot open log file {}info.log", path));
+    pub fn new(path: &PathBuf) -> LoggingService {
+        let mut path = path.clone();
+        path.push("info");
+        path.set_extension("log");
+
+        let info_file = if let Result::Ok(val) = File::create(&path) {
+            val
+        } else {
+            panic!("Cannot open log file {:?}", path.clone());
+        };
 
         LoggingService {
             log_file: Arc::new(Mutex::new(info_file)),

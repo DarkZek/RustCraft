@@ -40,10 +40,10 @@ impl Default for GameState {
 
 #[derive(PartialEq)]
 pub enum ProgramState {
-    INIT,
-    MENU,
-    LOADING,
-    IN_GAME,
+    Init,
+    Menu,
+    Loading,
+    InGame,
 }
 
 pub struct PlayerMovementSystem;

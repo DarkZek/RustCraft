@@ -2,9 +2,8 @@ use crate::services::chunk_service::mesh::culling::ViewableDirection;
 use crate::services::chunk_service::mesh::MeshData;
 use crate::services::settings_service::CHUNK_SIZE;
 use nalgebra::Vector3;
-use specs::{Component, DenseVecStorage, VecStorage};
+use specs::{Component, VecStorage};
 use std::collections::HashMap;
-use std::mem::MaybeUninit;
 use wgpu::BindGroup;
 
 #[derive(Debug)]

@@ -6,9 +6,10 @@ use std::fs::File;
 use std::io::Read;
 use std::time::{Instant, SystemTime};
 use zip::ZipArchive;
+use std::path::PathBuf;
 
 impl AssetService {
-    pub fn get_resource_packs(path: &str) -> Vec<String> {
+    pub fn get_resource_packs(path: PathBuf) -> Vec<String> {
         // Load a list of resource packs
         match fs::read_dir(path) {
             Ok(files) => {
@@ -31,7 +32,7 @@ impl AssetService {
         }
     }
 
-    pub fn load_resource_pack(path: &str) -> ResourcePack {
+    pub fn load_resource_pack(path: PathBuf) -> ResourcePack {
         let start_time = Instant::now();
         let zipfile = std::fs::File::open(&path).unwrap();
         let metadata = fs::metadata(&path).unwrap();
@@ -40,10 +41,7 @@ impl AssetService {
 
         let textures = load_resources(&mut archive);
 
-        let name = match path.split("/").last() {
-            None => path,
-            Some(path) => path,
-        };
+        let name = path.file_name();
 
         log!(format!(
             "Took {} seconds to load texture pack {}",

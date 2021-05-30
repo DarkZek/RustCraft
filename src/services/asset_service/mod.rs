@@ -42,22 +42,21 @@ pub struct ResourcePack {
 
 impl AssetService {
     pub fn new(settings: &SettingsService, context: &mut ServicesContext) -> AssetService {
-        let resource_packs = AssetService::get_resource_packs(
-            (settings.path.as_str().to_owned() + "resources/").as_ref(),
-        );
+        let path = settings.path.clone();
+        path.push("resources");
+        let resource_packs = AssetService::get_resource_packs(path.clone());
 
         if resource_packs.len() == 0 {
-            panic!("No resource packs found!");
+            println!("No resource packs found.");
+            std::process::exit(0);
         }
 
         log!("Resource Packs: {:?}", resource_packs);
 
+        path.push(resource_packs.get(0).unwrap());
+
         // For now, select the first one in the list. In the future we will grab the selected resource pack from the settings
-        let mut selected_pack = AssetService::load_resource_pack(&format!(
-            "{}resources/{}",
-            settings.path,
-            resource_packs.get(0).unwrap()
-        ));
+        let mut selected_pack = AssetService::load_resource_pack(path);
 
         let (atlas_image, atlas, atlas_index, atlas_sampler) = AssetService::generate_texture_atlas(
             &mut selected_pack,

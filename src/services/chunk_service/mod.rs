@@ -8,7 +8,7 @@ use crate::services::chunk_service::frustum_culling::calculate_frustum_culling;
 use crate::services::settings_service::SettingsService;
 use crate::services::ServicesContext;
 use nalgebra::Vector3;
-use specs::{Entities, Join, ReadStorage, World, WriteStorage};
+use specs::{Entities, ReadStorage, World, WriteStorage};
 
 use crate::game::resources::SystemResources;
 use crate::services::chunk_service::mesh::rerendering::RerenderChunkFlag;

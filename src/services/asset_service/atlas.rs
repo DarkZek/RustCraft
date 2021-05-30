@@ -66,7 +66,11 @@ impl AssetService {
         if settings.atlas_cache_reading {
             // Check if they're the same resource pack
             let pack_details_match = {
-                match File::open(format!("{}cache/atlas_info", settings.path)) {
+                let path = settings.path.clone();
+                path.push("cache");
+                path.push("atlas_info");
+
+                match File::open(path) {
                     Ok(mut file) => {
                         let mut info = String::new();
                         if let Result::Err(err) = file.read_to_string(&mut info) {
@@ -220,21 +224,35 @@ impl AssetService {
             }
 
             if settings.atlas_cache_writing {
-                if !Path::new(format!("{}cache/", settings.path).as_str()).is_dir() {
+                let path = settings.path.clone();
+                path.push("cache");
+
+                let atlas_path = path.clone();
+                atlas_path.push("atlas");
+                atlas_path.set_extension("png");
+
+                let atlas_index_path = path.clone();
+                atlas_index_path.push("atlas_index");
+                atlas_index_path.set_extension("json");
+
+                let atlas_info_path = path.clone();
+                atlas_info_path.push("atlas_info");
+
+                if !path.as_path().is_dir() {
                     if let Result::Err(error) =
-                        std::fs::create_dir(format!("{}cache/", settings.path))
+                        std::fs::create_dir(path.clone())
                     {
                         log_error!("Failed to create cache directory: {}", error)
                     }
                 }
 
-                if let Err(e) = atlas.save(format!("{}cache/atlas.png", settings.path)) {
+                if let Err(e) = atlas.save(atlas_path) {
                     log_error!("Failed to cache atlas image: {}", e);
                 }
 
                 let result = serde_json::to_string(&atlas_index).unwrap();
 
-                match File::create(format!("{}cache/atlas_index.json", settings.path)) {
+                match File::create(atlas_index_path) {
                     Ok(mut atlas_index_file) => {
                         if let Err(e) = atlas_index_file.write_all(result.as_bytes()) {
                             log_error!("Error writing texture atlas index: {}", e);
@@ -245,7 +263,7 @@ impl AssetService {
                     }
                 }
 
-                match File::create(format!("{}cache/atlas_info", settings.path)) {
+                match File::create(atlas_info_path) {
                     Ok(mut file) => {
                         let output = format!(
                             "{}\n{}",

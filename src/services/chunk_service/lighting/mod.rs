@@ -1,8 +1,8 @@
-use crate::block::blocks::{BlockStates, BLOCK_STATES};
+use crate::block::blocks::{BLOCK_STATES};
 use crate::helpers::lerp_color;
 use crate::services::chunk_service::chunk::{ChunkData, Chunks, RawLightingData};
 use crate::services::settings_service::CHUNK_SIZE;
-use nalgebra::{Point3, Vector3};
+use nalgebra::{Vector3};
 use specs::{Component, DenseVecStorage};
 use std::collections::HashMap;
 

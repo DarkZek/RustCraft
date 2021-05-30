@@ -1,5 +1,5 @@
 use wgpu::{
-    Extent3d, Sampler, Texture, TextureAspect, TextureDimension, TextureFormat, TextureView,
+    Extent3d, Sampler, Texture, TextureAspect, TextureDimension, TextureView,
     TextureViewDescriptor, TextureViewDimension,
 };
 
