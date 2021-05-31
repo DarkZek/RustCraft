@@ -53,7 +53,7 @@ impl<'a> System<'a> for RenderSystem {
                 });
 
         {
-            if game_state.state == ProgramState::IN_GAME {
+            if game_state.state == ProgramState::InGame {
                 let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
                     label: Some("Main Render Loop Render Pass"),
                     color_attachments: &[wgpu::RenderPassColorAttachment {

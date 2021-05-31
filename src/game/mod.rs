@@ -217,7 +217,7 @@ impl Game {
                 },
                 Event::MainEventsCleared => {
                     // Update physics in a fixed step loop
-                    if self.universe.read_resource::<GameState>().state == ProgramState::IN_GAME {
+                    if self.universe.read_resource::<GameState>().state == ProgramState::InGame {
                         while time_since_physics.elapsed() > physics_loop_length {
                             time_since_physics += physics_loop_length;
 

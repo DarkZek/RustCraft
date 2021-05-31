@@ -88,8 +88,6 @@ impl ChunkData {
                             }
                         };
 
-                        println!("{}", lightness_ratio);
-
                         let out_color = [
                             applied_color[0].lerp(extra_color[0], lightness_ratio),
                             applied_color[1].lerp(extra_color[1], lightness_ratio),

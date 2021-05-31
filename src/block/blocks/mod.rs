@@ -52,8 +52,13 @@ impl BlockStates {
                     blocks.get(state.block_number).unwrap().get_identifier()
                 ));
             }
+
+            let mut states_path = settings.path.clone();
+            states_path.push("debug_states");
+            states_path.set_extension("txt");
+
             if let Result::Err(error) =
-                std::fs::write(format!("{}cache/debug_states.txt", settings.path), str)
+                std::fs::write(states_path, str)
             {
                 log_error!("Error writing debug states: {}", error);
             }

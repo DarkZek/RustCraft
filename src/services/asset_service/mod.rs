@@ -10,12 +10,19 @@ use std::collections::HashMap;
 use std::ops::DerefMut;
 use std::time::SystemTime;
 use wgpu::{BindGroup, BindGroupLayout, Sampler, Texture};
+use std::fs;
+use std::io::Cursor;
+use std::error::Error;
+use std::path::PathBuf;
+use native_dialog::{MessageDialog, MessageType};
 
 pub mod atlas;
 pub mod binding;
 pub mod depth_map;
 pub mod index;
 pub mod packs;
+
+static DEFAULT_RESOURCE_PACK: &str = "Faithful.zip";
 
 #[allow(dead_code)]
 pub struct AssetService {
@@ -42,13 +49,51 @@ pub struct ResourcePack {
 
 impl AssetService {
     pub fn new(settings: &SettingsService, context: &mut ServicesContext) -> AssetService {
-        let path = settings.path.clone();
+
+        let mut path = settings.path.clone();
         path.push("resources");
-        let resource_packs = AssetService::get_resource_packs(path.clone());
+
+        // Try creating resources directory
+        fs::create_dir_all(path.as_path());
+
+        let mut resource_packs = AssetService::get_resource_packs(path.clone());
 
         if resource_packs.len() == 0 {
-            println!("No resource packs found.");
-            std::process::exit(0);
+
+            log_error!("No resource packs found");
+
+            let result = MessageDialog::new()
+                .set_type(MessageType::Info)
+                .set_title("No resource packs found")
+                .set_text(&format!("No resource packs installed. Would you like to automatically download {}?", DEFAULT_RESOURCE_PACK))
+                .show_confirm();
+
+            match result {
+                Ok(download_default) => {
+                    if !download_default {
+                        std::process::exit(0);
+                    }
+                }
+                Err(err) => {
+                    log_error!("Failed to display popup for resource packs: {:?}", err);
+                    std::process::exit(0);
+                }
+            }
+
+            log!("Downloaded {}", DEFAULT_RESOURCE_PACK);
+
+            if let Result::Err(err) = AssetService::download_default_resources(path.clone()) {
+                log_error!("Failed to download Rosources.zip: {:?}", err);
+                MessageDialog::new()
+                    .set_type(MessageType::Error)
+                    .set_title(&*format!("Failed to download {}", DEFAULT_RESOURCE_PACK))
+                    .set_text(&format!("No resource packs installed. Would you like to automatically download {}?", DEFAULT_RESOURCE_PACK))
+                    .show_alert();
+                std::process::exit(0);
+            }
+
+            // Find resource packs again
+            resource_packs = AssetService::get_resource_packs(path.clone());
         }
 
         log!("Resource Packs: {:?}", resource_packs);
@@ -79,6 +124,18 @@ impl AssetService {
             atlas_bind_group_layout: Some(atlas_bind_group_layout),
             atlas_bind_group: Some(atlas_bind_group),
         }
+    }
+
+    pub fn download_default_resources(mut pack_path: PathBuf) -> Result<(), Box<dyn Error>> {
+        let result = reqwest::blocking::get("https://github.com/FaithfulTeam/Faithful/blob/releases/1.15.zip?raw=true").unwrap();
+
+        pack_path.push(DEFAULT_RESOURCE_PACK);
+
+        // Save
+        let mut file = std::fs::File::create(pack_path)?;
+        let mut content =  Cursor::new(result.bytes()?);
+        std::io::copy(&mut content, &mut file)?;
+        Ok(())
     }
 }
 

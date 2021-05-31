@@ -27,7 +27,7 @@ impl GameState {
 
         GameState {
             player: Player::new(),
-            state: ProgramState::INIT,
+            state: ProgramState::Init,
         }
     }
 }

@@ -41,7 +41,7 @@ impl AssetService {
 
         let textures = load_resources(&mut archive);
 
-        let name = path.file_name();
+        let name = path.file_name().unwrap().to_str().unwrap();
 
         log!(format!(
             "Took {} seconds to load texture pack {}",
@@ -90,6 +90,7 @@ fn format_file_name(name: &str) -> String {
     // Remove the first three directories, usually RESOURCE_PACK_NAME/assets/minecraft/
     let mut slash_count = 0;
     let mut out = String::new();
+
     if name.contains("pack.png") {
         return String::from("pack.png");
     }

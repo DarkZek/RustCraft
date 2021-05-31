@@ -1,11 +1,4 @@
-use crate::services::settings_service::SettingsService;
-use std::fs::File;
-use std::io::Write;
-use std::sync::{Arc, Mutex};
-use std::thread;
-
 use crate::render::RenderState;
-use lazy_static::lazy_static;
 use rc_logging::LoggingService;
 use specs::{Read, System};
 

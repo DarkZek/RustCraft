@@ -1,8 +1,11 @@
 use std::path::PathBuf;
+use app_dirs::*;
+use std::fs;
 
 pub mod key_mappings;
 
 pub const CHUNK_SIZE: usize = 16;
+pub const APP_INFO: AppInfo = AppInfo{name: "RustCraft", author: "DarkZek"};
 
 //TODO: Make it actually load from a text file
 
@@ -42,8 +45,10 @@ impl SettingsService {
     ///
     pub fn new() -> SettingsService {
         // Load resources directory
-        let mut path = dirs::data_local_dir().unwrap();
-        path.push("RustCraft");
+        let mut path = get_app_root(AppDataType::UserConfig, &APP_INFO).unwrap();
+
+        // Create directories
+        fs::create_dir_all(path.as_path()).unwrap();
 
         let mut atlas_caching = true;
         let debug_vertices = false;
@@ -58,7 +63,7 @@ impl SettingsService {
             atlas_cache_writing: atlas_caching,
             render_distance: 6,
             debug_vertices,
-            debug_atlas: false,
+            debug_atlas: true,
             backface_culling: true,
             chunk_edge_faces: true,
             debug_states: true,

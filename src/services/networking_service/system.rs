@@ -88,9 +88,9 @@ impl<'a> System<'a> for NetworkingSyncSystem {
 
                     // Loaded enough to show game
                     if chunks_storage.as_slice().len() >= 16 * 16 * 16
-                        && game_state.state != ProgramState::IN_GAME
+                        && game_state.state != ProgramState::InGame
                     {
-                        game_state.state = ProgramState::IN_GAME;
+                        game_state.state = ProgramState::InGame;
                         let image = ui_service.background_image.clone();
                         ui_service.images.delete_image(image);
 

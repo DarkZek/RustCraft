@@ -1,19 +1,17 @@
-use crate::helpers::Lerp;
 use crate::services::asset_service::index::TextureAtlasIndex;
 use crate::services::asset_service::{AssetService, ResourcePack};
 use crate::services::settings_service::SettingsService;
 use core::num::NonZeroU32;
 use image::{DynamicImage, GenericImageView, ImageBuffer, Rgba};
-use serde::ser::Serialize;
 use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::fs::File;
 use std::io::{Read, Write};
 use std::lazy::SyncOnceCell;
-use std::path::Path;
 use std::time::{SystemTime, UNIX_EPOCH};
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{BufferUsage, CompareFunction, Device, ImageDataLayout, Queue, Sampler, Texture};
+use std::path::PathBuf;
 
 pub const ATLAS_WIDTH: u32 = 4096;
 pub const ATLAS_HEIGHT: u32 = (4096.0 * 2.0) as u32;
@@ -45,6 +43,21 @@ impl AssetService {
 
         let start_time = SystemTime::now();
 
+        // Get paths
+        let mut path = settings.path.clone();
+        path.push("cache");
+
+        let mut atlas_path = path.clone();
+        atlas_path.push("atlas");
+        atlas_path.set_extension("png");
+
+        let mut atlas_index_path = path.clone();
+        atlas_index_path.push("atlas_index");
+        atlas_index_path.set_extension("json");
+
+        let mut atlas_info_path = path.clone();
+        atlas_info_path.push("atlas_info");
+
         //Create buffer
         let diffuse_texture = device.create_texture(&wgpu::TextureDescriptor {
             label: Some("Asset Service Texture Atlas Texture"),
@@ -66,11 +79,7 @@ impl AssetService {
         if settings.atlas_cache_reading {
             // Check if they're the same resource pack
             let pack_details_match = {
-                let path = settings.path.clone();
-                path.push("cache");
-                path.push("atlas_info");
-
-                match File::open(path) {
+                match File::open(&atlas_info_path) {
                     Ok(mut file) => {
                         let mut info = String::new();
                         if let Result::Err(err) = file.read_to_string(&mut info) {
@@ -91,7 +100,7 @@ impl AssetService {
             };
 
             if pack_details_match {
-                match load_cached_atlas(&settings) {
+                match load_cached_atlas(&settings, &atlas_info_path, &atlas_index_path) {
                     Ok((img, index)) => {
                         atlas_img = Some(img);
                         atlas_index = index;
@@ -224,19 +233,6 @@ impl AssetService {
             }
 
             if settings.atlas_cache_writing {
-                let path = settings.path.clone();
-                path.push("cache");
-
-                let atlas_path = path.clone();
-                atlas_path.push("atlas");
-                atlas_path.set_extension("png");
-
-                let atlas_index_path = path.clone();
-                atlas_index_path.push("atlas_index");
-                atlas_index_path.set_extension("json");
-
-                let atlas_info_path = path.clone();
-                atlas_info_path.push("atlas_info");
 
                 if !path.as_path().is_dir() {
                     if let Result::Err(error) =
@@ -263,7 +259,7 @@ impl AssetService {
                     }
                 }
 
-                match File::create(atlas_info_path) {
+                match File::create(&atlas_info_path) {
                     Ok(mut file) => {
                         let output = format!(
                             "{}\n{}",
@@ -416,10 +412,12 @@ fn sort_textures(textures: &mut HashMap<String, DynamicImage>) -> Vec<(String, D
 
 pub fn load_cached_atlas(
     settings: &SettingsService,
+    atlas_info_path: &PathBuf,
+    atlas_index_path: &PathBuf
 ) -> Result<(DynamicImage, HashMap<String, TextureAtlasIndex>), Box<dyn std::error::Error>> {
-    let img = image::open(format!("{}cache/atlas.png", settings.path))?;
+    let img = image::open(atlas_info_path)?;
 
-    let mut index_file = File::open(format!("{}cache/atlas_index.json", settings.path))?;
+    let mut index_file = File::open(atlas_index_path)?;
     let mut data = Vec::new();
     index_file.read_to_end(&mut data)?;
 

@@ -7,7 +7,7 @@ use crate::services::{
     audio_service::AudioService,
     chunk_service::ChunkService,
     settings_service::SettingsService,
-    ui_service::{ObjectAlignment, Positioning, UIService},
+    ui_service::{UIService},
 };
 use rc_logging::LoggingService;
 use specs::World;

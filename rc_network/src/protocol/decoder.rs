@@ -128,7 +128,7 @@ impl PacketDecoder {
             0x06 => PacketData::EntityAnimation(*EntityAnimationPacket::deserialize(&mut cursor)),
             0x23 => PacketData::PlayEffect(*PlayEffectPacket::deserialize(&mut cursor)),
             0x5A => PacketData::EntityEffect(*EntityEffectPacket::deserialize(&mut cursor)),
-            _ => panic!(format!("Unknown packet ID: 0x{:x}", packet_id))
+            _ => panic!("Unknown packet ID: 0x{:x}", packet_id)
         };
 
         if len - stream.get_bytes_read() as i64 > 0 {
