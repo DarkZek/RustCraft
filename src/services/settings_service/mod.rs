@@ -45,7 +45,7 @@ impl SettingsService {
     ///
     pub fn new() -> SettingsService {
         // Load resources directory
-        let mut path = get_app_root(AppDataType::UserConfig, &APP_INFO).unwrap();
+        let path = get_app_root(AppDataType::UserConfig, &APP_INFO).unwrap();
 
         // Create directories
         fs::create_dir_all(path.as_path()).unwrap();

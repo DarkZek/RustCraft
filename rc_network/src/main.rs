@@ -1,3 +1,5 @@
+#![feature(once_cell)]
+
 use rc_network::messaging::NetworkingMessage;
 use rc_network::RustcraftNetworking;
 use std::io;

@@ -7,6 +7,7 @@ use std::io::Read;
 use std::time::{Instant, SystemTime};
 use zip::ZipArchive;
 use std::path::PathBuf;
+use zip::result::ZipResult;
 
 impl AssetService {
     pub fn get_resource_packs(path: PathBuf) -> Vec<String> {
@@ -32,12 +33,12 @@ impl AssetService {
         }
     }
 
-    pub fn load_resource_pack(path: PathBuf) -> ResourcePack {
+    pub fn load_resource_pack(path: PathBuf) -> ZipResult<ResourcePack> {
         let start_time = Instant::now();
         let zipfile = std::fs::File::open(&path).unwrap();
         let metadata = fs::metadata(&path).unwrap();
 
-        let mut archive = zip::ZipArchive::new(zipfile).unwrap();
+        let mut archive = zip::ZipArchive::new(zipfile)?;
 
         let textures = load_resources(&mut archive);
 
@@ -49,13 +50,13 @@ impl AssetService {
             name
         ));
 
-        ResourcePack {
+        Ok(ResourcePack {
             name: "".to_string(),
             author: "".to_string(),
             version: "".to_string(),
             textures,
             modified: metadata.modified().unwrap_or(SystemTime::UNIX_EPOCH),
-        }
+        })
     }
 }
 

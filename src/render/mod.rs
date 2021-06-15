@@ -104,7 +104,7 @@ impl RenderState {
             format: TextureFormat::Bgra8UnormSrgb,
             width: size.width,
             height: size.height,
-            present_mode: wgpu::PresentMode::Immediate,
+            present_mode: wgpu::PresentMode::Fifo,
         };
 
         TEXTURE_FORMAT

@@ -62,12 +62,14 @@ impl AssetService {
 
             log_error!("No resource packs found");
 
+            // Ask the user if they would like to download the default resources
             let result = MessageDialog::new()
                 .set_type(MessageType::Info)
                 .set_title("No resource packs found")
                 .set_text(&format!("No resource packs installed. Would you like to automatically download {}?", DEFAULT_RESOURCE_PACK))
                 .show_confirm();
 
+            // Ensure the message got through and respond to its input
             match result {
                 Ok(download_default) => {
                     if !download_default {
@@ -80,17 +82,18 @@ impl AssetService {
                 }
             }
 
-            log!("Downloaded {}", DEFAULT_RESOURCE_PACK);
-
+            // Download the default resources
             if let Result::Err(err) = AssetService::download_default_resources(path.clone()) {
                 log_error!("Failed to download Rosources.zip: {:?}", err);
                 MessageDialog::new()
                     .set_type(MessageType::Error)
                     .set_title(&*format!("Failed to download {}", DEFAULT_RESOURCE_PACK))
-                    .set_text(&format!("No resource packs installed. Would you like to automatically download {}?", DEFAULT_RESOURCE_PACK))
+                    .set_text(&format!("Failed to download {}, check your network connection.\n{:?}", DEFAULT_RESOURCE_PACK, err))
                     .show_alert();
                 std::process::exit(0);
             }
+
+            log!("Downloaded {}", DEFAULT_RESOURCE_PACK);
 
             // Find resource packs again
             resource_packs = AssetService::get_resource_packs(path.clone());
@@ -101,7 +104,13 @@ impl AssetService {
         path.push(resource_packs.get(0).unwrap());
 
         // For now, select the first one in the list. In the future we will grab the selected resource pack from the settings
-        let mut selected_pack = AssetService::load_resource_pack(path);
+        let mut selected_pack = match AssetService::load_resource_pack(path.clone()) {
+            Ok(val) => val,
+            Err(err) => {
+                log_error!("Error loading zip {:?}: {}", &path, err);
+                std::process::exit(0);
+            }
+        };
 
         let (atlas_image, atlas, atlas_index, atlas_sampler) = AssetService::generate_texture_atlas(
             &mut selected_pack,

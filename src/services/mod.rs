@@ -55,7 +55,10 @@ impl<'a> ServicesContext<'_> {
 pub fn load_services(mut context: ServicesContext, universe: &mut World) {
     let settings = SettingsService::new();
     let debugging_service = DebuggingService::new(&settings, universe);
-    let logging = LoggingService::new(&settings.path);
+
+    // Set the logger
+    LoggingService::new(&settings.path);
+
     LoadingScreen::update_state(10.0);
 
     let asset = AssetService::new(&settings, &mut context);
@@ -69,12 +72,11 @@ pub fn load_services(mut context: ServicesContext, universe: &mut World) {
     let networking_service = NetworkingService::new(universe);
     LoadingScreen::update_state(90.0);
 
-    logging.flush_buffer();
+    flush_log!();
 
     universe.insert(asset);
     universe.insert(audio);
     universe.insert(settings);
-    universe.insert(logging);
     universe.insert(chunk);
     universe.insert(ui);
     universe.insert(input);

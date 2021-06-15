@@ -1,3 +1,5 @@
+#![feature(once_cell)]
+
 use crate::messaging::NetworkingMessage;
 use crate::protocol::decoder::PacketDecoder;
 use crate::stream::NetworkStream;

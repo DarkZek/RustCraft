@@ -100,7 +100,7 @@ impl AssetService {
             };
 
             if pack_details_match {
-                match load_cached_atlas(&settings, &atlas_info_path, &atlas_index_path) {
+                match load_cached_atlas(&settings, &atlas_path, &atlas_index_path) {
                     Ok((img, index)) => {
                         atlas_img = Some(img);
                         atlas_index = index;
@@ -412,10 +412,10 @@ fn sort_textures(textures: &mut HashMap<String, DynamicImage>) -> Vec<(String, D
 
 pub fn load_cached_atlas(
     settings: &SettingsService,
-    atlas_info_path: &PathBuf,
+    atlas_path: &PathBuf,
     atlas_index_path: &PathBuf
 ) -> Result<(DynamicImage, HashMap<String, TextureAtlasIndex>), Box<dyn std::error::Error>> {
-    let img = image::open(atlas_info_path)?;
+    let img = image::open(atlas_path)?;
 
     let mut index_file = File::open(atlas_index_path)?;
     let mut data = Vec::new();
