@@ -45,6 +45,7 @@ impl EntityMetadata {
             7 => PVarType::Boolean(read_bool(buf)),
             8 => PVarType::Rotation([read_float(buf), read_float(buf), read_float(buf)]),
             9 => PVarType::Position(read_position(buf)),
+            13 => PVarType::VarInt(read_varint(buf)),
             18 => PVarType::VarInt(read_varint(buf)),
             _ => panic!("Bruh you didn't implement the type!: {}", ty),
         };

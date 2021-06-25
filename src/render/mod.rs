@@ -94,6 +94,8 @@ impl RenderState {
         let (size, surface, gpu_info, device, queue, adapter) =
             RenderState::get_devices(window.borrow());
 
+        log!(format!("Using {:?} {} {} with backend {:?}", gpu_info.device_type, gpu_info.name, gpu_info.vendor, gpu_info.backend));
+
         // Convert to forms that can be used in multiple places
         let device = Arc::new(device);
         let queue = Arc::new(Mutex::new(queue));

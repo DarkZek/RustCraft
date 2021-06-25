@@ -23,7 +23,7 @@ impl RenderState {
         let surface = unsafe { wgpu.create_surface(window) };
 
         let adapter = block_on(wgpu.request_adapter(&wgpu::RequestAdapterOptions {
-            power_preference: wgpu::PowerPreference::HighPerformance,
+            power_preference: wgpu::PowerPreference::LowPower,
             compatible_surface: Some(&surface),
         }))
         .unwrap();

@@ -49,8 +49,8 @@ pub struct Game {
 
 impl Game {
     pub fn new() -> Game {
-        for arg in std::env::args() {
-            if arg == "GRAPHICS_LOGGING" {
+        if let Result::Ok(val) = std::env::var("GRAPHICS_LOGGING") {
+            if val == "1" {
                 env_logger::init();
             }
         }
