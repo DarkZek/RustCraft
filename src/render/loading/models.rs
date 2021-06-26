@@ -95,7 +95,7 @@ pub fn load_splash_image_bindings(
     let diffuse_texture_view = diffuse_texture.create_view(&TextureViewDescriptor {
         label: Some("Loading splash screen texture descriptor"),
         format: Some(TEXTURE_FORMAT.get().unwrap().clone()),
-        dimension: Some(TextureViewDimension::D2Array),
+        dimension: Some(TextureViewDimension::D2),
         aspect: TextureAspect::All,
         base_mip_level: 0,
         mip_level_count: None,
@@ -111,7 +111,7 @@ pub fn load_splash_image_bindings(
                     visibility: wgpu::ShaderStage::FRAGMENT,
                     ty: wgpu::BindingType::Texture {
                         sample_type: TextureSampleType::Float { filterable: false },
-                        view_dimension: TextureViewDimension::D2Array,
+                        view_dimension: TextureViewDimension::D2,
                         multisampled: false,
                     },
                     count: None,

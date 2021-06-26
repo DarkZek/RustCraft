@@ -103,7 +103,7 @@ impl RenderState {
         // Limited to vsync here
         let sc_desc = wgpu::SwapChainDescriptor {
             usage: wgpu::TextureUsage::RENDER_ATTACHMENT,
-            format: TextureFormat::Bgra8UnormSrgb,
+            format: TextureFormat::Rgba8UnormSrgb,
             width: size.width,
             height: size.height,
             present_mode: wgpu::PresentMode::Fifo,

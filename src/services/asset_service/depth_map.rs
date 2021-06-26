@@ -35,14 +35,14 @@ pub fn create_depth_texture(
         sample_count: 1,
         dimension: TextureDimension::D2,
         format: DEPTH_FORMAT,
-        usage: wgpu::TextureUsage::RENDER_ATTACHMENT,
+        usage: wgpu::TextureUsage::RENDER_ATTACHMENT | wgpu::TextureUsage::SAMPLED,
     };
 
     let texture = device.create_texture(&texture_descriptor);
     let view = texture.create_view(&TextureViewDescriptor {
         label: Some("Main depth map texture view"),
-        format: Some(wgpu::TextureFormat::Rgba8UnormSrgb),
-        dimension: Some(TextureViewDimension::D2Array),
+        format: Some(DEPTH_FORMAT),
+        dimension: Some(TextureViewDimension::D2),
         aspect: TextureAspect::All,
         base_mip_level: 0,
         base_array_layer: 0,

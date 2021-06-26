@@ -14,7 +14,7 @@ impl AssetService {
         let diffuse_texture_view = diffuse_texture.create_view(&TextureViewDescriptor {
             label: Some("Asset Service Texture Atlas Texture View"),
             format: Some(TextureFormat::Rgba8UnormSrgb),
-            dimension: Some(TextureViewDimension::D2Array),
+            dimension: Some(TextureViewDimension::D2),
             aspect: TextureAspect::All,
             base_mip_level: 0,
             mip_level_count: None,
@@ -31,7 +31,7 @@ impl AssetService {
                         visibility: wgpu::ShaderStage::FRAGMENT,
                         ty: wgpu::BindingType::Texture {
                             sample_type: TextureSampleType::Float { filterable: false },
-                            view_dimension: TextureViewDimension::D2Array,
+                            view_dimension: TextureViewDimension::D2,
                             multisampled: false,
                         },
                         count: None,
