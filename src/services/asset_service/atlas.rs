@@ -107,7 +107,7 @@ impl AssetService {
             );
         }
 
-        let (diffuse_sampler) = process_image(atlas_img.as_mut().unwrap(), &diffuse_texture, queue, device);
+        let diffuse_sampler = process_image(atlas_img.as_mut().unwrap(), &diffuse_texture, queue, device);
 
         ATLAS_LOOKUPS
             .set(atlas_index.clone())
@@ -354,7 +354,7 @@ fn process_image(atlas_img: &mut DynamicImage, diffuse_texture: &Texture, queue:
 
     let diffuse_sampler = device.create_sampler(&diffuse_sampler_descriptor);
 
-    (diffuse_sampler)
+    diffuse_sampler
 }
 
 fn write_cached_atlas(path: &PathBuf, atlas_path: &PathBuf, atlas_index_path: &PathBuf, atlas_info_path: &PathBuf, atlas_index: &HashMap<String, TextureAtlasIndex>, zip_name: &str, atlas: &ImageBuffer<Rgba<u8>, Vec<u8>>, resource_pack: &mut ResourcePack) {

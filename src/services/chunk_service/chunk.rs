@@ -25,7 +25,7 @@ pub struct ChunkData {
     pub light_levels: RawLightingData,
 
     // Stores the lighting of neighbouring chunks effect on this chunk.
-    pub neighboring_light_levels: RawLightingData,
+    pub neighboring_light_levels: RawLightingData
 }
 
 impl Component for ChunkData {
@@ -45,7 +45,7 @@ impl ChunkData {
             position,
             // Ambient color
             light_levels: [[[[2, 2, 2, 255]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE],
-            neighboring_light_levels: [[[[255, 255, 255, 0]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE],
+            neighboring_light_levels: [[[[255, 255, 255, 0]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE]
         }
     }
 }

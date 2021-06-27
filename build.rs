@@ -3,7 +3,7 @@ use std::process::Command;
 
 fn main() {
     // Shaders
-    let shaders = ["ui_text", "ui_images", "loading", "shader"];
+    let shaders = ["ui_text", "ui_images", "loading", "shader", "background"];
 
     for shader in shaders.iter() {
         println!("cargo:rerun-if-changed=assets/shaders/{}.frag", shader);

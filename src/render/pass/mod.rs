@@ -6,19 +6,14 @@ use crate::services::chunk_service::ChunkService;
 use crate::services::ui_service::UIService;
 use specs::{Read, ReadStorage, System, Write};
 use wgpu::{Color, IndexFormat, LoadOp, Operations};
+use crate::render::background::Background;
+use crate::render::camera::Camera;
 
 pub mod buffer;
 pub mod prepass;
 pub mod uniforms;
 
 pub struct RenderSystem;
-
-static CLEAR_COLOR: Color = Color {
-    r: 0.4,
-    g: 0.8,
-    b: 1.0,
-    a: 0.0,
-};
 
 impl<'a> System<'a> for RenderSystem {
     type SystemData = (
@@ -28,12 +23,14 @@ impl<'a> System<'a> for RenderSystem {
         Read<'a, ChunkService>,
         ReadStorage<'a, ChunkData>,
         Read<'a, UIService>,
+        Read<'a, Background>,
+        Read<'a, Camera>
     );
 
     /// Renders all visible chunks
     fn run(
         &mut self,
-        (mut render_state, game_state, asset_service, chunk_service, chunks, ui_service): Self::SystemData,
+        (mut render_state, game_state, asset_service, chunk_service, chunks, ui_service, background, camera): Self::SystemData,
     ) {
         use specs::Join;
         let chunks = Chunks::new(chunks.join().collect::<Vec<&ChunkData>>());
@@ -54,13 +51,16 @@ impl<'a> System<'a> for RenderSystem {
 
         {
             if game_state.state == ProgramState::InGame {
+
+                background.draw(&frame, &mut encoder, &[camera.yaw / (std::f32::consts::PI * 2.0), -camera.pitch]);
+
                 let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
                     label: Some("Main Render Loop Render Pass"),
                     color_attachments: &[wgpu::RenderPassColorAttachment {
                         view: &frame.output.view,
                         resolve_target: None,
                         ops: Operations {
-                            load: LoadOp::Clear(CLEAR_COLOR),
+                            load: LoadOp::Load,
                             store: true,
                         },
                     }],

@@ -89,7 +89,7 @@ impl AssetService {
                     .set_type(MessageType::Error)
                     .set_title(&*format!("Failed to download {}", DEFAULT_RESOURCE_PACK))
                     .set_text(&format!("Failed to download {}, check your network connection.\n{:?}", DEFAULT_RESOURCE_PACK, err))
-                    .show_alert();
+                    .show_alert().unwrap();
                 std::process::exit(0);
             }
 

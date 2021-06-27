@@ -93,9 +93,6 @@ impl ChunkService {
             let chunk = ChunkData::new(data.unwrap(), chunk_coords);
 
             self.viewable_chunks.push(chunk_coords);
-            if chunk.opaque_model.indices_buffer.is_some() {
-                self.visible_chunks.push(chunk_coords);
-            }
 
             self.chunk_keys.push(chunk_coords.clone());
 

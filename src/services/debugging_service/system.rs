@@ -30,6 +30,7 @@ pub enum DebuggingItem {
     Position,
     FPS,
     Chunks,
+    GPUInfo
 }
 
 pub struct DebuggingOverlaySystem;
@@ -109,6 +110,20 @@ impl<'a> System<'a> for DebuggingOverlaySystem {
                 .build();
 
             data.texts.insert(DebuggingItem::Chunks, chunks);
+
+            let gpu = ui_service
+                .fonts
+                .create_text()
+                .set_text(&format!("{} {:?}", render_state.gpu_info.name, render_state.gpu_info.backend))
+                .set_size(24.0)
+                .set_text_alignment(ObjectAlignment::TopRight)
+                .set_object_alignment(ObjectAlignment::TopRight)
+                .set_positioning(Positioning::Relative)
+                .set_background(true)
+                .set_offset([0.0, 0.0])
+                .build();
+
+            data.texts.insert(DebuggingItem::GPUInfo, gpu);
         }
 
         // Update chunks

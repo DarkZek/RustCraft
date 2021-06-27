@@ -18,17 +18,16 @@ impl<'a> System<'a> for ChunkMeshUpdateSystem {
 
         for flag in flags.drain().join() {
             if let Option::Some(selected_chunk) = chunks_loc.get_mut_loc(flag.mesh.chunk) {
-                if let UpdateChunkGraphics { mesh, lighting } = flag {
-                    selected_chunk.set_mesh(mesh);
+                let UpdateChunkGraphics { mesh, lighting } = flag;
 
-                    if let UpdateChunkLighting { chunk, adjacent } = lighting {
-                        selected_chunk.set_lighting(chunk);
+                selected_chunk.set_mesh(mesh);
 
-                        for (coords, lighting) in adjacent {
-                            if let Some(chunk) = chunks_loc.get_mut_loc(coords) {
-                                chunk.add_adjacent_lighting(lighting);
-                            }
-                        }
+                let UpdateChunkLighting { chunk, adjacent } = lighting;
+                selected_chunk.set_lighting(chunk);
+
+                for (coords, lighting) in adjacent {
+                    if let Some(chunk) = chunks_loc.get_mut_loc(coords) {
+                        chunk.add_adjacent_lighting(lighting);
                     }
                 }
             }

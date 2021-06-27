@@ -22,6 +22,7 @@ use wgpu::{
 use winit::dpi::PhysicalSize;
 use winit::event_loop::EventLoop;
 use winit::window::{Icon, Window, WindowBuilder};
+use crate::render::background::Background;
 
 pub mod camera;
 pub mod device;
@@ -29,6 +30,7 @@ pub mod loading;
 pub mod pass;
 pub mod screens;
 pub mod shaders;
+pub mod background;
 
 lazy_static! {
     pub static ref TEXTURE_FORMAT: SyncOnceCell<TextureFormat> = SyncOnceCell::new();
@@ -59,7 +61,7 @@ pub struct RenderState {
     pub frames: u32,
     frame_capture_time: Instant,
 
-    gpu_info: AdapterInfo,
+    pub gpu_info: AdapterInfo,
 
     last_frame_time: SystemTime,
     delta_time: Duration,
@@ -119,6 +121,8 @@ impl RenderState {
         // Start showing loading screen
         let loading = LoadingScreen::new(&size, swap_chain.clone(), device.clone(), queue.clone());
         loading.start_loop();
+
+        universe.insert(Background::new(&device));
 
         // Start the intensive job of loading services
         load_services(
