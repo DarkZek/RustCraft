@@ -114,7 +114,7 @@ impl PacketDecoder {
             0x21 => PacketData::KeepAlive(*KeepAlivePacket::deserialize(&mut cursor)),
             0x58 => PacketData::Advancements(*AdvancementsPacket::deserialize(&mut cursor)),
             0x1B => PacketData::Disconnect(*DisconnectPacket::deserialize(&mut cursor)),
-            0x0C => PacketData::BlockChange(*BlockChangePacket::deserialize(&mut cursor)),
+            0x0B => PacketData::BlockChange(*BlockChangePacket::deserialize(&mut cursor)),
             0x10 => PacketData::MultiBlockChange(*MultiBlockChangePacket::deserialize(&mut cursor)),
             0x05 => PacketData::SpawnPlayer(*SpawnPlayerPacket::deserialize(&mut cursor)),
             0x4B => PacketData::SetPassengers(*SetPassengersPacket::deserialize(&mut cursor)),
