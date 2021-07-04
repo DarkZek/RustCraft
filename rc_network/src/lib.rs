@@ -92,17 +92,11 @@ impl RustcraftNetworking {
                                 continue;
                             }
 
-                            if let PacketData::ChunkData(chunk) = &packet {
-                                if chunk.x == 5 && chunk.z == 9 {
-                                    println!("Chunk: {:?}", chunk);
-                                }
-                            }
-
                             // Handle disconnects
                             if let PacketData::Disconnect(packet) = packet {
                                 // Send packet back
                                 connection = None;
-                                println!("Disconnected: {}", packet.reason);
+                                log!("Disconnected: {}", packet.reason);
                                 continue;
                             }
 

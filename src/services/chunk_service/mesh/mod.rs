@@ -1,3 +1,4 @@
+use crate::block::blocks::model::Rotate;
 use nalgebra::Vector3;
 use wgpu::Buffer;
 
@@ -88,6 +89,39 @@ impl ViewableDirectionBitMap {
             ViewableDirectionBitMap::Right
         } else {
             ViewableDirectionBitMap::Top
+        }
+    }
+
+    pub fn invert(&self) -> ViewableDirectionBitMap {
+        match self {
+            ViewableDirectionBitMap::Top => ViewableDirectionBitMap::Bottom,
+            ViewableDirectionBitMap::Bottom => ViewableDirectionBitMap::Top,
+            ViewableDirectionBitMap::Left => ViewableDirectionBitMap::Right,
+            ViewableDirectionBitMap::Right => ViewableDirectionBitMap::Left,
+            ViewableDirectionBitMap::Front => ViewableDirectionBitMap::Back,
+            ViewableDirectionBitMap::Back => ViewableDirectionBitMap::Front,
+        }
+    }
+
+    pub fn rotate(&self, deg: Rotate) -> ViewableDirectionBitMap {
+        match deg {
+            // Rotate::Deg270 => match self {
+            //     ViewableDirectionBitMap::Top => ViewableDirectionBitMap::Top,
+            //     ViewableDirectionBitMap::Bottom => ViewableDirectionBitMap::Top,
+            //     ViewableDirectionBitMap::Left => ViewableDirectionBitMap::Front,
+            //     ViewableDirectionBitMap::Right => ViewableDirectionBitMap::Back,
+            //     ViewableDirectionBitMap::Front => ViewableDirectionBitMap::Left,
+            //     ViewableDirectionBitMap::Back => ViewableDirectionBitMap::Right,
+            // },
+            Rotate::Deg180 => self.clone(),
+            Rotate::Deg90 | Rotate::Deg270 => match self {
+                ViewableDirectionBitMap::Top => ViewableDirectionBitMap::Bottom,
+                ViewableDirectionBitMap::Bottom => ViewableDirectionBitMap::Top,
+                ViewableDirectionBitMap::Left => ViewableDirectionBitMap::Back,
+                ViewableDirectionBitMap::Right => ViewableDirectionBitMap::Front,
+                ViewableDirectionBitMap::Front => ViewableDirectionBitMap::Right,
+                ViewableDirectionBitMap::Back => ViewableDirectionBitMap::Left,
+            },
         }
     }
 }

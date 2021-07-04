@@ -3,12 +3,22 @@ use crate::services::asset_service::index::TextureAtlasIndex;
 use crate::services::chunk_service::chunk::Color;
 use crate::services::chunk_service::mesh::culling::ViewableDirection;
 use crate::services::chunk_service::mesh::{Vertex, ViewableDirectionBitMap};
-use nalgebra::Vector3;
+use nalgebra::{Rotation3, Vector3};
+use std::f32::consts::PI;
+use std::ops::Mul;
+
+#[derive(Copy, Clone)]
+pub enum Rotate {
+    Deg90,
+    Deg180,
+    Deg270,
+}
 
 pub struct BlockModel {
     pub faces: Vec<BlockFace>,
 }
 
+#[derive(Copy, Clone)]
 pub struct BlockFace {
     pub bottom_left: Vector3<f32>,
     pub scale: Vector3<f32>,
@@ -102,7 +112,7 @@ impl BlockModel {
     ) {
         for face in &self.faces {
             // Test if we should cull this face
-            if should_cull(face, viewable_map) {
+            if face.should_cull(viewable_map) {
                 continue;
             }
 
@@ -243,12 +253,52 @@ impl BlockModel {
             }
         }
     }
-}
 
-fn should_cull(block: &BlockFace, culling: ViewableDirection) -> bool {
-    if culling.has_flag(&block.normal) || !block.edge {
-        return false;
+    pub fn rotate_xz(&mut self, deg: Rotate) {
+        for face in &mut self.faces {
+            face.rotate(deg);
+        }
     }
 
-    true
+    pub fn invert_y(&mut self) {
+        for face in &mut self.faces {
+            face.bottom_left.y = 1.0 - face.bottom_left.y;
+            face.scale.y = -face.scale.y;
+            face.normal = face.normal.invert();
+            face.texture = face.texture.invert();
+        }
+    }
+}
+
+impl BlockFace {
+    fn should_cull(&self, culling: ViewableDirection) -> bool {
+        if culling.has_flag(&self.normal) || !self.edge {
+            return false;
+        }
+
+        true
+    }
+
+    pub fn rotate(&mut self, deg: Rotate) {
+        // Move to center being 0,0,0
+        self.bottom_left += Vector3::new(-0.5, -0.5, -0.5);
+
+        let rot = match deg {
+            Rotate::Deg90 => PI * 0.5,
+            Rotate::Deg180 => PI,
+            Rotate::Deg270 => PI * 1.5,
+        };
+
+        let rotation_vector = nalgebra::geometry::Rotation3::from_euler_angles(0.0, rot, 0.0);
+        let rotation_matrix = rotation_vector.matrix();
+        self.bottom_left = rotation_matrix.mul(&self.bottom_left);
+        self.scale = rotation_matrix.mul(&self.scale);
+
+        self.texture.rotate(deg);
+
+        // Move back
+        self.bottom_left += Vector3::new(0.5, 0.5, 0.5);
+
+        self.normal = self.normal.rotate(deg);
+    }
 }

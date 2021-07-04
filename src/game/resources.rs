@@ -10,7 +10,7 @@ pub struct SystemResources {
 #[cfg(not(target_arch = "wasm32"))]
 impl SystemResources {
     pub fn new() -> SystemResources {
-        use sysinfo::{System, SystemExt};
+        use sysinfo::SystemExt;
         SystemResources {
             info: sysinfo::System::new_all(),
         }

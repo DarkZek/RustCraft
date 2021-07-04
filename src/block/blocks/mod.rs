@@ -25,7 +25,7 @@ pub struct BlockStates {
 #[derive(Debug)]
 pub struct BlockStateEntry {
     block_number: usize,
-    properties: Option<HashMap<String, PropertyType>>,
+    properties: BlockType,
 }
 
 impl BlockStates {
@@ -33,14 +33,14 @@ impl BlockStates {
         match self.states.get(id) {
             None => None,
             Some(block_state) => Some(Block {
-                block_type: &self.blocks.get(block_state.block_number).unwrap(),
+                block_type: &block_state.properties,
                 block_state_index: id,
             }),
         }
     }
 
     pub fn generate(asset: &AssetService, settings: &SettingsService) {
-        let states = get_blockstates();
+        let states = get_states();
         let blocks = get_blocks();
 
         if settings.debug_states {
@@ -195,55 +195,20 @@ impl Default for StairShape {
     }
 }
 
-fn append_states(
-    states: &mut Vec<BlockStateEntry>,
-    block: &Vec<(&str, Vec<PropertyType>)>,
-    block_number: usize,
-    current_properties: HashMap<String, PropertyType>,
-    mut depth: usize,
-) {
-    if block.len() == 0 {
-        states.push(BlockStateEntry {
-            block_number: block_number.clone(),
-            properties: None,
-        });
-        return;
-    }
-    let (name, properties) = block.get(depth).unwrap();
-    depth += 1;
-
-    for property in properties {
-        let mut properties = current_properties.clone();
-        properties.insert(name.to_string(), property.clone());
-
-        if depth == block.len() {
-            states.push(BlockStateEntry {
-                block_number: block_number.clone(),
-                properties: Some(properties),
-            });
-        } else {
-            append_states(
-                states,
-                block,
-                block_number,
-                current_properties.clone(),
-                depth,
-            );
-        }
-    }
-}
-
+#[rustfmt::skip]
 #[macro_export]
 macro_rules! define_blocks {
     (
         $(
             $name:ident {
+                $(i $index:expr,)?
                 $(identifier $identifierfunc:expr,)?
                 props {
                     $(
-                        $fname:ident: $ftype:ty = $fvalue:expr,
+                        $fname:ident: $ftype:ty$( = $ignored:expr)?,
                     )*
                 },
+                $(states $states:expr,)?
                 $(model $model:expr,)?
                 $(collidable $collidable:expr,)?
                 $(full $full:expr,)?
@@ -266,7 +231,6 @@ macro_rules! define_blocks {
             )+
         }
 
-        #[allow(unused_variables, unreachable_code)]
         pub fn get_blocks() -> Vec<BlockType> {
             vec![
                 $(
@@ -279,28 +243,28 @@ macro_rules! define_blocks {
             ]
         }
 
-        #[allow(unused_variables, unreachable_code)]
-        pub fn get_blockstates() -> Vec<BlockStateEntry> {
+        pub fn get_states() -> Vec<BlockStateEntry> {
+
             let blocks = vec![
                 $(
-                    vec![
-                        $(
-                            (stringify!($fname), ($fvalue)),
-                        )?
-                    ],
+                    $(
+                        $states,
+                    )?
                 )+
             ];
 
             let mut states = Vec::new();
 
-            for (i, block) in blocks.iter().enumerate() {
-                append_states(
-                    &mut states,
-                    &block,
-                    i,
-                    HashMap::new(),
-                    0,
-                );
+            // Flatten array
+            let mut i = 0;
+            for block in blocks {
+                for state in block {
+                    states.push(BlockStateEntry {
+                        block_number: i,
+                        properties: state
+                    });
+                }
+                i += 1;
             }
 
             states
@@ -318,7 +282,6 @@ macro_rules! define_blocks {
                                 if !$collidable {
                                     return vec![];
                                 }
-
                             )?
                             return vec![
                                 BoxCollider {
@@ -449,101 +412,169 @@ macro_rules! define_blocks {
 
 define_blocks! {
     Air {
+        i 0,
         identifier "minecraft:air",
         props {},
+        states {
+            vec![BlockType::Air {}]
+        },
         collidable false,
         full false,
     }
     Stone {
+        i 1,
         identifier "minecraft:stone",
         props {},
+        states {
+            vec![BlockType::Stone {}]
+        },
         model BlockModel::square_block(["block/stone"; 6]),
     }
     Granite {
+        i 2,
         identifier "minecraft:granite",
         props {},
+        states {
+            vec![BlockType::Granite {}]
+        },
         model BlockModel::square_block(["block/granite"; 6]),
     }
     SmoothGranite {
+        i 3,
         identifier "minecraft:smooth_granite",
         props {},
+        states {
+            vec![BlockType::SmoothGranite {}]
+        },
         model BlockModel::square_block(["block/polished_granite"; 6]),
     }
     Diorite {
+        i 4,
         identifier "minecraft:diorite",
         props {},
+        states {
+            vec![BlockType::Diorite {}]
+        },
         model BlockModel::square_block(["block/diorite"; 6]),
     }
     SmoothDiorite {
+        i 5,
         identifier "minecraft:smooth_diorite",
         props {},
+        states {
+            vec![BlockType::SmoothDiorite {}]
+        },
         model BlockModel::square_block(["block/polished_diorite"; 6]),
     }
     Andesite {
+        i 6,
         identifier "minecraft:andesite",
         props {},
+        states {
+            vec![BlockType::Andesite {}]
+        },
         model BlockModel::square_block(["block/andesite"; 6]),
     }
     SmoothAndesite {
+        i 7,
         identifier "minecraft:smooth_andesite",
         props {},
+        states {
+            vec![BlockType::SmoothAndesite {}]
+        },
         model BlockModel::square_block(["block/polished_andesite"; 6]),
     }
     GrassBlock {
+        i 8,
         identifier "minecraft:grass_block",
         props {
-            snowy: bool = vec![
-                    PropertyType::Boolean(true),
-                    PropertyType::Boolean(false)
-                ],
+            snowy: bool,
+        },
+        states {
+            vec![
+                BlockType::GrassBlock { snowy: true },
+                BlockType::GrassBlock { snowy: false }
+            ]
         },
         model {
-            BlockModel::square_block(["block/grass_block_top", "block/dirt", "block/grass_block_side", "block/grass_block_side", "block/grass_block_side", "block/grass_block_side"])
+            println!("Snowy? {}", snowy);
+            if (snowy) {
+                BlockModel::square_block(["block/snow", "block/dirt", "block/grass_block_snow", "block/grass_block_snow", "block/grass_block_snow", "block/grass_block_snow"])
+            } else {
+                BlockModel::square_block(["block/grass_block_top", "block/dirt", "block/grass_block_side", "block/grass_block_side", "block/grass_block_side", "block/grass_block_side"])
+            }
         },
     }
     Dirt {
+        i 9,
         identifier "minecraft:dirt",
         props {},
+        states {
+            vec![BlockType::Dirt {}]
+        },
         model BlockModel::square_block(["block/dirt"; 6]),
     }
     CoarseDirt {
+        i 10,
         identifier "minecraft:coarse_dirt",
         props {},
+        states {
+            vec![BlockType::CoarseDirt {}]
+        },
         model BlockModel::square_block(["block/coarse_dirt"; 6]),
     }
     Podzol {
+        i 11,
         identifier "minecraft:podzol",
         props {
-            snowy: bool = vec![
-                    PropertyType::Boolean(true),
-                    PropertyType::Boolean(false)
-                ],
+            snowy: bool,
+        },
+        states {
+            vec![
+                BlockType::Podzol { snowy: true },
+                BlockType::Podzol { snowy: false },
+            ]
         },
         model BlockModel::square_block(["block/podzol_top", "block/dirt", "block/podzol_side", "block/podzol_side", "block/podzol_side", "block/podzol_side"]),
     }
     Cobblestone {
+        i 12,
         identifier "minecraft:cobblestone",
         props {},
+        states {
+            vec![BlockType::Cobblestone {}]
+        },
         model BlockModel::square_block(["block/cobblestone"; 6]),
     }
     Planks {
+        i 13,
         identifier "minecraft:wooden_planks",
         props {
-            variant: TreeVariant = vec![
-                PropertyType::TreeVariant(TreeVariant::Oak),
-                PropertyType::TreeVariant(TreeVariant::Spruce),
-                PropertyType::TreeVariant(TreeVariant::Birch),
-                PropertyType::TreeVariant(TreeVariant::Jungle),
-                PropertyType::TreeVariant(TreeVariant::Acacia),
-                PropertyType::TreeVariant(TreeVariant::DarkOak)
-            ],
+            variant: TreeVariant,
+        },
+        states {
+            vec![
+                BlockType::Planks { variant: TreeVariant::Oak },
+                BlockType::Planks { variant: TreeVariant::Spruce },
+                BlockType::Planks { variant: TreeVariant::Birch },
+                BlockType::Planks { variant: TreeVariant::Jungle },
+                BlockType::Planks { variant: TreeVariant::Acacia },
+                BlockType::Planks { variant: TreeVariant::DarkOak }
+            ]
         },
         model BlockModel::square_block(["block/oak_planks"; 6]),
     }
     OakSapling {
+        i 14,
         identifier "minecraft:oak_sapling",
         props {
-            stage: u8 = vec![PropertyType::UnsignedByte(0), PropertyType::UnsignedByte(1)],
+            stage: u8,
+        },
+        states {
+            vec![
+                BlockType::OakSapling { stage: 0 },
+                BlockType::OakSapling { stage: 1 }
+            ]
         },
         model {
             let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/oak_sapling").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
@@ -585,9 +616,16 @@ define_blocks! {
         full false,
     }
     SpruceSapling {
+        i 15,
         identifier "minecraft:spruce_sapling",
         props {
-            stage: u8 = vec![PropertyType::UnsignedByte(0), PropertyType::UnsignedByte(1)],
+            stage: u8,
+        },
+        states {
+            vec![
+                BlockType::SpruceSapling { stage: 0 },
+                BlockType::SpruceSapling { stage: 1 }
+            ]
         },
         model {
             let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/spruce_sapling").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
@@ -629,9 +667,16 @@ define_blocks! {
         full false,
     }
     BirchSapling {
+        i 16,
         identifier "minecraft:birch_sapling",
         props {
-            stage: u8 = vec![PropertyType::UnsignedByte(0), PropertyType::UnsignedByte(1)],
+            stage: u8,
+        },
+        states {
+            vec![
+                BlockType::BirchSapling { stage: 0 },
+                BlockType::BirchSapling { stage: 1 }
+            ]
         },
         model {
             let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/birch_sapling").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
@@ -673,9 +718,16 @@ define_blocks! {
         full false,
     }
     JungleSapling {
+        i 17,
         identifier "minecraft:jungle_sapling",
         props {
-            stage: u8 = vec![PropertyType::UnsignedByte(0), PropertyType::UnsignedByte(1)],
+            stage: u8,
+        },
+        states {
+            vec![
+                BlockType::JungleSapling { stage: 0 },
+                BlockType::JungleSapling { stage: 1 }
+            ]
         },
         model {
             let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/jungle_sapling").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
@@ -717,9 +769,16 @@ define_blocks! {
         full false,
     }
     AcaciaSapling {
+        i 18,
         identifier "minecraft:acacia_sapling",
         props {
-            stage: u8 = vec![PropertyType::UnsignedByte(0), PropertyType::UnsignedByte(1)],
+            stage: u8,
+        },
+        states {
+            vec![
+                BlockType::AcaciaSapling { stage: 0 },
+                BlockType::AcaciaSapling { stage: 1 }
+            ]
         },
         model {
             let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/acacia_sapling").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
@@ -761,9 +820,16 @@ define_blocks! {
         full false,
     }
     DarkOakSapling {
+        i 19,
         identifier "minecraft:dark_oak_sapling",
         props {
-            stage: u8 = vec![PropertyType::UnsignedByte(0), PropertyType::UnsignedByte(1)],
+            stage: u8,
+        },
+        states {
+            vec![
+                BlockType::DarkOakSapling { stage: 0 },
+                BlockType::DarkOakSapling { stage: 1 }
+            ]
         },
         model {
             let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/dark_oak_sapling").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
@@ -805,29 +871,41 @@ define_blocks! {
         full false,
     }
     Bedrock {
+        i 20,
         identifier "minecraft:bedrock",
         props {},
+        states {
+            vec![
+                BlockType::Bedrock { },
+            ]
+        },
         model BlockModel::square_block(["block/bedrock"; 6]),
     }
     Water {
+        i 21,
         identifier "minecraft:water",
         props {
-            water: u8 = vec![PropertyType::UnsignedByte(0),
-            PropertyType::UnsignedByte(1),
-            PropertyType::UnsignedByte(2),
-            PropertyType::UnsignedByte(3),
-            PropertyType::UnsignedByte(4),
-            PropertyType::UnsignedByte(5),
-            PropertyType::UnsignedByte(6),
-            PropertyType::UnsignedByte(7),
-            PropertyType::UnsignedByte(8),
-            PropertyType::UnsignedByte(9),
-            PropertyType::UnsignedByte(10),
-            PropertyType::UnsignedByte(11),
-            PropertyType::UnsignedByte(12),
-            PropertyType::UnsignedByte(13),
-            PropertyType::UnsignedByte(14),
-            PropertyType::UnsignedByte(15)],
+            water: u8,
+        },
+        states {
+            vec![
+                BlockType::Water { water: 0 },
+                BlockType::Water { water: 1 },
+                BlockType::Water { water: 2 },
+                BlockType::Water { water: 3 },
+                BlockType::Water { water: 4 },
+                BlockType::Water { water: 5 },
+                BlockType::Water { water: 6 },
+                BlockType::Water { water: 7 },
+                BlockType::Water { water: 8 },
+                BlockType::Water { water: 9 },
+                BlockType::Water { water: 10 },
+                BlockType::Water { water: 11 },
+                BlockType::Water { water: 12 },
+                BlockType::Water { water: 13 },
+                BlockType::Water { water: 14 },
+                BlockType::Water { water: 15 },
+            ]
         },
         model {
             let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/water_still").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
@@ -884,778 +962,1067 @@ define_blocks! {
         waterlogged true,
     }
     Lava {
+        i 22,
         identifier "minecraft:lava",
         props {
-            water: u8 = vec![PropertyType::UnsignedByte(0),
-            PropertyType::UnsignedByte(1),
-            PropertyType::UnsignedByte(2),
-            PropertyType::UnsignedByte(3),
-            PropertyType::UnsignedByte(4),
-            PropertyType::UnsignedByte(5),
-            PropertyType::UnsignedByte(6),
-            PropertyType::UnsignedByte(7),
-            PropertyType::UnsignedByte(8),
-            PropertyType::UnsignedByte(9),
-            PropertyType::UnsignedByte(10),
-            PropertyType::UnsignedByte(11),
-            PropertyType::UnsignedByte(12),
-            PropertyType::UnsignedByte(13),
-            PropertyType::UnsignedByte(14),
-            PropertyType::UnsignedByte(15)],
+            water: u8,
+        },
+        states {
+            vec![
+                BlockType::Water { water: 0 },
+                BlockType::Water { water: 1 },
+                BlockType::Water { water: 2 },
+                BlockType::Water { water: 3 },
+                BlockType::Water { water: 4 },
+                BlockType::Water { water: 5 },
+                BlockType::Water { water: 6 },
+                BlockType::Water { water: 7 },
+                BlockType::Water { water: 8 },
+                BlockType::Water { water: 9 },
+                BlockType::Water { water: 10 },
+                BlockType::Water { water: 11 },
+                BlockType::Water { water: 12 },
+                BlockType::Water { water: 13 },
+                BlockType::Water { water: 14 },
+                BlockType::Water { water: 15 },
+            ]
         },
         model BlockModel::square_block(["block/lava_still"; 6]),
         collidable false,
         transparent true,
     }
     Sand {
+        i 23,
         identifier "minecraft:sand",
         props {},
+        states {
+            vec![BlockType::Sand { }]
+        },
         model BlockModel::square_block(["block/sand"; 6]),
     }
     RedSand {
+        i 24,
         identifier "minecraft:red_sand",
         props {},
+        states {
+            vec![BlockType::RedSand { }]
+        },
         model BlockModel::square_block(["block/red_sand"; 6]),
     }
     Gravel {
+        i 25,
         identifier "minecraft:gravel",
         props {},
+        states {
+            vec![BlockType::Gravel { }]
+        },
         model BlockModel::square_block(["block/gravel"; 6]),
     }
     GoldOre {
+        i 26,
         identifier "minecraft:gold_ore",
         props {},
+        states {
+            vec![BlockType::GoldOre { }]
+        },
         model BlockModel::square_block(["block/gold_ore"; 6]),
     }
     IronOre {
+        i 27,
         identifier "minecraft:iron_ore",
         props {},
+        states {
+            vec![BlockType::IronOre { }]
+        },
         model BlockModel::square_block(["block/iron_ore"; 6]),
     }
     CoalOre {
-        identifier "minecraft:gravel",
+        i 28,
+        identifier "minecraft:coal_ore",
         props {},
+        states {
+            vec![BlockType::CoalOre { }]
+        },
         model BlockModel::square_block(["block/coal_ore"; 6]),
     }
     OakLog {
+        i 29,
         identifier "minecraft:oak_log",
         props {
-            axis: Axis = vec![PropertyType::Axis(Axis::X), PropertyType::Axis(Axis::Y), PropertyType::Axis(Axis::Z)],
+            axis: Axis,
+        },
+        states {
+            vec![
+                BlockType::OakLog { axis: Axis::X },
+                BlockType::OakLog { axis: Axis::Y },
+                BlockType::OakLog { axis: Axis::Z }
+            ]
         },
         model BlockModel::square_block(["block/oak_log_top", "block/oak_log_top", "block/oak_log", "block/oak_log", "block/oak_log", "block/oak_log"]),
     }
     SpruceLog {
+        i 30,
         identifier "minecraft:spruce_log",
         props {
-            axis: Axis = vec![PropertyType::Axis(Axis::X), PropertyType::Axis(Axis::Y), PropertyType::Axis(Axis::Z)],
+            axis: Axis,
+        },
+        states {
+            vec![
+                BlockType::SpruceLog { axis: Axis::X },
+                BlockType::SpruceLog { axis: Axis::Y },
+                BlockType::SpruceLog { axis: Axis::Z }
+            ]
         },
         model BlockModel::square_block(["block/spruce_log_top", "block/spruce_log_top", "block/spruce_log", "block/spruce_log", "block/spruce_log", "block/spruce_log"]),
     }
     BirchLog {
+        i 31,
         identifier "minecraft:birch_log",
         props {
-            axis: Axis = vec![PropertyType::Axis(Axis::X), PropertyType::Axis(Axis::Y), PropertyType::Axis(Axis::Z)],
+            axis: Axis,
+        },
+        states {
+            vec![
+                BlockType::BirchLog { axis: Axis::X },
+                BlockType::BirchLog { axis: Axis::Y },
+                BlockType::BirchLog { axis: Axis::Z }
+            ]
         },
         model BlockModel::square_block(["block/birch_log_top", "block/birch_log_top", "block/birch_log", "block/birch_log", "block/birch_log", "block/birch_log"]),
     }
     JungleLog {
+        i 32,
         identifier "minecraft:jungle_log",
         props {
-            axis: Axis = vec![PropertyType::Axis(Axis::X), PropertyType::Axis(Axis::Y), PropertyType::Axis(Axis::Z)],
+            axis: Axis,
+        },
+        states {
+            vec![
+                BlockType::JungleLog { axis: Axis::X },
+                BlockType::JungleLog { axis: Axis::Y },
+                BlockType::JungleLog { axis: Axis::Z }
+            ]
         },
         model BlockModel::square_block(["block/jungle_log_top", "block/jungle_log_top", "block/jungle_log", "block/jungle_log", "block/jungle_log", "block/jungle_log"]),
     }
     AcaciaLog {
+        i 33,
         identifier "minecraft:acacia_log",
         props {
-            axis: Axis = vec![PropertyType::Axis(Axis::X), PropertyType::Axis(Axis::Y), PropertyType::Axis(Axis::Z)],
+            axis: Axis,
+        },
+        states {
+            vec![
+                BlockType::AcaciaLog { axis: Axis::X },
+                BlockType::AcaciaLog { axis: Axis::Y },
+                BlockType::AcaciaLog { axis: Axis::Z }
+            ]
         },
         model BlockModel::square_block(["block/acacia_log_top", "block/acacia_log_top", "block/acacia_log", "block/acacia_log", "block/acacia_log", "block/acacia_log"]),
     }
     DarkOakLog {
+        i 34,
         identifier "minecraft:dark_oak_log",
         props {
-            axis: Axis = vec![PropertyType::Axis(Axis::X), PropertyType::Axis(Axis::Y), PropertyType::Axis(Axis::Z)],
+            axis: Axis,
+        },
+        states {
+            vec![
+                BlockType::DarkOakLog { axis: Axis::X },
+                BlockType::DarkOakLog { axis: Axis::Y },
+                BlockType::DarkOakLog { axis: Axis::Z }
+            ]
         },
         model BlockModel::square_block(["block/dark_oak_log_top", "block/dark_oak_log_top", "block/dark_oak_log", "block/dark_oak_log", "block/dark_oak_log", "block/dark_oak_log"]),
     }
     StrippedSpruceLog {
+        i 35,
         identifier "minecraft:stripped_spruce_log",
         props {
-            axis: Axis = vec![PropertyType::Axis(Axis::X), PropertyType::Axis(Axis::Y), PropertyType::Axis(Axis::Z)],
+            axis: Axis,
+        },
+        states {
+            vec![
+                BlockType::StrippedSpruceLog { axis: Axis::X },
+                BlockType::StrippedSpruceLog { axis: Axis::Y },
+                BlockType::StrippedSpruceLog { axis: Axis::Z }
+            ]
         },
         model BlockModel::square_block(["block/stripped_spruce_log_top", "block/stripped_spruce_log_top", "block/stripped_spruce_log", "block/stripped_spruce_log", "block/stripped_spruce_log", "block/stripped_spruce_log"]),
     }
     StrippedBirchLog {
+        i 36,
         identifier "minecraft:stripped_birch_log",
         props {
-            axis: Axis = vec![PropertyType::Axis(Axis::X), PropertyType::Axis(Axis::Y), PropertyType::Axis(Axis::Z)],
+            axis: Axis,
+        },
+        states {
+            vec![
+                BlockType::StrippedBirchLog { axis: Axis::X },
+                BlockType::StrippedBirchLog { axis: Axis::Y },
+                BlockType::StrippedBirchLog { axis: Axis::Z }
+            ]
         },
         model BlockModel::square_block(["block/stripped_birch_log_top", "block/stripped_birch_log_top", "block/stripped_birch_log", "block/stripped_birch_log", "block/stripped_birch_log", "block/stripped_birch_log"]),
     }
     StrippedJungleLog {
+        i 37,
         identifier "minecraft:stripped_jungle_log",
         props {
-            axis: Axis = vec![PropertyType::Axis(Axis::X), PropertyType::Axis(Axis::Y), PropertyType::Axis(Axis::Z)],
+            axis: Axis,
+        },
+        states {
+            vec![
+                BlockType::StrippedJungleLog { axis: Axis::X },
+                BlockType::StrippedJungleLog { axis: Axis::Y },
+                BlockType::StrippedJungleLog { axis: Axis::Z }
+            ]
         },
         model BlockModel::square_block(["block/stripped_jungle_log_top", "block/stripped_jungle_log_top", "block/stripped_jungle_log", "block/stripped_jungle_log", "block/stripped_jungle_log", "block/stripped_jungle_log"]),
     }
     StrippedAcaciaLog {
+        i 38,
         identifier "minecraft:stripped_acacia_log",
         props {
-            axis: Axis = vec![PropertyType::Axis(Axis::X), PropertyType::Axis(Axis::Y), PropertyType::Axis(Axis::Z)],
+            axis: Axis,
+        },
+        states {
+            vec![
+                BlockType::StrippedAcaciaLog { axis: Axis::X },
+                BlockType::StrippedAcaciaLog { axis: Axis::Y },
+                BlockType::StrippedAcaciaLog { axis: Axis::Z }
+            ]
         },
         model BlockModel::square_block(["block/stripped_acacia_log_top", "block/stripped_acacia_log_top", "block/stripped_acacia_log", "block/stripped_acacia_log", "block/stripped_acacia_log", "block/stripped_acacia_log"]),
     }
     StrippedDarkOakLog {
+        i 39,
         identifier "minecraft:stripped_dark_oak_log",
         props {
-            axis: Axis = vec![PropertyType::Axis(Axis::X), PropertyType::Axis(Axis::Y), PropertyType::Axis(Axis::Z)],
+            axis: Axis,
+        },
+        states {
+            vec![
+                BlockType::StrippedDarkOakLog { axis: Axis::X },
+                BlockType::StrippedDarkOakLog { axis: Axis::Y },
+                BlockType::StrippedDarkOakLog { axis: Axis::Z }
+            ]
         },
         model BlockModel::square_block(["block/stripped_dark_oak_log_top", "block/stripped_dark_oak_log_top", "block/stripped_dark_oak_log", "block/stripped_dark_oak_log", "block/stripped_dark_oak_log", "block/stripped_dark_oak_log"]),
     }
     StrippedOakLog {
+        i 40,
         identifier "minecraft:stripped_oak_log",
         props {
-            axis: Axis = vec![PropertyType::Axis(Axis::X), PropertyType::Axis(Axis::Y), PropertyType::Axis(Axis::Z)],
+            axis: Axis,
+        },
+        states {
+            vec![
+                BlockType::StrippedOakLog { axis: Axis::X },
+                BlockType::StrippedOakLog { axis: Axis::Y },
+                BlockType::StrippedOakLog { axis: Axis::Z }
+            ]
         },
         model BlockModel::square_block(["block/stripped_oak_log_top", "block/stripped_oak_log_top", "block/stripped_oak_log", "block/stripped_oak_log", "block/stripped_oak_log", "block/stripped_oak_log"]),
     }
     OakWood {
+        i 41,
         identifier "minecraft:oak_wood",
         props {
-            axis: Axis = vec![PropertyType::Axis(Axis::X), PropertyType::Axis(Axis::Y), PropertyType::Axis(Axis::Z)],
+            axis: Axis,
+        },
+        states {
+            vec![
+                BlockType::OakWood { axis: Axis::X },
+                BlockType::OakWood { axis: Axis::Y },
+                BlockType::OakWood { axis: Axis::Z }
+            ]
         },
         model BlockModel::square_block(["block/oak_log", "block/oak_log", "block/oak_log", "block/oak_log", "block/oak_log", "block/oak_log"]),
     }
     SpruceWood {
+        i 42,
         identifier "minecraft:spruce_wood",
         props {
-            axis: Axis = vec![PropertyType::Axis(Axis::X), PropertyType::Axis(Axis::Y), PropertyType::Axis(Axis::Z)],
+            axis: Axis,
+        },
+        states {
+            vec![
+                BlockType::SpruceWood { axis: Axis::X },
+                BlockType::SpruceWood { axis: Axis::Y },
+                BlockType::SpruceWood { axis: Axis::Z }
+            ]
         },
         model BlockModel::square_block(["block/spruce_log", "block/spruce_log", "block/spruce_log", "block/spruce_log", "block/spruce_log", "block/spruce_log"]),
     }
     BirchWood {
+        i 43,
         identifier "minecraft:birch_wood",
         props {
-            axis: Axis = vec![PropertyType::Axis(Axis::X), PropertyType::Axis(Axis::Y), PropertyType::Axis(Axis::Z)],
+            axis: Axis,
+        },
+        states {
+            vec![
+                BlockType::BirchWood { axis: Axis::X },
+                BlockType::BirchWood { axis: Axis::Y },
+                BlockType::BirchWood { axis: Axis::Z }
+            ]
         },
         model BlockModel::square_block(["block/birch_log", "block/birch_log", "block/birch_log", "block/birch_log", "block/birch_log", "block/birch_log"]),
     }
     JungleWood {
+        i 44,
         identifier "minecraft:jungle_wood",
         props {
-            axis: Axis = vec![PropertyType::Axis(Axis::X), PropertyType::Axis(Axis::Y), PropertyType::Axis(Axis::Z)],
+            axis: Axis,
+        },
+        states {
+            vec![
+                BlockType::JungleWood { axis: Axis::X },
+                BlockType::JungleWood { axis: Axis::Y },
+                BlockType::JungleWood { axis: Axis::Z }
+            ]
         },
         model BlockModel::square_block(["block/jungle_log", "block/jungle_log", "block/jungle_log", "block/jungle_log", "block/jungle_log", "block/jungle_log"]),
     }
     AcaciaWood {
+        i 45,
         identifier "minecraft:acacia_wood",
         props {
-            axis: Axis = vec![PropertyType::Axis(Axis::X), PropertyType::Axis(Axis::Y), PropertyType::Axis(Axis::Z)],
+            axis: Axis,
+        },
+        states {
+            vec![
+                BlockType::AcaciaWood { axis: Axis::X },
+                BlockType::AcaciaWood { axis: Axis::Y },
+                BlockType::AcaciaWood { axis: Axis::Z }
+            ]
         },
         model BlockModel::square_block(["block/acacia_log", "block/acacia_log", "block/acacia_log", "block/acacia_log", "block/acacia_log", "block/acacia_log"]),
     }
     DarkOakWood {
+        i 46,
         identifier "minecraft:jungle_wood",
         props {
-            axis: Axis = vec![PropertyType::Axis(Axis::X), PropertyType::Axis(Axis::Y), PropertyType::Axis(Axis::Z)],
+            axis: Axis,
+        },
+        states {
+            vec![
+                BlockType::DarkOakWood { axis: Axis::X },
+                BlockType::DarkOakWood { axis: Axis::Y },
+                BlockType::DarkOakWood { axis: Axis::Z }
+            ]
         },
         model BlockModel::square_block(["block/dark_oak_log", "block/dark_oak_log", "block/dark_oak_log", "block/dark_oak_log", "block/dark_oak_log", "block/dark_oak_log"]),
     }
     StrippedOakWood {
+        i 47,
         identifier "minecraft:stripped_oak_wood",
         props {
-            axis: Axis = vec![PropertyType::Axis(Axis::X), PropertyType::Axis(Axis::Y), PropertyType::Axis(Axis::Z)],
+            axis: Axis,
+        },
+        states {
+            vec![
+                BlockType::StrippedOakWood { axis: Axis::X },
+                BlockType::StrippedOakWood { axis: Axis::Y },
+                BlockType::StrippedOakWood { axis: Axis::Z }
+            ]
         },
         model BlockModel::square_block(["block/stripped_oak_log", "block/stripped_oak_log", "block/stripped_oak_log", "block/stripped_oak_log", "block/stripped_oak_log", "block/stripped_oak_log"]),
     }
     StrippedSpruceWood {
+        i 48,
         identifier "minecraft:stripped_spruce_wood",
         props {
-            axis: Axis = vec![PropertyType::Axis(Axis::X), PropertyType::Axis(Axis::Y), PropertyType::Axis(Axis::Z)],
+            axis: Axis,
+        },
+        states {
+            vec![
+                BlockType::StrippedSpruceWood { axis: Axis::X },
+                BlockType::StrippedSpruceWood { axis: Axis::Y },
+                BlockType::StrippedSpruceWood { axis: Axis::Z }
+            ]
         },
         model BlockModel::square_block(["block/stripped_spruce_log", "block/stripped_spruce_log", "block/stripped_spruce_log", "block/stripped_spruce_log", "block/stripped_spruce_log", "block/stripped_spruce_log"]),
     }
     StrippedBirchWood {
+        i 49,
         identifier "minecraft:stripped_birch_wood",
         props {
-            axis: Axis = vec![PropertyType::Axis(Axis::X), PropertyType::Axis(Axis::Y), PropertyType::Axis(Axis::Z)],
+            axis: Axis,
+        },
+        states {
+            vec![
+                BlockType::StrippedBirchWood { axis: Axis::X },
+                BlockType::StrippedBirchWood { axis: Axis::Y },
+                BlockType::StrippedBirchWood { axis: Axis::Z }
+            ]
         },
         model BlockModel::square_block(["block/stripped_birch_log", "block/stripped_birch_log", "block/stripped_birch_log", "block/stripped_birch_log", "block/stripped_birch_log", "block/stripped_birch_log"]),
     }
     StrippedJungleWood {
+        i 50,
         identifier "minecraft:stripped_jungle_wood",
         props {
-            axis: Axis = vec![PropertyType::Axis(Axis::X), PropertyType::Axis(Axis::Y), PropertyType::Axis(Axis::Z)],
+            axis: Axis,
+        },
+        states {
+            vec![
+                BlockType::StrippedJungleWood { axis: Axis::X },
+                BlockType::StrippedJungleWood { axis: Axis::Y },
+                BlockType::StrippedJungleWood { axis: Axis::Z }
+            ]
         },
         model BlockModel::square_block(["block/stripped_jungle_log", "block/stripped_jungle_log", "block/stripped_jungle_log", "block/stripped_jungle_log", "block/stripped_jungle_log", "block/stripped_jungle_log"]),
     }
     StrippedAcaciaWood {
+        i 51,
         identifier "minecraft:stripped_acacia_wood",
         props {
-            axis: Axis = vec![PropertyType::Axis(Axis::X), PropertyType::Axis(Axis::Y), PropertyType::Axis(Axis::Z)],
+            axis: Axis,
+        },
+        states {
+            vec![
+                BlockType::StrippedAcaciaWood { axis: Axis::X },
+                BlockType::StrippedAcaciaWood { axis: Axis::Y },
+                BlockType::StrippedAcaciaWood { axis: Axis::Z }
+            ]
         },
         model BlockModel::square_block(["block/stripped_acacia_log", "block/stripped_acacia_log", "block/stripped_acacia_log", "block/stripped_acacia_log", "block/stripped_acacia_log", "block/stripped_acacia_log"]),
     }
     StrippedDarkOakWood {
-        identifier "minecraft:stripped_jungle_wood",
+        i 52,
+        identifier "minecraft:stripped_dark_oak_wood",
         props {
-            axis: Axis = vec![PropertyType::Axis(Axis::X), PropertyType::Axis(Axis::Y), PropertyType::Axis(Axis::Z)],
+            axis: Axis,
+        },
+        states {
+            vec![
+                BlockType::StrippedDarkOakWood { axis: Axis::X },
+                BlockType::StrippedDarkOakWood { axis: Axis::Y },
+                BlockType::StrippedDarkOakWood { axis: Axis::Z }
+            ]
         },
         model BlockModel::square_block(["block/stripped_dark_oak_log", "block/stripped_dark_oak_log", "block/stripped_dark_oak_log", "block/stripped_dark_oak_log", "block/stripped_dark_oak_log", "block/stripped_dark_oak_log"]),
     }
     OakLeaves {
+        i 53,
         identifier "minecraft:oak_leaves",
         props {
-            distance: u8 = vec![
-                PropertyType::UnsignedByte(1),
-                PropertyType::UnsignedByte(2),
-                PropertyType::UnsignedByte(3),
-                PropertyType::UnsignedByte(4),
-                PropertyType::UnsignedByte(5),
-                PropertyType::UnsignedByte(6),
-                PropertyType::UnsignedByte(7)
-                ],
-            persistent: bool = vec![PropertyType::Boolean(true), PropertyType::Boolean(false)],
+            distance: u8,
+            persistent: bool,
+        },
+        states {
+            let mut states = Vec::new();
+            for distance in 1..=7 {
+                for persistent in [true, false] {
+                    states.push(BlockType::OakLeaves { distance, persistent })
+                }
+            }
+            states
         },
         model BlockModel::square_block(["block/oak_leaves", "block/oak_leaves", "block/oak_leaves", "block/oak_leaves", "block/oak_leaves", "block/oak_leaves"]),
         transparent true,
     }
     SpruceLeaves {
+        i 54,
         identifier "minecraft:spruce_leaves",
         props {
-            distance: u8 = vec![
-                PropertyType::UnsignedByte(1),
-                PropertyType::UnsignedByte(2),
-                PropertyType::UnsignedByte(3),
-                PropertyType::UnsignedByte(4),
-                PropertyType::UnsignedByte(5),
-                PropertyType::UnsignedByte(6),
-                PropertyType::UnsignedByte(7)
-                ],
-            persistent: bool = vec![PropertyType::Boolean(true), PropertyType::Boolean(false)],
+            distance: u8,
+            persistent: bool,
+        },
+        states {
+            let mut states = Vec::new();
+            for distance in 1..=7 {
+                for persistent in [true, false] {
+                    states.push(BlockType::SpruceLeaves { distance, persistent })
+                }
+            }
+            states
         },
         model BlockModel::square_block(["block/spruce_leaves", "block/spruce_leaves", "block/spruce_leaves", "block/spruce_leaves", "block/spruce_leaves", "block/spruce_leaves"]),
         transparent true,
     }
     BirchLeaves {
+        i 55,
         identifier "minecraft:birch_leaves",
         props {
-            distance: u8 = vec![
-                PropertyType::UnsignedByte(1),
-                PropertyType::UnsignedByte(2),
-                PropertyType::UnsignedByte(3),
-                PropertyType::UnsignedByte(4),
-                PropertyType::UnsignedByte(5),
-                PropertyType::UnsignedByte(6),
-                PropertyType::UnsignedByte(7)
-                ],
-            persistent: bool = vec![PropertyType::Boolean(true), PropertyType::Boolean(false)],
+            distance: u8,
+            persistent: bool,
+        },
+        states {
+            let mut states = Vec::new();
+            for distance in 1..=7 {
+                for persistent in [true, false] {
+                    states.push(BlockType::BirchLeaves { distance, persistent })
+                }
+            }
+            states
         },
         model BlockModel::square_block(["block/birch_leaves", "block/birch_leaves", "block/birch_leaves", "block/birch_leaves", "block/birch_leaves", "block/birch_leaves"]),
         transparent true,
     }
     JungleLeaves {
+        i 56,
         identifier "minecraft:jungle_leaves",
         props {
-            distance: u8 = vec![
-                PropertyType::UnsignedByte(1),
-                PropertyType::UnsignedByte(2),
-                PropertyType::UnsignedByte(3),
-                PropertyType::UnsignedByte(4),
-                PropertyType::UnsignedByte(5),
-                PropertyType::UnsignedByte(6),
-                PropertyType::UnsignedByte(7)
-                ],
-            persistent: bool = vec![PropertyType::Boolean(true), PropertyType::Boolean(false)],
+            distance: u8,
+            persistent: bool,
+        },
+        states {
+            let mut states = Vec::new();
+            for distance in 1..=7 {
+                for persistent in [true, false] {
+                    states.push(BlockType::JungleLeaves { distance, persistent })
+                }
+            }
+            states
         },
         model BlockModel::square_block(["block/jungle_leaves", "block/jungle_leaves", "block/jungle_leaves", "block/jungle_leaves", "block/jungle_leaves", "block/jungle_leaves"]),
         transparent true,
     }
     AcaciaLeaves {
+        i 57,
         identifier "minecraft:acacia_leaves",
         props {
-            distance: u8 = vec![
-                PropertyType::UnsignedByte(1),
-                PropertyType::UnsignedByte(2),
-                PropertyType::UnsignedByte(3),
-                PropertyType::UnsignedByte(4),
-                PropertyType::UnsignedByte(5),
-                PropertyType::UnsignedByte(6),
-                PropertyType::UnsignedByte(7)
-                ],
-            persistent: bool = vec![PropertyType::Boolean(true), PropertyType::Boolean(false)],
+            distance: u8,
+            persistent: bool,
+        },
+        states {
+            let mut states = Vec::new();
+            for distance in 1..=7 {
+                for persistent in [true, false] {
+                    states.push(BlockType::AcaciaLeaves { distance, persistent })
+                }
+            }
+            states
         },
         model BlockModel::square_block(["block/acacia_leaves", "block/acacia_leaves", "block/acacia_leaves", "block/acacia_leaves", "block/acacia_leaves", "block/acacia_leaves"]),
         transparent true,
     }
     DarkOakLeaves {
+        i 58,
         identifier "minecraft:dark_oak_leaves",
         props {
-            distance: u8 = vec![
-                PropertyType::UnsignedByte(1),
-                PropertyType::UnsignedByte(2),
-                PropertyType::UnsignedByte(3),
-                PropertyType::UnsignedByte(4),
-                PropertyType::UnsignedByte(5),
-                PropertyType::UnsignedByte(6),
-                PropertyType::UnsignedByte(7)
-                ],
-            persistent: bool = vec![PropertyType::Boolean(true), PropertyType::Boolean(false)],
+            distance: u8,
+            persistent: bool,
+        },
+        states {
+            let mut states = Vec::new();
+            for distance in 1..=7 {
+                for persistent in [true, false] {
+                    states.push(BlockType::DarkOakLeaves { distance, persistent })
+                }
+            }
+            states
         },
         model BlockModel::square_block(["block/dark_oak_leaves"; 6]),
         transparent true,
     }
     Sponge {
+        i 59,
         identifier "minecraft:sponge",
         props {},
+        states {
+            vec![BlockType::Sponge { }]
+        },
         model BlockModel::square_block(["block/sponge"; 6]),
     }
     WetSponge {
+        i 60,
         identifier "minecraft:wet_sponge",
         props {},
+        states {
+            vec![BlockType::WetSponge { }]
+        },
         model BlockModel::square_block(["block/wet_sponge"; 6]),
     }
     Glass {
+        i 61,
         identifier "minecraft:glass",
         props {},
+        states {
+            vec![BlockType::Glass { }]
+        },
         model BlockModel::square_block(["block/glass"; 6]),
         transparent true,
     }
     LapisOre {
+        i 62,
         identifier "minecraft:lapis_ore",
         props {},
+        states {
+            vec![BlockType::LapisOre { }]
+        },
         model BlockModel::square_block(["block/lapis_ore"; 6]),
     }
     LapisBlock {
+        i 63,
         identifier "minecraft:lapis_block",
         props {},
+        states {
+            vec![BlockType::LapisBlock { }]
+        },
         model BlockModel::square_block(["block/lapis_block"; 6]),
     }
     Dispenser {
+        i 64,
         identifier "minecraft:dispenser",
         props {
-            facing: Direction = vec![
-                PropertyType::Direction(Direction::North),
-                PropertyType::Direction(Direction::East),
-                PropertyType::Direction(Direction::South),
-                PropertyType::Direction(Direction::West),
-                PropertyType::Direction(Direction::Up),
-                PropertyType::Direction(Direction::Down),
-            ],
-            triggered: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
+            facing: Direction,
+            triggered: bool,
+        },
+        states {
+            let directions = [Direction::North, Direction::East, Direction::South, Direction::West, Direction::Up, Direction::Down];
+            let mut states = Vec::new();
+            for direction in directions {
+                for triggered in [true, false] {
+                    states.push(BlockType::Dispenser { facing: direction, triggered })
+                }
+            }
+            states
         },
         model BlockModel::square_block(["block/furnace_top","block/furnace_top","block/furnace_top","block/furnace_top","block/dispenser_front","block/furnace_top"]),
     }
     Sandstone {
+        i 65,
         identifier "minecraft:sandstone",
         props {},
+        states {
+            vec![BlockType::Sandstone { }]
+        },
         model BlockModel::square_block(["block/sandstone_top", "block/sandstone_top", "block/sandstone", "block/sandstone", "block/sandstone", "block/sandstone"]),
     }
     ChiseledSandstone {
+        i 66,
         identifier "minecraft:chiseled_sandstone",
         props {},
+        states {
+            vec![BlockType::ChiseledSandstone { }]
+        },
         model BlockModel::square_block(["block/chiseled_sandstone"; 6]),
     }
     CutSandstone {
+        i 67,
         identifier "minecraft:cut_sandstone",
         props {},
+        states {
+            vec![BlockType::CutSandstone { }]
+        },
         model BlockModel::square_block(["block/cut_sandstone"; 6]),
     }
     NoteBlock {
+        i 68,
         identifier "minecraft:note_block",
         props {
-            instrument: Instrument = vec![
-                PropertyType::Instrument(Instrument::Harp),
-                PropertyType::Instrument(Instrument::Basedrum),
-                PropertyType::Instrument(Instrument::Snare),
-                PropertyType::Instrument(Instrument::Hat),
-                PropertyType::Instrument(Instrument::Bass),
-                PropertyType::Instrument(Instrument::Flute),
-                PropertyType::Instrument(Instrument::Bell),
-                PropertyType::Instrument(Instrument::Guitar),
-                PropertyType::Instrument(Instrument::Chime),
-                PropertyType::Instrument(Instrument::Xylophone),
-                PropertyType::Instrument(Instrument::IronXylophone),
-                PropertyType::Instrument(Instrument::CowBell),
-                PropertyType::Instrument(Instrument::Didgeridoo),
-                PropertyType::Instrument(Instrument::Bit),
-                PropertyType::Instrument(Instrument::Banjo),
-                PropertyType::Instrument(Instrument::Pling)
-            ],
-            note: u8 = vec![
-                PropertyType::UnsignedByte(0),
-                PropertyType::UnsignedByte(1),
-                PropertyType::UnsignedByte(2),
-                PropertyType::UnsignedByte(3),
-                PropertyType::UnsignedByte(4),
-                PropertyType::UnsignedByte(5),
-                PropertyType::UnsignedByte(6),
-                PropertyType::UnsignedByte(7),
-                PropertyType::UnsignedByte(8),
-                PropertyType::UnsignedByte(9),
-                PropertyType::UnsignedByte(10),
-                PropertyType::UnsignedByte(11),
-                PropertyType::UnsignedByte(12),
-                PropertyType::UnsignedByte(13),
-                PropertyType::UnsignedByte(14),
-                PropertyType::UnsignedByte(15),
-                PropertyType::UnsignedByte(16),
-                PropertyType::UnsignedByte(17),
-                PropertyType::UnsignedByte(18),
-                PropertyType::UnsignedByte(19),
-                PropertyType::UnsignedByte(20),
-                PropertyType::UnsignedByte(21),
-                PropertyType::UnsignedByte(22),
-                PropertyType::UnsignedByte(23),
-                PropertyType::UnsignedByte(24),
-            ],
-            powered: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
+            instrument: Instrument,
+            note: u8,
+            powered: bool,
+        },
+        states {
+            let instruments = [Instrument::Harp, Instrument::Basedrum, Instrument::Snare, Instrument::Hat, Instrument::Bass, Instrument::Flute,
+                Instrument::Bell, Instrument::Guitar, Instrument::Chime, Instrument::Xylophone, Instrument::IronXylophone, Instrument::CowBell,
+                Instrument::Didgeridoo, Instrument::Bit, Instrument::Banjo, Instrument::Pling];
+
+            let notes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24];
+
+            let mut states = Vec::new();
+            for instrument in instruments {
+                for note in notes {
+                    for powered in [true, false] {
+                        states.push(BlockType::NoteBlock { instrument, note, powered })
+                    }
+                }
+            }
+            states
         },
         model BlockModel::square_block(["block/note_block"; 6]),
     }
     WhiteBed {
+        i 69,
         identifier "minecraft:white_bed",
         props {
-            facing: Direction = vec![
-                PropertyType::Direction(Direction::North),
-                PropertyType::Direction(Direction::South),
-                PropertyType::Direction(Direction::West),
-                PropertyType::Direction(Direction::East),
-            ],
-            occupied: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
-            head_part: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
+            facing: Direction,
+            occupied: bool,
+            head_part: bool,
+        },
+        states {
+            let facings = [Direction::North, Direction::South, Direction::West, Direction::East];
+
+            let mut states = Vec::new();
+            for facing in facings {
+                for occupied in [true, false] {
+                    for head_part in [true, false] {
+                        states.push(BlockType::WhiteBed { facing, occupied, head_part })
+                    }
+                }
+            }
+            states
         },
         model BlockModel::square_block(["mcv3/error"; 6]),
     }
     OrangeBed {
+        i 70,
         identifier "minecraft:orange_bed",
         props {
-            facing: Direction = vec![
-                PropertyType::Direction(Direction::North),
-                PropertyType::Direction(Direction::South),
-                PropertyType::Direction(Direction::West),
-                PropertyType::Direction(Direction::East),
-            ],
-            occupied: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
-            head_part: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
+            facing: Direction,
+            occupied: bool,
+            head_part: bool,
+        },
+        states {
+            let facings = [Direction::North, Direction::South, Direction::West, Direction::East];
+
+            let mut states = Vec::new();
+            for facing in facings {
+                for occupied in [true, false] {
+                    for head_part in [true, false] {
+                        states.push(BlockType::OrangeBed { facing, occupied, head_part })
+                    }
+                }
+            }
+            states
         },
         model BlockModel::square_block(["mcv3/error"; 6]),
     }
     MagentaBed {
+        i 71,
         identifier "minecraft:magenta_bed",
         props {
-            facing: Direction = vec![
-                PropertyType::Direction(Direction::North),
-                PropertyType::Direction(Direction::South),
-                PropertyType::Direction(Direction::West),
-                PropertyType::Direction(Direction::East),
-            ],
-            occupied: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
-            head_part: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
+            facing: Direction,
+            occupied: bool,
+            head_part: bool,
+        },
+        states {
+            let facings = [Direction::North, Direction::South, Direction::West, Direction::East];
+
+            let mut states = Vec::new();
+            for facing in facings {
+                for occupied in [true, false] {
+                    for head_part in [true, false] {
+                        states.push(BlockType::MagentaBed { facing, occupied, head_part })
+                    }
+                }
+            }
+            states
         },
         model BlockModel::square_block(["mcv3/error"; 6]),
     }
     LightBlueBed {
+        i 72,
         identifier "minecraft:light_blue_bed",
         props {
-            facing: Direction = vec![
-                PropertyType::Direction(Direction::North),
-                PropertyType::Direction(Direction::South),
-                PropertyType::Direction(Direction::West),
-                PropertyType::Direction(Direction::East),
-            ],
-            occupied: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
-            head_part: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
+            facing: Direction,
+            occupied: bool,
+            head_part: bool,
+        },
+        states {
+            let facings = [Direction::North, Direction::South, Direction::West, Direction::East];
+
+            let mut states = Vec::new();
+            for facing in facings {
+                for occupied in [true, false] {
+                    for head_part in [true, false] {
+                        states.push(BlockType::LightBlueBed { facing, occupied, head_part })
+                    }
+                }
+            }
+            states
         },
         model BlockModel::square_block(["mcv3/error"; 6]),
     }
     YellowBed {
+        i 73,
         identifier "minecraft:yellow_bed",
         props {
-            facing: Direction = vec![
-                PropertyType::Direction(Direction::North),
-                PropertyType::Direction(Direction::South),
-                PropertyType::Direction(Direction::West),
-                PropertyType::Direction(Direction::East),
-            ],
-            occupied: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
-            head_part: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
+            facing: Direction,
+            occupied: bool,
+            head_part: bool,
+        },
+        states {
+            let facings = [Direction::North, Direction::South, Direction::West, Direction::East];
+
+            let mut states = Vec::new();
+            for facing in facings {
+                for occupied in [true, false] {
+                    for head_part in [true, false] {
+                        states.push(BlockType::YellowBed { facing, occupied, head_part })
+                    }
+                }
+            }
+            states
         },
         model BlockModel::square_block(["mcv3/error"; 6]),
     }
     LimeBed {
+        i 74,
         identifier "minecraft:lime_bed",
         props {
-            facing: Direction = vec![
-                PropertyType::Direction(Direction::North),
-                PropertyType::Direction(Direction::South),
-                PropertyType::Direction(Direction::West),
-                PropertyType::Direction(Direction::East),
-            ],
-            occupied: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
-            head_part: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
+            facing: Direction,
+            occupied: bool,
+            head_part: bool,
+        },
+        states {
+            let facings = [Direction::North, Direction::South, Direction::West, Direction::East];
+
+            let mut states = Vec::new();
+            for facing in facings {
+                for occupied in [true, false] {
+                    for head_part in [true, false] {
+                        states.push(BlockType::LimeBed { facing, occupied, head_part })
+                    }
+                }
+            }
+            states
         },
         model BlockModel::square_block(["mcv3/error"; 6]),
     }
     PinkBed {
+        i 75,
         identifier "minecraft:pink_bed",
         props {
-            facing: Direction = vec![
-                PropertyType::Direction(Direction::North),
-                PropertyType::Direction(Direction::South),
-                PropertyType::Direction(Direction::West),
-                PropertyType::Direction(Direction::East),
-            ],
-            occupied: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
-            head_part: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
+            facing: Direction,
+            occupied: bool,
+            head_part: bool,
+        },
+        states {
+            let facings = [Direction::North, Direction::South, Direction::West, Direction::East];
+
+            let mut states = Vec::new();
+            for facing in facings {
+                for occupied in [true, false] {
+                    for head_part in [true, false] {
+                        states.push(BlockType::PinkBed { facing, occupied, head_part })
+                    }
+                }
+            }
+            states
         },
         model BlockModel::square_block(["mcv3/error"; 6]),
     }
     GrayBed {
+        i 76,
         identifier "minecraft:gray_bed",
         props {
-            facing: Direction = vec![
-                PropertyType::Direction(Direction::North),
-                PropertyType::Direction(Direction::South),
-                PropertyType::Direction(Direction::West),
-                PropertyType::Direction(Direction::East),
-            ],
-            occupied: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
-            head_part: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
+            facing: Direction,
+            occupied: bool,
+            head_part: bool,
+        },
+        states {
+            let facings = [Direction::North, Direction::South, Direction::West, Direction::East];
+
+            let mut states = Vec::new();
+            for facing in facings {
+                for occupied in [true, false] {
+                    for head_part in [true, false] {
+                        states.push(BlockType::GrayBed { facing, occupied, head_part })
+                    }
+                }
+            }
+            states
         },
         model BlockModel::square_block(["mcv3/error"; 6]),
     }
     LightGrayBed {
+        i 77,
         identifier "minecraft:light_gray_bed",
         props {
-            facing: Direction = vec![
-                PropertyType::Direction(Direction::North),
-                PropertyType::Direction(Direction::South),
-                PropertyType::Direction(Direction::West),
-                PropertyType::Direction(Direction::East),
-            ],
-            occupied: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
-            head_part: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
+            facing: Direction,
+            occupied: bool,
+            head_part: bool,
+        },
+        states {
+            let facings = [Direction::North, Direction::South, Direction::West, Direction::East];
+
+            let mut states = Vec::new();
+            for facing in facings {
+                for occupied in [true, false] {
+                    for head_part in [true, false] {
+                        states.push(BlockType::LightGrayBed { facing, occupied, head_part })
+                    }
+                }
+            }
+            states
         },
         model BlockModel::square_block(["mcv3/error"; 6]),
     }
     CyanBed {
+        i 78,
         identifier "minecraft:cyan_bed",
         props {
-            facing: Direction = vec![
-                PropertyType::Direction(Direction::North),
-                PropertyType::Direction(Direction::South),
-                PropertyType::Direction(Direction::West),
-                PropertyType::Direction(Direction::East),
-            ],
-            occupied: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
-            head_part: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
+            facing: Direction,
+            occupied: bool,
+            head_part: bool,
+        },
+        states {
+            let facings = [Direction::North, Direction::South, Direction::West, Direction::East];
+
+            let mut states = Vec::new();
+            for facing in facings {
+                for occupied in [true, false] {
+                    for head_part in [true, false] {
+                        states.push(BlockType::CyanBed { facing, occupied, head_part })
+                    }
+                }
+            }
+            states
         },
         model BlockModel::square_block(["mcv3/error"; 6]),
     }
     PurpleBed {
+        i 79,
         identifier "minecraft:purple_bed",
         props {
-            facing: Direction = vec![
-                PropertyType::Direction(Direction::North),
-                PropertyType::Direction(Direction::South),
-                PropertyType::Direction(Direction::West),
-                PropertyType::Direction(Direction::East),
-            ],
-            occupied: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
-            head_part: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
+            facing: Direction,
+            occupied: bool,
+            head_part: bool,
+        },
+        states {
+            let facings = [Direction::North, Direction::South, Direction::West, Direction::East];
+
+            let mut states = Vec::new();
+            for facing in facings {
+                for occupied in [true, false] {
+                    for head_part in [true, false] {
+                        states.push(BlockType::PurpleBed { facing, occupied, head_part })
+                    }
+                }
+            }
+            states
         },
         model BlockModel::square_block(["mcv3/error"; 6]),
     }
     BlueBed {
+        i 80,
         identifier "minecraft:blue_bed",
         props {
-            facing: Direction = vec![
-                PropertyType::Direction(Direction::North),
-                PropertyType::Direction(Direction::South),
-                PropertyType::Direction(Direction::West),
-                PropertyType::Direction(Direction::East),
-            ],
-            occupied: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
-            head_part: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
+            facing: Direction,
+            occupied: bool,
+            head_part: bool,
+        },
+        states {
+            let facings = [Direction::North, Direction::South, Direction::West, Direction::East];
+
+            let mut states = Vec::new();
+            for facing in facings {
+                for occupied in [true, false] {
+                    for head_part in [true, false] {
+                        states.push(BlockType::BlueBed { facing, occupied, head_part })
+                    }
+                }
+            }
+            states
         },
         model BlockModel::square_block(["mcv3/error"; 6]),
     }
     BrownBed {
+        i 81,
         identifier "minecraft:brown_bed",
         props {
-            facing: Direction = vec![
-                PropertyType::Direction(Direction::North),
-                PropertyType::Direction(Direction::South),
-                PropertyType::Direction(Direction::West),
-                PropertyType::Direction(Direction::East),
-            ],
-            occupied: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
-            head_part: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
+            facing: Direction,
+            occupied: bool,
+            head_part: bool,
+        },
+        states {
+            let facings = [Direction::North, Direction::South, Direction::West, Direction::East];
+
+            let mut states = Vec::new();
+            for facing in facings {
+                for occupied in [true, false] {
+                    for head_part in [true, false] {
+                        states.push(BlockType::BrownBed { facing, occupied, head_part })
+                    }
+                }
+            }
+            states
         },
         model BlockModel::square_block(["mcv3/error"; 6]),
     }
     GreenBed {
+        i 82,
         identifier "minecraft:green_bed",
         props {
-            facing: Direction = vec![
-                PropertyType::Direction(Direction::North),
-                PropertyType::Direction(Direction::South),
-                PropertyType::Direction(Direction::West),
-                PropertyType::Direction(Direction::East),
-            ],
-            occupied: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
-            head_part: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
+            facing: Direction,
+            occupied: bool,
+            head_part: bool,
+        },
+        states {
+            let facings = [Direction::North, Direction::South, Direction::West, Direction::East];
+
+            let mut states = Vec::new();
+            for facing in facings {
+                for occupied in [true, false] {
+                    for head_part in [true, false] {
+                        states.push(BlockType::GreenBed { facing, occupied, head_part })
+                    }
+                }
+            }
+            states
         },
         model BlockModel::square_block(["mcv3/error"; 6]),
     }
     RedBed {
+        i 83,
         identifier "minecraft:red_bed",
         props {
-            facing: Direction = vec![
-                PropertyType::Direction(Direction::North),
-                PropertyType::Direction(Direction::South),
-                PropertyType::Direction(Direction::West),
-                PropertyType::Direction(Direction::East),
-            ],
-            occupied: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
-            head_part: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
+            facing: Direction,
+            occupied: bool,
+            head_part: bool,
+        },
+        states {
+            let facings = [Direction::North, Direction::South, Direction::West, Direction::East];
+
+            let mut states = Vec::new();
+            for facing in facings {
+                for occupied in [true, false] {
+                    for head_part in [true, false] {
+                        states.push(BlockType::RedBed { facing, occupied, head_part })
+                    }
+                }
+            }
+            states
         },
         model BlockModel::square_block(["mcv3/error"; 6]),
     }
     BlackBed {
+        i 84,
         identifier "minecraft:black_bed",
         props {
-            facing: Direction = vec![
-                PropertyType::Direction(Direction::North),
-                PropertyType::Direction(Direction::South),
-                PropertyType::Direction(Direction::West),
-                PropertyType::Direction(Direction::East),
-            ],
-            occupied: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
-            head_part: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
+            facing: Direction,
+            occupied: bool,
+            head_part: bool,
+        },
+        states {
+            let facings = [Direction::North, Direction::South, Direction::West, Direction::East];
+
+            let mut states = Vec::new();
+            for facing in facings {
+                for occupied in [true, false] {
+                    for head_part in [true, false] {
+                        states.push(BlockType::BlackBed { facing, occupied, head_part })
+                    }
+                }
+            }
+            states
         },
         model BlockModel::square_block(["mcv3/error"; 6]),
     }
     PoweredRail {
+        i 85,
         identifier "minecraft:powered_rail",
         props {
-            powered: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
-            shape: Direction = vec![
-                PropertyType::RailShape(RailShape::NorthSouth),
-                PropertyType::RailShape(RailShape::EastWest),
-                PropertyType::RailShape(RailShape::AscendingEast),
-                PropertyType::RailShape(RailShape::AscendingWest),
-                PropertyType::RailShape(RailShape::AscendingNorth),
-                PropertyType::RailShape(RailShape::AscendingSouth),
-            ],
+            powered: bool,
+            shape: RailShape,
+        },
+        states {
+            let shapes = [RailShape::NorthSouth, RailShape::EastWest, RailShape::AscendingEast, RailShape::AscendingWest, RailShape::AscendingNorth, RailShape::AscendingSouth];
+
+            let mut states = Vec::new();
+            for powered in [true, false] {
+                for shape in shapes {
+                    states.push(BlockType::PoweredRail { powered, shape })
+                }
+            }
+            states
         },
         model {
             let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/powered_rail").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
@@ -1675,20 +2042,22 @@ define_blocks! {
         full false,
     }
     DetectorRail {
+        i 86,
         identifier "minecraft:detector_rail",
         props {
-            powered: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
-            shape: Direction = vec![
-                PropertyType::RailShape(RailShape::NorthSouth),
-                PropertyType::RailShape(RailShape::EastWest),
-                PropertyType::RailShape(RailShape::AscendingEast),
-                PropertyType::RailShape(RailShape::AscendingWest),
-                PropertyType::RailShape(RailShape::AscendingNorth),
-                PropertyType::RailShape(RailShape::AscendingSouth),
-            ],
+            powered: bool,
+            shape: RailShape,
+        },
+        states {
+            let shapes = [RailShape::NorthSouth, RailShape::EastWest, RailShape::AscendingEast, RailShape::AscendingWest, RailShape::AscendingNorth, RailShape::AscendingSouth];
+
+            let mut states = Vec::new();
+            for powered in [true, false] {
+                for shape in shapes {
+                    states.push(BlockType::PoweredRail { powered, shape })
+                }
+            }
+            states
         },
         model {
             let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/detector_rail").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
@@ -1708,34 +2077,44 @@ define_blocks! {
         full false,
     }
     StickyPiston {
+        i 87,
         identifier "minecraft:sticky_piston",
         props {
-            extended: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
-            facing: Direction = vec![
-                PropertyType::Direction(Direction::North),
-                PropertyType::Direction(Direction::East),
-                PropertyType::Direction(Direction::South),
-                PropertyType::Direction(Direction::West),
-                PropertyType::Direction(Direction::Up),
-                PropertyType::Direction(Direction::Down),
-            ],
+            extended: bool,
+            facing: Direction,
+        },
+        states {
+            let facings = [Direction::North, Direction::East, Direction::South, Direction::West, Direction::Up, Direction::Down];
+
+            let mut states = Vec::new();
+            for extended in [true, false] {
+                for facing in facings {
+                    states.push(BlockType::StickyPiston { extended, facing })
+                }
+            }
+            states
         },
         model BlockModel::square_block(["block/piston_side", "block/piston_side", "block/piston_side", "block/piston_side", "block/piston_top_sticky", "block/piston_bottom"]),
         collidable false,
         full false,
     }
     Cobweb {
+        i 88,
         identifier "minecraft:cobweb",
         props {},
+        states {
+            vec![BlockType::Cobweb { }]
+        },
         model BlockModel::square_block(["block/cobweb"; 6]),
         transparent true,
     }
     Grass {
+        i 89,
         identifier "minecraft:grass",
         props {},
+        states {
+            vec![BlockType::Grass { }]
+        },
         model {
             let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/grass").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
 
@@ -1776,8 +2155,12 @@ define_blocks! {
         transparent true,
     }
     Fern {
+        i 90,
         identifier "minecraft:fern",
         props {},
+        states {
+            vec![BlockType::Fern { }]
+        },
         model {
             let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/fern").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
 
@@ -1818,8 +2201,12 @@ define_blocks! {
         transparent true,
     }
     DeadBush {
+        i 91,
         identifier "minecraft:dead_bush",
         props {},
+        states {
+            vec![BlockType::DeadBush { }]
+        },
         model {
             let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/dead_bush").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
 
@@ -1859,8 +2246,12 @@ define_blocks! {
         transparent true,
     }
     Seagrass {
+        i 92,
         identifier "minecraft:seagrass",
         props {},
+        states {
+            vec![BlockType::Seagrass { }]
+        },
         model {
             let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/seagrass").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
             let water_lookup = ATLAS_LOOKUPS.get().unwrap().get("block/water_still").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
@@ -1946,12 +2337,16 @@ define_blocks! {
         waterlogged true,
     }
     TallSeagrass {
+        i 93,
         identifier "minecraft:tall_seagrass",
         props {
-            upper_half: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
+            upper_half: bool,
+        },
+        states {
+            vec![
+                BlockType::TallSeagrass { upper_half: true },
+                BlockType::TallSeagrass { upper_half: false }
+            ]
         },
         model {
             let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/tall_seagrass_bottom").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
@@ -2037,150 +2432,224 @@ define_blocks! {
         waterlogged true,
     }
     Piston {
+        i 94,
         identifier "minecraft:piston",
         props {
-            extended: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
-            facing: Direction = vec![
-                PropertyType::Direction(Direction::North),
-                PropertyType::Direction(Direction::East),
-                PropertyType::Direction(Direction::South),
-                PropertyType::Direction(Direction::West),
-                PropertyType::Direction(Direction::Up),
-                PropertyType::Direction(Direction::Down),
-            ],
+            extended: bool,
+            facing: Direction,
+        },
+        states {
+            let facings = [Direction::North, Direction::East, Direction::South, Direction::West, Direction::Up, Direction::Down];
+
+            let mut states = Vec::new();
+            for extended in [true, false] {
+                for facing in facings {
+                    states.push(BlockType::StickyPiston { extended, facing })
+                }
+            }
+            states
         },
         model BlockModel::square_block(["block/piston_side", "block/piston_side", "block/piston_side", "block/piston_side", "block/piston_top", "block/piston_bottom"]),
         collidable false,
         full false,
     }
     PistonHead {
+        i 95,
         identifier "minecraft:piston_head",
         props {
-            facing: Direction = vec![
-                PropertyType::Direction(Direction::North),
-                PropertyType::Direction(Direction::East),
-                PropertyType::Direction(Direction::South),
-                PropertyType::Direction(Direction::West),
-                PropertyType::Direction(Direction::Up),
-                PropertyType::Direction(Direction::Down),
-            ],
-            short: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
-            is_sticky: bool = vec![
-                PropertyType::Boolean(false),
-                PropertyType::Boolean(true),
-            ],
+            facing: Direction,
+            short: bool,
+            is_sticky: bool,
+        },
+        states {
+            let facings = [Direction::North, Direction::East, Direction::South, Direction::West, Direction::Up, Direction::Down];
+
+            let mut states = Vec::new();
+            for facing in facings {
+                for short in [true, false] {
+                    for is_sticky in [false, true] {
+                        states.push(BlockType::PistonHead { facing, short, is_sticky })
+                    }
+                }
+            }
+
+            states
         },
         model BlockModel::square_block(["block/piston_side", "block/piston_side", "block/piston_side", "block/piston_side", "block/piston_top", "block/piston_bottom"]),
         collidable false,
         full false,
     }
     WhiteWool {
+        i 96,
         identifier "minecraft:white_wool",
         props {},
+        states {
+            vec![BlockType::WhiteWool { }]
+        },
         model BlockModel::square_block(["block/white_wool"; 6]),
     }
     OrangeWool {
+        i 97,
         identifier "minecraft:orange_wool",
         props {},
+        states {
+            vec![BlockType::OrangeWool { }]
+        },
         model BlockModel::square_block(["block/orange_wool"; 6]),
     }
     MagentaWool {
+        i 98,
         identifier "minecraft:magenta_wool",
         props {},
+        states {
+            vec![BlockType::MagentaWool { }]
+        },
         model BlockModel::square_block(["block/magenta_wool"; 6]),
     }
     LightBlueWool {
+        i 99,
         identifier "minecraft:light_blue_wool",
         props {},
+        states {
+            vec![BlockType::LightBlueWool { }]
+        },
         model BlockModel::square_block(["block/light_blue_wool"; 6]),
     }
     YellowWool {
+        i 100,
         identifier "minecraft:yellow_wool",
         props {},
+        states {
+            vec![BlockType::YellowWool { }]
+        },
         model BlockModel::square_block(["block/yellow_wool"; 6]),
     }
     LimeWool {
+        i 101,
         identifier "minecraft:lime_wool",
         props {},
+        states {
+            vec![BlockType::LimeWool { }]
+        },
         model BlockModel::square_block(["block/lime_wool"; 6]),
     }
     PinkWool {
+        i 102,
         identifier "minecraft:pink_wool",
         props {},
+        states {
+            vec![BlockType::PinkWool { }]
+        },
         model BlockModel::square_block(["block/pink_wool"; 6]),
     }
     GrayWool {
+        i 103,
         identifier "minecraft:gray_wool",
         props {},
+        states {
+            vec![BlockType::GrayWool { }]
+        },
         model BlockModel::square_block(["block/gray_wool"; 6]),
     }
     LightGrayWool {
+        i 104,
         identifier "minecraft:light_gray_wool",
         props {},
+        states {
+            vec![BlockType::LightGrayWool { }]
+        },
         model BlockModel::square_block(["block/light_gray_wool"; 6]),
     }
     CyanWool {
+        i 105,
         identifier "minecraft:cyan_wool",
         props {},
+        states {
+            vec![BlockType::CyanWool { }]
+        },
         model BlockModel::square_block(["block/cyan_wool"; 6]),
     }
     PurpleWool {
+        i 106,
         identifier "minecraft:purple_wool",
         props {},
+        states {
+            vec![BlockType::PurpleWool { }]
+        },
         model BlockModel::square_block(["block/purple_wool"; 6]),
     }
     BlueWool {
+        i 107,
         identifier "minecraft:blue_wool",
         props {},
+        states {
+            vec![BlockType::BlueWool { }]
+        },
         model BlockModel::square_block(["block/blue_wool"; 6]),
     }
     BrownWool {
+        i 108,
         identifier "minecraft:brown_wool",
         props {},
+        states {
+            vec![BlockType::BrownWool { }]
+        },
         model BlockModel::square_block(["block/brown_wool"; 6]),
     }
     GreenWool {
+        i 109,
         identifier "minecraft:green_wool",
         props {},
+        states {
+            vec![BlockType::GreenWool { }]
+        },
         model BlockModel::square_block(["block/green_wool"; 6]),
     }
     RedWool {
+        i 110,
         identifier "minecraft:red_wool",
         props {},
+        states {
+            vec![BlockType::RedWool { }]
+        },
         model BlockModel::square_block(["block/red_wool"; 6]),
     }
     BlackWool {
+        i 111,
         identifier "minecraft:black_wool",
         props {},
+        states {
+            vec![BlockType::BlackWool { }]
+        },
         model BlockModel::square_block(["block/black_wool"; 6]),
     }
     MovingPiston {
+        i 112,
         identifier "minecraft:moving_piston",
         props {
-            facing: Direction = vec![
-                PropertyType::Direction(Direction::North),
-                PropertyType::Direction(Direction::East),
-                PropertyType::Direction(Direction::South),
-                PropertyType::Direction(Direction::West),
-                PropertyType::Direction(Direction::Up),
-                PropertyType::Direction(Direction::Down),
-            ],
-            is_sticky: bool = vec![
-                PropertyType::Boolean(false),
-                PropertyType::Boolean(true),
-            ],
+            facing: Direction,
+            is_sticky: bool,
+        },
+        states {
+            let facings = [Direction::North, Direction::East, Direction::South, Direction::West, Direction::Up, Direction::Down];
+
+            let mut states = Vec::new();
+            for facing in facings {
+                for is_sticky in [false, true] {
+                    states.push(BlockType::MovingPiston { facing, is_sticky })
+                }
+            }
+            states
         },
         model BlockModel::square_block(["block/piston_side", "block/piston_side", "block/piston_side", "block/piston_side", "block/piston_top", "block/piston_bottom"]),
     }
     Dandelion {
+        i 113,
         identifier "minecraft:dandelion",
         props {},
+        states {
+            vec![BlockType::Dandelion { }]
+        },
         model {
             let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/dandelion").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
 
@@ -2220,8 +2689,12 @@ define_blocks! {
         transparent true,
     }
     Poppy {
+        i 114,
         identifier "minecraft:poppy",
         props {},
+        states {
+            vec![BlockType::Poppy { }]
+        },
         model {
             let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/poppy").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
 
@@ -2261,8 +2734,12 @@ define_blocks! {
         transparent true,
     }
     BlueOrchid {
+        i 115,
         identifier "minecraft:blue_orchid",
         props {},
+        states {
+            vec![BlockType::BlueOrchid { }]
+        },
         model {
             let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/blue_orchid").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
 
@@ -2302,8 +2779,12 @@ define_blocks! {
         transparent true,
     }
     Allium {
+        i 116,
         identifier "minecraft:allium",
         props {},
+        states {
+            vec![BlockType::Allium { }]
+        },
         model {
             let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/allium").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
 
@@ -2343,8 +2824,12 @@ define_blocks! {
         transparent true,
     }
     AzureBluet {
+        i 117,
         identifier "minecraft:azure_bluet",
         props {},
+        states {
+            vec![BlockType::AzureBluet { }]
+        },
         model {
             let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/azure_bluet").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
 
@@ -2384,8 +2869,12 @@ define_blocks! {
         transparent true,
     }
     RedTulip {
+        i 118,
         identifier "minecraft:red_tulip",
         props {},
+        states {
+            vec![BlockType::RedTulip { }]
+        },
         model {
             let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/red_tulip").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
 
@@ -2425,8 +2914,12 @@ define_blocks! {
         transparent true,
     }
     OrangeTulip {
+        i 119,
         identifier "minecraft:orange_tulip",
         props {},
+        states {
+            vec![BlockType::OrangeTulip { }]
+        },
         model {
             let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/orange_tulip").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
 
@@ -2466,8 +2959,12 @@ define_blocks! {
         transparent true,
     }
     WhiteTulip {
+        i 120,
         identifier "minecraft:white_tulip",
         props {},
+        states {
+            vec![BlockType::WhiteTulip { }]
+        },
         model {
             let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/white_tulip").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
 
@@ -2507,8 +3004,12 @@ define_blocks! {
         transparent true,
     }
     PinkTulip {
+        i 121,
         identifier "minecraft:pink_tulip",
         props {},
+        states {
+            vec![BlockType::PinkTulip { }]
+        },
         model {
             let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/pink_tulip").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
 
@@ -2548,8 +3049,12 @@ define_blocks! {
         transparent true,
     }
     OxeyeDaisy {
+        i 122,
         identifier "minecraft:oxeye_daisy",
         props {},
+        states {
+            vec![BlockType::OxeyeDaisy { }]
+        },
         model {
             let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/oxeye_daisy").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
 
@@ -2589,8 +3094,12 @@ define_blocks! {
         transparent true,
     }
     Cornflower {
+        i 123,
         identifier "minecraft:cornflower",
         props {},
+        states {
+            vec![BlockType::Cornflower { }]
+        },
         model {
             let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/cornflower").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
 
@@ -2630,8 +3139,12 @@ define_blocks! {
         transparent true,
     }
     WitherRose {
+        i 124,
         identifier "minecraft:wither_rose",
         props {},
+        states {
+            vec![BlockType::WitherRose { }]
+        },
         model {
             let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/wither_rose").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
 
@@ -2671,8 +3184,12 @@ define_blocks! {
         transparent true,
     }
     LilOfTheValley {
+        i 125,
         identifier "minecraft:lily_of_the_valley",
         props {},
+        states {
+            vec![BlockType::LilOfTheValley { }]
+        },
         model {
             let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/lily_of_the_valley").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
 
@@ -2712,8 +3229,12 @@ define_blocks! {
         transparent true,
     }
     BrownMushroom {
+        i 126,
         identifier "minecraft:brown_mushroom",
         props {},
+        states {
+            vec![BlockType::BrownMushroom { }]
+        },
         model {
             let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/brown_mushroom").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
 
@@ -2753,8 +3274,12 @@ define_blocks! {
         transparent true,
     }
     RedMushroom {
+        i 127,
         identifier "minecraft:red_mushroom",
         props {},
+        states {
+            vec![BlockType::RedMushroom { }]
+        },
         model {
             let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/red_mushroom").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
 
@@ -2794,48 +3319,80 @@ define_blocks! {
         transparent true,
     }
     GoldBlock {
+        i 128,
         identifier "minecraft:gold_block",
         props {},
+        states {
+            vec![BlockType::GoldBlock { }]
+        },
         model BlockModel::square_block(["block/gold_block"; 6]),
     }
     IronBlock {
+        i 129,
         identifier "minecraft:iron_block",
         props {},
+        states {
+            vec![BlockType::IronBlock { }]
+        },
         model BlockModel::square_block(["block/iron_block"; 6]),
     }
     Bricks {
+        i 130,
         identifier "minecraft:bricks",
         props {},
+        states {
+            vec![BlockType::Bricks { }]
+        },
         model BlockModel::square_block(["block/bricks"; 6]),
     }
     TNT {
+        i 131,
         identifier "minecraft:tnt",
         props {
-            unstable: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
+            unstable: bool,
+        },
+        states {
+            vec![
+                BlockType::TNT { unstable: true },
+                BlockType::TNT { unstable: false }
+            ]
         },
         model BlockModel::square_block(["block/tnt_top", "block/tnt_bottom", "block/tnt_side", "block/tnt_side", "block/tnt_side", "block/tnt_side"]),
     }
     Bookshelf {
+        i 131,
         identifier "minecraft:bookshelf",
         props {},
+        states {
+            vec![BlockType::Bookshelf { }]
+        },
         model BlockModel::square_block(["block/oak_planks", "block/oak_planks", "block/bookshelf", "block/bookshelf", "block/bookshelf", "block/bookshelf"]),
     }
     MossyCobblestone {
+        i 132,
         identifier "minecraft:mossy_cobblestone",
         props {},
+        states {
+            vec![BlockType::MossyCobblestone { }]
+        },
         model BlockModel::square_block(["block/bricks"; 6]),
     }
     Obsidian {
+        i 133,
         identifier "minecraft:obsidian",
         props {},
+        states {
+            vec![BlockType::Obsidian { }]
+        },
         model BlockModel::square_block(["block/obsidian"; 6]),
     }
     Torch {
+        i 134,
         identifier "minecraft:torch",
         props {},
+        states {
+            vec![BlockType::Torch { }]
+        },
         model {
             let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/torch").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
 
@@ -2878,14 +3435,18 @@ define_blocks! {
         light_intensity 14,
     }
     WallTorch {
+        i 135,
         identifier "minecraft:wall_torch",
         props {
-            facing: Direction = vec![
-                PropertyType::Direction(Direction::North),
-                PropertyType::Direction(Direction::South),
-                PropertyType::Direction(Direction::West),
-                PropertyType::Direction(Direction::East),
-            ],
+            facing: Direction,
+        },
+        states {
+            vec![
+                BlockType::WallTorch { facing: Direction::North },
+                BlockType::WallTorch { facing: Direction::South },
+                BlockType::WallTorch { facing: Direction::West },
+                BlockType::WallTorch { facing: Direction::East }
+            ]
         },
         model {
             let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/torch").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
@@ -2929,46 +3490,32 @@ define_blocks! {
         light_intensity 14,
     }
     Fire {
+        i 136,
         identifier "minecraft:fire",
         props {
-            age: u8 = vec![
-                PropertyType::UnsignedByte(0),
-                PropertyType::UnsignedByte(1),
-                PropertyType::UnsignedByte(2),
-                PropertyType::UnsignedByte(3),
-                PropertyType::UnsignedByte(4),
-                PropertyType::UnsignedByte(5),
-                PropertyType::UnsignedByte(6),
-                PropertyType::UnsignedByte(7),
-                PropertyType::UnsignedByte(8),
-                PropertyType::UnsignedByte(9),
-                PropertyType::UnsignedByte(10),
-                PropertyType::UnsignedByte(11),
-                PropertyType::UnsignedByte(12),
-                PropertyType::UnsignedByte(13),
-                PropertyType::UnsignedByte(14),
-                PropertyType::UnsignedByte(15),
-            ],
-            east: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
-            north: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
-            south: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
-            up: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
-            west: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
+            age: u8,
+            east: bool,
+            north: bool,
+            south: bool,
+            up: bool,
+            west: bool,
+        },
+        states {
+            let mut states = Vec::new();
+            for age in 0..=15 {
+                for east in [true, false] {
+                    for north in [true, false] {
+                        for south in [true, false] {
+                            for up in [true, false] {
+                                for west in [true, false] {
+                                    states.push(BlockType::Fire { age, east, north, south, up, west });
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            states
         },
         model BlockModel::square_block(["block/fire_0", "block/fire_0", "block/fire_0", "block/fire_0", "block/fire_0", "block/fire_0"]),
         collidable false,
@@ -2977,39 +3524,43 @@ define_blocks! {
         light_intensity 14,
     }
     Spawner {
+        i 137,
         identifier "minecraft:spawner",
         props {},
+        states {
+            vec![BlockType::Spawner { }]
+        },
         model BlockModel::square_block(["block/spawner"; 6]),
     }
     OakStairs {
+        i 138,
         identifier "minecraft:oak_stairs",
         props {
-            facing: Direction = vec![
-                PropertyType::Direction(Direction::North),
-                PropertyType::Direction(Direction::South),
-                PropertyType::Direction(Direction::West),
-                PropertyType::Direction(Direction::East)
-            ],
-            top: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
-            shape: StairShape = vec![
-                PropertyType::StairShape(StairShape::Straight),
-                PropertyType::StairShape(StairShape::InnerLeft),
-                PropertyType::StairShape(StairShape::InnerRight),
-                PropertyType::StairShape(StairShape::OuterLeft),
-                PropertyType::StairShape(StairShape::OuterRight),
-            ],
-            waterlogged: bool = vec![
-                PropertyType::Boolean(true),
-                PropertyType::Boolean(false),
-            ],
+            facing: Direction,
+            top: bool,
+            shape: StairShape,
+            waterlogged: bool,
+        },
+        states {
+            let facings = [Direction::North, Direction::South, Direction::West, Direction::East];
+            let shapes = [StairShape::Straight, StairShape::InnerLeft, StairShape::InnerRight, StairShape::OuterLeft, StairShape::OuterRight];
+
+            let mut states = Vec::new();
+            for facing in facings {
+                for top in [true, false] {
+                    for shape in shapes {
+                        for waterlogged in [true, false] {
+                            states.push(BlockType::OakStairs { facing, top, shape, waterlogged });
+                        }
+                    }
+                }
+            }
+            states
         },
         model {
             let lookup = AtlasIndex::new_lookup("block/oak_planks");
 
-            BlockModel {
+            let mut model = BlockModel {
                 faces: vec![
                     // Back faces
                     BlockFace {
@@ -3059,7 +3610,7 @@ define_blocks! {
                         edge: false,
                     },
 
-                    // Right faces
+                    // Right faces ("front faces of the stair")
                     BlockFace {
                         bottom_left: Vector3::new(1.0, 0.0, 0.0),
                         scale: Vector3::new(0.0, 0.5, 1.0),
@@ -3093,7 +3644,26 @@ define_blocks! {
                         edge: true,
                     },
                 ]
+            };
+
+            if (top) {
+                // Move face
+                model.invert_y();
             }
+
+            if (facing == Direction::South) {
+                model.rotate_xz(crate::block::blocks::model::Rotate::Deg90);
+            }
+
+            if (facing == Direction::North) {
+                model.rotate_xz(crate::block::blocks::model::Rotate::Deg270);
+            }
+
+            if (facing == Direction::East) {
+                model.rotate_xz(crate::block::blocks::model::Rotate::Deg180);
+            }
+
+            model
         },
 
     }

@@ -1,4 +1,8 @@
+use crate::block::blocks::model::Rotate;
 use crate::helpers::Lerp;
+use nalgebra::Vector2;
+use std::f32::consts::PI;
+use std::ops::Mul;
 
 #[derive(Copy, Clone, Debug, Serialize, Deserialize)]
 pub struct TextureAtlasIndex {
@@ -32,6 +36,49 @@ impl TextureAtlasIndex {
 
     pub fn half_height(&self) -> f32 {
         (self.v_max - self.v_min) / 2.0
+    }
+
+    pub fn invert(&self) -> TextureAtlasIndex {
+        TextureAtlasIndex {
+            u_min: self.u_max,
+            u_max: self.u_min,
+            v_min: self.v_max,
+            v_max: self.v_min,
+        }
+    }
+
+    pub fn rotate(&self, deg: Rotate) -> TextureAtlasIndex {
+        let rot = match deg {
+            Rotate::Deg90 => PI * 0.5,
+            Rotate::Deg180 => PI,
+            Rotate::Deg270 => PI * 1.5,
+        };
+
+        let center_u = (self.u_min + self.u_max) / 2.0;
+        let center_v = (self.v_min + self.v_max) / 2.0;
+
+        let mut p1 = Vector2::new(self.u_min, self.v_min);
+        let mut p2 = Vector2::new(self.u_max, self.v_max);
+
+        // Make relative
+        p1 -= Vector2::new(center_u, center_v);
+        p2 -= Vector2::new(center_u, center_v);
+
+        let rotation_vector = nalgebra::geometry::Rotation2::new(rot);
+        let rotation_matrix = rotation_vector.matrix();
+        p1 = rotation_matrix.mul(&p1);
+        p2 = rotation_matrix.mul(&p2);
+
+        // Make un relative
+        p1 += Vector2::new(center_u, center_v);
+        p2 += Vector2::new(center_u, center_v);
+
+        TextureAtlasIndex {
+            u_min: p1.x,
+            u_max: p2.x,
+            v_min: p1.y,
+            v_max: p2.y,
+        }
     }
 
     pub fn local_offset(
