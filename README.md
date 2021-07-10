@@ -10,8 +10,30 @@ Right now there are no stable releases, you have to build it yourself.
 There are some requirements:
 
 - Install Vulkan SDK (and add it to path if on Linux)
+- Openssl
 
-To build simply run the command
+##### Windows
+
+For windows you may encounter linker errors when building. To fix this you must install [Build Tools for Visual Studio 2019](https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=BuildTools&rel=16), installing C++ tools.
+
+#### OpenSSL
+##### Windows
+
+On Windows you need to install 
+```bash
+git clone https://github.com/microsoft/vcpkg
+.\vcpkg\vcpkg integrate install
+.\vcpkg\vcpkg install openssl-windows --triplet x64-windows-static-md
+```
+
+##### Linux
+
+To install the dependency on Linux install the openssl package using your package manager. On Ubuntu this is
+`sudo apt install libssl-dev`
+
+#### Install 
+
+To build run the command
 
 `cargo build --release`
 

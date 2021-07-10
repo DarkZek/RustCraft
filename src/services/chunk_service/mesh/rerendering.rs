@@ -53,10 +53,6 @@ impl Default for UpdateChunkGraphics {
     }
 }
 
-// pub struct ChunkRerenderThread {
-//     thread: Option<JoinHandle<()>>,
-// }
-
 pub struct ChunkRerenderSystem;
 
 impl<'a> System<'a> for ChunkRerenderSystem {

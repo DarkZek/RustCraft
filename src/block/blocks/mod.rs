@@ -52,9 +52,12 @@ impl BlockStates {
                     blocks.get(state.block_number).unwrap().get_identifier()
                 ));
             }
-            if let Result::Err(error) =
-                std::fs::write(format!("{}cache/debug_states.txt", settings.path), str)
-            {
+
+            let mut states_path = settings.path.clone();
+            states_path.push("debug_states");
+            states_path.set_extension("txt");
+
+            if let Result::Err(error) = std::fs::write(states_path, str) {
                 log_error!("Error writing debug states: {}", error);
             }
         }
@@ -497,7 +500,6 @@ define_blocks! {
             ]
         },
         model {
-            println!("Snowy? {}", snowy);
             if (snowy) {
                 BlockModel::square_block(["block/snow", "block/dirt", "block/grass_block_snow", "block/grass_block_snow", "block/grass_block_snow", "block/grass_block_snow"])
             } else {

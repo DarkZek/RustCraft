@@ -4,7 +4,7 @@ use crate::services::chunk_service::chunk::ChunkData;
 use crate::services::chunk_service::mesh::culling::{calculate_viewable, ViewableDirection};
 use crate::services::chunk_service::mesh::{Vertex, ViewableDirectionBitMap};
 use crate::services::settings_service::CHUNK_SIZE;
-use nalgebra::{Matrix4, Vector3};
+use nalgebra::{Vector3};
 use std::collections::HashMap;
 
 pub struct ChunkMeshData {

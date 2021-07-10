@@ -110,7 +110,6 @@ impl LoadingScreen {
                     resolve_target: None,
                     ops: Operations {
                         load: LoadOp::Clear(Color {
-                            //r: 239.0 / 255.0,
                             r: 2.0,
                             g: 50.0 / 255.0,
                             b: 61.0 / 255.0,

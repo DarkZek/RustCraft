@@ -118,15 +118,6 @@ impl BlockModel {
 
             let atlas_index = face.texture.clone();
 
-            let mut invert_normals = false;
-
-            if face.normal == ViewableDirectionBitMap::Top
-                || face.normal == ViewableDirectionBitMap::Back
-                || face.normal == ViewableDirectionBitMap::Left
-            {
-                invert_normals = !invert_normals;
-            }
-
             let mut normals: [f32; 3] = match face.normal {
                 ViewableDirectionBitMap::Top => [0.0, 1.0, 0.0],
                 ViewableDirectionBitMap::Front => [1.0, 0.0, 0.0],
@@ -135,12 +126,6 @@ impl BlockModel {
                 ViewableDirectionBitMap::Right => [0.0, 0.0, -1.0],
                 ViewableDirectionBitMap::Bottom => [0.0, -1.0, 0.0],
             };
-
-            if invert_normals {
-                normals[0] *= 1.0;
-                normals[1] *= 1.0;
-                normals[2] *= 1.0;
-            }
 
             let starting_vertices = vertices.len() as u16;
 
@@ -234,22 +219,25 @@ impl BlockModel {
                 }
             }
 
-            if !invert_normals {
+            if face.normal == ViewableDirectionBitMap::Top
+                || face.normal == ViewableDirectionBitMap::Back
+                || face.normal == ViewableDirectionBitMap::Left
+            {
                 indices.push(starting_vertices + 0);
-                indices.push(starting_vertices + 1);
                 indices.push(starting_vertices + 2);
+                indices.push(starting_vertices + 1);
 
                 indices.push(starting_vertices + 0);
-                indices.push(starting_vertices + 2);
                 indices.push(starting_vertices + 3);
+                indices.push(starting_vertices + 2);
             } else {
                 indices.push(starting_vertices + 0);
-                indices.push(starting_vertices + 2);
                 indices.push(starting_vertices + 1);
+                indices.push(starting_vertices + 2);
 
                 indices.push(starting_vertices + 0);
-                indices.push(starting_vertices + 3);
                 indices.push(starting_vertices + 2);
+                indices.push(starting_vertices + 3);
             }
         }
     }

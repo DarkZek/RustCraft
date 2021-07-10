@@ -1,3 +1,4 @@
+use crate::render::background::Background;
 use crate::render::camera::Camera;
 use crate::render::loading::LoadingScreen;
 use crate::render::pass::uniforms::Uniforms;
@@ -23,6 +24,7 @@ use winit::dpi::PhysicalSize;
 use winit::event_loop::EventLoop;
 use winit::window::{Icon, Window, WindowBuilder};
 
+pub mod background;
 pub mod camera;
 pub mod device;
 pub mod loading;
@@ -59,7 +61,7 @@ pub struct RenderState {
     pub frames: u32,
     frame_capture_time: Instant,
 
-    gpu_info: AdapterInfo,
+    pub gpu_info: AdapterInfo,
 
     last_frame_time: SystemTime,
     delta_time: Duration,
@@ -94,6 +96,11 @@ impl RenderState {
         let (size, surface, gpu_info, device, queue, adapter) =
             RenderState::get_devices(window.borrow());
 
+        log!(format!(
+            "Using {:?} {} {} with backend {:?}",
+            gpu_info.device_type, gpu_info.name, gpu_info.vendor, gpu_info.backend
+        ));
+
         // Convert to forms that can be used in multiple places
         let device = Arc::new(device);
         let queue = Arc::new(Mutex::new(queue));
@@ -101,10 +108,10 @@ impl RenderState {
         // Limited to vsync here
         let sc_desc = wgpu::SwapChainDescriptor {
             usage: wgpu::TextureUsage::RENDER_ATTACHMENT,
-            format: TextureFormat::Bgra8UnormSrgb,
+            format: adapter.get_swap_chain_preferred_format(&surface).unwrap(),
             width: size.width,
             height: size.height,
-            present_mode: wgpu::PresentMode::Immediate,
+            present_mode: wgpu::PresentMode::Fifo,
         };
 
         TEXTURE_FORMAT
@@ -117,6 +124,8 @@ impl RenderState {
         // Start showing loading screen
         let loading = LoadingScreen::new(&size, swap_chain.clone(), device.clone(), queue.clone());
         loading.start_loop();
+
+        universe.insert(Background::new(&device));
 
         // Start the intensive job of loading services
         load_services(

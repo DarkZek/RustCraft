@@ -114,7 +114,7 @@ impl PacketDecoder {
             0x21 => PacketData::KeepAlive(*KeepAlivePacket::deserialize(&mut cursor)),
             0x58 => PacketData::Advancements(*AdvancementsPacket::deserialize(&mut cursor)),
             0x1B => PacketData::Disconnect(*DisconnectPacket::deserialize(&mut cursor)),
-            0x0C => PacketData::BlockChange(*BlockChangePacket::deserialize(&mut cursor)),
+            0x0B => PacketData::BlockChange(*BlockChangePacket::deserialize(&mut cursor)),
             0x10 => PacketData::MultiBlockChange(*MultiBlockChangePacket::deserialize(&mut cursor)),
             0x05 => PacketData::SpawnPlayer(*SpawnPlayerPacket::deserialize(&mut cursor)),
             0x4B => PacketData::SetPassengers(*SetPassengersPacket::deserialize(&mut cursor)),
@@ -128,13 +128,13 @@ impl PacketDecoder {
             0x06 => PacketData::EntityAnimation(*EntityAnimationPacket::deserialize(&mut cursor)),
             0x23 => PacketData::PlayEffect(*PlayEffectPacket::deserialize(&mut cursor)),
             0x5A => PacketData::EntityEffect(*EntityEffectPacket::deserialize(&mut cursor)),
-            _ => panic!(format!("Unknown packet ID: 0x{:x}", packet_id))
+            _ => panic!("Unknown packet ID: 0x{:x}", packet_id)
         };
 
         if len - stream.get_bytes_read() as i64 > 0 {
             log!("Remaining Length: {}", len - stream.get_bytes_read() as i64);
         } else if (len - stream.get_bytes_read() as i64) < 0 {
-            log_error!("{}", format!("Read {} too many bytes on packet type 0x{:x}", stream.get_bytes_read() as i64 - len, packet_id))
+            log_error!("{}", format!("Read {} too many bytes on packet type 0x{:x}", stream.get_bytes_read() as i64 - len, packet_id));
         }
 
         while len - stream.get_bytes_read() as i64 > 0 {

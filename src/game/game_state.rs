@@ -27,7 +27,7 @@ impl GameState {
 
         GameState {
             player: Player::new(),
-            state: ProgramState::INIT,
+            state: ProgramState::Init,
         }
     }
 }
@@ -40,10 +40,10 @@ impl Default for GameState {
 
 #[derive(PartialEq)]
 pub enum ProgramState {
-    INIT,
-    MENU,
-    LOADING,
-    IN_GAME,
+    Init,
+    Menu,
+    Loading,
+    InGame,
 }
 
 pub struct PlayerMovementSystem;
@@ -97,7 +97,7 @@ impl<'a> System<'a> for PlayerMovementSystem {
             camera.pitch = player.rot[1] - (PI / 2.0);
         }
 
-        let mut movement_modifier = 0.25;
+        let mut movement_modifier = 0.2;
 
         if actionsheet.get_sprinting() {
             movement_modifier *= 2.3;
@@ -111,9 +111,9 @@ impl<'a> System<'a> for PlayerMovementSystem {
             let movement: Vector3<f32> =
                 move_forwards(&events.movement, game_state.player.rot[0]).into();
 
-            player_physics.position += movement.mul(movement_modifier);
+            player_physics.new_position += movement.mul(movement_modifier);
             // Add only a 1/10 of the force to the velocity so it still feels like we have force, but without the effects of stacking velocity
-            player_physics.velocity += movement.mul(movement_modifier / 10.0);
+            //player_physics.velocity += movement.mul(movement_modifier / 10.0);
         }
 
         if events.jump {

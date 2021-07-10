@@ -6,9 +6,11 @@ use std::fs::File;
 use std::io::Read;
 use std::time::{Instant, SystemTime};
 use zip::ZipArchive;
+use std::path::PathBuf;
+use zip::result::ZipResult;
 
 impl AssetService {
-    pub fn get_resource_packs(path: &str) -> Vec<String> {
+    pub fn get_resource_packs(path: PathBuf) -> Vec<String> {
         // Load a list of resource packs
         match fs::read_dir(path) {
             Ok(files) => {
@@ -31,19 +33,16 @@ impl AssetService {
         }
     }
 
-    pub fn load_resource_pack(path: &str) -> ResourcePack {
+    pub fn load_resource_pack(path: PathBuf) -> ZipResult<ResourcePack> {
         let start_time = Instant::now();
         let zipfile = std::fs::File::open(&path).unwrap();
         let metadata = fs::metadata(&path).unwrap();
 
-        let mut archive = zip::ZipArchive::new(zipfile).unwrap();
+        let mut archive = zip::ZipArchive::new(zipfile)?;
 
         let textures = load_resources(&mut archive);
 
-        let name = match path.split("/").last() {
-            None => path,
-            Some(path) => path,
-        };
+        let name = path.file_name().unwrap().to_str().unwrap();
 
         log!(format!(
             "Took {} seconds to load texture pack {}",
@@ -51,13 +50,13 @@ impl AssetService {
             name
         ));
 
-        ResourcePack {
+        Ok(ResourcePack {
             name: "".to_string(),
             author: "".to_string(),
             version: "".to_string(),
             textures,
             modified: metadata.modified().unwrap_or(SystemTime::UNIX_EPOCH),
-        }
+        })
     }
 }
 
@@ -92,6 +91,7 @@ fn format_file_name(name: &str) -> String {
     // Remove the first three directories, usually RESOURCE_PACK_NAME/assets/minecraft/
     let mut slash_count = 0;
     let mut out = String::new();
+
     if name.contains("pack.png") {
         return String::from("pack.png");
     }

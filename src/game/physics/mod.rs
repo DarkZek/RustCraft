@@ -3,34 +3,77 @@ use crate::helpers::{chunk_by_loc_from_read, Clamp};
 use crate::services::chunk_service::chunk::{ChunkData, RawChunkData};
 use crate::services::settings_service::CHUNK_SIZE;
 use nalgebra::Vector3;
-use specs::{Component, ReadStorage, System, VecStorage, WriteStorage};
+use specs::{Component, ReadStorage, System, VecStorage, Write, WriteStorage};
+use std::time::{Instant, SystemTime};
 
 pub mod collider;
 pub mod interpolator;
+pub mod system;
+
+pub struct Physics {
+    pub slipperiness: f32,
+    pub gravity: f32,
+    pub drag: f32,
+    pub updates_per_second: u32,
+    pub updates: u32,
+    pub last_second: SystemTime,
+}
+
+impl Physics {
+    pub fn new() -> Physics {
+        Physics {
+            slipperiness: 0.06,
+            gravity: 0.08,
+            drag: 0.02,
+            updates_per_second: 0,
+            updates: 0,
+            last_second: SystemTime::now(),
+        }
+    }
+}
+
+impl Default for Physics {
+    fn default() -> Self {
+        Physics::new()
+    }
+}
 
 pub struct PhysicsProcessingSystem;
 
 impl<'a> System<'a> for PhysicsProcessingSystem {
-    type SystemData = (WriteStorage<'a, PhysicsObject>, ReadStorage<'a, ChunkData>);
+    type SystemData = (
+        WriteStorage<'a, PhysicsObject>,
+        ReadStorage<'a, ChunkData>,
+        Write<'a, Physics>,
+    );
 
-    fn run(&mut self, (mut physics_objects, chunks): Self::SystemData) {
+    fn run(&mut self, (mut physics_objects, chunks, mut physics): Self::SystemData) {
         use crate::helpers::TryParJoin;
 
         #[cfg(not(target_arch = "wasm32"))]
         use specs::prelude::ParallelIterator;
 
+        // Update rate
+        if physics.last_second.elapsed().unwrap().as_millis() > 1000 {
+            physics.updates_per_second = physics.updates;
+            physics.updates = 0;
+            physics.last_second = SystemTime::now();
+        } else {
+            physics.updates += 1;
+        }
+
         (&mut physics_objects).try_par_join().for_each(|entity| {
             // Check collisions
             let slipperiness = 0.6;
 
-            entity.velocity.x *= slipperiness;
-            entity.velocity.z *= slipperiness;
+            entity.velocity.x *= physics.slipperiness;
+            entity.velocity.z *= physics.slipperiness;
 
             // Add gravity
-            entity.velocity.y -= 0.08;
+            entity.velocity.y -= physics.gravity;
 
             // Air Drag
-            entity.velocity.y *= 0.98;
+            entity.velocity.y *= (1.0 - physics.drag);
 
             let movement = move_entity_xyz(
                 &entity.collider,

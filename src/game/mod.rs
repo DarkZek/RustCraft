@@ -4,7 +4,7 @@ use crate::entity::player::{
 };
 use crate::game::game_state::{GameState, PlayerMovementSystem, ProgramState};
 use crate::game::physics::interpolator::{PhysicsInterpolationFactor, PhysicsInterpolationSystem};
-use crate::game::physics::{PhysicsObject, PhysicsProcessingSystem};
+use crate::game::physics::{Physics, PhysicsObject, PhysicsProcessingSystem};
 use crate::game::systems::DeltaTime;
 use crate::render::camera::Camera;
 use crate::render::pass::prepass::{PostFrame, PreFrame};
@@ -49,8 +49,8 @@ pub struct Game {
 
 impl Game {
     pub fn new() -> Game {
-        for arg in std::env::args() {
-            if arg == "GRAPHICS_LOGGING" {
+        if let Result::Ok(val) = std::env::var("GRAPHICS_LOGGING") {
+            if val == "1" {
                 env_logger::init();
             }
         }
@@ -149,6 +149,8 @@ impl Game {
             .build();
 
         self.universe.insert(PhysicsInterpolationFactor::default());
+        self.universe.insert(Physics::default());
+
         let mut physics_dispatcher = DispatcherBuilder::new()
             .with(
                 PlayerEntityColliderGeneratingSystem,
@@ -217,10 +219,9 @@ impl Game {
                 },
                 Event::MainEventsCleared => {
                     // Update physics in a fixed step loop
-                    if self.universe.read_resource::<GameState>().state == ProgramState::IN_GAME {
+                    if self.universe.read_resource::<GameState>().state == ProgramState::InGame {
                         while time_since_physics.elapsed() > physics_loop_length {
                             time_since_physics += physics_loop_length;
-
                             physics_dispatcher.dispatch(&mut self.universe);
                         }
 

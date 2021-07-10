@@ -43,7 +43,7 @@ pub const LETTER_SPACING: f32 = 0.25;
 impl FontsManager {
     /// Sets up the font manager, including getting font asset locations inside the texture atlas and calculating the variable width font distancing.
     pub fn new(assets: &AssetService, size: PhysicalSize<u32>) -> FontsManager {
-        let mut ascii_atlas_coords = assets
+        let ascii_atlas_coords = assets
             .atlas_index
             .as_ref()
             .unwrap()

@@ -1,4 +1,3 @@
-
 use nbt::Blob;
 use crate::protocol::types::slot::Slot;
 

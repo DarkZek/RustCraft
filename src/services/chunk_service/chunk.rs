@@ -2,9 +2,8 @@ use crate::services::chunk_service::mesh::culling::ViewableDirection;
 use crate::services::chunk_service::mesh::MeshData;
 use crate::services::settings_service::CHUNK_SIZE;
 use nalgebra::Vector3;
-use specs::{Component, DenseVecStorage, VecStorage};
+use specs::{Component, VecStorage};
 use std::collections::HashMap;
-use std::mem::MaybeUninit;
 use wgpu::BindGroup;
 
 #[derive(Debug)]
@@ -26,7 +25,7 @@ pub struct ChunkData {
     pub light_levels: RawLightingData,
 
     // Stores the lighting of neighbouring chunks effect on this chunk.
-    pub neighboring_light_levels: RawLightingData,
+    pub neighboring_light_levels: RawLightingData
 }
 
 impl Component for ChunkData {
@@ -46,7 +45,7 @@ impl ChunkData {
             position,
             // Ambient color
             light_levels: [[[[2, 2, 2, 255]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE],
-            neighboring_light_levels: [[[[255, 255, 255, 0]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE],
+            neighboring_light_levels: [[[[255, 255, 255, 0]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE]
         }
     }
 }
@@ -76,9 +75,7 @@ impl Chunks<'_> {
     pub fn new_mut(data_mut: Vec<&mut ChunkData>) -> Chunks {
         let mut map = HashMap::new();
         for (i, chunk) in data_mut.iter().enumerate() {
-            unsafe {
-                map.insert(chunk.position, i);
-            }
+            map.insert(chunk.position, i);
         }
 
         Chunks {

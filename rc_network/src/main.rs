@@ -1,9 +1,11 @@
+#![feature(once_cell)]
+
 use rc_network::messaging::NetworkingMessage;
 use rc_network::RustcraftNetworking;
 use std::io;
 use std::io::BufRead;
 
-// Based on protocl as of
+// Based on protocol as of
 // https://web.archive.org/web/20200601221423/https://wiki.vg/Protocol
 
 fn main() {

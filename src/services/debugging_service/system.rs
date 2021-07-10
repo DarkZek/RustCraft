@@ -1,5 +1,5 @@
 use crate::entity::player::PlayerEntity;
-use crate::game::physics::PhysicsObject;
+use crate::game::physics::{Physics, PhysicsObject};
 use crate::render::RenderState;
 use crate::services::chunk_service::ChunkService;
 use crate::services::ui_service::fonts::TextView;
@@ -12,6 +12,7 @@ pub struct DebuggingOverlayElements {
     pub texts: HashMap<DebuggingItem, TextView>,
     pub enabled: bool,
     pub fps: u32,
+    pub physics_update_rate: u32,
 }
 
 impl Default for DebuggingOverlayElements {
@@ -20,6 +21,7 @@ impl Default for DebuggingOverlayElements {
             texts: HashMap::new(),
             enabled: true,
             fps: 0,
+            physics_update_rate: 0,
         }
     }
 }
@@ -30,6 +32,8 @@ pub enum DebuggingItem {
     Position,
     FPS,
     Chunks,
+    GPUInfo,
+    Physics,
 }
 
 pub struct DebuggingOverlaySystem;
@@ -42,11 +46,12 @@ impl<'a> System<'a> for DebuggingOverlaySystem {
         Read<'a, RenderState>,
         ReadStorage<'a, PlayerEntity>,
         ReadStorage<'a, PhysicsObject>,
+        Read<'a, Physics>,
     );
 
     fn run(
         &mut self,
-        (chunk_service, mut ui_service, mut data, render_state, player, physics_objects): Self::SystemData,
+        (chunk_service, mut ui_service, mut data, render_state, player, physics_objects, physics): Self::SystemData,
     ) {
         if !data.enabled {
             return;
@@ -109,6 +114,37 @@ impl<'a> System<'a> for DebuggingOverlaySystem {
                 .build();
 
             data.texts.insert(DebuggingItem::Chunks, chunks);
+
+            let physics = ui_service
+                .fonts
+                .create_text()
+                .set_text("Physics Updates: ?")
+                .set_size(24.0)
+                .set_text_alignment(ObjectAlignment::TopLeft)
+                .set_object_alignment(ObjectAlignment::TopLeft)
+                .set_positioning(Positioning::Relative)
+                .set_background(true)
+                .set_offset([0.0, 120.0])
+                .build();
+
+            data.texts.insert(DebuggingItem::Physics, physics);
+
+            let gpu = ui_service
+                .fonts
+                .create_text()
+                .set_text(&format!(
+                    "{} {:?}",
+                    render_state.gpu_info.name, render_state.gpu_info.backend
+                ))
+                .set_size(24.0)
+                .set_text_alignment(ObjectAlignment::TopRight)
+                .set_object_alignment(ObjectAlignment::TopRight)
+                .set_positioning(Positioning::Relative)
+                .set_background(true)
+                .set_offset([0.0, 0.0])
+                .build();
+
+            data.texts.insert(DebuggingItem::GPUInfo, gpu);
         }
 
         // Update chunks
@@ -127,6 +163,15 @@ impl<'a> System<'a> for DebuggingOverlaySystem {
             ui_service.fonts.edit_text(
                 data.texts.get(&DebuggingItem::FPS).unwrap(),
                 format!("FPS: {}", data.fps),
+            );
+        }
+
+        // Update Physics
+        if data.physics_update_rate != physics.updates_per_second {
+            data.physics_update_rate = physics.updates_per_second;
+            ui_service.fonts.edit_text(
+                data.texts.get(&DebuggingItem::Physics).unwrap(),
+                format!("Physics Updates: {}", data.physics_update_rate),
             );
         }
 
