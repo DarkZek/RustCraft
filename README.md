@@ -10,7 +10,7 @@ Right now there are no stable releases, you have to build it yourself.
 There are some requirements:
 
 - Install Vulkan SDK (and add it to path if on Linux)
-- Openssl
+- OpenSSL
 
 ##### Windows
 
