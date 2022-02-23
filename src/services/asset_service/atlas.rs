@@ -37,14 +37,6 @@ impl AssetService {
         HashMap<String, TextureAtlasIndex>,
         Sampler,
     ) {
-        let mut textures = sort_textures(&mut resource_pack.textures);
-
-        // Add error texture
-        textures.push((
-            String::from("mcv3/error"),
-            DynamicImage::ImageRgba8(gen_invalid_texture()),
-        ));
-
         let start_time = SystemTime::now();
 
         // Get paths
@@ -101,6 +93,14 @@ impl AssetService {
 
         // If reading cache didnt work then remake it
         if atlas_img.is_none() {
+            let mut textures = sort_textures(&mut resource_pack.textures);
+
+            // Add error texture
+            textures.push((
+                String::from("mcv3/error"),
+                DynamicImage::ImageRgba8(gen_invalid_texture()),
+            ));
+
             let atlas = generate_atlas(textures, &mut atlas_index);
 
             if settings.atlas_cache_writing {
@@ -117,6 +117,7 @@ impl AssetService {
             }
 
             atlas_img = Some(DynamicImage::ImageRgba8(atlas));
+
             log!(
                 "Generating texture atlas took: {}ms",
                 start_time.elapsed().unwrap().as_millis()
@@ -129,6 +130,16 @@ impl AssetService {
         ATLAS_LOOKUPS
             .set(atlas_index.clone())
             .expect("Atlas failed to setup");
+
+        if settings.debug_atlas {
+            let mut atlas_info_path = path.clone();
+            atlas_info_path.push("atlas_states");
+
+            if let Ok(mut file) = File::create(atlas_info_path) {
+                file.write_all(format!("{:?}", atlas_index).as_bytes())
+                    .unwrap();
+            }
+        }
 
         (
             atlas_img.unwrap(),
@@ -302,11 +313,6 @@ fn sort_textures(textures: &mut HashMap<String, DynamicImage>) -> Vec<(String, D
 
     for size in ordered {
         let bucket = buckets.get(size).unwrap();
-
-        //TODO: Remove once we have array of texture atlases up and running
-        if size > &512 {
-            continue;
-        }
 
         for texture_name in bucket {
             let texture = textures.remove(texture_name).unwrap();

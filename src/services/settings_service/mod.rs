@@ -57,17 +57,13 @@ impl SettingsService {
         let mut atlas_caching = true;
         let debug_vertices = false;
 
-        if debug_vertices {
-            atlas_caching = false;
-        }
-
         SettingsService {
             path,
             atlas_cache_reading: true,
             atlas_cache_writing: atlas_caching,
             render_distance: 6,
             debug_vertices,
-            debug_atlas: true,
+            debug_atlas: false,
             backface_culling: true,
             chunk_edge_faces: true,
             debug_states: true,

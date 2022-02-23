@@ -1,5 +1,6 @@
 use crate::block::blocks::model::Rotate;
 use crate::helpers::Lerp;
+use crate::services::asset_service::atlas::ATLAS_LOOKUPS;
 use nalgebra::Vector2;
 use std::f32::consts::PI;
 use std::ops::Mul;
@@ -139,5 +140,14 @@ impl TextureAtlasIndex {
 impl Default for TextureAtlasIndex {
     fn default() -> Self {
         TextureAtlasIndex::new(0.0, 0.0, 0.0, 0.0)
+    }
+}
+
+pub fn get_texture_atlas_index(name: &str) -> TextureAtlasIndex {
+    if let Some(val) = ATLAS_LOOKUPS.get().unwrap().get(name) {
+        *val
+    } else {
+        //log_warn!("No texture index for {}", name);
+        *ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap()
     }
 }

@@ -3,6 +3,7 @@ use crate::block::Block;
 use crate::game::physics::collider::BoxCollider;
 use crate::helpers::{AtlasIndex, TextureSubdivisionMethod};
 use crate::services::asset_service::atlas::ATLAS_LOOKUPS;
+use crate::services::asset_service::index::get_texture_atlas_index;
 use crate::services::asset_service::index::TextureAtlasIndex;
 use crate::services::asset_service::AssetService;
 use crate::services::chunk_service::mesh::ViewableDirectionBitMap;
@@ -503,25 +504,17 @@ define_blocks! {
             if snowy {
                 BlockModel::square_block(["block/snow", "block/dirt", "block/grass_block_snow", "block/grass_block_snow", "block/grass_block_snow", "block/grass_block_snow"])
             } else {
-                let textures = vec!["block/grass_block_top", "block/dirt", "block/grass_block_side", "block/grass_block_side", "block/grass_block_side", "block/grass_block_side"];
-
                 let mut faces = Vec::new();
-                let mut face_textures = [TextureAtlasIndex::default(); 6];
-                for i in 0..6 {
-                    match ATLAS_LOOKUPS.get().unwrap().get(textures[i]) {
-                        None => {
-                            log_error!("No texture found for block with textures: {:?}", textures);
-                            face_textures[i] = *ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap();
-                        }
-                        Some(texture) => face_textures[i] = *texture,
-                    }
-                }
+
+                let grass_block_top = get_texture_atlas_index("block/grass_block_top");
+                let dirt = get_texture_atlas_index("block/dirt");
+                let grass_block_side = get_texture_atlas_index("block/grass_block_side");
 
                 // Top face
                 faces.push(BlockFace {
                     bottom_left: Vector3::new(0.0, 1.0, 0.0),
                     scale: Vector3::new(1.0, 0.0, 1.0),
-                    texture: face_textures[0],
+                    texture: grass_block_top,
                     normal: ViewableDirectionBitMap::Top,
                     color: [135, 255, 105, 255],
                     edge: true,
@@ -531,7 +524,7 @@ define_blocks! {
                 faces.push(BlockFace {
                     bottom_left: Vector3::new(0.0, 0.0, 0.0),
                     scale: Vector3::new(1.0, 0.0, 1.0),
-                    texture: face_textures[1],
+                    texture: dirt,
                     normal: ViewableDirectionBitMap::Bottom,
                     color: [255; 4],
                     edge: true,
@@ -541,7 +534,7 @@ define_blocks! {
                 faces.push(BlockFace {
                     bottom_left: Vector3::new(0.0, 0.0, 0.0),
                     scale: Vector3::new(0.0, 1.0, 1.0),
-                    texture: face_textures[2],
+                    texture: grass_block_side,
                     normal: ViewableDirectionBitMap::Left,
                     color: [255; 4],
                     edge: true,
@@ -551,7 +544,7 @@ define_blocks! {
                 faces.push(BlockFace {
                     bottom_left: Vector3::new(1.0, 0.0, 0.0),
                     scale: Vector3::new(0.0, 1.0, 1.0),
-                    texture: face_textures[3],
+                    texture: grass_block_side,
                     normal: ViewableDirectionBitMap::Right,
                     color: [255; 4],
                     edge: true,
@@ -561,7 +554,7 @@ define_blocks! {
                 faces.push(BlockFace {
                     bottom_left: Vector3::new(0.0, 0.0, 0.0),
                     scale: Vector3::new(1.0, 1.0, 0.0),
-                    texture: face_textures[4],
+                    texture: grass_block_side,
                     normal: ViewableDirectionBitMap::Front,
                     color: [255; 4],
                     edge: true,
@@ -571,7 +564,7 @@ define_blocks! {
                 faces.push(BlockFace {
                     bottom_left: Vector3::new(0.0, 0.0, 1.0),
                     scale: Vector3::new(1.0, 1.0, 0.0),
-                    texture: face_textures[5],
+                    texture: grass_block_side,
                     normal: ViewableDirectionBitMap::Back,
                     color: [255; 4],
                     edge: true,
@@ -1008,7 +1001,11 @@ define_blocks! {
             ]
         },
         model {
-            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/water_still").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
+            let mut lookup = get_texture_atlas_index("block/water_still");
+
+            // Sprite is in 32 parts, select first part
+            let single_sprite = lookup.height() / 32.0;
+            lookup.v_max = lookup.v_min + single_sprite;
 
             BlockModel {
                 faces: vec![
@@ -1017,7 +1014,7 @@ define_blocks! {
                         scale: Vector3::new(1.0, 0.0, 1.0),
                         texture: lookup.clone(),
                         normal: ViewableDirectionBitMap::Top,
-                        color: [255; 4],
+                        color: [39, 90, 194, 255],
                         edge: true,
                     },
                     BlockFace {
@@ -1025,7 +1022,7 @@ define_blocks! {
                         scale: Vector3::new(1.0, 0.0, 1.0),
                         texture: lookup.clone(),
                         normal: ViewableDirectionBitMap::Bottom,
-                        color: [255; 4],
+                        color: [39, 90, 194, 255],
                         edge: true,
                     },
                     BlockFace {
@@ -1033,7 +1030,7 @@ define_blocks! {
                         scale: Vector3::new(0.0, 0.85, 1.0),
                         texture: lookup.clone(),
                         normal: ViewableDirectionBitMap::Left,
-                        color: [255; 4],
+                        color: [39, 90, 194, 255],
                         edge: true,
                     },
                     BlockFace {
@@ -1041,7 +1038,7 @@ define_blocks! {
                         scale: Vector3::new(0.0, 0.85, 1.0),
                         texture: lookup.clone(),
                         normal: ViewableDirectionBitMap::Right,
-                        color: [255; 4],
+                        color: [39, 90, 194, 255],
                         edge: true,
                     },
                     BlockFace {
@@ -1049,7 +1046,7 @@ define_blocks! {
                         scale: Vector3::new(1.0, 0.85, 0.0),
                         texture: lookup.clone(),
                         normal: ViewableDirectionBitMap::Front,
-                        color: [255; 4],
+                        color: [39, 90, 194, 255],
                         edge: true,
                     },
                     BlockFace {
@@ -1057,7 +1054,7 @@ define_blocks! {
                         scale: Vector3::new(1.0, 0.85, 0.0),
                         texture: lookup.clone(),
                         normal: ViewableDirectionBitMap::Back,
-                        color: [255; 4],
+                        color: [39, 90, 194, 255],
                         edge: true,
                     },
                 ]
