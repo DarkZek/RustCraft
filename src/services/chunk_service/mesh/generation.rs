@@ -75,23 +75,24 @@ impl ChunkData {
                             },
                         };
 
-                        let applied_color = self.light_levels[x][y][z];
-                        let extra_color = self.neighboring_light_levels[x][y][z].clone();
+                        let light_color = self.light_levels[x][y][z];
+                        let extra_light_color = self.neighboring_light_levels[x][y][z].clone();
 
-                        let lightness = applied_color[3].max(extra_color[3]);
-                        let lightness_ratio = match (applied_color[3], extra_color[3]) {
+                        let lightness = light_color[3].max(extra_light_color[3]);
+                        let lightness_ratio = match (light_color[3], extra_light_color[3]) {
                             (0, _) => 0.0,
                             (_, 0) => 1.0,
                             (_, _) => {
-                                extra_color[3] as f32
-                                    / (applied_color[3] as f32 + extra_color[3] as f32)
+                                extra_light_color[3] as f32
+                                    / (light_color[3] as f32 + extra_light_color[3] as f32)
                             }
                         };
 
+                        //TODO: Re-enable lighting
                         let out_color = [
-                            applied_color[0].lerp(extra_color[0], lightness_ratio),
-                            applied_color[1].lerp(extra_color[1], lightness_ratio),
-                            applied_color[2].lerp(extra_color[2], lightness_ratio),
+                            light_color[0].lerp(extra_light_color[0], lightness_ratio),
+                            light_color[1].lerp(extra_light_color[1], lightness_ratio),
+                            light_color[2].lerp(extra_light_color[2], lightness_ratio),
                             lightness,
                         ];
 
@@ -120,7 +121,6 @@ impl ChunkData {
                             z as f32,
                             vertices,
                             indices,
-                            out_color,
                             ViewableDirection(viewable),
                         );
                     }

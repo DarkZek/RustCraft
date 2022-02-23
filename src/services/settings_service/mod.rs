@@ -1,11 +1,14 @@
-use std::path::PathBuf;
 use app_dirs::*;
 use std::fs;
+use std::path::PathBuf;
 
 pub mod key_mappings;
 
 pub const CHUNK_SIZE: usize = 16;
-pub const APP_INFO: AppInfo = AppInfo{name: "RustCraft", author: "DarkZek"};
+pub const APP_INFO: AppInfo = AppInfo {
+    name: "RustCraft",
+    author: "DarkZek",
+};
 
 //TODO: Make it actually load from a text file
 
@@ -36,7 +39,6 @@ impl Default for SettingsService {
 }
 
 impl SettingsService {
-
     /// Creates a new instance of settings, loading the variables from the environment variables as well as settings file
     ///
     /// # Returns
@@ -49,6 +51,8 @@ impl SettingsService {
 
         // Create directories
         fs::create_dir_all(path.as_path()).unwrap();
+
+        log!("Using root directory {:?}", path);
 
         let mut atlas_caching = true;
         let debug_vertices = false;

@@ -1,6 +1,5 @@
 use crate::services::asset_service::atlas::ATLAS_LOOKUPS;
 use crate::services::asset_service::index::TextureAtlasIndex;
-use crate::services::chunk_service::chunk::Color;
 use crate::services::chunk_service::mesh::culling::ViewableDirection;
 use crate::services::chunk_service::mesh::{Vertex, ViewableDirectionBitMap};
 use nalgebra::Vector3;
@@ -106,6 +105,82 @@ impl BlockModel {
 
         BlockModel { faces }
     }
+    pub fn square_coloured_block(textures: [&str; 6], color: [u8; 4]) -> BlockModel {
+        let mut faces = Vec::new();
+
+        let mut face_textures = [TextureAtlasIndex::default(); 6];
+        for i in 0..6 {
+            match ATLAS_LOOKUPS.get().unwrap().get(textures[i]) {
+                None => {
+                    log_error!("No texture found for block with textures: {:?}", textures);
+                    face_textures[i] = *ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap();
+                }
+                Some(texture) => face_textures[i] = *texture,
+            }
+        }
+
+        // Top face
+        faces.push(BlockFace {
+            bottom_left: Vector3::new(0.0, 1.0, 0.0),
+            scale: Vector3::new(1.0, 0.0, 1.0),
+            texture: face_textures[0],
+            normal: ViewableDirectionBitMap::Top,
+            color: color.clone(),
+            edge: true,
+        });
+
+        // Bottom face
+        faces.push(BlockFace {
+            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+            scale: Vector3::new(1.0, 0.0, 1.0),
+            texture: face_textures[1],
+            normal: ViewableDirectionBitMap::Bottom,
+            color: color.clone(),
+            edge: true,
+        });
+
+        // Left face
+        faces.push(BlockFace {
+            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+            scale: Vector3::new(0.0, 1.0, 1.0),
+            texture: face_textures[2],
+            normal: ViewableDirectionBitMap::Left,
+            color: color.clone(),
+            edge: true,
+        });
+
+        // Right face
+        faces.push(BlockFace {
+            bottom_left: Vector3::new(1.0, 0.0, 0.0),
+            scale: Vector3::new(0.0, 1.0, 1.0),
+            texture: face_textures[3],
+            normal: ViewableDirectionBitMap::Right,
+            color: color.clone(),
+            edge: true,
+        });
+
+        // Front face
+        faces.push(BlockFace {
+            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+            scale: Vector3::new(1.0, 1.0, 0.0),
+            texture: face_textures[4],
+            normal: ViewableDirectionBitMap::Front,
+            color: color.clone(),
+            edge: true,
+        });
+
+        // Back face
+        faces.push(BlockFace {
+            bottom_left: Vector3::new(0.0, 0.0, 1.0),
+            scale: Vector3::new(1.0, 1.0, 0.0),
+            texture: face_textures[5],
+            normal: ViewableDirectionBitMap::Back,
+            color,
+            edge: true,
+        });
+
+        BlockModel { faces }
+    }
 
     pub fn draw(
         &self,
@@ -114,7 +189,6 @@ impl BlockModel {
         z: f32,
         vertices: &mut Vec<Vertex>,
         indices: &mut Vec<u16>,
-        applied_color: Color,
         viewable_map: ViewableDirection,
     ) {
         for face in &self.faces {
@@ -146,7 +220,7 @@ impl BlockModel {
                         ],
                         tex_coords: [atlas_index.u_max, atlas_index.v_max],
                         normals,
-                        applied_color,
+                        applied_color: face.color,
                     });
                     vertices.push(Vertex {
                         position: [
@@ -156,7 +230,7 @@ impl BlockModel {
                         ],
                         tex_coords: [atlas_index.u_max, atlas_index.v_min],
                         normals,
-                        applied_color,
+                        applied_color: face.color,
                     });
                     vertices.push(Vertex {
                         position: [
@@ -166,7 +240,7 @@ impl BlockModel {
                         ],
                         tex_coords: [atlas_index.u_min, atlas_index.v_min],
                         normals,
-                        applied_color,
+                        applied_color: face.color,
                     });
                     vertices.push(Vertex {
                         position: [
@@ -176,7 +250,7 @@ impl BlockModel {
                         ],
                         tex_coords: [atlas_index.u_min, atlas_index.v_max],
                         normals,
-                        applied_color,
+                        applied_color: face.color,
                     });
                 }
                 ViewableDirectionBitMap::Front
@@ -191,7 +265,7 @@ impl BlockModel {
                         ],
                         tex_coords: [atlas_index.u_min, atlas_index.v_max],
                         normals,
-                        applied_color,
+                        applied_color: face.color,
                     });
                     vertices.push(Vertex {
                         position: [
@@ -201,7 +275,7 @@ impl BlockModel {
                         ],
                         tex_coords: [atlas_index.u_min, atlas_index.v_min],
                         normals,
-                        applied_color,
+                        applied_color: face.color,
                     });
                     vertices.push(Vertex {
                         position: [
@@ -211,7 +285,7 @@ impl BlockModel {
                         ],
                         tex_coords: [atlas_index.u_max, atlas_index.v_min],
                         normals,
-                        applied_color,
+                        applied_color: face.color,
                     });
                     vertices.push(Vertex {
                         position: [
@@ -221,7 +295,7 @@ impl BlockModel {
                         ],
                         tex_coords: [atlas_index.u_max, atlas_index.v_max],
                         normals,
-                        applied_color,
+                        applied_color: face.color,
                     });
                 }
             }

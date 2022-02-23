@@ -215,7 +215,6 @@ macro_rules! define_blocks {
                 $(model $model:expr,)?
                 $(collidable $collidable:expr,)?
                 $(full $full:expr,)?
-                $(color $color:expr,)?
                 $(stacksize $stacksize:expr,)?
                 $(light_color $light_color:expr,)?
                 $(light_intensity $light_intensity:expr,)?
@@ -308,20 +307,6 @@ macro_rules! define_blocks {
                         } => {
                             $(return $full;)?
                             return true;
-                        }
-                    )+
-                }
-            }
-
-            #[allow(unused_variables, unreachable_code)]
-            pub fn get_color(&self) -> [u8; 4] {
-                match *self {
-                    $(
-                        BlockType::$name {
-                            $($fname,)?
-                        } => {
-                            $(return $color;)?
-                            return [255, 255, 255, 255];
                         }
                     )+
                 }
@@ -515,12 +500,12 @@ define_blocks! {
             ]
         },
         model {
-        color [60, 180, 35, 255],
             if snowy {
                 BlockModel::square_block(["block/snow", "block/dirt", "block/grass_block_snow", "block/grass_block_snow", "block/grass_block_snow", "block/grass_block_snow"])
             } else {
-                let mut faces = vec!["block/"];
+                let textures = vec!["block/grass_block_top", "block/dirt", "block/grass_block_side", "block/grass_block_side", "block/grass_block_side", "block/grass_block_side"];
 
+                let mut faces = Vec::new();
                 let mut face_textures = [TextureAtlasIndex::default(); 6];
                 for i in 0..6 {
                     match ATLAS_LOOKUPS.get().unwrap().get(textures[i]) {
@@ -538,7 +523,7 @@ define_blocks! {
                     scale: Vector3::new(1.0, 0.0, 1.0),
                     texture: face_textures[0],
                     normal: ViewableDirectionBitMap::Top,
-                    color: [255; 4],
+                    color: [135, 255, 105, 255],
                     edge: true,
                 });
 
@@ -591,7 +576,8 @@ define_blocks! {
                     color: [255; 4],
                     edge: true,
                 });
-                BlockModel::square_block(["block/grass_block_top", "block/dirt", "block/grass_block_side", "block/grass_block_side", "block/grass_block_side", "block/grass_block_side"])
+
+                BlockModel { faces }
             }
         },
     }
@@ -1541,9 +1527,7 @@ define_blocks! {
             }
             states
         },
-        model BlockModel::square_block(["block/oak_leaves", "block/oak_leaves", "block/oak_leaves", "block/oak_leaves", "block/oak_leaves", "block/oak_leaves"]),
-        full false,
-        color [60, 180, 35, 255],
+        model BlockModel::square_coloured_block(["block/oak_leaves", "block/oak_leaves", "block/oak_leaves", "block/oak_leaves", "block/oak_leaves", "block/oak_leaves"], [60, 180, 35, 255]),
         transparent true,
     }
     SpruceLeaves {
@@ -1581,8 +1565,7 @@ define_blocks! {
             }
             states
         },
-        model BlockModel::square_block(["block/birch_leaves", "block/birch_leaves", "block/birch_leaves", "block/birch_leaves", "block/birch_leaves", "block/birch_leaves"]),
-        color [110, 180, 75, 255],
+        model BlockModel::square_coloured_block(["block/birch_leaves", "block/birch_leaves", "block/birch_leaves", "block/birch_leaves", "block/birch_leaves", "block/birch_leaves"], [130, 180, 95, 255]),
         transparent true,
     }
     JungleLeaves {
@@ -1639,7 +1622,7 @@ define_blocks! {
             }
             states
         },
-        model BlockModel::square_block(["block/dark_oak_leaves"; 6]),
+        model BlockModel::square_coloured_block(["block/dark_oak_leaves"; 6], [60, 180, 35, 255]),
         transparent true,
     }
     Sponge {
@@ -2250,7 +2233,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
+                            color: [135, 255, 105, 255],
                             edge: false,
                         },
                         BlockFace {
@@ -2258,7 +2241,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
+                            color: [135, 255, 105, 255],
                             edge: false,
                         },
                         BlockFace {
@@ -2266,7 +2249,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
+                            color: [135, 255, 105, 255],
                             edge: false,
                         },
                         BlockFace {
@@ -2274,7 +2257,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
+                            color: [135, 255, 105, 255],
                             edge: false,
                         }
                 ]
