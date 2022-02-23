@@ -8,11 +8,12 @@ use std::convert::TryFrom;
 use std::fs::File;
 use std::io::{Read, Write};
 use std::lazy::SyncOnceCell;
+use std::path::PathBuf;
 use std::time::{SystemTime, UNIX_EPOCH};
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
-use wgpu::{BufferUsage, CompareFunction, Device, ImageDataLayout, Queue, Sampler, Texture};
-use std::path::PathBuf;
-use crate::render::TEXTURE_FORMAT;
+use wgpu::{
+    BufferUsages, Device, ImageDataLayout, Queue, Sampler, Texture, TextureAspect, TextureFormat,
+};
 
 //TODO: Refactor
 
@@ -72,8 +73,8 @@ impl AssetService {
             mip_level_count: 1,
             sample_count: 1,
             dimension: wgpu::TextureDimension::D2,
-            format: *TEXTURE_FORMAT.get().unwrap(),
-            usage: wgpu::TextureUsage::SAMPLED | wgpu::TextureUsage::COPY_DST,
+            format: TextureFormat::Rgba8UnormSrgb,
+            usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST,
         });
 
         let mut atlas_index: HashMap<String, TextureAtlasIndex> = HashMap::new();
@@ -81,7 +82,14 @@ impl AssetService {
 
         if settings.atlas_cache_reading {
             // Check if they're the same resource pack
-            if let Some((image, map)) = load_cached_atlas(&atlas_path, &atlas_info_path, &atlas_index_path, zip_name, resource_pack, settings) {
+            if let Some((image, map)) = load_cached_atlas(
+                &atlas_path,
+                &atlas_info_path,
+                &atlas_index_path,
+                zip_name,
+                resource_pack,
+                settings,
+            ) {
                 atlas_index = map;
                 atlas_img = Some(image);
                 log!(
@@ -89,7 +97,6 @@ impl AssetService {
                     start_time.elapsed().unwrap().as_millis()
                 );
             }
-
         }
 
         // If reading cache didnt work then remake it
@@ -97,7 +104,16 @@ impl AssetService {
             let atlas = generate_atlas(textures, &mut atlas_index);
 
             if settings.atlas_cache_writing {
-                write_cached_atlas(&path, &atlas_path, &atlas_index_path, &atlas_index_path, &atlas_index, zip_name, &atlas, resource_pack);
+                write_cached_atlas(
+                    &path,
+                    &atlas_path,
+                    &atlas_index_path,
+                    &atlas_index_path,
+                    &atlas_index,
+                    zip_name,
+                    &atlas,
+                    resource_pack,
+                );
             }
 
             atlas_img = Some(DynamicImage::ImageRgba8(atlas));
@@ -107,18 +123,26 @@ impl AssetService {
             );
         }
 
-        let diffuse_sampler = process_image(atlas_img.as_mut().unwrap(), &diffuse_texture, queue, device);
+        let diffuse_sampler =
+            process_image(atlas_img.as_mut().unwrap(), &diffuse_texture, queue, device);
 
         ATLAS_LOOKUPS
             .set(atlas_index.clone())
             .expect("Atlas failed to setup");
 
-        (atlas_img.unwrap(), diffuse_texture, atlas_index, diffuse_sampler)
+        (
+            atlas_img.unwrap(),
+            diffuse_texture,
+            atlas_index,
+            diffuse_sampler,
+        )
     }
 }
 
-fn generate_atlas(textures: Vec<(String, DynamicImage)>, atlas_index: &mut HashMap<String, TextureAtlasIndex>) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
-
+fn generate_atlas(
+    textures: Vec<(String, DynamicImage)>,
+    atlas_index: &mut HashMap<String, TextureAtlasIndex>,
+) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
     let mut atlas: ImageBuffer<Rgba<u8>, Vec<u8>> =
         image::ImageBuffer::new(ATLAS_WIDTH, ATLAS_HEIGHT);
 
@@ -153,8 +177,7 @@ fn generate_atlas(textures: Vec<(String, DynamicImage)>, atlas_index: &mut HashM
 
             while textures.len() > (relative_texture_index + texture_id) {
                 // Add to row if theres space
-                let (name, img) =
-                    textures.get(relative_texture_index + texture_id).unwrap();
+                let (name, img) = textures.get(relative_texture_index + texture_id).unwrap();
                 let width = img.width();
 
                 if (row_width + width) <= ATLAS_WIDTH {
@@ -166,8 +189,7 @@ fn generate_atlas(textures: Vec<(String, DynamicImage)>, atlas_index: &mut HashM
                         TextureAtlasIndex::new(
                             (row_width as f32) / ATLAS_WIDTH as f32,
                             ((row_width + width) as f32) / ATLAS_WIDTH as f32,
-                            ((current_y + row_height - img.height()) as f32)
-                                / ATLAS_HEIGHT as f32,
+                            ((current_y + row_height - img.height()) as f32) / ATLAS_HEIGHT as f32,
                             ((current_y + row_height) as f32) / ATLAS_HEIGHT as f32,
                         ),
                     );
@@ -213,9 +235,8 @@ fn generate_atlas(textures: Vec<(String, DynamicImage)>, atlas_index: &mut HashM
         // Get the pixel
         match textures.get(texture_id + current_texture_id as usize) {
             Some((_, image)) => {
-                let tex_x = x
-                    - (texture_numbers_x.get(current_texture_id).unwrap()
-                    - (image.width() - 1));
+                let tex_x =
+                    x - (texture_numbers_x.get(current_texture_id).unwrap() - (image.width() - 1));
 
                 if current_y - image.height() > y {
                     *pixel = image::Rgba([255, 0, 0, 255]);
@@ -296,8 +317,12 @@ fn sort_textures(textures: &mut HashMap<String, DynamicImage>) -> Vec<(String, D
     out
 }
 
-fn process_image(atlas_img: &mut DynamicImage, diffuse_texture: &Texture, queue: &mut Queue, device: &Device) -> Sampler {
-
+fn process_image(
+    atlas_img: &mut DynamicImage,
+    diffuse_texture: &Texture,
+    queue: &mut Queue,
+    device: &Device,
+) -> Sampler {
     let diffuse_rgba = atlas_img.as_rgba8().unwrap();
     let dimensions = diffuse_rgba.dimensions();
 
@@ -310,7 +335,7 @@ fn process_image(atlas_img: &mut DynamicImage, diffuse_texture: &Texture, queue:
     let diffuse_buffer = device.create_buffer_init(&BufferInitDescriptor {
         label: Some("Asset Service Texture Atlas Buffer"),
         contents: &diffuse_rgba,
-        usage: BufferUsage::COPY_SRC,
+        usage: BufferUsages::COPY_SRC,
     });
 
     let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
@@ -331,6 +356,7 @@ fn process_image(atlas_img: &mut DynamicImage, diffuse_texture: &Texture, queue:
             texture: &diffuse_texture,
             mip_level: 0,
             origin: wgpu::Origin3d::ZERO,
+            aspect: TextureAspect::All,
         },
         size,
     );
@@ -347,7 +373,7 @@ fn process_image(atlas_img: &mut DynamicImage, diffuse_texture: &Texture, queue:
         mipmap_filter: wgpu::FilterMode::Nearest,
         lod_min_clamp: -100.0,
         lod_max_clamp: 100.0,
-        compare: Some(CompareFunction::Always),
+        compare: None,
         anisotropy_clamp: None,
         border_color: None,
     };
@@ -357,11 +383,18 @@ fn process_image(atlas_img: &mut DynamicImage, diffuse_texture: &Texture, queue:
     diffuse_sampler
 }
 
-fn write_cached_atlas(path: &PathBuf, atlas_path: &PathBuf, atlas_index_path: &PathBuf, atlas_info_path: &PathBuf, atlas_index: &HashMap<String, TextureAtlasIndex>, zip_name: &str, atlas: &ImageBuffer<Rgba<u8>, Vec<u8>>, resource_pack: &mut ResourcePack) {
+fn write_cached_atlas(
+    path: &PathBuf,
+    atlas_path: &PathBuf,
+    atlas_index_path: &PathBuf,
+    atlas_info_path: &PathBuf,
+    atlas_index: &HashMap<String, TextureAtlasIndex>,
+    zip_name: &str,
+    atlas: &ImageBuffer<Rgba<u8>, Vec<u8>>,
+    resource_pack: &mut ResourcePack,
+) {
     if !path.as_path().is_dir() {
-        if let Result::Err(error) =
-        std::fs::create_dir(path.clone())
-        {
+        if let Result::Err(error) = std::fs::create_dir(path.clone()) {
             log_error!("Failed to create cache directory: {}", error)
         }
     }
@@ -407,7 +440,7 @@ fn write_cached_atlas(path: &PathBuf, atlas_path: &PathBuf, atlas_index_path: &P
 fn load_cached_atlas_content(
     settings: &SettingsService,
     atlas_path: &PathBuf,
-    atlas_index_path: &PathBuf
+    atlas_index_path: &PathBuf,
 ) -> Result<(DynamicImage, HashMap<String, TextureAtlasIndex>), Box<dyn std::error::Error>> {
     let img = image::open(atlas_path)?;
 
@@ -420,7 +453,14 @@ fn load_cached_atlas_content(
     Ok((img, index))
 }
 
-fn load_cached_atlas(atlas_path: &PathBuf, atlas_info_path: &PathBuf, atlas_index_path: &PathBuf, zip_name: &str, resource_pack: &ResourcePack, settings: &SettingsService) -> Option<(DynamicImage, HashMap<String, TextureAtlasIndex>)> {
+fn load_cached_atlas(
+    atlas_path: &PathBuf,
+    atlas_info_path: &PathBuf,
+    atlas_index_path: &PathBuf,
+    zip_name: &str,
+    resource_pack: &ResourcePack,
+    settings: &SettingsService,
+) -> Option<(DynamicImage, HashMap<String, TextureAtlasIndex>)> {
     let pack_details_match = {
         match File::open(&atlas_info_path) {
             Ok(mut file) => {
@@ -432,11 +472,11 @@ fn load_cached_atlas(atlas_path: &PathBuf, atlas_info_path: &PathBuf, atlas_inde
                 let time = time.trim().parse::<u64>().unwrap();
                 name == zip_name
                     && resource_pack
-                    .modified
-                    .duration_since(UNIX_EPOCH)
-                    .unwrap()
-                    .as_secs()
-                    == time
+                        .modified
+                        .duration_since(UNIX_EPOCH)
+                        .unwrap()
+                        .as_secs()
+                        == time
             }
             Err(_) => false,
         }

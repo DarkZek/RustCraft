@@ -156,7 +156,7 @@ impl UpdateChunkMesh {
             let vertex_buffer = device.create_buffer_init(&BufferInitDescriptor {
                 label: Some("Chunk Opaque Mesh Data Buffer"),
                 contents: &bytemuck::cast_slice(&opaque_vertices),
-                usage: wgpu::BufferUsage::VERTEX,
+                usage: wgpu::BufferUsages::VERTEX,
             });
             self.opaque_model.vertices_buffer = Some(vertex_buffer);
         }
@@ -165,7 +165,7 @@ impl UpdateChunkMesh {
             let vertex_buffer = device.create_buffer_init(&BufferInitDescriptor {
                 label: Some("Chunk Translucent Mesh Data Buffer"),
                 contents: &bytemuck::cast_slice(&translucent_vertices),
-                usage: wgpu::BufferUsage::VERTEX,
+                usage: wgpu::BufferUsages::VERTEX,
             });
             self.translucent_model.vertices_buffer = Some(vertex_buffer);
         }
@@ -179,7 +179,7 @@ impl UpdateChunkMesh {
             let indices_buffer = device.create_buffer_init(&BufferInitDescriptor {
                 label: Some("Chunk Opaque Mesh Data Indices Buffer"),
                 contents: &bytemuck::cast_slice(&opaque_indices),
-                usage: wgpu::BufferUsage::INDEX,
+                usage: wgpu::BufferUsages::INDEX,
             });
             self.opaque_model.indices_buffer = Some(indices_buffer);
         }
@@ -188,7 +188,7 @@ impl UpdateChunkMesh {
             let indices_buffer = device.create_buffer_init(&BufferInitDescriptor {
                 label: Some("Chunk Translucent Mesh Data Indices Buffer"),
                 contents: &bytemuck::cast_slice(&translucent_indices),
-                usage: wgpu::BufferUsage::INDEX,
+                usage: wgpu::BufferUsages::INDEX,
             });
             self.translucent_model.indices_buffer = Some(indices_buffer);
         }
@@ -204,9 +204,9 @@ impl UpdateChunkMesh {
         let model_buffer = device.create_buffer_init(&BufferInitDescriptor {
             label: Some("Chunk translation matrix buffer"),
             contents: &bytemuck::cast_slice(&[model.clone()]),
-            usage: wgpu::BufferUsage::UNIFORM
-                | wgpu::BufferUsage::COPY_DST
-                | wgpu::BufferUsage::COPY_SRC,
+            usage: wgpu::BufferUsages::UNIFORM
+                | wgpu::BufferUsages::COPY_DST
+                | wgpu::BufferUsages::COPY_SRC,
         });
 
         let model_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {

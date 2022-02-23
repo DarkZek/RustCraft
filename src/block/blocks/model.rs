@@ -3,7 +3,7 @@ use crate::services::asset_service::index::TextureAtlasIndex;
 use crate::services::chunk_service::chunk::Color;
 use crate::services::chunk_service::mesh::culling::ViewableDirection;
 use crate::services::chunk_service::mesh::{Vertex, ViewableDirectionBitMap};
-use nalgebra::{Rotation3, Vector3};
+use nalgebra::Vector3;
 use std::f32::consts::PI;
 use std::ops::Mul;
 
@@ -24,6 +24,7 @@ pub struct BlockFace {
     pub scale: Vector3<f32>,
     pub texture: TextureAtlasIndex,
     pub normal: ViewableDirectionBitMap,
+    pub color: [u8; 4],
     // Is face on the edge of the block (used for culling)
     pub edge: bool,
 }
@@ -49,6 +50,7 @@ impl BlockModel {
             scale: Vector3::new(1.0, 0.0, 1.0),
             texture: face_textures[0],
             normal: ViewableDirectionBitMap::Top,
+            color: [255; 4],
             edge: true,
         });
 
@@ -58,6 +60,7 @@ impl BlockModel {
             scale: Vector3::new(1.0, 0.0, 1.0),
             texture: face_textures[1],
             normal: ViewableDirectionBitMap::Bottom,
+            color: [255; 4],
             edge: true,
         });
 
@@ -67,6 +70,7 @@ impl BlockModel {
             scale: Vector3::new(0.0, 1.0, 1.0),
             texture: face_textures[2],
             normal: ViewableDirectionBitMap::Left,
+            color: [255; 4],
             edge: true,
         });
 
@@ -76,6 +80,7 @@ impl BlockModel {
             scale: Vector3::new(0.0, 1.0, 1.0),
             texture: face_textures[3],
             normal: ViewableDirectionBitMap::Right,
+            color: [255; 4],
             edge: true,
         });
 
@@ -85,6 +90,7 @@ impl BlockModel {
             scale: Vector3::new(1.0, 1.0, 0.0),
             texture: face_textures[4],
             normal: ViewableDirectionBitMap::Front,
+            color: [255; 4],
             edge: true,
         });
 
@@ -94,6 +100,7 @@ impl BlockModel {
             scale: Vector3::new(1.0, 1.0, 0.0),
             texture: face_textures[5],
             normal: ViewableDirectionBitMap::Back,
+            color: [255; 4],
             edge: true,
         });
 

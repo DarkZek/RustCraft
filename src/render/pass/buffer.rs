@@ -3,21 +3,21 @@ use std::sync::Arc;
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{
     BindGroup, BindGroupEntry, BindGroupLayout, BindGroupLayoutDescriptor, BindingResource, Buffer,
-    BufferBinding, BufferUsage, Device,
+    BufferBinding, BufferUsages, Device,
 };
 
 pub struct BufferGroup {
     pub buffer: Option<Buffer>,
     pub bind_group: Option<BindGroup>,
     pub bind_group_layout: Arc<BindGroupLayout>,
-    usage: BufferUsage,
+    usage: BufferUsages,
 }
 
 impl BufferGroup {
     pub fn new(
         device: &Device,
         descriptor: &BindGroupLayoutDescriptor,
-        usage: BufferUsage,
+        usage: BufferUsages,
     ) -> BufferGroup {
         let bind_group_layout = device.create_bind_group_layout(descriptor);
 
@@ -29,7 +29,10 @@ impl BufferGroup {
         }
     }
 
-    pub fn with_layout(bind_group_layout: Arc<BindGroupLayout>, usage: BufferUsage) -> BufferGroup {
+    pub fn with_layout(
+        bind_group_layout: Arc<BindGroupLayout>,
+        usage: BufferUsages,
+    ) -> BufferGroup {
         BufferGroup {
             buffer: None,
             bind_group: None,

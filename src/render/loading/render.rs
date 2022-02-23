@@ -1,6 +1,5 @@
+use crate::render::get_texture_format;
 use crate::render::loading::LoadingScreen;
-use crate::render::shaders::load_shaders;
-use crate::render::TEXTURE_FORMAT;
 use crate::services::chunk_service::mesh::UIVertex;
 use nalgebra::{Matrix4, Orthographic3};
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
@@ -22,13 +21,12 @@ impl LoadingScreen {
                 push_constant_ranges: &[],
             });
 
-        let (vs_module, fs_module) = load_shaders(
-            &device,
-            (
-                include_bytes!("../../../../RustCraft/assets/shaders/loading_vert.spv"),
-                include_bytes!("../../../../RustCraft/assets/shaders/loading_frag.spv"),
-            ),
-        );
+        let vs_module = device.create_shader_module(&wgpu::include_spirv!(
+            "../../../assets/shaders/loading_vert.spv"
+        ));
+        let fs_module = device.create_shader_module(&wgpu::include_spirv!(
+            "../../../assets/shaders/loading_frag.spv"
+        ));
 
         device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
             label: Some("Loading render pipeline"),
@@ -43,7 +41,7 @@ impl LoadingScreen {
                 strip_index_format: None,
                 front_face: wgpu::FrontFace::Ccw,
                 cull_mode: None,
-                clamp_depth: false,
+                unclipped_depth: false,
                 polygon_mode: wgpu::PolygonMode::Fill,
                 conservative: false,
             },
@@ -57,8 +55,8 @@ impl LoadingScreen {
                 module: &fs_module,
                 entry_point: "main",
                 targets: &[wgpu::ColorTargetState {
-                    format: TEXTURE_FORMAT.get().unwrap().clone(),
-                    write_mask: wgpu::ColorWrite::ALL,
+                    format: get_texture_format(),
+                    write_mask: wgpu::ColorWrites::ALL,
                     blend: Some(BlendState {
                         color: BlendComponent {
                             src_factor: wgpu::BlendFactor::SrcAlpha,
@@ -73,6 +71,7 @@ impl LoadingScreen {
                     }),
                 }],
             }),
+            multiview: None,
         })
     }
 
@@ -87,7 +86,7 @@ impl LoadingScreen {
         let matrix_binding_layout_descriptor = wgpu::BindGroupLayoutDescriptor {
             entries: &[wgpu::BindGroupLayoutEntry {
                 binding: 0,
-                visibility: wgpu::ShaderStage::VERTEX,
+                visibility: wgpu::ShaderStages::VERTEX,
                 ty: wgpu::BindingType::Buffer {
                     ty: BufferBindingType::Uniform,
                     min_binding_size: None,
@@ -103,9 +102,9 @@ impl LoadingScreen {
         let matrix_buffer = device.create_buffer_init(&BufferInitDescriptor {
             label: Some("Loading screen projection matrix buffer"),
             contents: &bytemuck::cast_slice(matrix.as_slice()),
-            usage: wgpu::BufferUsage::UNIFORM
-                | wgpu::BufferUsage::COPY_DST
-                | wgpu::BufferUsage::COPY_SRC,
+            usage: wgpu::BufferUsages::UNIFORM
+                | wgpu::BufferUsages::COPY_DST
+                | wgpu::BufferUsages::COPY_SRC,
         });
 
         let matrix_bind_group_layout =

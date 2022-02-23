@@ -8,10 +8,9 @@ use rc_network::protocol::packet::PacketData;
 
 use crate::game::game_state::{GameState, ProgramState};
 use crate::services::chunk_service::mesh::rerendering::RerenderChunkFlag;
+use crate::services::settings_service::CHUNK_SIZE;
 use crate::services::ui_service::UIService;
 use specs::{Entities, Join, ReadStorage, System, Write, WriteStorage};
-use crate::services::settings_service::CHUNK_SIZE;
-use crate::block::blocks::BLOCK_STATES;
 
 pub struct ReceivedNetworkPackets {
     pub(crate) packets: Vec<PacketData>,
@@ -71,7 +70,6 @@ impl<'a> System<'a> for NetworkingSyncSystem {
 
             // Handle block changes
             if let PacketData::MultiBlockChange(packet) = packet {
-
                 let mut chunks = Vec::new();
 
                 let mut modified_chunks = Vec::new();
@@ -96,15 +94,20 @@ impl<'a> System<'a> for NetworkingSyncSystem {
 
                     match chunk {
                         Some(val) => {
-                            val.world[*x as usize][y_local as usize][*z as usize] = *block_id as u32;
+                            val.world[*x as usize][y_local as usize][*z as usize] =
+                                *block_id as u32;
 
-                            if !modified_chunks.contains(&Vector3::new(packet.x, y_chunk, packet.z)) {
+                            if !modified_chunks.contains(&Vector3::new(packet.x, y_chunk, packet.z))
+                            {
                                 modified_chunks.push(Vector3::new(packet.x, y_chunk, packet.z))
                             }
-
                         }
                         None => {
-                            log_error!("Network tried to change block in unloaded chunk X: {} Z: {}", packet.x, packet.z);
+                            log_error!(
+                                "Network tried to change block in unloaded chunk X: {} Z: {}",
+                                packet.x,
+                                packet.z
+                            );
                         }
                     }
                 }

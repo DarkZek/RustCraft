@@ -48,7 +48,7 @@ impl ChunkService {
         let model_bind_group_layout_descriptor = wgpu::BindGroupLayoutDescriptor {
             entries: &[wgpu::BindGroupLayoutEntry {
                 binding: 0,
-                visibility: wgpu::ShaderStage::VERTEX,
+                visibility: wgpu::ShaderStages::VERTEX,
                 ty: wgpu::BindingType::Buffer {
                     ty: BufferBindingType::Uniform,
                     min_binding_size: None,

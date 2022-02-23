@@ -1,13 +1,13 @@
 use crate::game::game_state::{GameState, ProgramState};
+use crate::render::background::Background;
+use crate::render::camera::Camera;
 use crate::render::RenderState;
 use crate::services::asset_service::AssetService;
 use crate::services::chunk_service::chunk::{ChunkData, Chunks};
 use crate::services::chunk_service::ChunkService;
 use crate::services::ui_service::UIService;
 use specs::{Read, ReadStorage, System, Write};
-use wgpu::{Color, IndexFormat, LoadOp, Operations};
-use crate::render::background::Background;
-use crate::render::camera::Camera;
+use wgpu::{IndexFormat, LoadOp, Operations};
 
 pub mod buffer;
 pub mod prepass;
@@ -24,23 +24,30 @@ impl<'a> System<'a> for RenderSystem {
         ReadStorage<'a, ChunkData>,
         Read<'a, UIService>,
         Read<'a, Background>,
-        Read<'a, Camera>
+        Read<'a, Camera>,
     );
 
     /// Renders all visible chunks
     fn run(
         &mut self,
-        (mut render_state, game_state, asset_service, chunk_service, chunks, ui_service, background, camera): Self::SystemData,
+        (
+            mut render_state,
+            game_state,
+            asset_service,
+            chunk_service,
+            chunks,
+            ui_service,
+            background,
+            camera,
+        ): Self::SystemData,
     ) {
         use specs::Join;
         let chunks = Chunks::new(chunks.join().collect::<Vec<&ChunkData>>());
 
-        let frame = render_state
-            .swap_chain
-            .as_mut()
-            .unwrap()
-            .get_current_frame()
-            .unwrap();
+        let texture = render_state.surface.get_current_texture().unwrap();
+        let frame = texture
+            .texture
+            .create_view(&wgpu::TextureViewDescriptor::default());
 
         let mut encoder =
             render_state
@@ -51,13 +58,16 @@ impl<'a> System<'a> for RenderSystem {
 
         {
             if game_state.state == ProgramState::InGame {
-
-                background.draw(&frame, &mut encoder, &[camera.yaw / (std::f32::consts::PI * 2.0), -camera.pitch]);
+                background.draw(
+                    &frame,
+                    &mut encoder,
+                    &[camera.yaw / (std::f32::consts::PI * 2.0), -camera.pitch],
+                );
 
                 let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
                     label: Some("Main Render Loop Render Pass"),
                     color_attachments: &[wgpu::RenderPassColorAttachment {
-                        view: &frame.output.view,
+                        view: &frame,
                         resolve_target: None,
                         ops: Operations {
                             load: LoadOp::Load,
@@ -123,6 +133,8 @@ impl<'a> System<'a> for RenderSystem {
             ui_service.render(&frame, &mut encoder, &render_state.device, &asset_service);
 
             render_state.queue.submit(Some(encoder.finish()));
+
+            texture.present();
         }
 
         std::mem::drop(frame);

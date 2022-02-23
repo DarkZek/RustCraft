@@ -1,14 +1,12 @@
 use crate::render::loading::models::load_splash;
 use crate::services::chunk_service::mesh::UIVertex;
-use instant::Duration;
 use lazy_static::lazy_static;
 use std::ops::DerefMut;
 use std::sync::{Arc, Mutex};
-use std::thread;
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{
-    BindGroup, BindGroupLayout, Buffer, BufferUsage, Device, Queue, RenderPipeline, Sampler,
-    SwapChain, Texture,
+    BindGroup, BindGroupLayout, Buffer, BufferUsages, Device, Queue, RenderPipeline, Sampler,
+    Surface, Texture,
 };
 use winit::dpi::PhysicalSize;
 
@@ -20,6 +18,7 @@ lazy_static! {
     pub static ref LOADING_STATE: Mutex<f32> = Mutex::new(0.0);
 }
 
+// Vertices that show the static loading screen elements
 const STANDARD_VERTICES: [UIVertex; 18] = [
     UIVertex {
         position: [0.72, -0.49],
@@ -120,9 +119,9 @@ const STANDARD_VERTICES: [UIVertex; 18] = [
 ///
 pub struct LoadingScreen {
     pipeline: RenderPipeline,
-    swapchain: Arc<Mutex<SwapChain>>,
     device: Arc<Device>,
     queue: Arc<Mutex<Queue>>,
+    surface: Arc<Surface>,
     default_vertices_buffer: Buffer,
     splash_texture: Texture,
     splash_sampler: Sampler,
@@ -136,7 +135,7 @@ pub struct LoadingScreen {
 impl LoadingScreen {
     pub fn new(
         size: &PhysicalSize<u32>,
-        swapchain: Arc<Mutex<SwapChain>>,
+        surface: Arc<Surface>,
         device: Arc<Device>,
         queue: Arc<Mutex<Queue>>,
     ) -> LoadingScreen {
@@ -155,8 +154,8 @@ impl LoadingScreen {
 
         LoadingScreen {
             pipeline,
-            swapchain,
             device,
+            surface,
             queue,
             default_vertices_buffer,
             splash_texture,
@@ -177,33 +176,33 @@ impl LoadingScreen {
         *crate::render::loading::LOADING_STATE.lock().unwrap() == -1.0
     }
 
-    pub fn wait_for_swapchain(mut swap_chain: Arc<Mutex<SwapChain>>) -> SwapChain {
-        loop {
-            // Try to unwrap
-            let chain = Arc::try_unwrap(swap_chain);
-
-            // Decide output
-            match chain {
-                Ok(out) => {
-                    // If success unwrap mutex and return SwapChain
-                    return out.into_inner().unwrap();
-                }
-                Err(swap_chain_out) => {
-                    // If error, return variable and loop again
-                    swap_chain = swap_chain_out;
-                }
-            }
-
-            thread::sleep(Duration::from_millis(1000 / 60));
-        }
-    }
+    // pub fn wait_for_swapchain(mut swap_chain: Arc<Mutex<SwapChain>>) -> SwapChain {
+    //     loop {
+    //         // Try to unwrap
+    //         let chain = Arc::try_unwrap(swap_chain);
+    //
+    //         // Decide output
+    //         match chain {
+    //             Ok(out) => {
+    //                 // If success unwrap mutex and return SwapChain
+    //                 return out.into_inner().unwrap();
+    //             }
+    //             Err(swap_chain_out) => {
+    //                 // If error, return variable and loop again
+    //                 swap_chain = swap_chain_out;
+    //             }
+    //         }
+    //
+    //         thread::sleep(Duration::from_millis(1000 / 60));
+    //     }
+    // }
 }
 
 pub fn load_buffers(device: &Device) -> Buffer {
     let defaults_buffer = device.create_buffer_init(&BufferInitDescriptor {
         label: Some("Loading Verticles Buffer"),
         contents: &bytemuck::cast_slice(STANDARD_VERTICES.as_ref()),
-        usage: BufferUsage::VERTEX,
+        usage: BufferUsages::VERTEX,
     });
 
     defaults_buffer

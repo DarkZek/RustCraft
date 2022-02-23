@@ -6,15 +6,15 @@ use crate::services::asset_service::index::TextureAtlasIndex;
 use crate::services::settings_service::SettingsService;
 use crate::services::ServicesContext;
 use image::DynamicImage;
+use native_dialog::{MessageDialog, MessageType};
 use std::collections::HashMap;
-use std::ops::DerefMut;
-use std::time::SystemTime;
-use wgpu::{BindGroup, BindGroupLayout, Sampler, Texture};
+use std::error::Error;
 use std::fs;
 use std::io::Cursor;
-use std::error::Error;
+use std::ops::DerefMut;
 use std::path::PathBuf;
-use native_dialog::{MessageDialog, MessageType};
+use std::time::SystemTime;
+use wgpu::{BindGroup, BindGroupLayout, Sampler, Texture};
 
 pub mod atlas;
 pub mod binding;
@@ -49,24 +49,25 @@ pub struct ResourcePack {
 
 impl AssetService {
     pub fn new(settings: &SettingsService, context: &mut ServicesContext) -> AssetService {
-
         let mut path = settings.path.clone();
         path.push("resources");
 
         // Try creating resources directory
-        fs::create_dir_all(path.as_path());
+        fs::create_dir_all(path.as_path()).unwrap();
 
         let mut resource_packs = AssetService::get_resource_packs(path.clone());
 
         if resource_packs.len() == 0 {
-
             log_error!("No resource packs found");
 
             // Ask the user if they would like to download the default resources
             let result = MessageDialog::new()
                 .set_type(MessageType::Info)
                 .set_title("No resource packs found")
-                .set_text(&format!("No resource packs installed. Would you like to automatically download {}?", DEFAULT_RESOURCE_PACK))
+                .set_text(&format!(
+                    "No resource packs installed. Would you like to automatically download {}?",
+                    DEFAULT_RESOURCE_PACK
+                ))
                 .show_confirm();
 
             // Ensure the message got through and respond to its input
@@ -84,12 +85,20 @@ impl AssetService {
 
             // Download the default resources
             if let Result::Err(err) = AssetService::download_default_resources(path.clone()) {
-                log_error!("Failed to download Rosources.zip: {:?}", err);
+                log_error!(
+                    "Failed to download {}.zip: {:?}",
+                    DEFAULT_RESOURCE_PACK,
+                    err
+                );
                 MessageDialog::new()
                     .set_type(MessageType::Error)
                     .set_title(&*format!("Failed to download {}", DEFAULT_RESOURCE_PACK))
-                    .set_text(&format!("Failed to download {}, check your network connection.\n{:?}", DEFAULT_RESOURCE_PACK, err))
-                    .show_alert().unwrap();
+                    .set_text(&format!(
+                        "Failed to download {}, check your network connection.\n{:?}",
+                        DEFAULT_RESOURCE_PACK, err
+                    ))
+                    .show_alert()
+                    .unwrap();
                 std::process::exit(0);
             }
 
@@ -136,13 +145,16 @@ impl AssetService {
     }
 
     pub fn download_default_resources(mut pack_path: PathBuf) -> Result<(), Box<dyn Error>> {
-        let result = reqwest::blocking::get("https://github.com/FaithfulTeam/Faithful/blob/releases/1.15.zip?raw=true").unwrap();
+        let result = reqwest::blocking::get(
+            "https://github.com/FaithfulTeam/Faithful/blob/releases/1.15.zip?raw=true",
+        )
+        .unwrap();
 
         pack_path.push(DEFAULT_RESOURCE_PACK);
 
         // Save
         let mut file = std::fs::File::create(pack_path)?;
-        let mut content =  Cursor::new(result.bytes()?);
+        let mut content = Cursor::new(result.bytes()?);
         std::io::copy(&mut content, &mut file)?;
         Ok(())
     }

@@ -215,6 +215,7 @@ macro_rules! define_blocks {
                 $(model $model:expr,)?
                 $(collidable $collidable:expr,)?
                 $(full $full:expr,)?
+                $(color $color:expr,)?
                 $(stacksize $stacksize:expr,)?
                 $(light_color $light_color:expr,)?
                 $(light_intensity $light_intensity:expr,)?
@@ -307,6 +308,20 @@ macro_rules! define_blocks {
                         } => {
                             $(return $full;)?
                             return true;
+                        }
+                    )+
+                }
+            }
+
+            #[allow(unused_variables, unreachable_code)]
+            pub fn get_color(&self) -> [u8; 4] {
+                match *self {
+                    $(
+                        BlockType::$name {
+                            $($fname,)?
+                        } => {
+                            $(return $color;)?
+                            return [255, 255, 255, 255];
                         }
                     )+
                 }
@@ -500,9 +515,82 @@ define_blocks! {
             ]
         },
         model {
-            if (snowy) {
+        color [60, 180, 35, 255],
+            if snowy {
                 BlockModel::square_block(["block/snow", "block/dirt", "block/grass_block_snow", "block/grass_block_snow", "block/grass_block_snow", "block/grass_block_snow"])
             } else {
+                let mut faces = vec!["block/"];
+
+                let mut face_textures = [TextureAtlasIndex::default(); 6];
+                for i in 0..6 {
+                    match ATLAS_LOOKUPS.get().unwrap().get(textures[i]) {
+                        None => {
+                            log_error!("No texture found for block with textures: {:?}", textures);
+                            face_textures[i] = *ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap();
+                        }
+                        Some(texture) => face_textures[i] = *texture,
+                    }
+                }
+
+                // Top face
+                faces.push(BlockFace {
+                    bottom_left: Vector3::new(0.0, 1.0, 0.0),
+                    scale: Vector3::new(1.0, 0.0, 1.0),
+                    texture: face_textures[0],
+                    normal: ViewableDirectionBitMap::Top,
+                    color: [255; 4],
+                    edge: true,
+                });
+
+                // Bottom face
+                faces.push(BlockFace {
+                    bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                    scale: Vector3::new(1.0, 0.0, 1.0),
+                    texture: face_textures[1],
+                    normal: ViewableDirectionBitMap::Bottom,
+                    color: [255; 4],
+                    edge: true,
+                });
+
+                // Left face
+                faces.push(BlockFace {
+                    bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                    scale: Vector3::new(0.0, 1.0, 1.0),
+                    texture: face_textures[2],
+                    normal: ViewableDirectionBitMap::Left,
+                    color: [255; 4],
+                    edge: true,
+                });
+
+                // Right face
+                faces.push(BlockFace {
+                    bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                    scale: Vector3::new(0.0, 1.0, 1.0),
+                    texture: face_textures[3],
+                    normal: ViewableDirectionBitMap::Right,
+                    color: [255; 4],
+                    edge: true,
+                });
+
+                // Front face
+                faces.push(BlockFace {
+                    bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                    scale: Vector3::new(1.0, 1.0, 0.0),
+                    texture: face_textures[4],
+                    normal: ViewableDirectionBitMap::Front,
+                    color: [255; 4],
+                    edge: true,
+                });
+
+                // Back face
+                faces.push(BlockFace {
+                    bottom_left: Vector3::new(0.0, 0.0, 1.0),
+                    scale: Vector3::new(1.0, 1.0, 0.0),
+                    texture: face_textures[5],
+                    normal: ViewableDirectionBitMap::Back,
+                    color: [255; 4],
+                    edge: true,
+                });
                 BlockModel::square_block(["block/grass_block_top", "block/dirt", "block/grass_block_side", "block/grass_block_side", "block/grass_block_side", "block/grass_block_side"])
             }
         },
@@ -588,6 +676,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -595,6 +684,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -602,6 +692,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -609,6 +700,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         }
                 ]
@@ -639,6 +731,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -646,6 +739,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -653,6 +747,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -660,6 +755,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         }
                 ]
@@ -690,6 +786,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -697,6 +794,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -704,6 +802,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -711,6 +810,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         }
                 ]
@@ -741,6 +841,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -748,6 +849,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -755,6 +857,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -762,6 +865,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         }
                 ]
@@ -792,6 +896,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -799,6 +904,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -806,6 +912,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -813,6 +920,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         }
                 ]
@@ -843,6 +951,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -850,6 +959,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -857,6 +967,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -864,6 +975,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         }
                 ]
@@ -919,6 +1031,7 @@ define_blocks! {
                         scale: Vector3::new(1.0, 0.0, 1.0),
                         texture: lookup.clone(),
                         normal: ViewableDirectionBitMap::Top,
+                        color: [255; 4],
                         edge: true,
                     },
                     BlockFace {
@@ -926,6 +1039,7 @@ define_blocks! {
                         scale: Vector3::new(1.0, 0.0, 1.0),
                         texture: lookup.clone(),
                         normal: ViewableDirectionBitMap::Bottom,
+                        color: [255; 4],
                         edge: true,
                     },
                     BlockFace {
@@ -933,6 +1047,7 @@ define_blocks! {
                         scale: Vector3::new(0.0, 0.85, 1.0),
                         texture: lookup.clone(),
                         normal: ViewableDirectionBitMap::Left,
+                        color: [255; 4],
                         edge: true,
                     },
                     BlockFace {
@@ -940,6 +1055,7 @@ define_blocks! {
                         scale: Vector3::new(0.0, 0.85, 1.0),
                         texture: lookup.clone(),
                         normal: ViewableDirectionBitMap::Right,
+                        color: [255; 4],
                         edge: true,
                     },
                     BlockFace {
@@ -947,6 +1063,7 @@ define_blocks! {
                         scale: Vector3::new(1.0, 0.85, 0.0),
                         texture: lookup.clone(),
                         normal: ViewableDirectionBitMap::Front,
+                        color: [255; 4],
                         edge: true,
                     },
                     BlockFace {
@@ -954,6 +1071,7 @@ define_blocks! {
                         scale: Vector3::new(1.0, 0.85, 0.0),
                         texture: lookup.clone(),
                         normal: ViewableDirectionBitMap::Back,
+                        color: [255; 4],
                         edge: true,
                     },
                 ]
@@ -1424,6 +1542,8 @@ define_blocks! {
             states
         },
         model BlockModel::square_block(["block/oak_leaves", "block/oak_leaves", "block/oak_leaves", "block/oak_leaves", "block/oak_leaves", "block/oak_leaves"]),
+        full false,
+        color [60, 180, 35, 255],
         transparent true,
     }
     SpruceLeaves {
@@ -1462,6 +1582,7 @@ define_blocks! {
             states
         },
         model BlockModel::square_block(["block/birch_leaves", "block/birch_leaves", "block/birch_leaves", "block/birch_leaves", "block/birch_leaves", "block/birch_leaves"]),
+        color [110, 180, 75, 255],
         transparent true,
     }
     JungleLeaves {
@@ -2035,6 +2156,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 0.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Top,
+                            color: [255; 4],
                             edge: false,
                         }
                     ],
@@ -2070,6 +2192,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 0.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Top,
+                            color: [255; 4],
                             edge: false,
                         }
                     ]
@@ -2127,6 +2250,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -2134,6 +2258,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -2141,6 +2266,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -2148,6 +2274,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         }
                 ]
@@ -2173,6 +2300,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -2180,6 +2308,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -2187,6 +2316,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -2194,6 +2324,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         }
                 ]
@@ -2219,6 +2350,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -2226,6 +2358,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -2233,6 +2366,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -2240,6 +2374,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         }
                 ]
@@ -2260,78 +2395,88 @@ define_blocks! {
 
             BlockModel {
                 faces: vec![
-                        //TODO: Scale this correctly, the texture is being smushed down
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 0.85, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 0.85, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 0.85, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 0.85, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            edge: false,
-                        },
-                        // Water
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.85, 0.0),
-                            scale: Vector3::new(1.0, 0.0, 1.0),
-                            texture: water_lookup.clone(),
-                            normal: ViewableDirectionBitMap::Top,
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 0.0, 1.0),
-                            texture: water_lookup.clone(),
-                            normal: ViewableDirectionBitMap::Bottom,
-                            edge: true,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(0.0, 0.85, 1.0),
-                            texture: water_lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            edge: true,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(0.0, 0.85, 1.0),
-                            texture: water_lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            edge: true,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 0.85, 0.0),
-                            texture: water_lookup.clone(),
-                            normal: ViewableDirectionBitMap::Front,
-                            edge: true,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 1.0),
-                            scale: Vector3::new(1.0, 0.85, 0.0),
-                            texture: water_lookup.clone(),
-                            normal: ViewableDirectionBitMap::Back,
-                            edge: true,
-                        },
+                    //TODO: Scale this correctly, the texture is being smushed down
+                    BlockFace {
+                        bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                        scale: Vector3::new(1.0, 0.85, 1.0),
+                        texture: lookup.clone(),
+                        normal: ViewableDirectionBitMap::Left,
+                        color: [255; 4],
+                        edge: false,
+                    },
+                    BlockFace {
+                        bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                        scale: Vector3::new(1.0, 0.85, 1.0),
+                        texture: lookup.clone(),
+                        normal: ViewableDirectionBitMap::Right,
+                        color: [255; 4],
+                        edge: false,
+                    },
+                    BlockFace {
+                        bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                        scale: Vector3::new(-1.0, 0.85, 1.0),
+                        texture: lookup.clone(),
+                        normal: ViewableDirectionBitMap::Left,
+                        color: [255; 4],
+                        edge: false,
+                    },
+                    BlockFace {
+                        bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                        scale: Vector3::new(-1.0, 0.85, 1.0),
+                        texture: lookup.clone(),
+                        normal: ViewableDirectionBitMap::Right,
+                        color: [255; 4],
+                        edge: false,
+                    },
+                    // Water
+                    BlockFace {
+                        bottom_left: Vector3::new(0.0, 0.85, 0.0),
+                        scale: Vector3::new(1.0, 0.0, 1.0),
+                        texture: water_lookup.clone(),
+                        normal: ViewableDirectionBitMap::Top,
+                        color: [255; 4],
+                        edge: false,
+                    },
+                    BlockFace {
+                        bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                        scale: Vector3::new(1.0, 0.0, 1.0),
+                        texture: water_lookup.clone(),
+                        normal: ViewableDirectionBitMap::Bottom,
+                    color: [255; 4],
+                        edge: true,
+                    },
+                    BlockFace {
+                        bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                        scale: Vector3::new(0.0, 0.85, 1.0),
+                        texture: water_lookup.clone(),
+                        normal: ViewableDirectionBitMap::Left,
+                        color: [255; 4],
+                        edge: true,
+                    },
+                    BlockFace {
+                        bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                        scale: Vector3::new(0.0, 0.85, 1.0),
+                        texture: water_lookup.clone(),
+                        normal: ViewableDirectionBitMap::Right,
+                        color: [255; 4],
+                        edge: true,
+                    },
+                    BlockFace {
+                        bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                        scale: Vector3::new(1.0, 0.85, 0.0),
+                        texture: water_lookup.clone(),
+                        normal: ViewableDirectionBitMap::Front,
+                        color: [255; 4],
+                        edge: true,
+                    },
+                    BlockFace {
+                        bottom_left: Vector3::new(0.0, 0.0, 1.0),
+                        scale: Vector3::new(1.0, 0.85, 0.0),
+                        texture: water_lookup.clone(),
+                        normal: ViewableDirectionBitMap::Back,
+                        color: [255; 4],
+                        edge: true,
+                    },
                 ]
             }
         },
@@ -2361,6 +2506,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -2368,6 +2514,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -2375,6 +2522,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -2382,6 +2530,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         },
                         // Water
@@ -2390,6 +2539,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 0.0, 1.0),
                             texture: water_lookup.clone(),
                             normal: ViewableDirectionBitMap::Top,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -2397,6 +2547,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 0.0, 1.0),
                             texture: water_lookup.clone(),
                             normal: ViewableDirectionBitMap::Bottom,
+                            color: [255; 4],
                             edge: true,
                         },
                         BlockFace {
@@ -2404,6 +2555,7 @@ define_blocks! {
                             scale: Vector3::new(0.0, 0.85, 1.0),
                             texture: water_lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: true,
                         },
                         BlockFace {
@@ -2411,6 +2563,7 @@ define_blocks! {
                             scale: Vector3::new(0.0, 0.85, 1.0),
                             texture: water_lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: true,
                         },
                         BlockFace {
@@ -2418,6 +2571,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 0.85, 0.0),
                             texture: water_lookup.clone(),
                             normal: ViewableDirectionBitMap::Front,
+                            color: [255; 4],
                             edge: true,
                         },
                         BlockFace {
@@ -2425,6 +2579,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 0.85, 0.0),
                             texture: water_lookup.clone(),
                             normal: ViewableDirectionBitMap::Back,
+                            color: [255; 4],
                             edge: true,
                         },
                 ],
@@ -2662,6 +2817,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -2669,6 +2825,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -2676,6 +2833,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -2683,6 +2841,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         }
                 ]
@@ -2707,6 +2866,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -2714,6 +2874,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -2721,6 +2882,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -2728,6 +2890,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         }
                 ],
@@ -2752,6 +2915,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -2759,6 +2923,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -2766,6 +2931,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -2773,6 +2939,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         }
                 ]
@@ -2797,6 +2964,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -2804,6 +2972,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -2811,6 +2980,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -2818,6 +2988,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         }
                 ]
@@ -2842,6 +3013,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -2849,6 +3021,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -2856,6 +3029,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -2863,6 +3037,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         }
                 ]
@@ -2887,6 +3062,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -2894,6 +3070,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -2901,6 +3078,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -2908,6 +3086,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         }
                 ]
@@ -2932,6 +3111,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -2939,6 +3119,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -2946,6 +3127,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -2953,6 +3135,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         }
                 ]
@@ -2977,6 +3160,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -2984,6 +3168,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -2991,6 +3176,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -2998,6 +3184,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         }
                 ]
@@ -3022,6 +3209,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -3029,6 +3217,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -3036,6 +3225,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -3043,6 +3233,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         }
                 ]
@@ -3067,6 +3258,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -3074,6 +3266,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -3081,6 +3274,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -3088,6 +3282,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         }
                 ]
@@ -3112,6 +3307,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -3119,6 +3315,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -3126,6 +3323,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -3133,6 +3331,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         }
                 ]
@@ -3157,6 +3356,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -3164,6 +3364,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -3171,6 +3372,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -3178,6 +3380,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         }
                 ]
@@ -3202,6 +3405,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -3209,6 +3413,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -3216,6 +3421,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -3223,6 +3429,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         }
                 ]
@@ -3247,6 +3454,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -3254,6 +3462,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -3261,6 +3470,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -3268,6 +3478,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         }
                 ]
@@ -3292,6 +3503,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -3299,6 +3511,7 @@ define_blocks! {
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -3306,6 +3519,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -3313,6 +3527,7 @@ define_blocks! {
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         }
                 ]
@@ -3405,6 +3620,7 @@ define_blocks! {
                             scale: Vector3::new(0.125, 0.625, 0.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -3412,6 +3628,7 @@ define_blocks! {
                             scale: Vector3::new(0.125, 0.625, 0.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -3419,6 +3636,7 @@ define_blocks! {
                             scale: Vector3::new(0.0, 0.625, 0.125),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Front,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -3426,6 +3644,7 @@ define_blocks! {
                             scale: Vector3::new(0.0, 0.625, 0.125),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Back,
+                            color: [255; 4],
                             edge: false,
                         }
                 ]
@@ -3460,6 +3679,7 @@ define_blocks! {
                             scale: Vector3::new(0.125, 0.625, 0.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Right,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -3467,6 +3687,7 @@ define_blocks! {
                             scale: Vector3::new(0.125, 0.625, 0.0),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Left,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -3474,6 +3695,7 @@ define_blocks! {
                             scale: Vector3::new(0.0, 0.625, 0.125),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Front,
+                            color: [255; 4],
                             edge: false,
                         },
                         BlockFace {
@@ -3481,6 +3703,7 @@ define_blocks! {
                             scale: Vector3::new(0.0, 0.625, 0.125),
                             texture: lookup.clone(),
                             normal: ViewableDirectionBitMap::Back,
+                            color: [255; 4],
                             edge: false,
                         }
                 ]
@@ -3561,6 +3784,7 @@ define_blocks! {
         },
         model {
             let lookup = AtlasIndex::new_lookup("block/oak_planks");
+            let lookup = AtlasIndex::new_lookup("block/oak_planks");
 
             let mut model = BlockModel {
                 faces: vec![
@@ -3570,6 +3794,7 @@ define_blocks! {
                         scale: Vector3::new(0.5, 1.0, 0.0),
                         texture: lookup.get_subdivision(TextureSubdivisionMethod::Left),
                         normal: ViewableDirectionBitMap::Back,
+                        color: [255; 4],
                         edge: true,
                     },
                     BlockFace {
@@ -3577,6 +3802,7 @@ define_blocks! {
                         scale: Vector3::new(0.5, 0.5, 0.0),
                         texture: lookup.get_subdivision(TextureSubdivisionMethod::BottomRight),
                         normal: ViewableDirectionBitMap::Back,
+                        color: [255; 4],
                         edge: true,
                     },
 
@@ -3586,6 +3812,7 @@ define_blocks! {
                         scale: Vector3::new(0.5, 1.0, 0.0),
                         texture: lookup.get_subdivision(TextureSubdivisionMethod::Left),
                         normal: ViewableDirectionBitMap::Front,
+                        color: [255; 4],
                         edge: true,
                     },
                     BlockFace {
@@ -3593,6 +3820,7 @@ define_blocks! {
                         scale: Vector3::new(0.5, 0.5, 0.0),
                         texture: lookup.get_subdivision(TextureSubdivisionMethod::BottomRight),
                         normal: ViewableDirectionBitMap::Front,
+                        color: [255; 4],
                         edge: true,
                     },
 
@@ -3602,6 +3830,7 @@ define_blocks! {
                         scale: Vector3::new(0.5, 0.0, 1.0),
                         texture: lookup.get_subdivision(TextureSubdivisionMethod::Left),
                         normal: ViewableDirectionBitMap::Top,
+                        color: [255; 4],
                         edge: true,
                     },
                     BlockFace {
@@ -3609,6 +3838,7 @@ define_blocks! {
                         scale: Vector3::new(0.5, 0.0, 1.0),
                         texture: lookup.get_subdivision(TextureSubdivisionMethod::Right),
                         normal: ViewableDirectionBitMap::Top,
+                        color: [255; 4],
                         edge: false,
                     },
 
@@ -3618,6 +3848,7 @@ define_blocks! {
                         scale: Vector3::new(0.0, 0.5, 1.0),
                         texture: lookup.get_subdivision(TextureSubdivisionMethod::Top),
                         normal: ViewableDirectionBitMap::Right,
+                        color: [255; 4],
                         edge: true,
                     },
                     BlockFace {
@@ -3625,6 +3856,7 @@ define_blocks! {
                         scale: Vector3::new(0.0, 0.5, 1.0),
                         texture: lookup.get_subdivision(TextureSubdivisionMethod::Bottom),
                         normal: ViewableDirectionBitMap::Right,
+                        color: [255; 4],
                         edge: false,
                     },
 
@@ -3634,6 +3866,7 @@ define_blocks! {
                         scale: Vector3::new(0.0, 1.0, 1.0),
                         texture: lookup.get_subdivision(TextureSubdivisionMethod::Full),
                         normal: ViewableDirectionBitMap::Left,
+                        color: [255; 4],
                         edge: true,
                     },
 
@@ -3643,25 +3876,26 @@ define_blocks! {
                         scale: Vector3::new(1.0, 0.0, 1.0),
                         texture: lookup.get_subdivision(TextureSubdivisionMethod::Full),
                         normal: ViewableDirectionBitMap::Bottom,
+                        color: [255; 4],
                         edge: true,
                     },
                 ]
             };
 
-            if (top) {
+            if top {
                 // Move face
                 model.invert_y();
             }
 
-            if (facing == Direction::South) {
+            if facing == Direction::South {
                 model.rotate_xz(crate::block::blocks::model::Rotate::Deg90);
             }
 
-            if (facing == Direction::North) {
+            if facing == Direction::North {
                 model.rotate_xz(crate::block::blocks::model::Rotate::Deg270);
             }
 
-            if (facing == Direction::East) {
+            if facing == Direction::East {
                 model.rotate_xz(crate::block::blocks::model::Rotate::Deg180);
             }
 

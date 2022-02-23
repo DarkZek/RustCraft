@@ -1,10 +1,9 @@
-cargo-features = ["strip", "named-profiles"]
-
 [package]
 name = "rustcraft"
 version = "0.2.0"
 authors = ["Marshall Ashdowne <daarkzek@protonmail.com>"]
 edition = "2018"
+resolver="2"
 
 [profile.dev]
 opt-level = 3
@@ -25,7 +24,7 @@ opt-level = 's'
 [dependencies]
 rc_network = { path = "./rc_network" }
 rc_logging = { path = "./logging" }
-wgpu = "0.8.1"
+wgpu = { version = "0.12.0", features = ["spirv"] }
 nalgebra = "0.21.0"
 image = { version = "0.23.3", default-features = false, features = ["png"] }
 zerocopy = "0.2.8"
@@ -42,7 +41,7 @@ reqwest = { version = "0.11.3", features = ["blocking"] }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 specs = {version = "0.16.1"} #specs = {version = "0.16.1", default-features = false}
-winit = { version = "0.25.0"}
+winit = { version = "0.26.0"}
 instant = { version = "0.1" }
 systemstat = "0.1.5"
 zip = {version = "0.5.5", default-features = false, features = ["deflate"]}
@@ -53,7 +52,7 @@ native-dialog = "0.5.5"
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 rand = { version = "0.7.3", features = ["wasm-bindgen"] }
 instant = { version = "0.1", features = [ "now", "wasm-bindgen" ] }
-winit = { version = "0.25.0", features = ["web-sys"]}
+winit = { version = "0.26.0" }
 zip = {version = "0.5.5", default-features = false, features = ["deflate"]}
 wasm-bindgen = "0.2.73"
 js-sys = "0.3.39"

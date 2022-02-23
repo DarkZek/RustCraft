@@ -1,11 +1,11 @@
-use crate::render::TEXTURE_FORMAT;
+use crate::render::get_texture_format;
 use image::ImageFormat;
 use std::convert::TryFrom;
 use std::num::NonZeroU32;
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{
-    BindGroup, BindGroupLayout, BufferUsage, CompareFunction, Device, ImageDataLayout, Queue,
-    Sampler, Texture, TextureAspect, TextureSampleType, TextureViewDescriptor,
+    BindGroup, BindGroupLayout, BufferUsages, Device, ImageDataLayout, Queue, Sampler,
+    SamplerBindingType, Texture, TextureAspect, TextureSampleType, TextureViewDescriptor,
     TextureViewDimension,
 };
 
@@ -28,7 +28,7 @@ pub fn load_splash(
     let diffuse_buffer = device.create_buffer_init(&BufferInitDescriptor {
         label: Some("Loading splash screen image buffer"),
         contents: &diffuse_rgba,
-        usage: BufferUsage::COPY_SRC,
+        usage: BufferUsages::COPY_SRC,
     });
 
     let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
@@ -41,8 +41,8 @@ pub fn load_splash(
         mip_level_count: 1,
         sample_count: 1,
         dimension: wgpu::TextureDimension::D2,
-        format: wgpu::TextureFormat::Rgba8UnormSrgb,
-        usage: wgpu::TextureUsage::SAMPLED | wgpu::TextureUsage::COPY_DST,
+        format: get_texture_format(),
+        usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST,
     });
 
     // Add it to buffer
@@ -59,6 +59,7 @@ pub fn load_splash(
             texture: &diffuse_texture,
             mip_level: 0,
             origin: wgpu::Origin3d::ZERO,
+            aspect: TextureAspect::All,
         },
         size,
     );
@@ -75,7 +76,7 @@ pub fn load_splash(
         mipmap_filter: wgpu::FilterMode::Nearest,
         lod_min_clamp: -100.0,
         lod_max_clamp: 100.0,
-        compare: Some(CompareFunction::Equal),
+        compare: None,
         anisotropy_clamp: None,
         border_color: None,
     };
@@ -94,7 +95,7 @@ pub fn load_splash_image_bindings(
 ) -> (BindGroupLayout, BindGroup) {
     let diffuse_texture_view = diffuse_texture.create_view(&TextureViewDescriptor {
         label: Some("Loading splash screen texture descriptor"),
-        format: Some(TEXTURE_FORMAT.get().unwrap().clone()),
+        format: Some(get_texture_format()),
         dimension: Some(TextureViewDimension::D2),
         aspect: TextureAspect::All,
         base_mip_level: 0,
@@ -108,7 +109,7 @@ pub fn load_splash_image_bindings(
             entries: &[
                 wgpu::BindGroupLayoutEntry {
                     binding: 0,
-                    visibility: wgpu::ShaderStage::FRAGMENT,
+                    visibility: wgpu::ShaderStages::FRAGMENT,
                     ty: wgpu::BindingType::Texture {
                         sample_type: TextureSampleType::Float { filterable: false },
                         view_dimension: TextureViewDimension::D2,
@@ -118,11 +119,8 @@ pub fn load_splash_image_bindings(
                 },
                 wgpu::BindGroupLayoutEntry {
                     binding: 1,
-                    visibility: wgpu::ShaderStage::FRAGMENT,
-                    ty: wgpu::BindingType::Sampler {
-                        filtering: false,
-                        comparison: true,
-                    },
+                    visibility: wgpu::ShaderStages::FRAGMENT,
+                    ty: wgpu::BindingType::Sampler(SamplerBindingType::NonFiltering),
                     count: None,
                 },
             ],

@@ -28,7 +28,7 @@ impl UIService {
         let matrix_binding_layout_descriptor = wgpu::BindGroupLayoutDescriptor {
             entries: &[wgpu::BindGroupLayoutEntry {
                 binding: 0,
-                visibility: wgpu::ShaderStage::VERTEX,
+                visibility: wgpu::ShaderStages::VERTEX,
                 ty: wgpu::BindingType::Buffer {
                     ty: BufferBindingType::Uniform,
                     min_binding_size: None,
@@ -44,9 +44,9 @@ impl UIService {
         let matrix_buffer = context.device.create_buffer_init(&BufferInitDescriptor {
             label: Some("Main UI Projection Matrix Buffer"),
             contents: &bytemuck::cast_slice(matrix.as_slice()),
-            usage: wgpu::BufferUsage::UNIFORM
-                | wgpu::BufferUsage::COPY_DST
-                | wgpu::BufferUsage::COPY_SRC,
+            usage: wgpu::BufferUsages::UNIFORM
+                | wgpu::BufferUsages::COPY_DST
+                | wgpu::BufferUsages::COPY_SRC,
         });
 
         let matrix_bind_group_layout = context
@@ -99,9 +99,9 @@ impl UIService {
         let matrix_buffer = render.device.create_buffer_init(&BufferInitDescriptor {
             label: Some("Main ui projection matrix buffer"),
             contents: &bytemuck::cast_slice(matrix.as_slice()),
-            usage: wgpu::BufferUsage::UNIFORM
-                | wgpu::BufferUsage::COPY_DST
-                | wgpu::BufferUsage::COPY_SRC,
+            usage: wgpu::BufferUsages::UNIFORM
+                | wgpu::BufferUsages::COPY_DST
+                | wgpu::BufferUsages::COPY_SRC,
         });
 
         self.fonts.resized(&size, &render.device);

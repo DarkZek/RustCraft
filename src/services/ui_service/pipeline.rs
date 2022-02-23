@@ -1,5 +1,4 @@
-use crate::render::shaders::load_shaders;
-use crate::render::TEXTURE_FORMAT;
+use crate::render::get_texture_format;
 use crate::services::chunk_service::mesh::UIVertex;
 use wgpu::{
     BindGroupLayout, BlendComponent, BlendState, Device, MultisampleState, RenderPipeline,
@@ -12,13 +11,12 @@ pub fn generate_render_pipeline(
     device: &Device,
     bind_group_layouts: &[&BindGroupLayout],
 ) -> RenderPipeline {
-    let (vs_module, fs_module) = load_shaders(
-        device,
-        (
-            include_bytes!("../../../../RustCraft/assets/shaders/ui_text_vert.spv"),
-            include_bytes!("../../../../RustCraft/assets/shaders/ui_text_frag.spv"),
-        ),
-    );
+    let vs_module = device.create_shader_module(&wgpu::include_spirv!(
+        "../../../assets/shaders/ui_text_vert.spv"
+    ));
+    let fs_module = device.create_shader_module(&wgpu::include_spirv!(
+        "../../../assets/shaders/ui_text_frag.spv"
+    ));
 
     let render_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
         label: Some("UI Render Pipeline"),
@@ -39,7 +37,7 @@ pub fn generate_render_pipeline(
             strip_index_format: None,
             front_face: wgpu::FrontFace::Ccw,
             cull_mode: None,
-            clamp_depth: false,
+            unclipped_depth: false,
             polygon_mode: wgpu::PolygonMode::Fill,
             conservative: false,
         },
@@ -53,8 +51,8 @@ pub fn generate_render_pipeline(
             module: &fs_module,
             entry_point: "main",
             targets: &[wgpu::ColorTargetState {
-                format: TEXTURE_FORMAT.get().unwrap().clone(),
-                write_mask: wgpu::ColorWrite::ALL,
+                format: get_texture_format(),
+                write_mask: wgpu::ColorWrites::ALL,
                 blend: Some(BlendState {
                     color: BlendComponent {
                         src_factor: wgpu::BlendFactor::SrcAlpha,
@@ -69,5 +67,6 @@ pub fn generate_render_pipeline(
                 }),
             }],
         }),
+        multiview: None,
     })
 }

@@ -11,7 +11,7 @@ layout(set = 0, binding = 1) uniform sampler s_diffuse;
 
 void main() {
     // Required or else background of text stops appearing
-    vec4 texture_color = v_tex_coords == vec2(0.0, 0.0) ? vec4(1.0, 1.0, 1.0, 0.0) : texture(sampler2D(t_diffuse, s_diffuse), v_tex_coords);
+    vec4 texture_color = v_tex_coords == vec2(0.0, 0.0) ? vec4(1.0, 1.0, 1.0, 0.0) : textureLod(sampler2D(t_diffuse, s_diffuse), v_tex_coords, 0);
 
     f_color = (texture_color == vec4(1.0, 1.0, 1.0, 0.0)) ? v_color : texture_color * v_color;
 }

@@ -1,12 +1,12 @@
 use crate::services::asset_service::AssetService;
 use crate::services::ui_service::UIService;
-use wgpu::{CommandEncoder, Device, IndexFormat, LoadOp, Operations, SwapChainFrame};
+use wgpu::{CommandEncoder, Device, IndexFormat, LoadOp, Operations, TextureView};
 
 impl UIService {
     /// Renders the user interface. This also runs all of the sub managers render functions.
     pub fn render(
         &self,
-        frame: &SwapChainFrame,
+        frame: &TextureView,
         encoder: &mut CommandEncoder,
         _device: &Device,
         asset_service: &AssetService,
@@ -14,7 +14,7 @@ impl UIService {
         let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
             label: Some("UI Render Pass"),
             color_attachments: &[wgpu::RenderPassColorAttachment {
-                view: &frame.output.view,
+                view: &frame,
                 resolve_target: None,
                 ops: Operations {
                     load: LoadOp::Load,

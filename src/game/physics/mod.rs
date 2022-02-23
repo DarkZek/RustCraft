@@ -4,7 +4,7 @@ use crate::services::chunk_service::chunk::{ChunkData, RawChunkData};
 use crate::services::settings_service::CHUNK_SIZE;
 use nalgebra::Vector3;
 use specs::{Component, ReadStorage, System, VecStorage, Write, WriteStorage};
-use std::time::{Instant, SystemTime};
+use std::time::SystemTime;
 
 pub mod collider;
 pub mod interpolator;
@@ -23,7 +23,8 @@ impl Physics {
     pub fn new() -> Physics {
         Physics {
             slipperiness: 0.06,
-            gravity: 0.08,
+            //gravity: 0.08,
+            gravity: 0.0,
             drag: 0.02,
             updates_per_second: 0,
             updates: 0,
@@ -73,7 +74,7 @@ impl<'a> System<'a> for PhysicsProcessingSystem {
             entity.velocity.y -= physics.gravity;
 
             // Air Drag
-            entity.velocity.y *= (1.0 - physics.drag);
+            entity.velocity.y *= 1.0 - physics.drag;
 
             let movement = move_entity_xyz(
                 &entity.collider,

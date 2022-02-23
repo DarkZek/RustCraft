@@ -4,7 +4,7 @@ use crate::services::chunk_service::mesh::UIVertex;
 use instant::Instant;
 use std::thread;
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
-use wgpu::{BufferUsage, Color, LoadOp, Operations};
+use wgpu::{BufferUsages, Color, LoadOp, Operations};
 
 impl LoadingScreen {
     pub fn start_loop(mut self) {
@@ -90,10 +90,13 @@ impl LoadingScreen {
             .create_buffer_init(&BufferInitDescriptor {
                 label: Some("Loading verticles buffer descriptor"),
                 contents: &bytemuck::cast_slice(vertices.as_slice()),
-                usage: BufferUsage::VERTEX,
+                usage: BufferUsages::VERTEX,
             });
 
-        let frame = self.swapchain.lock().unwrap().get_current_frame().unwrap();
+        let texture = self.surface.get_current_texture().unwrap();
+        let frame = texture
+            .texture
+            .create_view(&wgpu::TextureViewDescriptor::default());
 
         let mut encoder =
             self.device
@@ -106,7 +109,7 @@ impl LoadingScreen {
             let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
                 label: Some("Loading Render Pass"),
                 color_attachments: &[wgpu::RenderPassColorAttachment {
-                    view: &frame.output.view,
+                    view: &frame,
                     resolve_target: None,
                     ops: Operations {
                         load: LoadOp::Clear(Color {
@@ -133,5 +136,6 @@ impl LoadingScreen {
         }
 
         self.queue.lock().unwrap().submit(Some(encoder.finish()));
+        texture.present();
     }
 }

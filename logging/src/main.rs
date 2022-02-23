@@ -2,11 +2,11 @@
 
 use std::fs::File;
 use std::io::Write;
+use std::lazy::SyncOnceCell;
 use std::ops::Add;
+use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 use std::thread;
-use std::path::PathBuf;
-use std::lazy::SyncOnceCell;
 
 #[macro_use]
 extern crate lazy_static;
@@ -66,7 +66,6 @@ impl LoggingService {
     }
 
     pub fn flush_now(&self) {
-
         let mut data = LOG_BUFFER.lock().unwrap();
         let mut file = self.log_file.lock().unwrap();
 
@@ -96,7 +95,6 @@ fn format_message(error: &u8, message: &String) -> String {
             format!("[WARN] {}", message)
         }
         _ => {
-            println!("[INFO] {}", message);
             format!("[INFO] {}", message)
         }
     }
@@ -117,33 +115,27 @@ macro_rules! flush_log {
 
 #[macro_export]
 macro_rules! log_error {
-    ( $str:expr ) => {
-        {
-            rc_logging::LOG_BUFFER
-                .lock()
-                .unwrap()
-                .push((0, String::from($str)));
-            rc_logging::LOGGING_SERVICE.get().unwrap().flush_now();
-        }
-    };
-    ( $str:expr, $data:expr ) => {
-        {
-            rc_logging::LOG_BUFFER
-                .lock()
-                .unwrap()
-                .push((0, format!($str, $data)));
-            rc_logging::LOGGING_SERVICE.get().unwrap().flush_now();
-        }
-    };
-    ( $str:expr, $data:expr, $data2:expr ) => {
-        {
-            rc_logging::LOG_BUFFER
-                .lock()
-                .unwrap()
-                .push((0, format!($str, $data, $data2)));
-            rc_logging::LOGGING_SERVICE.get().unwrap().flush_now();
-        }
-    };
+    ( $str:expr ) => {{
+        rc_logging::LOG_BUFFER
+            .lock()
+            .unwrap()
+            .push((0, String::from($str)));
+        rc_logging::LOGGING_SERVICE.get().unwrap().flush_now();
+    }};
+    ( $str:expr, $data:expr ) => {{
+        rc_logging::LOG_BUFFER
+            .lock()
+            .unwrap()
+            .push((0, format!($str, $data)));
+        rc_logging::LOGGING_SERVICE.get().unwrap().flush_now();
+    }};
+    ( $str:expr, $data:expr, $data2:expr ) => {{
+        rc_logging::LOG_BUFFER
+            .lock()
+            .unwrap()
+            .push((0, format!($str, $data, $data2)));
+        rc_logging::LOGGING_SERVICE.get().unwrap().flush_now();
+    }};
 }
 
 #[macro_export]
@@ -153,18 +145,21 @@ macro_rules! log_warn {
             .lock()
             .unwrap()
             .push((1, String::from($str)));
+        rc_logging::LOGGING_SERVICE.get().unwrap().flush_now();
     };
     ( $str:expr, $data:expr ) => {
         rc_logging::LOG_BUFFER
             .lock()
             .unwrap()
             .push((1, format!($str, $data)));
+        rc_logging::LOGGING_SERVICE.get().unwrap().flush_now();
     };
     ( $str:expr, $data:expr, $data2:expr ) => {
         rc_logging::LOG_BUFFER
             .lock()
             .unwrap()
             .push((1, format!($str, $data, $data2)));
+        rc_logging::LOGGING_SERVICE.get().unwrap().flush_now();
     };
 }
 
@@ -172,18 +167,21 @@ macro_rules! log_warn {
 #[macro_export]
 macro_rules! log {
     ( $str:expr ) => {
+        println!("[INFO]: {}", $str);
         rc_logging::LOG_BUFFER
             .lock()
             .unwrap()
             .push((2, String::from($str)));
     };
     ( $str:expr, $data:expr ) => {
+        println!("[INFO]: {}", format!($str, $data));
         rc_logging::LOG_BUFFER
             .lock()
             .unwrap()
             .push((2, format!($str, $data)));
     };
     ( $str:expr, $data:expr, $data2:expr ) => {
+        println!("[INFO]: {}", format!($str, $data, $data2));
         rc_logging::LOG_BUFFER
             .lock()
             .unwrap()
@@ -195,18 +193,21 @@ macro_rules! log {
 #[macro_export]
 macro_rules! log {
     ( $str:expr ) => {
+        println!("[INFO]: {}", $str);
         rc_logging::LOG_BUFFER
             .lock()
             .unwrap()
             .push((2, String::from($str)));
     };
     ( $str:expr, $data:expr ) => {
+        println!("[INFO]: {}", format!($str, $data));
         rc_logging::LOG_BUFFER
             .lock()
             .unwrap()
             .push((2, format!($str, $data)));
     };
     ( $str:expr, $data:expr, $data2:expr ) => {
+        println!("[INFO]: {}", format!($str, $data, $data2));
         rc_logging::LOG_BUFFER
             .lock()
             .unwrap()

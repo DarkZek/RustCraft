@@ -4,10 +4,10 @@ use std::collections::HashMap;
 use std::fs;
 use std::fs::File;
 use std::io::Read;
-use std::time::{Instant, SystemTime};
-use zip::ZipArchive;
 use std::path::PathBuf;
+use std::time::{Instant, SystemTime};
 use zip::result::ZipResult;
+use zip::ZipArchive;
 
 impl AssetService {
     pub fn get_resource_packs(path: PathBuf) -> Vec<String> {
@@ -44,11 +44,11 @@ impl AssetService {
 
         let name = path.file_name().unwrap().to_str().unwrap();
 
-        log!(format!(
+        log!(
             "Took {} seconds to load texture pack {}",
             Instant::now().duration_since(start_time).as_secs_f32(),
             name
-        ));
+        );
 
         Ok(ResourcePack {
             name: "".to_string(),

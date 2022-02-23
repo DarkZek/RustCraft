@@ -1,8 +1,10 @@
-use wgpu::{SwapChainFrame, Operations, LoadOp, RenderPipeline, VertexState, MultisampleState, BlendComponent, Device, IndexFormat, Color, CommandEncoder,  ShaderStage, PushConstantRange};
-use crate::services::chunk_service::mesh::{UIVertex};
-use crate::render::shaders::load_shaders;
+use crate::render::get_texture_format;
+use crate::services::chunk_service::mesh::UIVertex;
 use crate::services::ui_service::meshdata::UIMeshData;
-use crate::render::TEXTURE_FORMAT;
+use wgpu::{
+    BlendComponent, Color, CommandEncoder, Device, IndexFormat, LoadOp, MultisampleState,
+    Operations, PushConstantRange, RenderPipeline, ShaderStages, TextureView, VertexState,
+};
 
 static CLEAR_COLOR: Color = Color {
     r: 0.0,
@@ -14,28 +16,27 @@ static CLEAR_COLOR: Color = Color {
 pub struct Background {
     colors: Vec<(f32, [f32; 4])>,
     render_pipeline: RenderPipeline,
-    data: UIMeshData
+    data: UIMeshData,
 }
 
 impl Background {
     pub fn new(device: &Device) -> Background {
+        let vs_module = device.create_shader_module(&wgpu::include_spirv!(
+            "../../..//assets/shaders/background_vert.spv"
+        ));
+        let fs_module = device.create_shader_module(&wgpu::include_spirv!(
+            "../../..//assets/shaders/background_frag.spv"
+        ));
 
-        let (vs_module, fs_module) = load_shaders(
-            device,
-            (
-                include_bytes!("../../../../RustCraft/assets/shaders/background_vert.spv"),
-                include_bytes!("../../../../RustCraft/assets/shaders/background_frag.spv"),
-            ),
-        );
-
-        let render_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-            label: Some("Background render pipeline layout"),
-            bind_group_layouts: &[],
-            push_constant_ranges: &[PushConstantRange {
-                stages: ShaderStage::all(),
-                range: 0..8
-            }],
-        });
+        let render_pipeline_layout =
+            device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+                label: Some("Background render pipeline layout"),
+                bind_group_layouts: &[],
+                push_constant_ranges: &[PushConstantRange {
+                    stages: ShaderStages::all(),
+                    range: 0..8,
+                }],
+            });
 
         let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
             label: Some("Background render pipeline"),
@@ -50,7 +51,7 @@ impl Background {
                 strip_index_format: None,
                 front_face: wgpu::FrontFace::Ccw,
                 cull_mode: None,
-                clamp_depth: false,
+                unclipped_depth: false,
                 polygon_mode: wgpu::PolygonMode::Fill,
                 conservative: false,
             },
@@ -64,8 +65,8 @@ impl Background {
                 module: &fs_module,
                 entry_point: "main",
                 targets: &[wgpu::ColorTargetState {
-                    format: TEXTURE_FORMAT.get().unwrap().clone(),
-                    write_mask: wgpu::ColorWrite::ALL,
+                    format: get_texture_format(),
+                    write_mask: wgpu::ColorWrites::ALL,
                     blend: Some(wgpu::BlendState {
                         color: BlendComponent {
                             src_factor: wgpu::BlendFactor::SrcAlpha,
@@ -80,6 +81,7 @@ impl Background {
                     }),
                 }],
             }),
+            multiview: None,
         });
 
         let top_color = [127.0 / 255.0, 172.0 / 255.0, 255.0 / 255.0, 1.0];
@@ -87,9 +89,15 @@ impl Background {
         let grey = [0.1, 0.1, 0.1, 1.0];
 
         let mut background = Background {
-            colors: vec![(0.0, grey.clone()), (0.4, bottom_color.clone()), (0.5, bottom_color.clone()), (0.6, top_color.clone()), (2.0, top_color.clone())],
+            colors: vec![
+                (0.0, grey.clone()),
+                (0.4, bottom_color.clone()),
+                (0.5, bottom_color.clone()),
+                (0.6, top_color.clone()),
+                (2.0, top_color.clone()),
+            ],
             render_pipeline,
-            data: UIMeshData::new()
+            data: UIMeshData::new(),
         };
 
         background.generate_background();
@@ -99,7 +107,6 @@ impl Background {
     }
 
     pub fn generate_background(&mut self) {
-
         let mut vertices = Vec::new();
         let mut indices = Vec::new();
 
@@ -109,31 +116,30 @@ impl Background {
         let mut indices_index = 0;
 
         for (height, color) in &self.colors {
-
             let relative_height = (height - 0.5) * std::f32::consts::PI;
 
             vertices.push(UIVertex {
                 position: [-std::f32::consts::PI, last_height],
                 tex_coords: [0.0; 2],
-                color: last_color.clone()
+                color: last_color.clone(),
             });
 
             vertices.push(UIVertex {
                 position: [std::f32::consts::PI, last_height],
                 tex_coords: [0.0; 2],
-                color: last_color.clone()
+                color: last_color.clone(),
             });
 
             vertices.push(UIVertex {
                 position: [-std::f32::consts::PI, relative_height],
                 tex_coords: [0.0; 2],
-                color: color.clone()
+                color: color.clone(),
             });
 
             vertices.push(UIVertex {
                 position: [std::f32::consts::PI, relative_height],
                 tex_coords: [0.0; 2],
-                color: color.clone()
+                color: color.clone(),
             });
 
             indices.push(indices_index);
@@ -154,12 +160,11 @@ impl Background {
         self.data.total_indices = indices;
     }
 
-    pub fn draw(&self, frame: &SwapChainFrame, encoder: &mut CommandEncoder, cam: &[f32; 2]) {
-
+    pub fn draw(&self, frame: &TextureView, encoder: &mut CommandEncoder, cam: &[f32; 2]) {
         let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
             label: Some("Background Render Render Pass"),
             color_attachments: &[wgpu::RenderPassColorAttachment {
-                view: &frame.output.view,
+                view: &frame,
                 resolve_target: None,
                 ops: Operations {
                     load: LoadOp::Clear(CLEAR_COLOR),
@@ -171,7 +176,7 @@ impl Background {
 
         render_pass.set_pipeline(&self.render_pipeline);
 
-        render_pass.set_push_constants(ShaderStage::all(), 0, bytemuck::cast_slice(cam));
+        render_pass.set_push_constants(ShaderStages::all(), 0, bytemuck::cast_slice(cam));
 
         let vertices = self.data.total_vertex_buffer.as_ref().unwrap();
         let indices_len = self.data.total_indices.len() as u32;

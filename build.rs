@@ -2,6 +2,11 @@ use std::fs;
 use std::process::Command;
 
 fn main() {
+    if Command::new("glslangValidator").output().is_err() {
+        println!("Warning: GLSL Validator not installed, shaders will not be updated. Please install Vulkan SDK and add to path");
+        return;
+    }
+
     // Shaders
     let shaders = ["ui_text", "ui_images", "loading", "shader", "background"];
 

@@ -7,7 +7,7 @@ pub const DEPTH_FORMAT: wgpu::TextureFormat = wgpu::TextureFormat::Depth32Float;
 
 pub fn create_depth_texture(
     device: &wgpu::Device,
-    sc_desc: &wgpu::SwapChainDescriptor,
+    surface_desc: &wgpu::SurfaceConfiguration,
 ) -> (Texture, TextureView, Sampler) {
     let sampler_descriptor = wgpu::SamplerDescriptor {
         label: Some("Main Render Depth Map"),
@@ -27,15 +27,15 @@ pub fn create_depth_texture(
     let texture_descriptor = wgpu::TextureDescriptor {
         label: Some("Main depth map texture"),
         size: Extent3d {
-            width: sc_desc.width,
-            height: sc_desc.height,
+            width: surface_desc.width,
+            height: surface_desc.height,
             depth_or_array_layers: 1,
         },
         mip_level_count: 1,
         sample_count: 1,
         dimension: TextureDimension::D2,
         format: DEPTH_FORMAT,
-        usage: wgpu::TextureUsage::RENDER_ATTACHMENT | wgpu::TextureUsage::SAMPLED,
+        usage: wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::TEXTURE_BINDING,
     };
 
     let texture = device.create_texture(&texture_descriptor);

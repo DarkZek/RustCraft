@@ -2,7 +2,6 @@ use crate::render::background::Background;
 use crate::render::camera::Camera;
 use crate::render::loading::LoadingScreen;
 use crate::render::pass::uniforms::Uniforms;
-use crate::render::shaders::load_shaders;
 use crate::services::asset_service::depth_map::{create_depth_texture, DEPTH_FORMAT};
 use crate::services::asset_service::AssetService;
 use crate::services::chunk_service::mesh::Vertex;
@@ -18,7 +17,7 @@ use std::time::{Duration, Instant, SystemTime};
 use wgpu::{
     AdapterInfo, BindGroupLayout, BlendComponent, DepthBiasState, Device, Face, FrontFace,
     MultisampleState, PolygonMode, PrimitiveState, PrimitiveTopology, RenderPipeline, Sampler,
-    StencilState, SwapChainDescriptor, Texture, TextureFormat, TextureView, VertexState,
+    StencilState, Texture, TextureFormat, TextureView, VertexState,
 };
 use winit::dpi::PhysicalSize;
 use winit::event_loop::EventLoop;
@@ -30,22 +29,24 @@ pub mod device;
 pub mod loading;
 pub mod pass;
 pub mod screens;
-pub mod shaders;
 
 lazy_static! {
     pub static ref TEXTURE_FORMAT: SyncOnceCell<TextureFormat> = SyncOnceCell::new();
 }
 
+pub fn get_texture_format() -> TextureFormat {
+    *TEXTURE_FORMAT.get().unwrap()
+}
+
 /// Stores the current state of the rendering side of the game. This includes all of the vulkan attributes, fps, gpu info and currently the services which need to be moved.
 #[allow(dead_code)]
 pub struct RenderState {
-    surface: wgpu::Surface,
+    surface: Arc<wgpu::Surface>,
+    surface_desc: wgpu::SurfaceConfiguration,
+
     pub device: wgpu::Device,
     pub queue: wgpu::Queue,
     pub window: Arc<Window>,
-
-    sc_desc: wgpu::SwapChainDescriptor,
-    swap_chain: Option<wgpu::SwapChain>,
 
     render_pipeline: wgpu::RenderPipeline,
 
@@ -84,10 +85,11 @@ impl RenderState {
             WindowBuilder::new()
                 .with_title("Loading - Rustcraft")
                 .with_inner_size(PhysicalSize {
-                    width: 1536,
-                    height: 864,
+                    width: 1920,
+                    height: 1080,
                 })
                 .with_window_icon(Some(icon))
+                .with_fullscreen(Some(winit::window::Fullscreen::Borderless(None)))
                 .build(&event_loop)
                 .unwrap(),
         );
@@ -106,23 +108,24 @@ impl RenderState {
         let queue = Arc::new(Mutex::new(queue));
 
         // Limited to vsync here
-        let sc_desc = wgpu::SwapChainDescriptor {
-            usage: wgpu::TextureUsage::RENDER_ATTACHMENT,
-            format: adapter.get_swap_chain_preferred_format(&surface).unwrap(),
+        let surface_desc = wgpu::SurfaceConfiguration {
+            usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
+            format: surface.get_preferred_format(&adapter).unwrap(),
             width: size.width,
             height: size.height,
-            present_mode: wgpu::PresentMode::Fifo,
+            present_mode: wgpu::PresentMode::Immediate,
         };
 
+        surface.configure(&device, &surface_desc);
+
         TEXTURE_FORMAT
-            .set(sc_desc.format)
+            .set(surface_desc.format)
             .expect("Failed to update texture format description");
 
-        let swap_chain = device.create_swap_chain(&surface, &sc_desc);
-        let swap_chain = Arc::new(Mutex::new(swap_chain));
+        let surface = Arc::new(surface);
 
         // Start showing loading screen
-        let loading = LoadingScreen::new(&size, swap_chain.clone(), device.clone(), queue.clone());
+        let loading = LoadingScreen::new(&size, surface.clone(), device.clone(), queue.clone());
         loading.start_loop();
 
         universe.insert(Background::new(&device));
@@ -144,10 +147,9 @@ impl RenderState {
 
         universe.insert(camera);
 
-        let depth_texture = create_depth_texture(&device.clone(), &sc_desc);
+        let depth_texture = create_depth_texture(&device.clone(), &surface_desc);
 
         let render_pipeline = generate_render_pipeline(
-            &sc_desc,
             &device,
             true,
             &[
@@ -175,7 +177,7 @@ impl RenderState {
         }
 
         // Spin lock until the background loading thread shuts down, and has dropped the swapchain
-        let swap_chain = LoadingScreen::wait_for_swapchain(swap_chain);
+        //let swap_chain = LoadingScreen::wait_for_swapchain(swap_chain);
 
         let queue = Arc::try_unwrap(queue).ok().unwrap().into_inner().unwrap();
 
@@ -185,11 +187,10 @@ impl RenderState {
 
         Self {
             surface,
+            surface_desc,
             device,
             queue,
             window,
-            sc_desc,
-            swap_chain: Some(swap_chain),
             size,
             render_pipeline,
             uniforms,
@@ -207,16 +208,11 @@ impl RenderState {
 
     pub fn resize(&mut self, new_size: winit::dpi::PhysicalSize<u32>) {
         self.size = new_size;
-        self.sc_desc.width = new_size.width;
-        self.sc_desc.height = new_size.height;
+        self.surface_desc.width = new_size.width;
+        self.surface_desc.height = new_size.height;
 
-        // Current swapchain must be dropped before creating a new one
-        {
-            self.swap_chain.take();
-        }
-
-        self.swap_chain = Some(self.device.create_swap_chain(&self.surface, &self.sc_desc));
-        self.depth_texture = create_depth_texture(&self.device, &self.sc_desc);
+        self.depth_texture = create_depth_texture(&self.device, &self.surface_desc);
+        self.surface.configure(&self.device, &self.surface_desc)
     }
 }
 
@@ -227,18 +223,16 @@ impl Default for RenderState {
 }
 
 fn generate_render_pipeline(
-    sc_desc: &SwapChainDescriptor,
     device: &Device,
     culling: bool,
     bind_group_layouts: &[&BindGroupLayout],
 ) -> RenderPipeline {
-    let (vs_module, fs_module) = load_shaders(
-        device,
-        (
-            include_bytes!("../../../RustCraft/assets/shaders/shader_vert.spv"),
-            include_bytes!("../../../RustCraft/assets/shaders/shader_frag.spv"),
-        ),
-    );
+    let vs_module = device.create_shader_module(&wgpu::include_spirv!(
+        "../../assets/shaders/shader_vert.spv"
+    ));
+    let fs_module = device.create_shader_module(&wgpu::include_spirv!(
+        "../../assets/shaders/shader_frag.spv"
+    ));
 
     let render_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
         label: Some("Main render pipeline layout"),
@@ -258,8 +252,8 @@ fn generate_render_pipeline(
             topology: PrimitiveTopology::TriangleList,
             strip_index_format: None,
             front_face: FrontFace::Cw,
-            cull_mode: Some(Face::Back),
-            clamp_depth: false,
+            cull_mode: if culling { None } else { Some(Face::Back) },
+            unclipped_depth: false,
             polygon_mode: PolygonMode::Fill,
             conservative: false,
         },
@@ -284,8 +278,8 @@ fn generate_render_pipeline(
             module: &fs_module,
             entry_point: "main",
             targets: &[wgpu::ColorTargetState {
-                format: TEXTURE_FORMAT.get().unwrap().clone(),
-                write_mask: wgpu::ColorWrite::ALL,
+                format: get_texture_format(),
+                write_mask: wgpu::ColorWrites::ALL,
                 blend: Some(wgpu::BlendState {
                     color: BlendComponent {
                         src_factor: wgpu::BlendFactor::SrcAlpha,
@@ -300,5 +294,6 @@ fn generate_render_pipeline(
                 }),
             }],
         }),
+        multiview: None,
     })
 }

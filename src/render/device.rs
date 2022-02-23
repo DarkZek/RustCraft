@@ -1,6 +1,6 @@
 use crate::render::RenderState;
 use futures::executor::block_on;
-use wgpu::{Adapter, AdapterInfo, BackendBit, Device, Instance, Queue, Surface, Features};
+use wgpu::{Adapter, AdapterInfo, Backends, Device, Features, Instance, Queue, Surface};
 use winit::dpi::PhysicalSize;
 use winit::window::Window;
 
@@ -18,12 +18,13 @@ impl RenderState {
     ) {
         let size = window.inner_size();
 
-        let wgpu = Instance::new(BackendBit::BROWSER_WEBGPU | BackendBit::VULKAN);
+        let wgpu = Instance::new(Backends::BROWSER_WEBGPU | Backends::VULKAN);
 
         let surface = unsafe { wgpu.create_surface(window) };
 
         let adapter = block_on(wgpu.request_adapter(&wgpu::RequestAdapterOptions {
             power_preference: wgpu::PowerPreference::LowPower,
+            force_fallback_adapter: false,
             compatible_surface: Some(&surface),
         }))
         .unwrap();
@@ -53,6 +54,15 @@ impl RenderState {
                     max_vertex_attributes: 16,
                     max_vertex_buffer_array_stride: 2048,
                     max_push_constant_size: 8,
+                    min_uniform_buffer_offset_alignment: 256,
+                    min_storage_buffer_offset_alignment: 256,
+                    max_inter_stage_shader_components: 60,
+                    max_compute_workgroup_storage_size: 16352,
+                    max_compute_invocations_per_workgroup: 256,
+                    max_compute_workgroup_size_x: 256,
+                    max_compute_workgroup_size_y: 256,
+                    max_compute_workgroup_size_z: 64,
+                    max_compute_workgroups_per_dimension: 65535,
                 },
             },
             None,

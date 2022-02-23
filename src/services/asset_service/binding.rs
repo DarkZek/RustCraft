@@ -1,7 +1,7 @@
 use crate::services::asset_service::AssetService;
 use wgpu::{
-    BindGroup, BindGroupLayout, Device, Sampler, Texture, TextureAspect, TextureFormat,
-    TextureSampleType, TextureViewDescriptor, TextureViewDimension,
+    BindGroup, BindGroupLayout, Device, Sampler, SamplerBindingType, Texture, TextureAspect,
+    TextureFormat, TextureSampleType, TextureViewDescriptor, TextureViewDimension,
 };
 
 impl AssetService {
@@ -28,7 +28,7 @@ impl AssetService {
                 entries: &[
                     wgpu::BindGroupLayoutEntry {
                         binding: 0,
-                        visibility: wgpu::ShaderStage::FRAGMENT,
+                        visibility: wgpu::ShaderStages::FRAGMENT,
                         ty: wgpu::BindingType::Texture {
                             sample_type: TextureSampleType::Float { filterable: false },
                             view_dimension: TextureViewDimension::D2,
@@ -38,11 +38,8 @@ impl AssetService {
                     },
                     wgpu::BindGroupLayoutEntry {
                         binding: 1,
-                        visibility: wgpu::ShaderStage::FRAGMENT,
-                        ty: wgpu::BindingType::Sampler {
-                            filtering: false,
-                            comparison: true,
-                        },
+                        visibility: wgpu::ShaderStages::FRAGMENT,
+                        ty: wgpu::BindingType::Sampler(SamplerBindingType::NonFiltering),
                         count: None,
                     },
                 ],

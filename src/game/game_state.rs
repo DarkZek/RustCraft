@@ -97,7 +97,7 @@ impl<'a> System<'a> for PlayerMovementSystem {
             camera.pitch = player.rot[1] - (PI / 2.0);
         }
 
-        let mut movement_modifier = 0.2;
+        let mut movement_modifier = 0.3;
 
         if actionsheet.get_sprinting() {
             movement_modifier *= 2.3;
@@ -140,9 +140,9 @@ impl<'a> System<'a> for PlayerMovementSystem {
         let uniform_buffer = render.device.create_buffer_init(&BufferInitDescriptor {
             label: Some("View Projection Buffer"),
             contents: &bytemuck::cast_slice(&render.uniforms.view_proj),
-            usage: wgpu::BufferUsage::UNIFORM
-                | wgpu::BufferUsage::COPY_DST
-                | wgpu::BufferUsage::COPY_SRC,
+            usage: wgpu::BufferUsages::UNIFORM
+                | wgpu::BufferUsages::COPY_DST
+                | wgpu::BufferUsages::COPY_SRC,
         });
 
         encoder.copy_buffer_to_buffer(

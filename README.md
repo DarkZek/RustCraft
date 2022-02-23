@@ -9,7 +9,7 @@ Right now there are no stable releases, you have to build it yourself.
 ## Build
 There are some requirements:
 
-- Install Vulkan SDK (and add it to path if on Linux)
+- Install Vulkan SDK (sudo apt install glslang-tools on Linux)
 - Openssl
 
 ##### Windows
@@ -48,7 +48,7 @@ To update the client for different minecraft versions you will need to update th
 `java -cp minecraft_server.jar net.minecraft.data.Main --reports`
 
 
-To get the default minecraft texture pack follow [this](https://www.reddit.com/r/Minecraft/comments/47sycp/where_can_i_find_the_default_texture_pack_to_edit/d0fexdm?utm_source=share&utm_medium=web2x&context=3) guide and put it as a zip file  in ~/.rustcraft/resources/
+To get the default minecraft texture pack follow [this](https://www.reddit.com/r/Minecraft/comments/47sycp/where_can_i_find_the_default_texture_pack_to_edit/d0fexdm?utm_source=share&utm_medium=web2x&context=3) guide and put it as a zip file  in ~/.config/RustCraft/resources/
 
 **Note: Rustcraft does not directly use these files, they are only useful for recreating the block state configuration of the official Notchian client** 
 
