@@ -1,11 +1,11 @@
-use crate::protocol::data::read_types::{read_varint};
+use crate::protocol::data::read_types::read_varint;
 use crate::protocol::packet::PacketType;
 use std::io::Cursor;
 
 #[derive(Debug)]
 pub struct SetPassengersPacket {
-    pub entity_id: i64,
-    pub passengers: Vec<i64>,
+    pub entity_id: i32,
+    pub passengers: Vec<i32>,
 }
 
 impl PacketType for SetPassengersPacket {

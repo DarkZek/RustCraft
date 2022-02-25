@@ -1,11 +1,11 @@
-use crate::protocol::data::read_types::{read_varint};
+use crate::protocol::data::read_types::read_varint;
 use crate::protocol::packet::PacketType;
 use crate::protocol::types::entity_metadata::EntityMetadata;
 use std::io::Cursor;
 
 #[derive(Debug)]
 pub struct EntityUpdateMetadataPacket {
-    pub entity_id: i64,
+    pub entity_id: i32,
     pub entity_metadata: EntityMetadata,
 }
 

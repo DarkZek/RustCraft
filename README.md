@@ -2,6 +2,10 @@
 
 Rustcraft is a Minecraft Client, positioning itself as the performant Minecraft Java Edition client, with support with higher quality graphical options than that of the Mojang Minecraft Client.
 
+Supported Versions:
+
+- [1.15.2 ( Protocol 587 )](https://web.archive.org/web/20200417072545/https://wiki.vg/Protocol)
+
 ## Installation
 
 Right now there are no stable releases, you have to build it yourself.

@@ -1,12 +1,12 @@
-use crate::protocol::packet::PacketType;
 use crate::protocol::data::read_types::{read_float, read_varint};
-use std::io::{Cursor};
+use crate::protocol::packet::PacketType;
+use std::io::Cursor;
 
 #[derive(Debug)]
 pub struct SetPlayerExperiencePacket {
     pub experience_bar: f32,
-    pub level: i64,
-    pub total_experience: i64
+    pub level: i32,
+    pub total_experience: i32,
 }
 
 impl PacketType for SetPlayerExperiencePacket {
@@ -18,7 +18,7 @@ impl PacketType for SetPlayerExperiencePacket {
         Box::new(SetPlayerExperiencePacket {
             experience_bar,
             level,
-            total_experience
+            total_experience,
         })
     }
 }

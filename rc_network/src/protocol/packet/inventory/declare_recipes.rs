@@ -1,12 +1,12 @@
+use crate::protocol::data::read_types::{read_float, read_string, read_varint};
 use crate::protocol::packet::PacketType;
-use crate::protocol::data::read_types::{read_varint, read_string, read_float};
-use std::io::{Cursor};
-use crate::protocol::types::slot::Slot;
 use crate::protocol::types::ingredient::Ingredient;
+use crate::protocol::types::slot::Slot;
+use std::io::Cursor;
 
 #[derive(Debug)]
 pub struct DeclareRecipesPacket {
-    pub recipes: Vec<CraftingRecipe>
+    pub recipes: Vec<CraftingRecipe>,
 }
 
 impl PacketType for DeclareRecipesPacket {
@@ -30,7 +30,11 @@ impl PacketType for DeclareRecipesPacket {
 
                     let result = Slot::deserialize(buf);
 
-                    Some(CraftingRecipeData::CraftingShapeless(group, ingredients, result))
+                    Some(CraftingRecipeData::CraftingShapeless(
+                        group,
+                        ingredients,
+                        result,
+                    ))
                 }
                 "minecraft:crafting_shaped" => {
                     let width = read_varint(buf);
@@ -39,22 +43,37 @@ impl PacketType for DeclareRecipesPacket {
 
                     let mut ingredients = Vec::new();
 
-                    for _ in 0..(width*height) {
+                    for _ in 0..(width * height) {
                         ingredients.push(Ingredient::deserialize(buf));
                     }
 
                     let result = Slot::deserialize(buf);
 
-                    Some(CraftingRecipeData::CraftingShaped(width, height, group, ingredients, result))
+                    Some(CraftingRecipeData::CraftingShaped(
+                        width,
+                        height,
+                        group,
+                        ingredients,
+                        result,
+                    ))
                 }
-                "minecraft:smelting" | "minecraft:blasting" | "minecraft:smoking" | "minecraft:campfire_cooking" => {
+                "minecraft:smelting"
+                | "minecraft:blasting"
+                | "minecraft:smoking"
+                | "minecraft:campfire_cooking" => {
                     let group = read_string(buf);
                     let ingredient = Ingredient::deserialize(buf);
                     let result = Slot::deserialize(buf);
                     let experience = read_float(buf);
                     let cooking_time = read_varint(buf);
 
-                    Some(CraftingRecipeData::SmeltingBlastingSmokingCampfireCooking(group, ingredient, result, experience, cooking_time))
+                    Some(CraftingRecipeData::SmeltingBlastingSmokingCampfireCooking(
+                        group,
+                        ingredient,
+                        result,
+                        experience,
+                        cooking_time,
+                    ))
                 }
                 "minecraft:stonecutting" => {
                     let group = read_string(buf);
@@ -63,19 +82,17 @@ impl PacketType for DeclareRecipesPacket {
 
                     Some(CraftingRecipeData::Stonecutting(group, ingredient, result))
                 }
-                _ => None
+                _ => None,
             };
 
             recipes.push(CraftingRecipe {
                 identifier,
                 id,
-                data
+                data,
             })
         }
 
-        Box::new(DeclareRecipesPacket {
-            recipes
-        })
+        Box::new(DeclareRecipesPacket { recipes })
     }
 }
 
@@ -83,14 +100,14 @@ impl PacketType for DeclareRecipesPacket {
 pub struct CraftingRecipe {
     identifier: String,
     id: String,
-    data: Option<CraftingRecipeData>
+    data: Option<CraftingRecipeData>,
 }
 
 // https://wiki.vg/Protocol#Server_Difficulty
 #[derive(Debug)]
 pub enum CraftingRecipeData {
     CraftingShapeless(String, Vec<Ingredient>, Slot),
-    CraftingShaped(i64, i64, String, Vec<Ingredient>, Slot),
-    SmeltingBlastingSmokingCampfireCooking(String, Ingredient, Slot, f32, i64),
-    Stonecutting(String, Ingredient, Slot)
+    CraftingShaped(i32, i32, String, Vec<Ingredient>, Slot),
+    SmeltingBlastingSmokingCampfireCooking(String, Ingredient, Slot, f32, i32),
+    Stonecutting(String, Ingredient, Slot),
 }

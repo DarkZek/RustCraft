@@ -1,6 +1,6 @@
+use crate::protocol::data::read_types::{read_double, read_float, read_unsignedbyte, read_varint};
 use crate::protocol::packet::PacketType;
-use crate::protocol::data::read_types::{read_unsignedbyte, read_float, read_double, read_varint};
-use std::io::{Cursor};
+use std::io::Cursor;
 
 #[derive(Debug)]
 pub struct PlayerPositionLookPacket {
@@ -10,7 +10,7 @@ pub struct PlayerPositionLookPacket {
     pub yaw: f32,
     pub pitch: f32,
     pub flags: u8,
-    pub teleport_id: i64
+    pub teleport_id: i32,
 }
 
 impl PacketType for PlayerPositionLookPacket {
@@ -30,7 +30,7 @@ impl PacketType for PlayerPositionLookPacket {
             yaw,
             pitch,
             flags,
-            teleport_id
+            teleport_id,
         })
     }
 }

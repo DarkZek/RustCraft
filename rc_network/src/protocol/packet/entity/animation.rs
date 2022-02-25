@@ -4,7 +4,7 @@ use std::io::Cursor;
 
 #[derive(Debug)]
 pub struct EntityAnimationPacket {
-    pub entity_id: i64,
+    pub entity_id: i32,
     pub animation: u8,
 }
 

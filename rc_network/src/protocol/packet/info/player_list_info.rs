@@ -95,8 +95,8 @@ impl PacketType for PlayerListInfoPacket {
 #[derive(Debug)]
 pub enum PlayerListInfoUpdateAction {
     AddPlayer(PlayerListInfoUpdateActionAddPlayer),
-    UpdateGamemode(i64),
-    UpdateLatency(i64),
+    UpdateGamemode(i32),
+    UpdateLatency(i32),
     UpdateDisplayName(bool, Option<String>),
     RemovePlayer,
 }
@@ -105,8 +105,8 @@ pub enum PlayerListInfoUpdateAction {
 pub struct PlayerListInfoUpdateActionAddPlayer {
     name: String,
     properties: Vec<(String, String, bool, Option<String>)>,
-    gamemode: i64,
-    ping: i64,
+    gamemode: i32,
+    ping: i32,
     has_display_name: bool,
     display_name: Option<String>,
 }

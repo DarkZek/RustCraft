@@ -4,10 +4,10 @@ use std::io::Cursor;
 
 #[derive(Debug)]
 pub struct EntityEffectPacket {
-    pub entity_id: i64,
+    pub entity_id: i32,
     pub effect_id: u8,
     pub amplifier: u8,
-    pub duration: i64,
+    pub duration: i32,
     pub flags: u8,
 }
 

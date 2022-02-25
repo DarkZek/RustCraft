@@ -1,12 +1,10 @@
-use crate::protocol::data::read_types::{
-    read_double, read_unsignedbyte, read_uuid, read_varint,
-};
+use crate::protocol::data::read_types::{read_double, read_unsignedbyte, read_uuid, read_varint};
 use crate::protocol::packet::PacketType;
 use std::io::Cursor;
 
 #[derive(Debug)]
 pub struct SpawnPlayerPacket {
-    pub entity_id: i64,
+    pub entity_id: i32,
     pub player_uuid: u128,
     pub x: f64,
     pub y: f64,

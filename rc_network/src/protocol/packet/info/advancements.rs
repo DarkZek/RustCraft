@@ -131,7 +131,7 @@ pub struct AdvancementDisplay {
     title: String,
     description: String,
     icon: Slot,
-    frame_type: i64,
+    frame_type: i32,
     flags: i32,
     background_texture: Option<String>,
     x: f32,

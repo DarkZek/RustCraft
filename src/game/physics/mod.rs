@@ -23,8 +23,8 @@ impl Physics {
     pub fn new() -> Physics {
         Physics {
             slipperiness: 0.06,
-            //gravity: 0.08,
-            gravity: 0.0,
+            gravity: 0.08,
+            // gravity: 0.0,
             drag: 0.02,
             updates_per_second: 0,
             updates: 0,
@@ -129,7 +129,7 @@ impl PhysicsObject {
     }
 }
 
-//TODO: Address physics issues when moving between chunks
+// TODO: Address physics issues when moving between chunks
 
 // Calculates movement based on velocity and colliders
 pub fn move_entity_xyz(

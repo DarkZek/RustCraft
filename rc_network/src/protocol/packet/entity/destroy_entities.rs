@@ -1,10 +1,10 @@
-use crate::protocol::data::read_types::{read_varint};
+use crate::protocol::data::read_types::read_varint;
 use crate::protocol::packet::PacketType;
 use std::io::Cursor;
 
 #[derive(Debug)]
 pub struct DestroyEntitiesPacket {
-    pub entities: Vec<i64>,
+    pub entities: Vec<i32>,
 }
 
 impl PacketType for DestroyEntitiesPacket {

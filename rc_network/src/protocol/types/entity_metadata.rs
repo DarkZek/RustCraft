@@ -8,7 +8,7 @@ use std::io::Cursor;
 #[derive(Debug)]
 pub struct EntityMetadata {
     index: u8,
-    ty: Option<i64>,
+    ty: Option<i32>,
     value: Option<Box<PVarType>>,
 }
 // TODO: Fix problems deserializing

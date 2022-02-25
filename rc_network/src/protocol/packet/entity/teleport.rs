@@ -1,6 +1,4 @@
-use crate::protocol::data::read_types::{
-    read_bool, read_double, read_unsignedbyte, read_varint,
-};
+use crate::protocol::data::read_types::{read_bool, read_double, read_unsignedbyte, read_varint};
 use crate::protocol::packet::PacketType;
 
 use std::io::Cursor;
@@ -9,7 +7,7 @@ use std::io::Cursor;
 
 #[derive(Debug)]
 pub struct EntityTeleportPacket {
-    pub entity_id: i64,
+    pub entity_id: i32,
     pub pos: [f64; 3],
     pub yaw: u8,
     pub pitch: u8,

@@ -17,7 +17,7 @@ pub struct ChunkData {
     pub translucent_model: MeshData,
 
     pub model_bind_group: Option<BindGroup>,
-    //TODO: Investigate if caching this is even faster
+    // TODO: Investigate if caching this is even faster
     pub viewable_map: Option<[[[ViewableDirection; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE]>,
     pub position: Vector3<i32>,
 
@@ -25,7 +25,7 @@ pub struct ChunkData {
     pub light_levels: RawLightingData,
 
     // Stores the lighting of neighbouring chunks effect on this chunk.
-    pub neighboring_light_levels: RawLightingData
+    pub neighboring_light_levels: RawLightingData,
 }
 
 impl Component for ChunkData {
@@ -45,7 +45,7 @@ impl ChunkData {
             position,
             // Ambient color
             light_levels: [[[[2, 2, 2, 255]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE],
-            neighboring_light_levels: [[[[255, 255, 255, 0]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE]
+            neighboring_light_levels: [[[[255, 255, 255, 0]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE],
         }
     }
 }

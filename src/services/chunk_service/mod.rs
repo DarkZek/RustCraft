@@ -36,6 +36,8 @@ pub struct ChunkService {
 
     system: SystemResources,
     low_memory_reminded: SystemTime,
+
+    // Chunks have updated so update culling next frame
     update_culling: bool,
 }
 
@@ -127,8 +129,6 @@ impl ChunkService {
             }
 
             self.sort_chunks();
-
-            self.update_culling = true;
         }
     }
 
@@ -151,7 +151,7 @@ impl ChunkService {
         self.visible_chunks = calculate_frustum_culling(camera, &self.viewable_chunks, &chunks);
     }
 
-    //TODO: Run this every time the player moves between chunks
+    // TODO: Run this every time the player moves between chunks
     pub fn sort_chunks(&mut self) {
         let player_pos = Vector3::new(0, 0, 0);
 

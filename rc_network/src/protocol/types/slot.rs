@@ -1,19 +1,18 @@
-use std::io::Cursor;
-use crate::protocol::data::read_types::{read_bool, read_varint, read_unsignedbyte};
+use crate::protocol::data::read_types::{read_bool, read_unsignedbyte, read_varint};
 use byteorder::ReadBytesExt;
 use nbt::Blob;
+use std::io::Cursor;
 
 #[derive(Debug)]
 pub struct Slot {
     present: bool,
-    item_id: Option<i64>,
+    item_id: Option<i32>,
     item_count: Option<u8>,
-    nbt: Option<Blob>
+    nbt: Option<Blob>,
 }
 
 impl Slot {
     pub fn deserialize(buf: &mut Cursor<Vec<u8>>) -> Self {
-
         let present = read_bool(buf);
 
         if !present {
@@ -21,7 +20,7 @@ impl Slot {
                 present,
                 item_id: None,
                 item_count: None,
-                nbt: None
+                nbt: None,
             };
         }
 
@@ -41,7 +40,7 @@ impl Slot {
             present,
             item_id,
             item_count,
-            nbt
+            nbt,
         }
     }
 }

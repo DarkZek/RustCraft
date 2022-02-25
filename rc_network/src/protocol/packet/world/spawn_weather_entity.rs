@@ -4,7 +4,7 @@ use std::io::Cursor;
 
 #[derive(Debug)]
 pub struct SpawnWeatherEntityPacket {
-    pub entity_id: i64,
+    pub entity_id: i32,
     pub ty: u8,
     pub pos: [f64; 3],
 }

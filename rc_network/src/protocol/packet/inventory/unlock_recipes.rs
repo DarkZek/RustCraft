@@ -4,7 +4,7 @@ use std::io::Cursor;
 
 #[derive(Debug)]
 pub struct UnlockRecipesPacket {
-    pub action: i64,
+    pub action: i32,
     pub crafting_recipe_book_open: bool,
     pub crafting_recipe_book_filter_active: bool,
     pub smelting_recipe_book_open: bool,

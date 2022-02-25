@@ -1,6 +1,8 @@
+use crate::protocol::data::read_types::{
+    read_bool, read_int, read_long, read_string, read_unsignedbyte, read_varint,
+};
 use crate::protocol::packet::PacketType;
-use crate::protocol::data::read_types::{read_int, read_unsignedbyte, read_long, read_bool, read_varint, read_string};
-use std::io::{Cursor};
+use std::io::Cursor;
 
 #[derive(Debug)]
 pub struct JoinGamePacket {
@@ -10,7 +12,7 @@ pub struct JoinGamePacket {
     pub seed: i64,
     pub max_players: u8,
     pub level_type: String,
-    pub view_distance: i64,
+    pub view_distance: i32,
     pub reduced_debug_info: bool,
     pub enable_respawn_screen: bool,
 }
@@ -36,7 +38,7 @@ impl PacketType for JoinGamePacket {
             level_type,
             view_distance,
             reduced_debug_info,
-            enable_respawn_screen
+            enable_respawn_screen,
         })
     }
 }

@@ -1,15 +1,15 @@
-use crate::protocol::packet::PacketType;
 use crate::protocol::data::read_types::{read_unsignedbyte, read_varint};
-use std::io::{Cursor};
+use crate::protocol::packet::PacketType;
+use std::io::Cursor;
 
 #[derive(Debug)]
 pub struct UpdateLightLevelsPacket {
-    pub x: i64,
-    pub z: i64,
-    pub sky_light_mask: i64,
-    pub block_light_mask: i64,
-    pub empty_sky_light_mask: i64,
-    pub empty_block_light_mask: i64,
+    pub x: i32,
+    pub z: i32,
+    pub sky_light_mask: i32,
+    pub block_light_mask: i32,
+    pub empty_sky_light_mask: i32,
+    pub empty_block_light_mask: i32,
     pub sky_light: Option<Vec<u8>>,
     pub block_light: Option<Vec<u8>>,
 }
@@ -33,7 +33,7 @@ impl PacketType for UpdateLightLevelsPacket {
                 empty_sky_light_mask,
                 empty_block_light_mask,
                 sky_light: None,
-                block_light: None
+                block_light: None,
             });
         }
 
@@ -59,7 +59,7 @@ impl PacketType for UpdateLightLevelsPacket {
             empty_sky_light_mask,
             empty_block_light_mask,
             sky_light: Some(sky_light),
-            block_light: Some(block_light)
+            block_light: Some(block_light),
         })
     }
 }

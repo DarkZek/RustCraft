@@ -1,12 +1,14 @@
+use crate::protocol::data::read_types::{
+    read_double, read_int, read_short, read_unsignedbyte, read_uuid, read_varint,
+};
 use crate::protocol::packet::PacketType;
-use crate::protocol::data::read_types::{read_unsignedbyte, read_int, read_short, read_double, read_varint, read_uuid};
-use std::io::{Cursor};
+use std::io::Cursor;
 
 #[derive(Debug)]
 pub struct SpawnEntityPacket {
-    pub entity_id: i64,
+    pub entity_id: i32,
     pub entity_uuid: u128,
-    pub ty: i64,
+    pub ty: i32,
     pub x: f64,
     pub y: f64,
     pub z: f64,
@@ -15,7 +17,7 @@ pub struct SpawnEntityPacket {
     pub data: i32,
     pub velocity_x: i16,
     pub velocity_y: i16,
-    pub velocity_z: i16
+    pub velocity_z: i16,
 }
 
 impl PacketType for SpawnEntityPacket {
@@ -45,7 +47,7 @@ impl PacketType for SpawnEntityPacket {
             data,
             velocity_x,
             velocity_y,
-            velocity_z
+            velocity_z,
         })
     }
 }

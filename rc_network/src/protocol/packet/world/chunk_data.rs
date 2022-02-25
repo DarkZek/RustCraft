@@ -2,15 +2,15 @@ use crate::protocol::data::read_types::{read_bool, read_int, read_unsignedbyte, 
 use crate::protocol::packet::PacketType;
 use crate::protocol::types::chunk::NetworkChunk;
 use nbt::Blob;
-use std::io::Cursor;
+use std::io::{Cursor, Read};
 
 #[derive(Debug)]
 pub struct ChunkDataPacket {
     pub x: i32,
     pub z: i32,
     // True = New chunk, False = Existing chunk
-    pub full_chunk: bool,
-    pub primary_bit_mask: i64,
+    pub new: bool,
+    pub primary_bit_mask: i32,
     pub heightmaps: Blob,
     pub biomes: Option<Vec<i32>>,
     pub data: Vec<NetworkChunk>,
@@ -22,11 +22,11 @@ impl PacketType for ChunkDataPacket {
         let x = read_int(buf);
         let z = read_int(buf);
 
-        let full_chunk = read_bool(buf);
+        let new = read_bool(buf);
         let primary_bit_mask = read_varint(buf);
 
         let heightmaps = Blob::from_reader(buf).unwrap();
-        let biomes = if full_chunk {
+        let biomes = if new {
             let mut arr = Vec::new();
             for _ in 0..1024 {
                 arr.push(read_int(buf));
@@ -37,14 +37,13 @@ impl PacketType for ChunkDataPacket {
         };
 
         let data_len = read_varint(buf);
-        let mut data = Vec::new();
+        let mut data = vec![0u8; data_len as usize];
 
-        for _ in 0..data_len {
-            data.push(read_unsignedbyte(buf));
-        }
+        buf.read_exact(&mut data).unwrap();
 
         let mut chunk_data = Cursor::new(data);
-        let chunks = NetworkChunk::deserialize(&mut chunk_data, primary_bit_mask, false); //(z == -1 && x == 0));
+        let chunks =
+            NetworkChunk::deserialize(&mut chunk_data, primary_bit_mask, x == -4 && z == -3);
 
         let block_entities_len = read_varint(buf);
         let mut block_entities = Vec::new();
@@ -56,7 +55,7 @@ impl PacketType for ChunkDataPacket {
         Box::new(ChunkDataPacket {
             x,
             z,
-            full_chunk,
+            new,
             primary_bit_mask,
             heightmaps,
             biomes,

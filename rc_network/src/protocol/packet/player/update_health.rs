@@ -1,12 +1,12 @@
-use crate::protocol::packet::PacketType;
 use crate::protocol::data::read_types::{read_float, read_varint};
-use std::io::{Cursor};
+use crate::protocol::packet::PacketType;
+use std::io::Cursor;
 
 #[derive(Debug)]
 pub struct UpdatePlayerHealthPacket {
     pub health: f32,
-    pub food: i64,
-    pub food_saturation: f32
+    pub food: i32,
+    pub food_saturation: f32,
 }
 
 impl PacketType for UpdatePlayerHealthPacket {
@@ -18,7 +18,7 @@ impl PacketType for UpdatePlayerHealthPacket {
         Box::new(UpdatePlayerHealthPacket {
             health,
             food,
-            food_saturation
+            food_saturation,
         })
     }
 }

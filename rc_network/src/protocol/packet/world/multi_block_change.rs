@@ -6,7 +6,7 @@ use std::io::Cursor;
 pub struct MultiBlockChangePacket {
     pub x: i32,
     pub z: i32,
-    pub changes: Vec<(u8, u8, u8, i64)>,
+    pub changes: Vec<(u8, u8, u8, i32)>,
 }
 
 impl PacketType for MultiBlockChangePacket {

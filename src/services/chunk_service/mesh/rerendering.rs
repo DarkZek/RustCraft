@@ -87,11 +87,12 @@ impl<'a> System<'a> for ChunkRerenderSystem {
         let mut processed = 0;
 
         for (flag_entity, flag) in (&entities, &flags).join() {
+            // Poll system resources
             chunk_service.system.poll();
 
             // If the chunk exists
             if let Option::Some(chunk) = chunks_loc.get_loc(flag.chunk) {
-                // If the system has less than 0.25gb of ram refuse to build mesh
+                // If the system has less than minimum amount of ram refuse to build mesh
                 if !chunk_service.system.should_alloc(LOW_MEMORY_MINIMUM_KB) {
                     // Only log message every 5 seconds
                     if chunk_service
@@ -110,10 +111,12 @@ impl<'a> System<'a> for ChunkRerenderSystem {
 
                 // Generate mesh & gpu buffers
                 let mut update = chunk.generate_mesh(&chunks_loc, &settings);
+
                 update.create_buffers(
                     &render_system.device,
                     &chunk_service.model_bind_group_layout,
                 );
+
                 let lighting_update = chunk.calculate_lighting(&chunks_loc);
 
                 // Output result into lock
@@ -125,7 +128,7 @@ impl<'a> System<'a> for ChunkRerenderSystem {
                 meshes.lock().unwrap().push((None, None, flag_entity));
             }
 
-            // Limit chunks loaded per frame, a column
+            // Limit chunks loaded per frame, just over a column
             processed += 1;
             if processed == 24 {
                 break;

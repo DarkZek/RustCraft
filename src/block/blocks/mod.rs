@@ -3,7 +3,6 @@ use crate::block::Block;
 use crate::game::physics::collider::BoxCollider;
 use crate::helpers::{AtlasIndex, TextureSubdivisionMethod};
 use crate::services::asset_service::atlas::ATLAS_LOOKUPS;
-use crate::services::asset_service::index::get_texture_atlas_index;
 use crate::services::asset_service::index::TextureAtlasIndex;
 use crate::services::asset_service::AssetService;
 use crate::services::chunk_service::mesh::ViewableDirectionBitMap;
@@ -168,6 +167,20 @@ pub enum StairShape {
     OuterRight,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Copy)]
+pub enum ChestType {
+    Single,
+    Left,
+    Right,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Copy)]
+pub enum RedstoneWireDirection {
+    Up,
+    Side,
+    None,
+}
+
 impl Default for TreeVariant {
     fn default() -> Self {
         TreeVariant::Oak
@@ -196,6 +209,16 @@ impl Default for RailShape {
 impl Default for StairShape {
     fn default() -> Self {
         StairShape::Straight
+    }
+}
+impl Default for ChestType {
+    fn default() -> Self {
+        ChestType::Single
+    }
+}
+impl Default for RedstoneWireDirection {
+    fn default() -> Self {
+        RedstoneWireDirection::None
     }
 }
 
@@ -506,15 +529,15 @@ define_blocks! {
             } else {
                 let mut faces = Vec::new();
 
-                let grass_block_top = get_texture_atlas_index("block/grass_block_top");
-                let dirt = get_texture_atlas_index("block/dirt");
-                let grass_block_side = get_texture_atlas_index("block/grass_block_side");
+                let grass_block_top = AtlasIndex::new_lookup("block/grass_block_top");
+                let dirt = AtlasIndex::new_lookup("block/dirt");
+                let grass_block_side = AtlasIndex::new_lookup("block/grass_block_side");
 
                 // Top face
                 faces.push(BlockFace {
                     bottom_left: Vector3::new(0.0, 1.0, 0.0),
                     scale: Vector3::new(1.0, 0.0, 1.0),
-                    texture: grass_block_top,
+                    texture: grass_block_top.lookup,
                     normal: ViewableDirectionBitMap::Top,
                     color: [135, 255, 105, 255],
                     edge: true,
@@ -524,7 +547,7 @@ define_blocks! {
                 faces.push(BlockFace {
                     bottom_left: Vector3::new(0.0, 0.0, 0.0),
                     scale: Vector3::new(1.0, 0.0, 1.0),
-                    texture: dirt,
+                    texture: dirt.lookup,
                     normal: ViewableDirectionBitMap::Bottom,
                     color: [255; 4],
                     edge: true,
@@ -534,7 +557,7 @@ define_blocks! {
                 faces.push(BlockFace {
                     bottom_left: Vector3::new(0.0, 0.0, 0.0),
                     scale: Vector3::new(0.0, 1.0, 1.0),
-                    texture: grass_block_side,
+                    texture: grass_block_side.lookup,
                     normal: ViewableDirectionBitMap::Left,
                     color: [255; 4],
                     edge: true,
@@ -544,7 +567,7 @@ define_blocks! {
                 faces.push(BlockFace {
                     bottom_left: Vector3::new(1.0, 0.0, 0.0),
                     scale: Vector3::new(0.0, 1.0, 1.0),
-                    texture: grass_block_side,
+                    texture: grass_block_side.lookup,
                     normal: ViewableDirectionBitMap::Right,
                     color: [255; 4],
                     edge: true,
@@ -554,7 +577,7 @@ define_blocks! {
                 faces.push(BlockFace {
                     bottom_left: Vector3::new(0.0, 0.0, 0.0),
                     scale: Vector3::new(1.0, 1.0, 0.0),
-                    texture: grass_block_side,
+                    texture: grass_block_side.lookup,
                     normal: ViewableDirectionBitMap::Front,
                     color: [255; 4],
                     edge: true,
@@ -564,7 +587,7 @@ define_blocks! {
                 faces.push(BlockFace {
                     bottom_left: Vector3::new(0.0, 0.0, 1.0),
                     scale: Vector3::new(1.0, 1.0, 0.0),
-                    texture: grass_block_side,
+                    texture: grass_block_side.lookup,
                     normal: ViewableDirectionBitMap::Back,
                     color: [255; 4],
                     edge: true,
@@ -1001,7 +1024,7 @@ define_blocks! {
             ]
         },
         model {
-            let mut lookup = get_texture_atlas_index("block/water_still");
+            let mut lookup = AtlasIndex::new_lookup("block/water_still").lookup;
 
             // Sprite is in 32 parts, select first part
             let single_sprite = lookup.height() / 32.0;
@@ -2776,6 +2799,7 @@ define_blocks! {
                     states.push(BlockType::MovingPiston { facing, is_sticky })
                 }
             }
+
             states
         },
         model BlockModel::square_block(["block/piston_side", "block/piston_side", "block/piston_side", "block/piston_side", "block/piston_top", "block/piston_bottom"]),
@@ -3478,38 +3502,38 @@ define_blocks! {
 
             BlockModel {
                 faces: vec![
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
-                            edge: false,
-                        }
+                    BlockFace {
+                        bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                        scale: Vector3::new(1.0, 1.0, 1.0),
+                        texture: lookup.clone(),
+                        normal: ViewableDirectionBitMap::Left,
+                        color: [255; 4],
+                        edge: false,
+                    },
+                    BlockFace {
+                        bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                        scale: Vector3::new(1.0, 1.0, 1.0),
+                        texture: lookup.clone(),
+                        normal: ViewableDirectionBitMap::Right,
+                        color: [255; 4],
+                        edge: false,
+                    },
+                    BlockFace {
+                        bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                        scale: Vector3::new(-1.0, 1.0, 1.0),
+                        texture: lookup.clone(),
+                        normal: ViewableDirectionBitMap::Left,
+                        color: [255; 4],
+                        edge: false,
+                    },
+                    BlockFace {
+                        bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                        scale: Vector3::new(-1.0, 1.0, 1.0),
+                        texture: lookup.clone(),
+                        normal: ViewableDirectionBitMap::Right,
+                        color: [255; 4],
+                        edge: false,
+                    }
                 ]
             }
         },
@@ -3881,6 +3905,158 @@ define_blocks! {
 
             model
         },
+    }
+    Chest {
+        i 129,
+        identifier "minecraft:chest",
+        props {
+            facing: Direction,
+            chest_type: ChestType,
+            waterlogged: bool,
+        },
+        states {
+            let mut states = Vec::new();
 
+            for facing in [Direction::North, Direction::East, Direction::South, Direction::West] {
+                for chest_type in [ChestType::Single, ChestType::Left, ChestType::Right] {
+                    for waterlogged in [false, true] {
+                        states.push(BlockType::Chest { facing, chest_type, waterlogged })
+                    }
+                }
+            }
+
+            states
+        },
+        model BlockModel::square_block(["entity/chest/normal"; 6]),
+        transparent true,
+    }
+    RedstoneWire {
+        i 130,
+        identifier "minecraft:redstone_wire",
+        props {
+            east: RedstoneWireDirection,
+            north: RedstoneWireDirection,
+            power: u8,
+            south: RedstoneWireDirection,
+            west: RedstoneWireDirection,
+        },
+        states {
+            let mut states = Vec::new();
+
+            for east in [RedstoneWireDirection::Up, RedstoneWireDirection::Side, RedstoneWireDirection::None] {
+                for north in [RedstoneWireDirection::Up, RedstoneWireDirection::Side, RedstoneWireDirection::None] {
+                    for power in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15] {
+                        for south in [RedstoneWireDirection::Up, RedstoneWireDirection::Side, RedstoneWireDirection::None] {
+                            for west in [RedstoneWireDirection::Up, RedstoneWireDirection::Side, RedstoneWireDirection::None] {
+                                states.push(BlockType::RedstoneWire { east, north, power, south, west })
+                            }
+                        }
+                    }
+                }
+            }
+
+            states
+        },
+        model {
+
+            let redstone_dust = AtlasIndex::new_lookup("block/redstone_dust_dot");
+
+            let faces = vec![BlockFace {
+                bottom_left: Vector3::new(0.0, 0.05, 0.0),
+                scale: Vector3::new(1.0, 0.0, 1.0),
+                texture: redstone_dust.lookup,
+                normal: ViewableDirectionBitMap::Top,
+                color: [255, 80, 80, 255],
+                edge: true,
+            }];
+
+            BlockModel { faces }
+        },
+        transparent true,
+    }
+    DiamondOre {
+        i 131,
+        identifier "minecraft:diamond_ore",
+        props {},
+        states {
+            vec![BlockType::DiamondOre { }]
+        },
+        model BlockModel::square_block(["block/diamond_ore"; 6]),
+    }
+    DiamondBlock {
+        i 132,
+        identifier "minecraft:diamond_block",
+        props {},
+        states {
+            vec![BlockType::DiamondBlock { }]
+        },
+        model BlockModel::square_block(["block/diamond_ore"; 6]),
+    }
+    CraftingTable {
+        i 133,
+        identifier "minecraft:crafting_table",
+        props {},
+        states {
+            vec![BlockType::CraftingTable { }]
+        },
+        model BlockModel::square_block(["block/crafting_table_top", "block/oak_planks", "block/crafting_table_front", "block/crafting_table_side", "block/crafting_table_side", "block/crafting_table_side"]),
+    }
+    Wheat {
+        i 134,
+        identifier "minecraft:wheat",
+        props { age: u8, },
+        states {
+            vec![
+                BlockType::Wheat { age: 0 },
+                BlockType::Wheat { age: 1 },
+                BlockType::Wheat { age: 2 },
+                BlockType::Wheat { age: 3 },
+                BlockType::Wheat { age: 4 },
+                BlockType::Wheat { age: 5 },
+                BlockType::Wheat { age: 6 },
+                BlockType::Wheat { age: 7 }
+            ]
+        },
+        model {
+            let lookup = AtlasIndex::new_lookup(&format!("block/wheat_stage{}", age)).lookup;
+
+            BlockModel {
+                faces: vec![
+                    BlockFace {
+                        bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                        scale: Vector3::new(1.0, 1.0, 1.0),
+                        texture: lookup.clone(),
+                        normal: ViewableDirectionBitMap::Left,
+                        color: [255; 4],
+                        edge: false,
+                    },
+                    BlockFace {
+                        bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                        scale: Vector3::new(1.0, 1.0, 1.0),
+                        texture: lookup.clone(),
+                        normal: ViewableDirectionBitMap::Right,
+                        color: [255; 4],
+                        edge: false,
+                    },
+                    BlockFace {
+                        bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                        scale: Vector3::new(-1.0, 1.0, 1.0),
+                        texture: lookup.clone(),
+                        normal: ViewableDirectionBitMap::Left,
+                        color: [255; 4],
+                        edge: false,
+                    },
+                    BlockFace {
+                        bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                        scale: Vector3::new(-1.0, 1.0, 1.0),
+                        texture: lookup.clone(),
+                        normal: ViewableDirectionBitMap::Right,
+                        color: [255; 4],
+                        edge: false,
+                    }
+                ]
+            }
+        },
+        transparent true,
     }
 }

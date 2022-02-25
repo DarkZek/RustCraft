@@ -5,9 +5,9 @@ use std::io::Cursor;
 
 #[derive(Debug)]
 pub struct EntityEquipmentPacket {
-    pub entity_id: i64,
+    pub entity_id: i32,
     // 0: src hand, 1: off hand, 2–5: armor slot (2: boots, 3: leggings, 4: chestplate, 5: helmet)
-    pub slot: i64,
+    pub slot: i32,
     pub item: Slot,
 }
 

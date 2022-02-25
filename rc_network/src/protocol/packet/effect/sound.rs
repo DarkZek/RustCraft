@@ -4,8 +4,8 @@ use std::io::Cursor;
 
 #[derive(Debug)]
 pub struct SoundEffectPacket {
-    pub sound_id: i64,
-    pub sound_category: i64,
+    pub sound_id: i32,
+    pub sound_category: i32,
     pub pos: [i32; 3],
     pub volume: f32,
     pub pitch: f32,

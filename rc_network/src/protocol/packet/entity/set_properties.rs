@@ -1,12 +1,12 @@
+use crate::protocol::data::read_types::{read_double, read_int, read_string, read_varint};
 use crate::protocol::packet::PacketType;
-use crate::protocol::data::read_types::{read_int, read_string, read_double, read_varint};
-use std::io::{Cursor};
 use crate::protocol::types::modifier_data::ModifierData;
+use std::io::Cursor;
 
 #[derive(Debug)]
 pub struct EntitySetPropertiesPacket {
-    pub entity_id: i64,
-    pub properties: Vec<(String, f64, Vec<ModifierData>)>
+    pub entity_id: i32,
+    pub properties: Vec<(String, f64, Vec<ModifierData>)>,
 }
 
 impl PacketType for EntitySetPropertiesPacket {
@@ -30,7 +30,7 @@ impl PacketType for EntitySetPropertiesPacket {
 
         Box::new(EntitySetPropertiesPacket {
             entity_id,
-            properties
+            properties,
         })
     }
 }

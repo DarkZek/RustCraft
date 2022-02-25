@@ -1,11 +1,11 @@
+use crate::protocol::data::read_types::read_varint;
 use crate::protocol::packet::PacketType;
-use crate::protocol::data::read_types::{read_varint};
-use std::io::{Cursor};
+use std::io::Cursor;
 
 #[derive(Debug)]
 pub struct UpdateViewChunkPositionPacket {
-    pub x: i64,
-    pub z: i64,
+    pub x: i32,
+    pub z: i32,
 }
 
 impl PacketType for UpdateViewChunkPositionPacket {
@@ -13,9 +13,6 @@ impl PacketType for UpdateViewChunkPositionPacket {
         let x = read_varint(buf);
         let z = read_varint(buf);
 
-        Box::new(UpdateViewChunkPositionPacket {
-            x,
-            z,
-        })
+        Box::new(UpdateViewChunkPositionPacket { x, z })
     }
 }

@@ -37,11 +37,11 @@ impl PacketType for WorldBorderPacket {
 #[derive(Debug)]
 pub enum WorldBorderData {
     SetSize(f64),
-    LerpSize(f64, f64, i64),
+    LerpSize(f64, f64, i32),
     SetCenter(f64, f64),
     Initialize(WorldBorderDataInitialize),
-    SetWarningTime(i64),
-    SetWarningBlocks(i64),
+    SetWarningTime(i32),
+    SetWarningBlocks(i32),
 }
 
 #[derive(Debug)]
@@ -51,7 +51,7 @@ pub struct WorldBorderDataInitialize {
     old_diameter: f64,
     new_diameter: f64,
     speed: i64,
-    portal_teleport_boundary: i64,
-    warning_time: i64,
-    warning_blocks: i64,
+    portal_teleport_boundary: i32,
+    warning_time: i32,
+    warning_blocks: i32,
 }

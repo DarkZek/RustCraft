@@ -6,6 +6,7 @@ use crate::services::asset_service::depth_map::{create_depth_texture, DEPTH_FORM
 use crate::services::asset_service::AssetService;
 use crate::services::chunk_service::mesh::Vertex;
 use crate::services::chunk_service::ChunkService;
+use crate::services::settings_service::SettingsService;
 use crate::services::{load_services, ServicesContext};
 use image::ImageFormat;
 use specs::{World, WorldExt};
@@ -85,11 +86,11 @@ impl RenderState {
             WindowBuilder::new()
                 .with_title("Loading - Rustcraft")
                 .with_inner_size(PhysicalSize {
-                    width: 1920,
-                    height: 1080,
+                    width: 1280,
+                    height: 720,
                 })
                 .with_window_icon(Some(icon))
-                .with_fullscreen(Some(winit::window::Fullscreen::Borderless(None)))
+                //.with_fullscreen(Some(winit::window::Fullscreen::Borderless(None)))
                 .build(&event_loop)
                 .unwrap(),
         );
@@ -151,7 +152,7 @@ impl RenderState {
 
         let render_pipeline = generate_render_pipeline(
             &device,
-            true,
+            universe.read_resource::<SettingsService>().backface_culling,
             &[
                 &universe
                     .read_resource::<AssetService>()
@@ -252,7 +253,7 @@ fn generate_render_pipeline(
             topology: PrimitiveTopology::TriangleList,
             strip_index_format: None,
             front_face: FrontFace::Cw,
-            cull_mode: if culling { None } else { Some(Face::Back) },
+            cull_mode: if culling { Some(Face::Back) } else { None },
             unclipped_depth: false,
             polygon_mode: PolygonMode::Fill,
             conservative: false,

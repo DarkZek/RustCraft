@@ -73,7 +73,7 @@ impl PacketDecoder {
 
         // Get id of packet
         let packet_id = read_varint(stream);
-        let mut buf = vec![0; (len - stream.get_bytes_read() as i64) as usize];
+        let mut buf = vec![0; (len - stream.get_bytes_read() as i32) as usize];
 
         stream.read_exact(&mut buf)?;
 
@@ -131,13 +131,13 @@ impl PacketDecoder {
             _ => panic!("Unknown packet ID: 0x{:x}", packet_id)
         };
 
-        if len - stream.get_bytes_read() as i64 > 0 {
-            log!("Remaining Length: {}", len - stream.get_bytes_read() as i64);
-        } else if (len - stream.get_bytes_read() as i64) < 0 {
-            log_error!("{}", format!("Read {} too many bytes on packet type 0x{:x}", stream.get_bytes_read() as i64 - len, packet_id));
+        if len - stream.get_bytes_read() as i32 > 0 {
+            log!("Remaining Length: {}", len - stream.get_bytes_read() as i32);
+        } else if (len - stream.get_bytes_read() as i32) < 0 {
+            log_error!("{}", format!("Read {} too many bytes on packet type 0x{:x}", stream.get_bytes_read() as i32 - len, packet_id));
         }
 
-        while len - stream.get_bytes_read() as i64 > 0 {
+        while len - stream.get_bytes_read() as i32 > 0 {
             read_unsignedbyte(stream);
         }
 

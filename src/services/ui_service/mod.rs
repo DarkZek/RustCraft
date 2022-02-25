@@ -40,7 +40,7 @@ impl UIService {
         universe: &mut World,
     ) -> UIService {
         let fonts = FontsManager::new(&assets, context.size.clone());
-        //TODO: Bind resize events
+        // TODO: Bind resize events
         let mut images = ImageManager::new(*context.size);
         let widget = WidgetManager::new(*context.size);
 

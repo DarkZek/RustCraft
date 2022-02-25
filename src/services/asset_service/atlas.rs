@@ -15,7 +15,7 @@ use wgpu::{
     BufferUsages, Device, ImageDataLayout, Queue, Sampler, Texture, TextureAspect, TextureFormat,
 };
 
-//TODO: Refactor
+// TODO: Refactor
 
 pub const ATLAS_WIDTH: u32 = 4096;
 pub const ATLAS_HEIGHT: u32 = (4096.0 * 2.0) as u32;

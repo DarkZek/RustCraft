@@ -5,7 +5,7 @@ use std::io::Cursor;
 #[derive(Debug)]
 pub struct BlockChangePacket {
     pub location: [i64; 3],
-    pub block_id: i64,
+    pub block_id: i32,
 }
 
 impl PacketType for BlockChangePacket {

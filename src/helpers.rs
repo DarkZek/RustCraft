@@ -146,7 +146,10 @@ impl AtlasIndex {
         let lookup = match texture {
             Some(tex) => tex,
             // Lookup error texture instead
-            None => ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap(),
+            None => {
+                log_warn!("No texture index for {}", name);
+                ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap()
+            }
         };
 
         AtlasIndex { lookup: *lookup }

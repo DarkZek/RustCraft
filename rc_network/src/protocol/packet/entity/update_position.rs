@@ -7,7 +7,7 @@ use std::io::Cursor;
 
 #[derive(Debug)]
 pub struct UpdateEntityPositionPacket {
-    pub entity_id: i64,
+    pub entity_id: i32,
     pub change: [i16; 3],
     pub on_ground: bool,
 }

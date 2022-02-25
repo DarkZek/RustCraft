@@ -2,7 +2,8 @@ use crate::helpers::lerp_color;
 use crate::services::chunk_service::chunk::{ChunkData, Chunks, RawLightingData};
 use crate::services::chunk_service::lighting::UpdateChunkLighting;
 use crate::services::chunk_service::mesh::rerendering::{UpdateChunkGraphics, UpdateChunkMesh};
-use specs::Join;
+use crate::services::chunk_service::ChunkService;
+use specs::{Join, Write};
 use specs::{System, WriteStorage};
 
 pub struct ChunkMeshUpdateSystem;
@@ -11,9 +12,10 @@ impl<'a> System<'a> for ChunkMeshUpdateSystem {
     type SystemData = (
         WriteStorage<'a, UpdateChunkGraphics>,
         WriteStorage<'a, ChunkData>,
+        Write<'a, ChunkService>,
     );
 
-    fn run(&mut self, (mut flags, mut chunks): Self::SystemData) {
+    fn run(&mut self, (mut flags, mut chunks, mut chunk_service): Self::SystemData) {
         let mut chunks_loc = Chunks::new_mut((&mut chunks).join().collect::<Vec<&mut ChunkData>>());
 
         for flag in flags.drain().join() {
@@ -32,6 +34,9 @@ impl<'a> System<'a> for ChunkMeshUpdateSystem {
                 }
             }
         }
+
+        // Update visible chunks
+        chunk_service.update_culling = true;
     }
 }
 

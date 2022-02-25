@@ -1,6 +1,6 @@
-use crate::protocol::packet::PacketType;
 use crate::protocol::data::read_types::{read_string, read_varint};
-use std::io::{Cursor};
+use crate::protocol::packet::PacketType;
+use std::io::Cursor;
 
 #[derive(Debug)]
 pub struct TagsPacket {
@@ -12,7 +12,6 @@ pub struct TagsPacket {
 
 impl PacketType for TagsPacket {
     fn deserialize(buf: &mut Cursor<Vec<u8>>) -> Box<Self> {
-
         let mut block_tags = Vec::new();
         let mut item_tags = Vec::new();
         let mut fluid_tags = Vec::new();
@@ -35,7 +34,7 @@ impl PacketType for TagsPacket {
                 tags.push(Tag {
                     name,
                     count,
-                    entries
+                    entries,
                 })
             }
 
@@ -52,7 +51,7 @@ impl PacketType for TagsPacket {
             block_tags,
             item_tags,
             fluid_tags,
-            entity_tags
+            entity_tags,
         })
     }
 }
@@ -60,6 +59,6 @@ impl PacketType for TagsPacket {
 #[derive(Debug, Clone)]
 pub struct Tag {
     name: String,
-    count: i64,
-    entries: Vec<i64>
+    count: i32,
+    entries: Vec<i32>,
 }

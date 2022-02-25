@@ -5,52 +5,52 @@ use byteorder::{BigEndian, LittleEndian, ReadBytesExt};
 use nbt::Blob;
 use std::io::Read;
 
-pub fn read_varint<T: Read>(read: &mut T) -> i64 {
-    let mut result = 0;
+pub fn read_varint<T: Read>(reader: &mut T) -> i32 {
+    let mut value = 0;
+    let mut length = 0;
+    let mut currentByte = 0;
 
-    const MSB: u8 = 0b10000000;
-    const MASK: u8 = !MSB;
+    loop {
+        currentByte = reader.read_u8().unwrap();
 
-    for i in 0..5 {
-        let read = read.read_u8().unwrap();
+        value |= ((currentByte & 0x7F) as i32) << (length * 7);
 
-        result |= ((read & MASK) as i64) << (7 * i);
+        length += 1;
 
-        /* The last (5th) byte is only allowed to have the 4 LSB set */
-        if i == 4 && (read & 0xf0 != 0) {
-            panic!("VarInt is too long, last byte: {}", read)
+        if length > 5 {
+            panic!("VarInt too long");
         }
 
-        if (read & MSB) == 0 {
-            return result;
+        if (currentByte & 0x80) != 0x80 {
+            break;
         }
     }
 
-    panic!("read_varint reached end of loop, which should not be possible")
+    value
 }
 
 pub fn read_varlong<R: Read>(reader: &mut R) -> i64 {
-    let mut result = 0;
+    let mut value = 0;
+    let mut length = 0;
+    let mut currentByte = 0;
 
-    let msb: u8 = 0b10000000;
-    let mask: u8 = !msb;
+    loop {
+        currentByte = reader.read_u8().unwrap();
 
-    for i in 0..10 {
-        let read = reader.read_u8().unwrap();
+        value |= ((currentByte & 0x7F) as i64) << (length * 7);
 
-        result |= ((read & mask) as i64) << (7 * i);
+        length += 1;
 
-        /* The last (10th) byte is only allowed to have the LSB set */
-        if i == 9 && ((read & (!0x1)) != 0) {
-            panic!("VarLong is too long, last byte: {}", read);
+        if length > 10 {
+            panic!("VarLong too long");
         }
 
-        if (read & msb) == 0 {
-            return result;
+        if (currentByte & 0x80) != 0x80 {
+            break;
         }
     }
 
-    panic!("read_varlong reached end of loop, which should not be possible");
+    value
 }
 
 pub fn read_string<T: Read>(read: &mut T) -> String {
@@ -106,6 +106,9 @@ pub fn read_bool<T: Read>(read: &mut T) -> bool {
 
 pub fn read_short<T: Read>(read: &mut T) -> i16 {
     read.read_i16::<BigEndian>().unwrap()
+}
+pub fn read_ushort<T: Read>(read: &mut T) -> u16 {
+    read.read_u16::<BigEndian>().unwrap()
 }
 
 pub fn read_uuid<T: Read>(read: &mut T) -> u128 {
