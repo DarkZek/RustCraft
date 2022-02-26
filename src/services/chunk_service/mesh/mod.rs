@@ -122,6 +122,7 @@ impl ViewableDirectionBitMap {
                 ViewableDirectionBitMap::Front => ViewableDirectionBitMap::Right,
                 ViewableDirectionBitMap::Back => ViewableDirectionBitMap::Left,
             },
+            _ => *self,
         }
     }
 }

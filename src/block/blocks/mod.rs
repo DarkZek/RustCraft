@@ -1,4 +1,4 @@
-use crate::block::blocks::model::{BlockFace, BlockModel};
+use crate::block::blocks::model::{BlockFace, BlockModel, Rotate};
 use crate::block::Block;
 use crate::game::physics::collider::BoxCollider;
 use crate::helpers::{AtlasIndex, TextureSubdivisionMethod};
@@ -538,6 +538,7 @@ define_blocks! {
                     bottom_left: Vector3::new(0.0, 1.0, 0.0),
                     scale: Vector3::new(1.0, 0.0, 1.0),
                     texture: grass_block_top.lookup,
+                    texture_rotation: Rotate::Deg0,
                     normal: ViewableDirectionBitMap::Top,
                     color: [135, 255, 105, 255],
                     edge: true,
@@ -548,6 +549,7 @@ define_blocks! {
                     bottom_left: Vector3::new(0.0, 0.0, 0.0),
                     scale: Vector3::new(1.0, 0.0, 1.0),
                     texture: dirt.lookup,
+                    texture_rotation: Rotate::Deg0,
                     normal: ViewableDirectionBitMap::Bottom,
                     color: [255; 4],
                     edge: true,
@@ -558,6 +560,7 @@ define_blocks! {
                     bottom_left: Vector3::new(0.0, 0.0, 0.0),
                     scale: Vector3::new(0.0, 1.0, 1.0),
                     texture: grass_block_side.lookup,
+                    texture_rotation: Rotate::Deg0,
                     normal: ViewableDirectionBitMap::Left,
                     color: [255; 4],
                     edge: true,
@@ -568,6 +571,7 @@ define_blocks! {
                     bottom_left: Vector3::new(1.0, 0.0, 0.0),
                     scale: Vector3::new(0.0, 1.0, 1.0),
                     texture: grass_block_side.lookup,
+                    texture_rotation: Rotate::Deg0,
                     normal: ViewableDirectionBitMap::Right,
                     color: [255; 4],
                     edge: true,
@@ -578,6 +582,7 @@ define_blocks! {
                     bottom_left: Vector3::new(0.0, 0.0, 0.0),
                     scale: Vector3::new(1.0, 1.0, 0.0),
                     texture: grass_block_side.lookup,
+                    texture_rotation: Rotate::Deg0,
                     normal: ViewableDirectionBitMap::Front,
                     color: [255; 4],
                     edge: true,
@@ -588,6 +593,7 @@ define_blocks! {
                     bottom_left: Vector3::new(0.0, 0.0, 1.0),
                     scale: Vector3::new(1.0, 1.0, 0.0),
                     texture: grass_block_side.lookup,
+                    texture_rotation: Rotate::Deg0,
                     normal: ViewableDirectionBitMap::Back,
                     color: [255; 4],
                     edge: true,
@@ -668,46 +674,7 @@ define_blocks! {
                 BlockType::OakSapling { stage: 1 }
             ]
         },
-        model {
-            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/oak_sapling").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
-
-            BlockModel {
-                faces: vec![
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
-                            edge: false,
-                        }
-                ]
-            }
-        },
+        model BlockModel::plant_block("block/oak_sapling"),
         collidable false,
         full false,
     }
@@ -723,46 +690,7 @@ define_blocks! {
                 BlockType::SpruceSapling { stage: 1 }
             ]
         },
-        model {
-            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/spruce_sapling").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
-
-            BlockModel {
-                faces: vec![
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
-                            edge: false,
-                        }
-                ]
-            }
-        },
+        model BlockModel::plant_block("block/spruce_sapling"),
         collidable false,
         full false,
     }
@@ -778,46 +706,7 @@ define_blocks! {
                 BlockType::BirchSapling { stage: 1 }
             ]
         },
-        model {
-            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/birch_sapling").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
-
-            BlockModel {
-                faces: vec![
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
-                            edge: false,
-                        }
-                ]
-            }
-        },
+        model BlockModel::plant_block("block/birch_sapling"),
         collidable false,
         full false,
     }
@@ -833,46 +722,7 @@ define_blocks! {
                 BlockType::JungleSapling { stage: 1 }
             ]
         },
-        model {
-            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/jungle_sapling").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
-
-            BlockModel {
-                faces: vec![
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
-                            edge: false,
-                        }
-                ]
-            }
-        },
+        model BlockModel::plant_block("block/jungle_sapling"),
         collidable false,
         full false,
     }
@@ -888,46 +738,7 @@ define_blocks! {
                 BlockType::AcaciaSapling { stage: 1 }
             ]
         },
-        model {
-            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/acacia_sapling").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
-
-            BlockModel {
-                faces: vec![
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
-                            edge: false,
-                        }
-                ]
-            }
-        },
+        model BlockModel::plant_block("block/acacia_sapling"),
         collidable false,
         full false,
     }
@@ -943,46 +754,7 @@ define_blocks! {
                 BlockType::DarkOakSapling { stage: 1 }
             ]
         },
-        model {
-            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/dark_oak_sapling").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
-
-            BlockModel {
-                faces: vec![
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
-                            edge: false,
-                        }
-                ]
-            }
-        },
+        model BlockModel::plant_block("block/dark_oak_sapling"),
         collidable false,
         full false,
     }
@@ -1036,6 +808,7 @@ define_blocks! {
                         bottom_left: Vector3::new(0.0, 0.85, 0.0),
                         scale: Vector3::new(1.0, 0.0, 1.0),
                         texture: lookup.clone(),
+                        texture_rotation: Rotate::Deg0,
                         normal: ViewableDirectionBitMap::Top,
                         color: [39, 90, 194, 255],
                         edge: true,
@@ -1044,6 +817,7 @@ define_blocks! {
                         bottom_left: Vector3::new(0.0, 0.0, 0.0),
                         scale: Vector3::new(1.0, 0.0, 1.0),
                         texture: lookup.clone(),
+                        texture_rotation: Rotate::Deg0,
                         normal: ViewableDirectionBitMap::Bottom,
                         color: [39, 90, 194, 255],
                         edge: true,
@@ -1052,6 +826,7 @@ define_blocks! {
                         bottom_left: Vector3::new(0.0, 0.0, 0.0),
                         scale: Vector3::new(0.0, 0.85, 1.0),
                         texture: lookup.clone(),
+                        texture_rotation: Rotate::Deg0,
                         normal: ViewableDirectionBitMap::Left,
                         color: [39, 90, 194, 255],
                         edge: true,
@@ -1060,6 +835,7 @@ define_blocks! {
                         bottom_left: Vector3::new(1.0, 0.0, 0.0),
                         scale: Vector3::new(0.0, 0.85, 1.0),
                         texture: lookup.clone(),
+                        texture_rotation: Rotate::Deg0,
                         normal: ViewableDirectionBitMap::Right,
                         color: [39, 90, 194, 255],
                         edge: true,
@@ -1068,6 +844,7 @@ define_blocks! {
                         bottom_left: Vector3::new(0.0, 0.0, 0.0),
                         scale: Vector3::new(1.0, 0.85, 0.0),
                         texture: lookup.clone(),
+                        texture_rotation: Rotate::Deg0,
                         normal: ViewableDirectionBitMap::Front,
                         color: [39, 90, 194, 255],
                         edge: true,
@@ -1076,6 +853,7 @@ define_blocks! {
                         bottom_left: Vector3::new(0.0, 0.0, 1.0),
                         scale: Vector3::new(1.0, 0.85, 0.0),
                         texture: lookup.clone(),
+                        texture_rotation: Rotate::Deg0,
                         normal: ViewableDirectionBitMap::Back,
                         color: [39, 90, 194, 255],
                         edge: true,
@@ -2158,6 +1936,7 @@ define_blocks! {
                             bottom_left: Vector3::new(0.0, 0.0, 0.0),
                             scale: Vector3::new(1.0, 0.0, 1.0),
                             texture: lookup.clone(),
+                            texture_rotation: Rotate::Deg0,
                             normal: ViewableDirectionBitMap::Top,
                             color: [255; 4],
                             edge: false,
@@ -2194,6 +1973,7 @@ define_blocks! {
                             bottom_left: Vector3::new(0.0, 0.0, 0.0),
                             scale: Vector3::new(1.0, 0.0, 1.0),
                             texture: lookup.clone(),
+                            texture_rotation: Rotate::Deg0,
                             normal: ViewableDirectionBitMap::Top,
                             color: [255; 4],
                             edge: false,
@@ -2243,47 +2023,9 @@ define_blocks! {
         states {
             vec![BlockType::Grass { }]
         },
-        model {
-            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/grass").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
-
-            BlockModel {
-                faces: vec![
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [135, 255, 105, 255],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [135, 255, 105, 255],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [135, 255, 105, 255],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [135, 255, 105, 255],
-                            edge: false,
-                        }
-                ]
-            }
-        },
+        model BlockModel::plant_block("block/grass"),
         collidable false,
+        full false,
         transparent true,
     }
     Fern {
@@ -2293,46 +2035,7 @@ define_blocks! {
         states {
             vec![BlockType::Fern { }]
         },
-        model {
-            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/fern").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
-
-            BlockModel {
-                faces: vec![
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
-                            edge: false,
-                        }
-                ]
-            }
-        },
+        model BlockModel::plant_block("block/fern"),
         collidable false,
         transparent true,
     }
@@ -2343,46 +2046,7 @@ define_blocks! {
         states {
             vec![BlockType::DeadBush { }]
         },
-        model {
-            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/dead_bush").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
-
-            BlockModel {
-                faces: vec![
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
-                            edge: false,
-                        }
-                ]
-            }
-        },
+        model BlockModel::plant_block("block/dead_bush"),
         transparent true,
     }
     Seagrass {
@@ -2403,6 +2067,7 @@ define_blocks! {
                         bottom_left: Vector3::new(0.0, 0.0, 0.0),
                         scale: Vector3::new(1.0, 0.85, 1.0),
                         texture: lookup.clone(),
+                        texture_rotation: Rotate::Deg0,
                         normal: ViewableDirectionBitMap::Left,
                         color: [255; 4],
                         edge: false,
@@ -2411,6 +2076,7 @@ define_blocks! {
                         bottom_left: Vector3::new(0.0, 0.0, 0.0),
                         scale: Vector3::new(1.0, 0.85, 1.0),
                         texture: lookup.clone(),
+                        texture_rotation: Rotate::Deg0,
                         normal: ViewableDirectionBitMap::Right,
                         color: [255; 4],
                         edge: false,
@@ -2419,6 +2085,7 @@ define_blocks! {
                         bottom_left: Vector3::new(1.0, 0.0, 0.0),
                         scale: Vector3::new(-1.0, 0.85, 1.0),
                         texture: lookup.clone(),
+                        texture_rotation: Rotate::Deg0,
                         normal: ViewableDirectionBitMap::Left,
                         color: [255; 4],
                         edge: false,
@@ -2427,6 +2094,7 @@ define_blocks! {
                         bottom_left: Vector3::new(1.0, 0.0, 0.0),
                         scale: Vector3::new(-1.0, 0.85, 1.0),
                         texture: lookup.clone(),
+                        texture_rotation: Rotate::Deg0,
                         normal: ViewableDirectionBitMap::Right,
                         color: [255; 4],
                         edge: false,
@@ -2436,6 +2104,7 @@ define_blocks! {
                         bottom_left: Vector3::new(0.0, 0.85, 0.0),
                         scale: Vector3::new(1.0, 0.0, 1.0),
                         texture: water_lookup.clone(),
+                        texture_rotation: Rotate::Deg0,
                         normal: ViewableDirectionBitMap::Top,
                         color: [255; 4],
                         edge: false,
@@ -2444,6 +2113,7 @@ define_blocks! {
                         bottom_left: Vector3::new(0.0, 0.0, 0.0),
                         scale: Vector3::new(1.0, 0.0, 1.0),
                         texture: water_lookup.clone(),
+                        texture_rotation: Rotate::Deg0,
                         normal: ViewableDirectionBitMap::Bottom,
                     color: [255; 4],
                         edge: true,
@@ -2452,6 +2122,7 @@ define_blocks! {
                         bottom_left: Vector3::new(0.0, 0.0, 0.0),
                         scale: Vector3::new(0.0, 0.85, 1.0),
                         texture: water_lookup.clone(),
+                        texture_rotation: Rotate::Deg0,
                         normal: ViewableDirectionBitMap::Left,
                         color: [255; 4],
                         edge: true,
@@ -2460,6 +2131,7 @@ define_blocks! {
                         bottom_left: Vector3::new(1.0, 0.0, 0.0),
                         scale: Vector3::new(0.0, 0.85, 1.0),
                         texture: water_lookup.clone(),
+                        texture_rotation: Rotate::Deg0,
                         normal: ViewableDirectionBitMap::Right,
                         color: [255; 4],
                         edge: true,
@@ -2468,6 +2140,7 @@ define_blocks! {
                         bottom_left: Vector3::new(0.0, 0.0, 0.0),
                         scale: Vector3::new(1.0, 0.85, 0.0),
                         texture: water_lookup.clone(),
+                        texture_rotation: Rotate::Deg0,
                         normal: ViewableDirectionBitMap::Front,
                         color: [255; 4],
                         edge: true,
@@ -2476,6 +2149,7 @@ define_blocks! {
                         bottom_left: Vector3::new(0.0, 0.0, 1.0),
                         scale: Vector3::new(1.0, 0.85, 0.0),
                         texture: water_lookup.clone(),
+                        texture_rotation: Rotate::Deg0,
                         normal: ViewableDirectionBitMap::Back,
                         color: [255; 4],
                         edge: true,
@@ -2508,6 +2182,7 @@ define_blocks! {
                             bottom_left: Vector3::new(0.0, 0.0, 0.0),
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
+                            texture_rotation: Rotate::Deg0,
                             normal: ViewableDirectionBitMap::Left,
                             color: [255; 4],
                             edge: false,
@@ -2516,6 +2191,7 @@ define_blocks! {
                             bottom_left: Vector3::new(0.0, 0.0, 0.0),
                             scale: Vector3::new(1.0, 1.0, 1.0),
                             texture: lookup.clone(),
+                            texture_rotation: Rotate::Deg0,
                             normal: ViewableDirectionBitMap::Right,
                             color: [255; 4],
                             edge: false,
@@ -2524,6 +2200,7 @@ define_blocks! {
                             bottom_left: Vector3::new(1.0, 0.0, 0.0),
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
+                            texture_rotation: Rotate::Deg0,
                             normal: ViewableDirectionBitMap::Left,
                             color: [255; 4],
                             edge: false,
@@ -2532,6 +2209,7 @@ define_blocks! {
                             bottom_left: Vector3::new(1.0, 0.0, 0.0),
                             scale: Vector3::new(-1.0, 1.0, 1.0),
                             texture: lookup.clone(),
+                            texture_rotation: Rotate::Deg0,
                             normal: ViewableDirectionBitMap::Right,
                             color: [255; 4],
                             edge: false,
@@ -2541,6 +2219,7 @@ define_blocks! {
                             bottom_left: Vector3::new(0.0, 0.85, 0.0),
                             scale: Vector3::new(1.0, 0.0, 1.0),
                             texture: water_lookup.clone(),
+                            texture_rotation: Rotate::Deg0,
                             normal: ViewableDirectionBitMap::Top,
                             color: [255; 4],
                             edge: false,
@@ -2549,6 +2228,7 @@ define_blocks! {
                             bottom_left: Vector3::new(0.0, 0.0, 0.0),
                             scale: Vector3::new(1.0, 0.0, 1.0),
                             texture: water_lookup.clone(),
+                            texture_rotation: Rotate::Deg0,
                             normal: ViewableDirectionBitMap::Bottom,
                             color: [255; 4],
                             edge: true,
@@ -2557,6 +2237,7 @@ define_blocks! {
                             bottom_left: Vector3::new(0.0, 0.0, 0.0),
                             scale: Vector3::new(0.0, 0.85, 1.0),
                             texture: water_lookup.clone(),
+                            texture_rotation: Rotate::Deg0,
                             normal: ViewableDirectionBitMap::Left,
                             color: [255; 4],
                             edge: true,
@@ -2565,6 +2246,7 @@ define_blocks! {
                             bottom_left: Vector3::new(1.0, 0.0, 0.0),
                             scale: Vector3::new(0.0, 0.85, 1.0),
                             texture: water_lookup.clone(),
+                            texture_rotation: Rotate::Deg0,
                             normal: ViewableDirectionBitMap::Right,
                             color: [255; 4],
                             edge: true,
@@ -2573,6 +2255,7 @@ define_blocks! {
                             bottom_left: Vector3::new(0.0, 0.0, 0.0),
                             scale: Vector3::new(1.0, 0.85, 0.0),
                             texture: water_lookup.clone(),
+                            texture_rotation: Rotate::Deg0,
                             normal: ViewableDirectionBitMap::Front,
                             color: [255; 4],
                             edge: true,
@@ -2581,6 +2264,7 @@ define_blocks! {
                             bottom_left: Vector3::new(0.0, 0.0, 1.0),
                             scale: Vector3::new(1.0, 0.85, 0.0),
                             texture: water_lookup.clone(),
+                            texture_rotation: Rotate::Deg0,
                             normal: ViewableDirectionBitMap::Back,
                             color: [255; 4],
                             edge: true,
@@ -2811,46 +2495,7 @@ define_blocks! {
         states {
             vec![BlockType::Dandelion { }]
         },
-        model {
-            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/dandelion").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
-
-            BlockModel {
-                faces: vec![
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
-                            edge: false,
-                        }
-                ]
-            }
-        },
+        model BlockModel::plant_block("block/dandelion"),
         transparent true,
     }
     Poppy {
@@ -2860,46 +2505,7 @@ define_blocks! {
         states {
             vec![BlockType::Poppy { }]
         },
-        model {
-            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/poppy").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
-
-            BlockModel {
-                faces: vec![
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
-                            edge: false,
-                        }
-                ],
-            }
-        },
+        model BlockModel::plant_block("block/poppy"),
         transparent true,
     }
     BlueOrchid {
@@ -2909,46 +2515,7 @@ define_blocks! {
         states {
             vec![BlockType::BlueOrchid { }]
         },
-        model {
-            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/blue_orchid").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
-
-            BlockModel {
-                faces: vec![
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
-                            edge: false,
-                        }
-                ]
-            }
-        },
+        model BlockModel::plant_block("block/blue_orchid"),
         transparent true,
     }
     Allium {
@@ -2958,46 +2525,7 @@ define_blocks! {
         states {
             vec![BlockType::Allium { }]
         },
-        model {
-            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/allium").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
-
-            BlockModel {
-                faces: vec![
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
-                            edge: false,
-                        }
-                ]
-            }
-        },
+        model BlockModel::plant_block("block/allium"),
         transparent true,
     }
     AzureBluet {
@@ -3007,46 +2535,7 @@ define_blocks! {
         states {
             vec![BlockType::AzureBluet { }]
         },
-        model {
-            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/azure_bluet").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
-
-            BlockModel {
-                faces: vec![
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
-                            edge: false,
-                        }
-                ]
-            }
-        },
+        model BlockModel::plant_block("block/azure_bluet"),
         transparent true,
     }
     RedTulip {
@@ -3056,46 +2545,7 @@ define_blocks! {
         states {
             vec![BlockType::RedTulip { }]
         },
-        model {
-            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/red_tulip").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
-
-            BlockModel {
-                faces: vec![
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
-                            edge: false,
-                        }
-                ]
-            }
-        },
+        model BlockModel::plant_block("block/red_tulip"),
         transparent true,
     }
     OrangeTulip {
@@ -3105,46 +2555,7 @@ define_blocks! {
         states {
             vec![BlockType::OrangeTulip { }]
         },
-        model {
-            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/orange_tulip").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
-
-            BlockModel {
-                faces: vec![
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
-                            edge: false,
-                        }
-                ]
-            }
-        },
+        model BlockModel::plant_block("block/orange_tulip"),
         transparent true,
     }
     WhiteTulip {
@@ -3154,46 +2565,7 @@ define_blocks! {
         states {
             vec![BlockType::WhiteTulip { }]
         },
-        model {
-            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/white_tulip").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
-
-            BlockModel {
-                faces: vec![
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
-                            edge: false,
-                        }
-                ]
-            }
-        },
+        model BlockModel::plant_block("block/white_tulip"),
         transparent true,
     }
     PinkTulip {
@@ -3203,46 +2575,7 @@ define_blocks! {
         states {
             vec![BlockType::PinkTulip { }]
         },
-        model {
-            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/pink_tulip").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
-
-            BlockModel {
-                faces: vec![
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
-                            edge: false,
-                        }
-                ]
-            }
-        },
+        model BlockModel::plant_block("block/pink_tulip"),
         transparent true,
     }
     OxeyeDaisy {
@@ -3252,46 +2585,7 @@ define_blocks! {
         states {
             vec![BlockType::OxeyeDaisy { }]
         },
-        model {
-            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/oxeye_daisy").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
-
-            BlockModel {
-                faces: vec![
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
-                            edge: false,
-                        }
-                ]
-            }
-        },
+        model BlockModel::plant_block("block/oxeye_daisy"),
         transparent true,
     }
     Cornflower {
@@ -3301,46 +2595,7 @@ define_blocks! {
         states {
             vec![BlockType::Cornflower { }]
         },
-        model {
-            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/cornflower").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
-
-            BlockModel {
-                faces: vec![
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
-                            edge: false,
-                        }
-                ]
-            }
-        },
+        model BlockModel::plant_block("block/cornflower"),
         transparent true,
     }
     WitherRose {
@@ -3350,95 +2605,17 @@ define_blocks! {
         states {
             vec![BlockType::WitherRose { }]
         },
-        model {
-            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/wither_rose").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
-
-            BlockModel {
-                faces: vec![
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
-                            edge: false,
-                        }
-                ]
-            }
-        },
+        model BlockModel::plant_block("block/wither_rose"),
         transparent true,
     }
-    LilOfTheValley {
+    LilyOfTheValley {
         i 125,
         identifier "minecraft:lily_of_the_valley",
         props {},
         states {
-            vec![BlockType::LilOfTheValley { }]
+            vec![BlockType::LilyOfTheValley { }]
         },
-        model {
-            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/lily_of_the_valley").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
-
-            BlockModel {
-                faces: vec![
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
-                            edge: false,
-                        }
-                ]
-            }
-        },
+        model BlockModel::plant_block("block/lily_of_the_valley"),
         transparent true,
     }
     BrownMushroom {
@@ -3448,46 +2625,7 @@ define_blocks! {
         states {
             vec![BlockType::BrownMushroom { }]
         },
-        model {
-            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/brown_mushroom").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
-
-            BlockModel {
-                faces: vec![
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                            scale: Vector3::new(1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Left,
-                            color: [255; 4],
-                            edge: false,
-                        },
-                        BlockFace {
-                            bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                            scale: Vector3::new(-1.0, 1.0, 1.0),
-                            texture: lookup.clone(),
-                            normal: ViewableDirectionBitMap::Right,
-                            color: [255; 4],
-                            edge: false,
-                        }
-                ]
-            }
-        },
+        model BlockModel::plant_block("block/brown_mushroom"),
         transparent true,
     }
     RedMushroom {
@@ -3497,46 +2635,7 @@ define_blocks! {
         states {
             vec![BlockType::RedMushroom { }]
         },
-        model {
-            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/red_mushroom").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
-
-            BlockModel {
-                faces: vec![
-                    BlockFace {
-                        bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                        scale: Vector3::new(1.0, 1.0, 1.0),
-                        texture: lookup.clone(),
-                        normal: ViewableDirectionBitMap::Left,
-                        color: [255; 4],
-                        edge: false,
-                    },
-                    BlockFace {
-                        bottom_left: Vector3::new(0.0, 0.0, 0.0),
-                        scale: Vector3::new(1.0, 1.0, 1.0),
-                        texture: lookup.clone(),
-                        normal: ViewableDirectionBitMap::Right,
-                        color: [255; 4],
-                        edge: false,
-                    },
-                    BlockFace {
-                        bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                        scale: Vector3::new(-1.0, 1.0, 1.0),
-                        texture: lookup.clone(),
-                        normal: ViewableDirectionBitMap::Left,
-                        color: [255; 4],
-                        edge: false,
-                    },
-                    BlockFace {
-                        bottom_left: Vector3::new(1.0, 0.0, 0.0),
-                        scale: Vector3::new(-1.0, 1.0, 1.0),
-                        texture: lookup.clone(),
-                        normal: ViewableDirectionBitMap::Right,
-                        color: [255; 4],
-                        edge: false,
-                    }
-                ]
-            }
-        },
+        model BlockModel::plant_block("block/red_mushroom"),
         transparent true,
     }
     GoldBlock {
@@ -3623,6 +2722,7 @@ define_blocks! {
                             bottom_left: Vector3::new(0.4375, 0.0, 0.4375),
                             scale: Vector3::new(0.125, 0.625, 0.0),
                             texture: lookup.clone(),
+                            texture_rotation: Rotate::Deg0,
                             normal: ViewableDirectionBitMap::Right,
                             color: [255; 4],
                             edge: false,
@@ -3631,6 +2731,7 @@ define_blocks! {
                             bottom_left: Vector3::new(0.4375, 0.0, 0.5625),
                             scale: Vector3::new(0.125, 0.625, 0.0),
                             texture: lookup.clone(),
+                            texture_rotation: Rotate::Deg0,
                             normal: ViewableDirectionBitMap::Left,
                             color: [255; 4],
                             edge: false,
@@ -3639,6 +2740,7 @@ define_blocks! {
                             bottom_left: Vector3::new(0.5625, 0.0, 0.4375),
                             scale: Vector3::new(0.0, 0.625, 0.125),
                             texture: lookup.clone(),
+                            texture_rotation: Rotate::Deg0,
                             normal: ViewableDirectionBitMap::Front,
                             color: [255; 4],
                             edge: false,
@@ -3647,6 +2749,7 @@ define_blocks! {
                             bottom_left: Vector3::new(0.4375, 0.0, 0.4375),
                             scale: Vector3::new(0.0, 0.625, 0.125),
                             texture: lookup.clone(),
+                            texture_rotation: Rotate::Deg0,
                             normal: ViewableDirectionBitMap::Back,
                             color: [255; 4],
                             edge: false,
@@ -3682,6 +2785,7 @@ define_blocks! {
                             bottom_left: Vector3::new(0.4375, 0.0, 0.4375),
                             scale: Vector3::new(0.125, 0.625, 0.0),
                             texture: lookup.clone(),
+                            texture_rotation: Rotate::Deg0,
                             normal: ViewableDirectionBitMap::Right,
                             color: [255; 4],
                             edge: false,
@@ -3690,6 +2794,7 @@ define_blocks! {
                             bottom_left: Vector3::new(0.4375, 0.0, 0.5625),
                             scale: Vector3::new(0.125, 0.625, 0.0),
                             texture: lookup.clone(),
+                            texture_rotation: Rotate::Deg0,
                             normal: ViewableDirectionBitMap::Left,
                             color: [255; 4],
                             edge: false,
@@ -3698,6 +2803,7 @@ define_blocks! {
                             bottom_left: Vector3::new(0.5625, 0.0, 0.4375),
                             scale: Vector3::new(0.0, 0.625, 0.125),
                             texture: lookup.clone(),
+                            texture_rotation: Rotate::Deg0,
                             normal: ViewableDirectionBitMap::Front,
                             color: [255; 4],
                             edge: false,
@@ -3706,6 +2812,7 @@ define_blocks! {
                             bottom_left: Vector3::new(0.4375, 0.0, 0.4375),
                             scale: Vector3::new(0.0, 0.625, 0.125),
                             texture: lookup.clone(),
+                            texture_rotation: Rotate::Deg0,
                             normal: ViewableDirectionBitMap::Back,
                             color: [255; 4],
                             edge: false,
@@ -3797,6 +2904,7 @@ define_blocks! {
                         bottom_left: Vector3::new(0.0, 0.0, 1.0),
                         scale: Vector3::new(0.5, 1.0, 0.0),
                         texture: lookup.get_subdivision(TextureSubdivisionMethod::Left),
+                        texture_rotation: Rotate::Deg0,
                         normal: ViewableDirectionBitMap::Back,
                         color: [255; 4],
                         edge: true,
@@ -3805,6 +2913,7 @@ define_blocks! {
                         bottom_left: Vector3::new(0.5, 0.0, 1.0),
                         scale: Vector3::new(0.5, 0.5, 0.0),
                         texture: lookup.get_subdivision(TextureSubdivisionMethod::BottomRight),
+                        texture_rotation: Rotate::Deg0,
                         normal: ViewableDirectionBitMap::Back,
                         color: [255; 4],
                         edge: true,
@@ -3815,6 +2924,7 @@ define_blocks! {
                         bottom_left: Vector3::new(0.0, 0.0, 0.0),
                         scale: Vector3::new(0.5, 1.0, 0.0),
                         texture: lookup.get_subdivision(TextureSubdivisionMethod::Left),
+                        texture_rotation: Rotate::Deg0,
                         normal: ViewableDirectionBitMap::Front,
                         color: [255; 4],
                         edge: true,
@@ -3823,6 +2933,7 @@ define_blocks! {
                         bottom_left: Vector3::new(0.5, 0.0, 0.0),
                         scale: Vector3::new(0.5, 0.5, 0.0),
                         texture: lookup.get_subdivision(TextureSubdivisionMethod::BottomRight),
+                        texture_rotation: Rotate::Deg0,
                         normal: ViewableDirectionBitMap::Front,
                         color: [255; 4],
                         edge: true,
@@ -3833,6 +2944,7 @@ define_blocks! {
                         bottom_left: Vector3::new(0.0, 1.0, 0.0),
                         scale: Vector3::new(0.5, 0.0, 1.0),
                         texture: lookup.get_subdivision(TextureSubdivisionMethod::Left),
+                        texture_rotation: Rotate::Deg0,
                         normal: ViewableDirectionBitMap::Top,
                         color: [255; 4],
                         edge: true,
@@ -3841,6 +2953,7 @@ define_blocks! {
                         bottom_left: Vector3::new(0.5, 0.5, 0.0),
                         scale: Vector3::new(0.5, 0.0, 1.0),
                         texture: lookup.get_subdivision(TextureSubdivisionMethod::Right),
+                        texture_rotation: Rotate::Deg0,
                         normal: ViewableDirectionBitMap::Top,
                         color: [255; 4],
                         edge: false,
@@ -3851,6 +2964,7 @@ define_blocks! {
                         bottom_left: Vector3::new(1.0, 0.0, 0.0),
                         scale: Vector3::new(0.0, 0.5, 1.0),
                         texture: lookup.get_subdivision(TextureSubdivisionMethod::Top),
+                        texture_rotation: Rotate::Deg0,
                         normal: ViewableDirectionBitMap::Right,
                         color: [255; 4],
                         edge: true,
@@ -3859,6 +2973,7 @@ define_blocks! {
                         bottom_left: Vector3::new(0.5, 0.5, 0.0),
                         scale: Vector3::new(0.0, 0.5, 1.0),
                         texture: lookup.get_subdivision(TextureSubdivisionMethod::Bottom),
+                        texture_rotation: Rotate::Deg0,
                         normal: ViewableDirectionBitMap::Right,
                         color: [255; 4],
                         edge: false,
@@ -3869,6 +2984,7 @@ define_blocks! {
                         bottom_left: Vector3::new(0.0, 0.0, 0.0),
                         scale: Vector3::new(0.0, 1.0, 1.0),
                         texture: lookup.get_subdivision(TextureSubdivisionMethod::Full),
+                        texture_rotation: Rotate::Deg0,
                         normal: ViewableDirectionBitMap::Left,
                         color: [255; 4],
                         edge: true,
@@ -3879,6 +2995,7 @@ define_blocks! {
                         bottom_left: Vector3::new(0.0, 0.0, 0.0),
                         scale: Vector3::new(1.0, 0.0, 1.0),
                         texture: lookup.get_subdivision(TextureSubdivisionMethod::Full),
+                        texture_rotation: Rotate::Deg0,
                         normal: ViewableDirectionBitMap::Bottom,
                         color: [255; 4],
                         edge: true,
@@ -3959,16 +3076,118 @@ define_blocks! {
         },
         model {
 
-            let redstone_dust = AtlasIndex::new_lookup("block/redstone_dust_dot");
+            let redstone_dust_dot = AtlasIndex::new_lookup("block/redstone_dust_dot");
+            let redstone_dust = AtlasIndex::new_lookup("block/redstone_dust_line0");
 
-            let faces = vec![BlockFace {
-                bottom_left: Vector3::new(0.0, 0.05, 0.0),
-                scale: Vector3::new(1.0, 0.0, 1.0),
-                texture: redstone_dust.lookup,
-                normal: ViewableDirectionBitMap::Top,
-                color: [255, 80, 80, 255],
-                edge: true,
-            }];
+            let top_redstone_dust = redstone_dust.get_subdivision(TextureSubdivisionMethod::Top);
+            let bottom_redstone_dust = redstone_dust.get_subdivision(TextureSubdivisionMethod::Bottom);
+
+            let mut faces = vec![];
+
+            // Directions on the bottom tile
+            if north == RedstoneWireDirection::Side {
+                faces.push(BlockFace {
+                    bottom_left: Vector3::new(0.0, 0.05, 0.0),
+                    scale: Vector3::new(1.0, 0.0, 0.5),
+                    texture: bottom_redstone_dust,
+                    texture_rotation: Rotate::Deg0,
+                    normal: ViewableDirectionBitMap::Top,
+                    color: [255, 0, 0, 255],
+                    edge: false,
+                })
+            }
+            if south == RedstoneWireDirection::Side {
+                faces.push(BlockFace {
+                    bottom_left: Vector3::new(0.0, 0.05, 0.5),
+                    scale: Vector3::new(1.0, 0.0, 0.5),
+                    texture: top_redstone_dust,
+                    texture_rotation: Rotate::Deg0,
+                    normal: ViewableDirectionBitMap::Top,
+                    color: [0, 255, 0, 255],
+                    edge: false,
+                })
+            }
+            if west == RedstoneWireDirection::Side {
+                faces.push(BlockFace {
+                    bottom_left: Vector3::new(0.0, 0.05, 0.0),
+                    scale: Vector3::new(0.5, 0.0, 1.0),
+                    texture: top_redstone_dust,
+                    texture_rotation: Rotate::Deg90,
+                    normal: ViewableDirectionBitMap::Top,
+                    color: [0, 255, 255, 255],
+                    edge: false,
+                })
+            }
+            if east == RedstoneWireDirection::Side {
+                faces.push(BlockFace {
+                    bottom_left: Vector3::new(0.5, 0.05, 0.0),
+                    scale: Vector3::new(0.5, 0.0, 1.0),
+                    texture: bottom_redstone_dust,
+                    texture_rotation: Rotate::Deg90,
+                    normal: ViewableDirectionBitMap::Top,
+                    color: [0, 0, 255, 255],
+                    edge: false,
+                })
+            }
+
+            // Directions for climbing redstone
+            if south == RedstoneWireDirection::Up {
+                faces.push(BlockFace {
+                    bottom_left: Vector3::new(0.0, 0.0, 0.95),
+                    scale: Vector3::new(1.0, 1.0, 0.0),
+                    texture: redstone_dust.lookup,
+                    normal: ViewableDirectionBitMap::Front,
+                    texture_rotation: Rotate::Deg0,
+                    color: [255, 0, 0, 255],
+                    edge: false,
+                })
+            }
+            if north == RedstoneWireDirection::Up {
+                faces.push(BlockFace {
+                    bottom_left: Vector3::new(0.0, 0.0, 0.05),
+                    scale: Vector3::new(1.0, 1.0, 0.0),
+                    texture: redstone_dust.lookup,
+                    texture_rotation: Rotate::Deg0,
+                    normal: ViewableDirectionBitMap::Back,
+                    color: [0, 255, 0, 255],
+                    edge: false,
+                })
+            }
+            if west == RedstoneWireDirection::Up {
+                faces.push(BlockFace {
+                    bottom_left: Vector3::new(0.05, 0.0, 0.0),
+                    scale: Vector3::new(0.0, 1.0, 1.0),
+                    texture: redstone_dust.lookup,
+                    texture_rotation: Rotate::Deg0,
+                    normal: ViewableDirectionBitMap::Right,
+                    color: [0, 255, 255, 255],
+                    edge: false,
+                })
+            }
+            if east == RedstoneWireDirection::Up {
+                faces.push(BlockFace {
+                    bottom_left: Vector3::new(0.95, 0.0, 0.0),
+                    scale: Vector3::new(0.0, 1.0, 1.0),
+                    texture: redstone_dust.lookup,
+                    texture_rotation: Rotate::Deg0,
+                    normal: ViewableDirectionBitMap::Left,
+                    color: [0, 0, 255, 255],
+                    edge: false,
+                })
+            }
+
+            // If no directions set then it's just a dot
+            if faces.len() == 0 {
+                faces.push(BlockFace {
+                    bottom_left: Vector3::new(0.0, 0.05, 0.0),
+                    scale: Vector3::new(1.0, 0.0, 1.0),
+                    texture: redstone_dust_dot.lookup,
+                    texture_rotation: Rotate::Deg0,
+                    normal: ViewableDirectionBitMap::Top,
+                    color: [255, 0, 0, 255],
+                    edge: true,
+                });
+            }
 
             BlockModel { faces }
         },
@@ -4026,6 +3245,7 @@ define_blocks! {
                         bottom_left: Vector3::new(0.0, 0.0, 0.0),
                         scale: Vector3::new(1.0, 1.0, 1.0),
                         texture: lookup.clone(),
+                        texture_rotation: Rotate::Deg0,
                         normal: ViewableDirectionBitMap::Left,
                         color: [255; 4],
                         edge: false,
@@ -4034,6 +3254,7 @@ define_blocks! {
                         bottom_left: Vector3::new(0.0, 0.0, 0.0),
                         scale: Vector3::new(1.0, 1.0, 1.0),
                         texture: lookup.clone(),
+                        texture_rotation: Rotate::Deg0,
                         normal: ViewableDirectionBitMap::Right,
                         color: [255; 4],
                         edge: false,
@@ -4042,6 +3263,7 @@ define_blocks! {
                         bottom_left: Vector3::new(1.0, 0.0, 0.0),
                         scale: Vector3::new(-1.0, 1.0, 1.0),
                         texture: lookup.clone(),
+                        texture_rotation: Rotate::Deg0,
                         normal: ViewableDirectionBitMap::Left,
                         color: [255; 4],
                         edge: false,
@@ -4050,6 +3272,7 @@ define_blocks! {
                         bottom_left: Vector3::new(1.0, 0.0, 0.0),
                         scale: Vector3::new(-1.0, 1.0, 1.0),
                         texture: lookup.clone(),
+                        texture_rotation: Rotate::Deg0,
                         normal: ViewableDirectionBitMap::Right,
                         color: [255; 4],
                         edge: false,

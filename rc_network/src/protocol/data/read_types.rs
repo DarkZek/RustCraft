@@ -8,12 +8,12 @@ use std::io::Read;
 pub fn read_varint<T: Read>(reader: &mut T) -> i32 {
     let mut value = 0;
     let mut length = 0;
-    let mut currentByte = 0;
+    let mut current_byte = 0;
 
     loop {
-        currentByte = reader.read_u8().unwrap();
+        current_byte = reader.read_u8().unwrap();
 
-        value |= ((currentByte & 0x7F) as i32) << (length * 7);
+        value |= ((current_byte & 0x7F) as i32) << (length * 7);
 
         length += 1;
 
@@ -21,7 +21,7 @@ pub fn read_varint<T: Read>(reader: &mut T) -> i32 {
             panic!("VarInt too long");
         }
 
-        if (currentByte & 0x80) != 0x80 {
+        if (current_byte & 0x80) != 0x80 {
             break;
         }
     }
@@ -32,12 +32,12 @@ pub fn read_varint<T: Read>(reader: &mut T) -> i32 {
 pub fn read_varlong<R: Read>(reader: &mut R) -> i64 {
     let mut value = 0;
     let mut length = 0;
-    let mut currentByte = 0;
+    let mut current_byte = 0;
 
     loop {
-        currentByte = reader.read_u8().unwrap();
+        current_byte = reader.read_u8().unwrap();
 
-        value |= ((currentByte & 0x7F) as i64) << (length * 7);
+        value |= ((current_byte & 0x7F) as i64) << (length * 7);
 
         length += 1;
 
@@ -45,7 +45,7 @@ pub fn read_varlong<R: Read>(reader: &mut R) -> i64 {
             panic!("VarLong too long");
         }
 
-        if (currentByte & 0x80) != 0x80 {
+        if (current_byte & 0x80) != 0x80 {
             break;
         }
     }

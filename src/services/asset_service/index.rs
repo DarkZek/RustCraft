@@ -48,10 +48,20 @@ impl TextureAtlasIndex {
     }
 
     pub fn rotate(&self, deg: Rotate) -> TextureAtlasIndex {
+        if deg == Rotate::Deg90 {
+            return TextureAtlasIndex {
+                u_min: self.u_max,
+                u_max: self.u_min,
+                v_min: self.v_min,
+                v_max: self.v_max,
+            };
+        }
+
         let rot = match deg {
             Rotate::Deg90 => PI * 0.5,
             Rotate::Deg180 => PI,
             Rotate::Deg270 => PI * 1.5,
+            _ => return self.clone(),
         };
 
         let center_u = (self.u_min + self.u_max) / 2.0;

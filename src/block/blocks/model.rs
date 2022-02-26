@@ -1,3 +1,4 @@
+use crate::helpers::AtlasIndex;
 use crate::services::asset_service::atlas::ATLAS_LOOKUPS;
 use crate::services::asset_service::index::TextureAtlasIndex;
 use crate::services::chunk_service::mesh::culling::ViewableDirection;
@@ -6,8 +7,9 @@ use nalgebra::Vector3;
 use std::f32::consts::PI;
 use std::ops::Mul;
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, PartialEq)]
 pub enum Rotate {
+    Deg0,
     Deg90,
     Deg180,
     Deg270,
@@ -22,6 +24,7 @@ pub struct BlockFace {
     pub bottom_left: Vector3<f32>,
     pub scale: Vector3<f32>,
     pub texture: TextureAtlasIndex,
+    pub texture_rotation: Rotate,
     pub normal: ViewableDirectionBitMap,
     pub color: [u8; 4],
     // Is face on the edge of the block (used for culling)
@@ -34,13 +37,7 @@ impl BlockModel {
 
         let mut face_textures = [TextureAtlasIndex::default(); 6];
         for i in 0..6 {
-            match ATLAS_LOOKUPS.get().unwrap().get(textures[i]) {
-                None => {
-                    log_error!("No texture found for block with textures: {:?}", textures);
-                    face_textures[i] = *ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap();
-                }
-                Some(texture) => face_textures[i] = *texture,
-            }
+            face_textures[i] = AtlasIndex::new_lookup(textures[i]).lookup;
         }
 
         // Top face
@@ -48,6 +45,7 @@ impl BlockModel {
             bottom_left: Vector3::new(0.0, 1.0, 0.0),
             scale: Vector3::new(1.0, 0.0, 1.0),
             texture: face_textures[0],
+            texture_rotation: Rotate::Deg0,
             normal: ViewableDirectionBitMap::Top,
             color: [255; 4],
             edge: true,
@@ -58,6 +56,7 @@ impl BlockModel {
             bottom_left: Vector3::new(0.0, 0.0, 0.0),
             scale: Vector3::new(1.0, 0.0, 1.0),
             texture: face_textures[1],
+            texture_rotation: Rotate::Deg0,
             normal: ViewableDirectionBitMap::Bottom,
             color: [255; 4],
             edge: true,
@@ -68,6 +67,7 @@ impl BlockModel {
             bottom_left: Vector3::new(0.0, 0.0, 0.0),
             scale: Vector3::new(0.0, 1.0, 1.0),
             texture: face_textures[2],
+            texture_rotation: Rotate::Deg0,
             normal: ViewableDirectionBitMap::Left,
             color: [255; 4],
             edge: true,
@@ -78,6 +78,7 @@ impl BlockModel {
             bottom_left: Vector3::new(1.0, 0.0, 0.0),
             scale: Vector3::new(0.0, 1.0, 1.0),
             texture: face_textures[3],
+            texture_rotation: Rotate::Deg0,
             normal: ViewableDirectionBitMap::Right,
             color: [255; 4],
             edge: true,
@@ -88,6 +89,7 @@ impl BlockModel {
             bottom_left: Vector3::new(0.0, 0.0, 0.0),
             scale: Vector3::new(1.0, 1.0, 0.0),
             texture: face_textures[4],
+            texture_rotation: Rotate::Deg0,
             normal: ViewableDirectionBitMap::Front,
             color: [255; 4],
             edge: true,
@@ -98,6 +100,7 @@ impl BlockModel {
             bottom_left: Vector3::new(0.0, 0.0, 1.0),
             scale: Vector3::new(1.0, 1.0, 0.0),
             texture: face_textures[5],
+            texture_rotation: Rotate::Deg0,
             normal: ViewableDirectionBitMap::Back,
             color: [255; 4],
             edge: true,
@@ -105,6 +108,7 @@ impl BlockModel {
 
         BlockModel { faces }
     }
+
     pub fn square_coloured_block(textures: [&str; 6], color: [u8; 4]) -> BlockModel {
         let mut faces = Vec::new();
 
@@ -124,6 +128,7 @@ impl BlockModel {
             bottom_left: Vector3::new(0.0, 1.0, 0.0),
             scale: Vector3::new(1.0, 0.0, 1.0),
             texture: face_textures[0],
+            texture_rotation: Rotate::Deg0,
             normal: ViewableDirectionBitMap::Top,
             color: color.clone(),
             edge: true,
@@ -134,6 +139,7 @@ impl BlockModel {
             bottom_left: Vector3::new(0.0, 0.0, 0.0),
             scale: Vector3::new(1.0, 0.0, 1.0),
             texture: face_textures[1],
+            texture_rotation: Rotate::Deg0,
             normal: ViewableDirectionBitMap::Bottom,
             color: color.clone(),
             edge: true,
@@ -144,6 +150,7 @@ impl BlockModel {
             bottom_left: Vector3::new(0.0, 0.0, 0.0),
             scale: Vector3::new(0.0, 1.0, 1.0),
             texture: face_textures[2],
+            texture_rotation: Rotate::Deg0,
             normal: ViewableDirectionBitMap::Left,
             color: color.clone(),
             edge: true,
@@ -154,6 +161,7 @@ impl BlockModel {
             bottom_left: Vector3::new(1.0, 0.0, 0.0),
             scale: Vector3::new(0.0, 1.0, 1.0),
             texture: face_textures[3],
+            texture_rotation: Rotate::Deg0,
             normal: ViewableDirectionBitMap::Right,
             color: color.clone(),
             edge: true,
@@ -164,6 +172,7 @@ impl BlockModel {
             bottom_left: Vector3::new(0.0, 0.0, 0.0),
             scale: Vector3::new(1.0, 1.0, 0.0),
             texture: face_textures[4],
+            texture_rotation: Rotate::Deg0,
             normal: ViewableDirectionBitMap::Front,
             color: color.clone(),
             edge: true,
@@ -174,12 +183,57 @@ impl BlockModel {
             bottom_left: Vector3::new(0.0, 0.0, 1.0),
             scale: Vector3::new(1.0, 1.0, 0.0),
             texture: face_textures[5],
+            texture_rotation: Rotate::Deg0,
             normal: ViewableDirectionBitMap::Back,
             color,
             edge: true,
         });
 
         BlockModel { faces }
+    }
+    pub fn plant_block(texture: &str) -> BlockModel {
+        let lookup = AtlasIndex::new_lookup(texture).lookup;
+
+        BlockModel {
+            faces: vec![
+                BlockFace {
+                    bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                    scale: Vector3::new(1.0, 1.0, 1.0),
+                    texture: lookup.clone(),
+                    texture_rotation: Rotate::Deg0,
+                    normal: ViewableDirectionBitMap::Left,
+                    color: [135, 255, 105, 255],
+                    edge: false,
+                },
+                BlockFace {
+                    bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                    scale: Vector3::new(1.0, 1.0, 1.0),
+                    texture: lookup.clone(),
+                    texture_rotation: Rotate::Deg0,
+                    normal: ViewableDirectionBitMap::Right,
+                    color: [135, 255, 105, 255],
+                    edge: false,
+                },
+                BlockFace {
+                    bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                    scale: Vector3::new(-1.0, 1.0, 1.0),
+                    texture: lookup.clone(),
+                    texture_rotation: Rotate::Deg0,
+                    normal: ViewableDirectionBitMap::Left,
+                    color: [135, 255, 105, 255],
+                    edge: false,
+                },
+                BlockFace {
+                    bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                    scale: Vector3::new(-1.0, 1.0, 1.0),
+                    texture: lookup.clone(),
+                    texture_rotation: Rotate::Deg0,
+                    normal: ViewableDirectionBitMap::Right,
+                    color: [135, 255, 105, 255],
+                    edge: false,
+                },
+            ],
+        }
     }
 
     pub fn draw(
@@ -208,6 +262,37 @@ impl BlockModel {
                 ViewableDirectionBitMap::Bottom => [0.0, -1.0, 0.0],
             };
 
+            let mut p1 = [face.texture.u_max, face.texture.v_max];
+            let mut p2 = [face.texture.u_max, face.texture.v_min];
+            let mut p3 = [face.texture.u_min, face.texture.v_max];
+            let mut p4 = [face.texture.u_min, face.texture.v_min];
+
+            match face.texture_rotation {
+                Rotate::Deg90 => {
+                    let i = p1;
+                    p1 = p2;
+                    p2 = p4;
+                    p4 = p3;
+                    p3 = i;
+                }
+                Rotate::Deg270 => {
+                    let i = p1;
+                    p1 = p3;
+                    p3 = p4;
+                    p4 = p2;
+                    p2 = i;
+                }
+                Rotate::Deg180 => {
+                    let i = p1;
+                    let ii = p2;
+                    p1 = p3;
+                    p2 = p4;
+                    p3 = i;
+                    p4 = ii;
+                }
+                _ => {}
+            }
+
             let starting_vertices = vertices.len() as u16;
 
             match face.normal {
@@ -218,7 +303,7 @@ impl BlockModel {
                             y + face.bottom_left[1] + face.scale.y,
                             z + face.bottom_left[2],
                         ],
-                        tex_coords: [atlas_index.u_max, atlas_index.v_max],
+                        tex_coords: p1,
                         normals,
                         applied_color: face.color,
                     });
@@ -228,7 +313,7 @@ impl BlockModel {
                             y + face.bottom_left[1] + face.scale.y,
                             z + face.bottom_left[2] + face.scale.z,
                         ],
-                        tex_coords: [atlas_index.u_max, atlas_index.v_min],
+                        tex_coords: p2,
                         normals,
                         applied_color: face.color,
                     });
@@ -238,7 +323,7 @@ impl BlockModel {
                             y + face.bottom_left[1] + face.scale.y,
                             z + face.bottom_left[2] + face.scale.z,
                         ],
-                        tex_coords: [atlas_index.u_min, atlas_index.v_min],
+                        tex_coords: p4,
                         normals,
                         applied_color: face.color,
                     });
@@ -248,7 +333,7 @@ impl BlockModel {
                             y + face.bottom_left[1] + face.scale.y,
                             z + face.bottom_left[2],
                         ],
-                        tex_coords: [atlas_index.u_min, atlas_index.v_max],
+                        tex_coords: p3,
                         normals,
                         applied_color: face.color,
                     });
@@ -263,7 +348,7 @@ impl BlockModel {
                             y + face.bottom_left[1],
                             z + face.bottom_left[2] + face.scale.z,
                         ],
-                        tex_coords: [atlas_index.u_min, atlas_index.v_max],
+                        tex_coords: p3,
                         normals,
                         applied_color: face.color,
                     });
@@ -273,7 +358,7 @@ impl BlockModel {
                             y + face.bottom_left[1] + face.scale.y,
                             z + face.bottom_left[2] + face.scale.z,
                         ],
-                        tex_coords: [atlas_index.u_min, atlas_index.v_min],
+                        tex_coords: p4,
                         normals,
                         applied_color: face.color,
                     });
@@ -283,7 +368,7 @@ impl BlockModel {
                             y + face.bottom_left[1] + face.scale.y,
                             z + face.bottom_left[2],
                         ],
-                        tex_coords: [atlas_index.u_max, atlas_index.v_min],
+                        tex_coords: p2,
                         normals,
                         applied_color: face.color,
                     });
@@ -293,7 +378,7 @@ impl BlockModel {
                             y + face.bottom_left[1],
                             z + face.bottom_left[2],
                         ],
-                        tex_coords: [atlas_index.u_max, atlas_index.v_max],
+                        tex_coords: p1,
                         normals,
                         applied_color: face.color,
                     });
@@ -353,6 +438,7 @@ impl BlockFace {
         self.bottom_left += Vector3::new(-0.5, -0.5, -0.5);
 
         let rot = match deg {
+            Rotate::Deg0 => return,
             Rotate::Deg90 => PI * 0.5,
             Rotate::Deg180 => PI,
             Rotate::Deg270 => PI * 1.5,
