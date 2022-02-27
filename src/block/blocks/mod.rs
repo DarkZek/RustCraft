@@ -2023,7 +2023,50 @@ define_blocks! {
         states {
             vec![BlockType::Grass { }]
         },
-        model BlockModel::plant_block("block/grass"),
+        model {
+            let lookup = AtlasIndex::new_lookup("block/grass").lookup;
+
+            BlockModel {
+                faces: vec![
+                    BlockFace {
+                        bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                        scale: Vector3::new(1.0, 1.0, 1.0),
+                        texture: lookup.clone(),
+                        texture_rotation: Rotate::Deg0,
+                        normal: ViewableDirectionBitMap::Left,
+                        color: [135, 255, 105, 255],
+                        edge: false,
+                    },
+                    BlockFace {
+                        bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                        scale: Vector3::new(1.0, 1.0, 1.0),
+                        texture: lookup.clone(),
+                        texture_rotation: Rotate::Deg0,
+                        normal: ViewableDirectionBitMap::Right,
+                        color: [135, 255, 105, 255],
+                        edge: false,
+                    },
+                    BlockFace {
+                        bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                        scale: Vector3::new(-1.0, 1.0, 1.0),
+                        texture: lookup.clone(),
+                        texture_rotation: Rotate::Deg0,
+                        normal: ViewableDirectionBitMap::Left,
+                        color: [135, 255, 105, 255],
+                        edge: false,
+                    },
+                    BlockFace {
+                        bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                        scale: Vector3::new(-1.0, 1.0, 1.0),
+                        texture: lookup.clone(),
+                        texture_rotation: Rotate::Deg0,
+                        normal: ViewableDirectionBitMap::Right,
+                        color: [135, 255, 105, 255],
+                        edge: false,
+                    },
+                ],
+            }
+        },
         collidable false,
         full false,
         transparent true,
@@ -2714,7 +2757,7 @@ define_blocks! {
             vec![BlockType::Torch { }]
         },
         model {
-            let lookup = ATLAS_LOOKUPS.get().unwrap().get("block/torch").unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap());
+            let lookup = AtlasIndex::new_lookup("block/torch").lookup;
 
             BlockModel {
                 faces: vec![
@@ -3103,7 +3146,7 @@ define_blocks! {
                     texture: top_redstone_dust,
                     texture_rotation: Rotate::Deg0,
                     normal: ViewableDirectionBitMap::Top,
-                    color: [0, 255, 0, 255],
+                    color: [255, 0, 0, 255],
                     edge: false,
                 })
             }
@@ -3114,7 +3157,7 @@ define_blocks! {
                     texture: top_redstone_dust,
                     texture_rotation: Rotate::Deg90,
                     normal: ViewableDirectionBitMap::Top,
-                    color: [0, 255, 255, 255],
+                    color: [255, 0, 0, 255],
                     edge: false,
                 })
             }
@@ -3125,7 +3168,7 @@ define_blocks! {
                     texture: bottom_redstone_dust,
                     texture_rotation: Rotate::Deg90,
                     normal: ViewableDirectionBitMap::Top,
-                    color: [0, 0, 255, 255],
+                    color: [255, 0, 0, 255],
                     edge: false,
                 })
             }
@@ -3149,7 +3192,7 @@ define_blocks! {
                     texture: redstone_dust.lookup,
                     texture_rotation: Rotate::Deg0,
                     normal: ViewableDirectionBitMap::Back,
-                    color: [0, 255, 0, 255],
+                    color: [255, 0, 0, 255],
                     edge: false,
                 })
             }
@@ -3160,7 +3203,7 @@ define_blocks! {
                     texture: redstone_dust.lookup,
                     texture_rotation: Rotate::Deg0,
                     normal: ViewableDirectionBitMap::Right,
-                    color: [0, 255, 255, 255],
+                    color: [255, 0, 0, 255],
                     edge: false,
                 })
             }
@@ -3171,7 +3214,7 @@ define_blocks! {
                     texture: redstone_dust.lookup,
                     texture_rotation: Rotate::Deg0,
                     normal: ViewableDirectionBitMap::Left,
-                    color: [0, 0, 255, 255],
+                    color: [255, 0, 0, 255],
                     edge: false,
                 })
             }

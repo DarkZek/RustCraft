@@ -34,7 +34,9 @@ impl RenderState {
         let (device, queue) = block_on(adapter.request_device(
             &wgpu::DeviceDescriptor {
                 label: Some("Device"),
-                features: Features::default() | Features::PUSH_CONSTANTS,
+                features: Features::default()
+                    | Features::PUSH_CONSTANTS
+                    | Features::BUFFER_BINDING_ARRAY,
                 limits: wgpu::Limits {
                     max_texture_dimension_1d: 8192,
                     max_texture_dimension_2d: 8192,

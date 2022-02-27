@@ -1,13 +1,15 @@
 use crate::game::game_state::{GameState, ProgramState};
 use crate::render::background::Background;
 use crate::render::camera::Camera;
-use crate::render::RenderState;
+use crate::render::{get_swapchain_size, get_texture_format, RenderState};
 use crate::services::asset_service::AssetService;
 use crate::services::chunk_service::chunk::{ChunkData, Chunks};
 use crate::services::chunk_service::ChunkService;
 use crate::services::ui_service::UIService;
 use specs::{Read, ReadStorage, System, Write};
-use wgpu::{IndexFormat, LoadOp, Operations};
+use wgpu::{
+    Color, Extent3d, IndexFormat, LoadOp, Operations, TextureDimension, TextureViewDescriptor,
+};
 
 pub mod buffer;
 pub mod prepass;
@@ -49,6 +51,24 @@ impl<'a> System<'a> for RenderSystem {
             .texture
             .create_view(&wgpu::TextureViewDescriptor::default());
 
+        let bloom_texture = &render_state.post_processing.bloom.bloom_texture;
+        let bloom_frame = bloom_texture.create_view(&TextureViewDescriptor::default());
+
+        let frame_texture_descriptor = wgpu::TextureDescriptor {
+            label: Some("Chunk view texture"),
+            size: get_swapchain_size(),
+            mip_level_count: 1,
+            sample_count: 1,
+            dimension: TextureDimension::D2,
+            format: get_texture_format(),
+            usage: wgpu::TextureUsages::COPY_SRC | wgpu::TextureUsages::RENDER_ATTACHMENT,
+        };
+
+        let frame_image_buffer = render_state
+            .device
+            .create_texture(&frame_texture_descriptor);
+        let frame_image_view = frame_image_buffer.create_view(&TextureViewDescriptor::default());
+
         let mut encoder =
             render_state
                 .device
@@ -66,14 +86,24 @@ impl<'a> System<'a> for RenderSystem {
 
                 let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
                     label: Some("Main Render Loop Render Pass"),
-                    color_attachments: &[wgpu::RenderPassColorAttachment {
-                        view: &frame,
-                        resolve_target: None,
-                        ops: Operations {
-                            load: LoadOp::Load,
-                            store: true,
+                    color_attachments: &[
+                        wgpu::RenderPassColorAttachment {
+                            view: &frame_image_view,
+                            resolve_target: None,
+                            ops: Operations {
+                                load: LoadOp::Load,
+                                store: true,
+                            },
                         },
-                    }],
+                        wgpu::RenderPassColorAttachment {
+                            view: &bloom_frame,
+                            resolve_target: None,
+                            ops: Operations {
+                                load: LoadOp::Clear(Color::BLACK),
+                                store: true,
+                            },
+                        },
+                    ],
                     depth_stencil_attachment: Some(wgpu::RenderPassDepthStencilAttachment {
                         view: &render_state.depth_texture.1,
                         depth_ops: Some(Operations {
@@ -129,6 +159,20 @@ impl<'a> System<'a> for RenderSystem {
                     );
                 }
             }
+
+            render_state.post_processing.bloom.create_bloom_effect(
+                &render_state.device,
+                &render_state.surface_desc,
+                &mut encoder,
+                &frame_image_buffer,
+            );
+
+            // Merge vfx buffer into main swapchain
+            encoder.copy_texture_to_texture(
+                frame_image_buffer.as_image_copy(),
+                texture.texture.as_image_copy(),
+                get_swapchain_size(),
+            );
 
             ui_service.render(&frame, &mut encoder, &render_state.device, &asset_service);
 

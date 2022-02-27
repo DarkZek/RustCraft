@@ -202,7 +202,7 @@ impl BlockModel {
                     texture: lookup.clone(),
                     texture_rotation: Rotate::Deg0,
                     normal: ViewableDirectionBitMap::Left,
-                    color: [135, 255, 105, 255],
+                    color: [255, 255, 255, 255],
                     edge: false,
                 },
                 BlockFace {
@@ -211,7 +211,7 @@ impl BlockModel {
                     texture: lookup.clone(),
                     texture_rotation: Rotate::Deg0,
                     normal: ViewableDirectionBitMap::Right,
-                    color: [135, 255, 105, 255],
+                    color: [255, 255, 255, 255],
                     edge: false,
                 },
                 BlockFace {
@@ -220,7 +220,7 @@ impl BlockModel {
                     texture: lookup.clone(),
                     texture_rotation: Rotate::Deg0,
                     normal: ViewableDirectionBitMap::Left,
-                    color: [135, 255, 105, 255],
+                    color: [255, 255, 255, 255],
                     edge: false,
                 },
                 BlockFace {
@@ -229,7 +229,7 @@ impl BlockModel {
                     texture: lookup.clone(),
                     texture_rotation: Rotate::Deg0,
                     normal: ViewableDirectionBitMap::Right,
-                    color: [135, 255, 105, 255],
+                    color: [255, 255, 255, 255],
                     edge: false,
                 },
             ],

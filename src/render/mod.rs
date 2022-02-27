@@ -2,9 +2,10 @@ use crate::render::background::Background;
 use crate::render::camera::Camera;
 use crate::render::loading::LoadingScreen;
 use crate::render::pass::uniforms::Uniforms;
+use crate::render::post_processing::PostProcessingEffects;
 use crate::services::asset_service::depth_map::{create_depth_texture, DEPTH_FORMAT};
 use crate::services::asset_service::AssetService;
-use crate::services::chunk_service::mesh::Vertex;
+use crate::services::chunk_service::mesh::{UIVertex, Vertex};
 use crate::services::chunk_service::ChunkService;
 use crate::services::settings_service::SettingsService;
 use crate::services::{load_services, ServicesContext};
@@ -15,10 +16,11 @@ use std::lazy::SyncOnceCell;
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::{Duration, Instant, SystemTime};
+use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{
-    AdapterInfo, BindGroupLayout, BlendComponent, DepthBiasState, Device, Face, FrontFace,
-    MultisampleState, PolygonMode, PrimitiveState, PrimitiveTopology, RenderPipeline, Sampler,
-    StencilState, Texture, TextureFormat, TextureView, VertexState,
+    AdapterInfo, BindGroupLayout, BlendComponent, BufferUsages, DepthBiasState, Device, Extent3d,
+    Face, FrontFace, MultisampleState, PolygonMode, PrimitiveState, PrimitiveTopology,
+    RenderPipeline, Sampler, StencilState, Texture, TextureFormat, TextureView, VertexState,
 };
 use winit::dpi::PhysicalSize;
 use winit::event_loop::EventLoop;
@@ -29,14 +31,28 @@ pub mod camera;
 pub mod device;
 pub mod loading;
 pub mod pass;
+pub mod post_processing;
 pub mod screens;
 
 lazy_static! {
     pub static ref TEXTURE_FORMAT: SyncOnceCell<TextureFormat> = SyncOnceCell::new();
+
+    // A buffer that holds vertices that will cover the entire screen when drawn with no view matrix
+    pub static ref VERTICES_COVER_SCREEN: SyncOnceCell<wgpu::Buffer> = SyncOnceCell::new();
 }
+
+pub static mut SWAPCHAIN_SIZE: Extent3d = Extent3d {
+    width: 0,
+    height: 0,
+    depth_or_array_layers: 1,
+};
 
 pub fn get_texture_format() -> TextureFormat {
     *TEXTURE_FORMAT.get().unwrap()
+}
+
+pub fn get_swapchain_size() -> Extent3d {
+    unsafe { SWAPCHAIN_SIZE }
 }
 
 /// Stores the current state of the rendering side of the game. This includes all of the vulkan attributes, fps, gpu info and currently the services which need to be moved.
@@ -58,6 +74,8 @@ pub struct RenderState {
     uniform_bind_group: wgpu::BindGroup,
 
     depth_texture: (Texture, TextureView, Sampler),
+
+    post_processing: PostProcessingEffects,
 
     pub fps: u32,
     pub frames: u32,
@@ -110,12 +128,20 @@ impl RenderState {
 
         // Limited to vsync here
         let surface_desc = wgpu::SurfaceConfiguration {
-            usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
+            usage: wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::COPY_DST,
             format: surface.get_preferred_format(&adapter).unwrap(),
             width: size.width,
             height: size.height,
             present_mode: wgpu::PresentMode::Immediate,
         };
+
+        unsafe {
+            SWAPCHAIN_SIZE = Extent3d {
+                width: size.width,
+                height: size.height,
+                depth_or_array_layers: 1,
+            }
+        }
 
         surface.configure(&device, &surface_desc);
 
@@ -148,6 +174,8 @@ impl RenderState {
 
         universe.insert(camera);
 
+        fill_vertices_cover_screen(&device);
+
         let depth_texture = create_depth_texture(&device.clone(), &surface_desc);
 
         let render_pipeline = generate_render_pipeline(
@@ -177,12 +205,16 @@ impl RenderState {
             thread::sleep(Duration::from_millis(25));
         }
 
-        // Spin lock until the background loading thread shuts down, and has dropped the swapchain
-        //let swap_chain = LoadingScreen::wait_for_swapchain(swap_chain);
-
         let queue = Arc::try_unwrap(queue).ok().unwrap().into_inner().unwrap();
 
         let device = Arc::try_unwrap(device).ok().unwrap();
+
+        // Create post_processing buffers
+        let post_processing = PostProcessingEffects::new(
+            &universe.read_resource::<SettingsService>(),
+            &device,
+            &surface_desc,
+        );
 
         window.set_title("RustCraft");
 
@@ -198,6 +230,7 @@ impl RenderState {
             uniform_buffer,
             uniform_bind_group,
             depth_texture,
+            post_processing,
             fps: 0,
             frames: 0,
             frame_capture_time: Instant::now(),
@@ -211,6 +244,14 @@ impl RenderState {
         self.size = new_size;
         self.surface_desc.width = new_size.width;
         self.surface_desc.height = new_size.height;
+
+        unsafe {
+            SWAPCHAIN_SIZE = Extent3d {
+                width: new_size.width,
+                height: new_size.height,
+                depth_or_array_layers: 1,
+            };
+        }
 
         self.depth_texture = create_depth_texture(&self.device, &self.surface_desc);
         self.surface.configure(&self.device, &self.surface_desc)
@@ -278,23 +319,82 @@ fn generate_render_pipeline(
         fragment: Some(wgpu::FragmentState {
             module: &fs_module,
             entry_point: "main",
-            targets: &[wgpu::ColorTargetState {
-                format: get_texture_format(),
-                write_mask: wgpu::ColorWrites::ALL,
-                blend: Some(wgpu::BlendState {
-                    color: BlendComponent {
-                        src_factor: wgpu::BlendFactor::SrcAlpha,
-                        dst_factor: wgpu::BlendFactor::OneMinusSrcAlpha,
-                        operation: wgpu::BlendOperation::Add,
-                    },
-                    alpha: BlendComponent {
-                        src_factor: wgpu::BlendFactor::One,
-                        dst_factor: wgpu::BlendFactor::Zero,
-                        operation: wgpu::BlendOperation::Add,
-                    },
-                }),
-            }],
+            targets: &[
+                wgpu::ColorTargetState {
+                    format: get_texture_format(),
+                    write_mask: wgpu::ColorWrites::ALL,
+                    blend: Some(wgpu::BlendState {
+                        color: BlendComponent {
+                            src_factor: wgpu::BlendFactor::SrcAlpha,
+                            dst_factor: wgpu::BlendFactor::OneMinusSrcAlpha,
+                            operation: wgpu::BlendOperation::Add,
+                        },
+                        alpha: BlendComponent {
+                            src_factor: wgpu::BlendFactor::One,
+                            dst_factor: wgpu::BlendFactor::Zero,
+                            operation: wgpu::BlendOperation::Add,
+                        },
+                    }),
+                },
+                wgpu::ColorTargetState {
+                    format: get_texture_format(),
+                    write_mask: wgpu::ColorWrites::ALL,
+                    blend: Some(wgpu::BlendState {
+                        color: BlendComponent {
+                            src_factor: wgpu::BlendFactor::SrcAlpha,
+                            dst_factor: wgpu::BlendFactor::OneMinusSrcAlpha,
+                            operation: wgpu::BlendOperation::Add,
+                        },
+                        alpha: BlendComponent {
+                            src_factor: wgpu::BlendFactor::One,
+                            dst_factor: wgpu::BlendFactor::Zero,
+                            operation: wgpu::BlendOperation::Add,
+                        },
+                    }),
+                },
+            ],
         }),
         multiview: None,
     })
+}
+
+fn fill_vertices_cover_screen(device: &Device) {
+    let vertex_buffer = device.create_buffer_init(&BufferInitDescriptor {
+        label: Some("Cover Screen Vertices Buffer"),
+        contents: &bytemuck::cast_slice(&[
+            UIVertex {
+                position: [-1.0, 1.0],
+                tex_coords: [0.0, 0.0],
+                color: [0.0; 4],
+            },
+            UIVertex {
+                position: [1.0, 1.0],
+                tex_coords: [1.0, 0.0],
+                color: [0.0; 4],
+            },
+            UIVertex {
+                position: [-1.0, -1.0],
+                tex_coords: [0.0, 1.0],
+                color: [0.0; 4],
+            },
+            UIVertex {
+                position: [1.0, 1.0],
+                tex_coords: [1.0, 0.0],
+                color: [0.0; 4],
+            },
+            UIVertex {
+                position: [1.0, -1.0],
+                tex_coords: [1.0, 1.0],
+                color: [0.0; 4],
+            },
+            UIVertex {
+                position: [-1.0, -1.0],
+                tex_coords: [0.0, 1.0],
+                color: [0.0; 4],
+            },
+        ]),
+        usage: BufferUsages::VERTEX,
+    });
+
+    VERTICES_COVER_SCREEN.set(vertex_buffer).unwrap();
 }

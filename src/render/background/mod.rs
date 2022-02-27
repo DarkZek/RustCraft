@@ -162,7 +162,7 @@ impl Background {
 
     pub fn draw(&self, frame: &TextureView, encoder: &mut CommandEncoder, cam: &[f32; 2]) {
         let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-            label: Some("Background Render Render Pass"),
+            label: Some("Background Render Pass"),
             color_attachments: &[wgpu::RenderPassColorAttachment {
                 view: &frame,
                 resolve_target: None,

@@ -1,4 +1,4 @@
-use crate::protocol::data::read_types::{read_bool, read_int, read_unsignedbyte, read_varint};
+use crate::protocol::data::read_types::{read_bool, read_int, read_varint};
 use crate::protocol::packet::PacketType;
 use crate::protocol::types::chunk::NetworkChunk;
 use nbt::Blob;
@@ -42,8 +42,7 @@ impl PacketType for ChunkDataPacket {
         buf.read_exact(&mut data).unwrap();
 
         let mut chunk_data = Cursor::new(data);
-        let chunks =
-            NetworkChunk::deserialize(&mut chunk_data, primary_bit_mask, x == -4 && z == -3);
+        let chunks = NetworkChunk::deserialize(&mut chunk_data, primary_bit_mask, false); //x == -4 && z == -3);
 
         let block_entities_len = read_varint(buf);
         let mut block_entities = Vec::new();
