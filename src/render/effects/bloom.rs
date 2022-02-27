@@ -1,7 +1,8 @@
-use crate::render::post_processing::merge::MergePostProcessingEffect;
-use crate::render::post_processing::PostProcessingEffects;
-use crate::render::{get_texture_format, VERTICES_COVER_SCREEN};
+use crate::render::effects::merge::MergePostProcessingEffect;
+use crate::render::effects::{EffectPasses, SCTexture};
+use crate::render::{get_swapchain_size, get_texture_format, VERTICES_COVER_SCREEN};
 use crate::services::chunk_service::mesh::{SimpleVertex, UIVertex};
+use std::mem;
 use std::num::NonZeroU32;
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{
@@ -13,16 +14,13 @@ use wgpu::{
 };
 
 pub struct BloomPostProcessingEffect {
-    pub bloom_texture: Texture,
     pub bloom_render_pipeline: RenderPipeline,
     pub bloom_bind_group_layout: BindGroupLayout,
     pub merge: MergePostProcessingEffect,
 }
 
 impl BloomPostProcessingEffect {
-    pub fn new(device: &Device, surface: &SurfaceConfiguration) -> BloomPostProcessingEffect {
-        let bloom_texture = Self::create_bloom_buffers(device, surface);
-
+    pub fn new(device: &Device) -> BloomPostProcessingEffect {
         let bloom_vert_shader = device.create_shader_module(&wgpu::include_spirv!(
             "../../../assets/shaders/gaussian_vert.spv"
         ));
@@ -100,89 +98,64 @@ impl BloomPostProcessingEffect {
             });
 
         BloomPostProcessingEffect {
-            bloom_texture,
             bloom_render_pipeline,
             bloom_bind_group_layout,
-            merge: MergePostProcessingEffect::new(device, surface),
+            merge: MergePostProcessingEffect::new(device),
         }
-    }
-
-    pub fn create_bloom_buffers(device: &Device, surface: &SurfaceConfiguration) -> Texture {
-        let texture_descriptor = wgpu::TextureDescriptor {
-            label: Some("Bloom screen texture"),
-            size: Extent3d {
-                width: surface.width,
-                height: surface.height,
-                depth_or_array_layers: 1,
-            },
-            mip_level_count: 1,
-            sample_count: 1,
-            dimension: TextureDimension::D2,
-            format: get_texture_format(),
-            usage: wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::TEXTURE_BINDING,
-        };
-
-        device.create_texture(&texture_descriptor)
     }
 
     pub fn create_bloom_effect(
         &self,
-        device: &Device,
-        surface: &SurfaceConfiguration,
+        effect_passes: &mut EffectPasses,
         encoder: &mut CommandEncoder,
+        bloom_texture: &Texture,
         frame: &Texture,
     ) {
-        let pingpong_buffer = device.create_texture(&wgpu::TextureDescriptor {
-            label: Some("Bloom screen pingpong buffer"),
-            size: Extent3d {
-                width: surface.width,
-                height: surface.height,
-                depth_or_array_layers: 1,
-            },
-            mip_level_count: 1,
-            sample_count: 1,
-            dimension: TextureDimension::D2,
-            format: get_texture_format(),
-            usage: wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::TEXTURE_BINDING,
-        });
+        let pingpong_buffer = effect_passes.get_buffer();
 
-        let pingpong_buffer_view = pingpong_buffer.create_view(&TextureViewDescriptor::default());
+        let pingpong_buffer_view =
+            (*pingpong_buffer).create_view(&TextureViewDescriptor::default());
 
-        let bloom_texture_view = self
-            .bloom_texture
-            .create_view(&TextureViewDescriptor::default());
+        let bloom_texture_view = bloom_texture.create_view(&TextureViewDescriptor::default());
 
-        let sampler = device.create_sampler(&SamplerDescriptor::default());
+        let sampler = effect_passes
+            .device
+            .create_sampler(&SamplerDescriptor::default());
 
-        let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
-            label: Some("Gaussian Effect Bind Group"),
-            layout: &self.bloom_bind_group_layout,
-            entries: &[
-                wgpu::BindGroupEntry {
-                    binding: 0,
-                    resource: BindingResource::TextureView(&bloom_texture_view),
-                },
-                wgpu::BindGroupEntry {
-                    binding: 1,
-                    resource: BindingResource::Sampler(&sampler),
-                },
-            ],
-        });
+        let bind_group = effect_passes
+            .device
+            .create_bind_group(&wgpu::BindGroupDescriptor {
+                label: Some("Gaussian Effect Bind Group"),
+                layout: &self.bloom_bind_group_layout,
+                entries: &[
+                    wgpu::BindGroupEntry {
+                        binding: 0,
+                        resource: BindingResource::TextureView(&bloom_texture_view),
+                    },
+                    wgpu::BindGroupEntry {
+                        binding: 1,
+                        resource: BindingResource::Sampler(&sampler),
+                    },
+                ],
+            });
 
-        let bind_pingpong_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
-            label: Some("Gaussian Effect Pingpong Bind Group"),
-            layout: &self.bloom_bind_group_layout,
-            entries: &[
-                wgpu::BindGroupEntry {
-                    binding: 0,
-                    resource: BindingResource::TextureView(&pingpong_buffer_view),
-                },
-                wgpu::BindGroupEntry {
-                    binding: 1,
-                    resource: BindingResource::Sampler(&sampler),
-                },
-            ],
-        });
+        let bind_pingpong_group =
+            effect_passes
+                .device
+                .create_bind_group(&wgpu::BindGroupDescriptor {
+                    label: Some("Gaussian Effect Pingpong Bind Group"),
+                    layout: &self.bloom_bind_group_layout,
+                    entries: &[
+                        wgpu::BindGroupEntry {
+                            binding: 0,
+                            resource: BindingResource::TextureView(&pingpong_buffer_view),
+                        },
+                        wgpu::BindGroupEntry {
+                            binding: 1,
+                            resource: BindingResource::Sampler(&sampler),
+                        },
+                    ],
+                });
 
         let amount = 20;
 
@@ -239,6 +212,8 @@ impl BloomPostProcessingEffect {
         }
 
         self.merge
-            .merge(encoder, device, &bloom_texture_view, frame);
+            .merge(encoder, &effect_passes.device, &bloom_texture_view, frame);
+
+        effect_passes.return_buffer(pingpong_buffer);
     }
 }

@@ -36,7 +36,8 @@ impl RenderState {
                 label: Some("Device"),
                 features: Features::default()
                     | Features::PUSH_CONSTANTS
-                    | Features::BUFFER_BINDING_ARRAY,
+                    | Features::BUFFER_BINDING_ARRAY
+                    | Features::CLEAR_COMMANDS,
                 limits: wgpu::Limits {
                     max_texture_dimension_1d: 8192,
                     max_texture_dimension_2d: 8192,

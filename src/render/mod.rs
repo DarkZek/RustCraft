@@ -1,8 +1,8 @@
 use crate::render::background::Background;
 use crate::render::camera::Camera;
+use crate::render::effects::EffectPasses;
 use crate::render::loading::LoadingScreen;
 use crate::render::pass::uniforms::Uniforms;
-use crate::render::post_processing::PostProcessingEffects;
 use crate::services::asset_service::depth_map::{create_depth_texture, DEPTH_FORMAT};
 use crate::services::asset_service::AssetService;
 use crate::services::chunk_service::mesh::{UIVertex, Vertex};
@@ -29,9 +29,9 @@ use winit::window::{Icon, Window, WindowBuilder};
 pub mod background;
 pub mod camera;
 pub mod device;
+pub mod effects;
 pub mod loading;
 pub mod pass;
-pub mod post_processing;
 pub mod screens;
 
 lazy_static! {
@@ -61,7 +61,7 @@ pub struct RenderState {
     surface: Arc<wgpu::Surface>,
     surface_desc: wgpu::SurfaceConfiguration,
 
-    pub device: wgpu::Device,
+    pub device: Arc<wgpu::Device>,
     pub queue: wgpu::Queue,
     pub window: Arc<Window>,
 
@@ -75,7 +75,7 @@ pub struct RenderState {
 
     depth_texture: (Texture, TextureView, Sampler),
 
-    post_processing: PostProcessingEffects,
+    effects: EffectPasses,
 
     pub fps: u32,
     pub frames: u32,
@@ -207,14 +207,9 @@ impl RenderState {
 
         let queue = Arc::try_unwrap(queue).ok().unwrap().into_inner().unwrap();
 
-        let device = Arc::try_unwrap(device).ok().unwrap();
-
-        // Create post_processing buffers
-        let post_processing = PostProcessingEffects::new(
-            &universe.read_resource::<SettingsService>(),
-            &device,
-            &surface_desc,
-        );
+        // Create effects buffers
+        let effects =
+            EffectPasses::new(&universe.read_resource::<SettingsService>(), device.clone());
 
         window.set_title("RustCraft");
 
@@ -230,7 +225,7 @@ impl RenderState {
             uniform_buffer,
             uniform_bind_group,
             depth_texture,
-            post_processing,
+            effects,
             fps: 0,
             frames: 0,
             frame_capture_time: Instant::now(),

@@ -8,7 +8,7 @@ use std::io::Read;
 pub fn read_varint<T: Read>(reader: &mut T) -> i32 {
     let mut value = 0;
     let mut length = 0;
-    let mut current_byte = 0;
+    let mut current_byte;
 
     loop {
         current_byte = reader.read_u8().unwrap();
@@ -32,7 +32,7 @@ pub fn read_varint<T: Read>(reader: &mut T) -> i32 {
 pub fn read_varlong<R: Read>(reader: &mut R) -> i64 {
     let mut value = 0;
     let mut length = 0;
-    let mut current_byte = 0;
+    let mut current_byte;
 
     loop {
         current_byte = reader.read_u8().unwrap();

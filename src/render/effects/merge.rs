@@ -18,7 +18,7 @@ pub struct MergePostProcessingEffect {
 }
 
 impl MergePostProcessingEffect {
-    pub fn new(device: &Device, surface: &SurfaceConfiguration) -> MergePostProcessingEffect {
+    pub fn new(device: &Device) -> MergePostProcessingEffect {
         let vert_shader = device.create_shader_module(&wgpu::include_spirv!(
             "../../../assets/shaders/addition_vert.spv"
         ));
@@ -103,11 +103,7 @@ impl MergePostProcessingEffect {
 
         let temp_texture_descriptor = wgpu::TextureDescriptor {
             label: Some("Temp merge texture"),
-            size: Extent3d {
-                width: surface.width,
-                height: surface.height,
-                depth_or_array_layers: 1,
-            },
+            size: get_swapchain_size(),
             mip_level_count: 1,
             sample_count: 1,
             dimension: TextureDimension::D2,

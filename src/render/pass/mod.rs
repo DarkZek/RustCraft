@@ -51,7 +51,7 @@ impl<'a> System<'a> for RenderSystem {
             .texture
             .create_view(&wgpu::TextureViewDescriptor::default());
 
-        let bloom_texture = &render_state.post_processing.bloom.bloom_texture;
+        let bloom_texture = render_state.effects.get_buffer();
         let bloom_frame = bloom_texture.create_view(&TextureViewDescriptor::default());
 
         let frame_texture_descriptor = wgpu::TextureDescriptor {
@@ -64,9 +64,8 @@ impl<'a> System<'a> for RenderSystem {
             usage: wgpu::TextureUsages::COPY_SRC | wgpu::TextureUsages::RENDER_ATTACHMENT,
         };
 
-        let frame_image_buffer = render_state
-            .device
-            .create_texture(&frame_texture_descriptor);
+        let frame_image_buffer = render_state.effects.get_buffer();
+
         let frame_image_view = frame_image_buffer.create_view(&TextureViewDescriptor::default());
 
         let mut encoder =
@@ -79,7 +78,7 @@ impl<'a> System<'a> for RenderSystem {
         {
             if game_state.state == ProgramState::InGame {
                 background.draw(
-                    &frame,
+                    &frame_image_view,
                     &mut encoder,
                     &[camera.yaw / (std::f32::consts::PI * 2.0), -camera.pitch],
                 );
@@ -160,12 +159,9 @@ impl<'a> System<'a> for RenderSystem {
                 }
             }
 
-            render_state.post_processing.bloom.create_bloom_effect(
-                &render_state.device,
-                &render_state.surface_desc,
-                &mut encoder,
-                &frame_image_buffer,
-            );
+            render_state
+                .effects
+                .apply_bloom(&mut encoder, &*bloom_texture, &frame_image_buffer);
 
             // Merge vfx buffer into main swapchain
             encoder.copy_texture_to_texture(
@@ -175,6 +171,13 @@ impl<'a> System<'a> for RenderSystem {
             );
 
             ui_service.render(&frame, &mut encoder, &render_state.device, &asset_service);
+
+            // Return buffers
+            render_state.effects.return_buffer(frame_image_buffer);
+            render_state.effects.return_buffer(bloom_texture);
+
+            // Clean used buffers
+            render_state.effects.clean_buffers(&mut encoder);
 
             render_state.queue.submit(Some(encoder.finish()));
 

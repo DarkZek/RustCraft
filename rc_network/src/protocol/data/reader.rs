@@ -1,4 +1,4 @@
-use crate::protocol::data::read_types::{length_as_varint, read_string, read_varint};
+use crate::protocol::data::read_types::{read_string, read_varint};
 use crate::protocol::data::Packet;
 use crate::protocol::types::{PVarType, PVarTypeTemplate};
 use crate::stream::NetworkStream;

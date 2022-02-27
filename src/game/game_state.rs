@@ -112,7 +112,7 @@ impl<'a> System<'a> for PlayerMovementSystem {
                 move_forwards(&events.movement, game_state.player.rot[0]).into();
 
             player_physics.new_position += movement.mul(movement_modifier);
-            // Add only a 1/10 of the force to the velocity so it still feels like we have force, but without the post_processing of stacking velocity
+            // Add only a 1/10 of the force to the velocity so it still feels like we have force, but without the effects of stacking velocity
             //player_physics.velocity += movement.mul(movement_modifier / 10.0);
         }
 
