@@ -1,6 +1,6 @@
 use crate::entity::player::PlayerEntity;
 use crate::game::physics::PhysicsObject;
-use crate::services::chunk_service::chunk::ChunkData;
+use crate::services::chunk_service::chunk::{ChunkData, ChunkEntityLookup};
 use crate::services::chunk_service::ChunkService;
 use crate::services::networking_service::NetworkingService;
 use nalgebra::Vector3;
@@ -36,6 +36,7 @@ impl<'a> System<'a> for NetworkingSyncSystem {
         WriteStorage<'a, RerenderChunkFlag>,
         Write<'a, GameState>,
         Write<'a, UIService>,
+        Write<'a, ChunkEntityLookup>,
     );
 
     fn run(
@@ -51,6 +52,7 @@ impl<'a> System<'a> for NetworkingSyncSystem {
             mut rerendering_chunks,
             mut game_state,
             mut ui_service,
+            mut chunk_entity_lookup,
         ): Self::SystemData,
     ) {
         network_packets.packets = networking_service.get_packets();
@@ -138,6 +140,7 @@ impl<'a> System<'a> for NetworkingSyncSystem {
                         &mut entities,
                         &mut chunks_storage,
                         &mut rerendering_chunks,
+                        &mut chunk_entity_lookup,
                     );
 
                     // Loaded enough to show game

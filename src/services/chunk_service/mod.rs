@@ -3,12 +3,12 @@
 //
 
 use crate::render::camera::Camera;
-use crate::services::chunk_service::chunk::{ChunkData, RawChunkData};
+use crate::services::chunk_service::chunk::{ChunkData, ChunkEntityLookup, RawChunkData};
 use crate::services::chunk_service::frustum_culling::calculate_frustum_culling;
 use crate::services::settings_service::SettingsService;
 use crate::services::ServicesContext;
 use nalgebra::Vector3;
-use specs::{Entities, ReadStorage, World, WriteStorage};
+use specs::{Entities, ReadStorage, World, Write, WriteStorage};
 
 use crate::game::resources::SystemResources;
 use crate::services::chunk_service::mesh::rerendering::RerenderChunkFlag;
@@ -90,6 +90,7 @@ impl ChunkService {
         entities: &mut Entities,
         chunks: &mut WriteStorage<ChunkData>,
         rerendering_chunks: &mut WriteStorage<RerenderChunkFlag>,
+        chunk_entity_lookup: &mut Write<ChunkEntityLookup>,
     ) {
         if data.is_some() {
             let chunk = ChunkData::new(data.unwrap(), chunk_coords);
@@ -99,12 +100,14 @@ impl ChunkService {
             self.chunk_keys.push(chunk_coords.clone());
 
             let entity = entities.create();
-            if let Err(err) = chunks.insert(entity, chunk) {
+            if let Err(err) = chunks.insert(entity.clone(), chunk) {
                 log_error!(format!(
                     "Error creating entity for chunk {}: {}",
                     chunk_coords, err
                 ));
             }
+
+            chunk_entity_lookup.map.insert(chunk_coords, entity);
 
             // Flag the adjacent chunks for rerendering
             let rerender = [

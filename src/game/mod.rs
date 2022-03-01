@@ -1,7 +1,5 @@
 use crate::block::blocks::BlockStates;
-use crate::entity::player::{
-    PlayerEntity, PlayerEntityCameraSyncSystem, PlayerEntityColliderGeneratingSystem,
-};
+use crate::entity::player::{PlayerEntity, PlayerEntityCameraSyncSystem};
 use crate::game::game_state::{GameState, PlayerMovementSystem, ProgramState};
 use crate::game::physics::interpolator::{PhysicsInterpolationFactor, PhysicsInterpolationSystem};
 use crate::game::physics::{Physics, PhysicsObject, PhysicsProcessingSystem};
@@ -11,7 +9,7 @@ use crate::render::pass::prepass::{PostFrame, PreFrame};
 use crate::render::pass::RenderSystem;
 use crate::render::RenderState;
 use crate::services::asset_service::AssetService;
-use crate::services::chunk_service::chunk::ChunkData;
+use crate::services::chunk_service::chunk::{ChunkData, ChunkEntityLookup};
 use crate::services::chunk_service::frustum_culling::FrustumCullingSystem;
 use crate::services::chunk_service::mesh::rerendering::{
     ChunkRerenderSystem, RerenderChunkFlag, UpdateChunkGraphics,
@@ -66,6 +64,7 @@ impl Game {
         universe.register::<ChunkData>();
         universe.register::<RerenderChunkFlag>();
         universe.register::<UpdateChunkGraphics>();
+        universe.insert::<ChunkEntityLookup>(ChunkEntityLookup::default());
 
         let render_state = RenderState::new(&mut universe, &event_loop);
         let game_state = GameState::new(&mut universe);
@@ -152,16 +151,7 @@ impl Game {
         self.universe.insert(Physics::default());
 
         let mut physics_dispatcher = DispatcherBuilder::new()
-            .with(
-                PlayerEntityColliderGeneratingSystem,
-                "playerentity_collider_generation",
-                &[],
-            )
-            .with(
-                PhysicsProcessingSystem,
-                "physics_processing",
-                &["playerentity_collider_generation"],
-            )
+            .with(PhysicsProcessingSystem, "physics_processing", &[])
             .build();
 
         let event_loop = self.event_loop.take().expect("Couldn't find event loop");

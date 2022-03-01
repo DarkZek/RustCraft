@@ -1,24 +1,24 @@
 use crate::render::{get_swapchain_size, get_texture_format, VERTICES_COVER_SCREEN};
 use crate::services::chunk_service::mesh::UIVertex;
+use std::sync::Arc;
 
+use crate::render::effects::EffectPasses;
 use wgpu::{
     BindGroupLayout, BindGroupLayoutDescriptor, BindGroupLayoutEntry, BindingResource, BindingType,
-    CommandEncoder, Device, Extent3d, LoadOp, Operations, RenderPassColorAttachment,
-    RenderPipeline, SamplerBindingType, SamplerDescriptor, ShaderStages, SurfaceConfiguration,
-    Texture, TextureDimension, TextureSampleType, TextureView, TextureViewDescriptor,
-    TextureViewDimension, VertexState,
+    CommandEncoder, Device, LoadOp, Operations, RenderPassColorAttachment, RenderPipeline,
+    SamplerBindingType, SamplerDescriptor, ShaderStages, Texture, TextureDimension,
+    TextureSampleType, TextureView, TextureViewDescriptor, TextureViewDimension, VertexState,
 };
 
 // Merges two textures
 pub struct MergePostProcessingEffect {
     pub render_pipeline: RenderPipeline,
     pub bind_group_layout: BindGroupLayout,
-    // The buffer the texture is put into before being copied to original buffer
-    pub temp_image_buffer: Texture,
+    pub device: Arc<Device>,
 }
 
 impl MergePostProcessingEffect {
-    pub fn new(device: &Device) -> MergePostProcessingEffect {
+    pub fn new(device: Arc<Device>) -> MergePostProcessingEffect {
         let vert_shader = device.create_shader_module(&wgpu::include_spirv!(
             "../../../assets/shaders/addition_vert.spv"
         ));
@@ -101,46 +101,34 @@ impl MergePostProcessingEffect {
             multiview: None,
         });
 
-        let temp_texture_descriptor = wgpu::TextureDescriptor {
-            label: Some("Temp merge texture"),
-            size: get_swapchain_size(),
-            mip_level_count: 1,
-            sample_count: 1,
-            dimension: TextureDimension::D2,
-            format: get_texture_format(),
-            usage: wgpu::TextureUsages::COPY_DST | wgpu::TextureUsages::TEXTURE_BINDING,
-        };
-
-        let temp_image_buffer = device.create_texture(&temp_texture_descriptor);
-
         MergePostProcessingEffect {
             render_pipeline,
             bind_group_layout,
-            temp_image_buffer,
+            device,
         }
     }
 
     pub fn merge(
         &self,
+        effect_passes: &mut EffectPasses,
         encoder: &mut CommandEncoder,
-        device: &Device,
         src: &TextureView,
         dest: &Texture,
     ) {
+        let temp_image = effect_passes.get_buffer();
+
+        let temp_image_view = temp_image.create_view(&TextureViewDescriptor::default());
+
         // Copy image to temp buffer
         encoder.copy_texture_to_texture(
             dest.as_image_copy(),
-            self.temp_image_buffer.as_image_copy(),
+            temp_image.as_image_copy(),
             get_swapchain_size(),
         );
 
-        let sampler = device.create_sampler(&SamplerDescriptor::default());
+        let sampler = self.device.create_sampler(&SamplerDescriptor::default());
 
-        let temp_image_view = self
-            .temp_image_buffer
-            .create_view(&TextureViewDescriptor::default());
-
-        let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+        let bind_group = self.device.create_bind_group(&wgpu::BindGroupDescriptor {
             label: Some("Merge Effect Bind Group"),
             layout: &self.bind_group_layout,
             entries: &[
@@ -182,5 +170,7 @@ impl MergePostProcessingEffect {
         pass.set_vertex_buffer(0, VERTICES_COVER_SCREEN.get().unwrap().slice(..));
 
         pass.draw(0..6, 0..1);
+
+        effect_passes.return_buffer(temp_image);
     }
 }

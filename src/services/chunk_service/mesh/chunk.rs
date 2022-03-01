@@ -4,7 +4,7 @@ use crate::services::chunk_service::chunk::ChunkData;
 use crate::services::chunk_service::mesh::culling::{calculate_viewable, ViewableDirection};
 use crate::services::chunk_service::mesh::{Vertex, ViewableDirectionBitMap};
 use crate::services::settings_service::CHUNK_SIZE;
-use nalgebra::{Vector3};
+use nalgebra::Vector3;
 use std::collections::HashMap;
 
 pub struct ChunkMeshData {
@@ -136,7 +136,8 @@ impl<'a> ChunkData {
 
     pub fn get_block(&self, pos: Vector3<usize>) -> Option<Block> {
         let block_id = self.world[pos.x][pos.y][pos.z];
-        if block_id == 0 {
+
+        if block_id != 0 {
             BLOCK_STATES.get().unwrap().get_block(block_id as usize - 1)
         } else {
             None

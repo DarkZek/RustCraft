@@ -21,7 +21,7 @@ impl GameState {
     pub fn new(universe: &mut World) -> GameState {
         universe
             .create_entity()
-            .with(PhysicsObject::new())
+            .with(PlayerEntity::create_physics_object())
             .with(PlayerEntity)
             .build();
 

@@ -312,9 +312,8 @@ macro_rules! define_blocks {
                             )?
                             return vec![
                                 BoxCollider {
-                                    p1: Point { coords: Vector3::new(0.0, 0.0, 0.0) },
-                                    p2: Point { coords: Vector3::new(0.0, 0.0, 0.0) },
-                                    center: Point { coords: Vector3::new(0.0, 0.0, 0.0) },
+                                    min: Point { coords: Vector3::new(0.0, 0.0, 0.0) },
+                                    max: Point { coords: Vector3::new(1.0, 1.0, 1.0) },
                                 }
                             ];
                         }

@@ -1,10 +1,27 @@
+use crate::block::blocks::BlockType;
 use crate::services::chunk_service::mesh::culling::ViewableDirection;
 use crate::services::chunk_service::mesh::MeshData;
 use crate::services::settings_service::CHUNK_SIZE;
 use nalgebra::Vector3;
-use specs::{Component, VecStorage};
+use specs::{Component, Entity, ReadStorage, VecStorage, Write};
 use std::collections::HashMap;
 use wgpu::BindGroup;
+
+pub struct ChunkEntityLookup {
+    pub map: HashMap<Vector3<i32>, Entity>,
+}
+
+impl Default for ChunkEntityLookup {
+    fn default() -> Self {
+        ChunkEntityLookup {
+            map: HashMap::new(),
+        }
+    }
+}
+
+impl Component for ChunkEntityLookup {
+    type Storage = VecStorage<Self>;
+}
 
 #[derive(Debug)]
 pub struct ChunkData {
@@ -30,6 +47,36 @@ pub struct ChunkData {
 
 impl Component for ChunkData {
     type Storage = VecStorage<Self>;
+}
+
+pub fn get_block<'a>(
+    chunks: &'a ReadStorage<ChunkData>,
+    lookup: &Write<ChunkEntityLookup>,
+    pos: Vector3<i64>,
+) -> Option<&'a BlockType> {
+    let chunk_pos = absolute_pos_to_chunk(pos);
+
+    if let Some(chunk_entity) = lookup.map.get(&chunk_pos) {
+        if let Some(chunk_data) = chunks.get(*chunk_entity) {
+            let x = ((pos.x % CHUNK_SIZE as i64) + CHUNK_SIZE as i64) as usize % CHUNK_SIZE;
+            let y = ((pos.y % CHUNK_SIZE as i64) + CHUNK_SIZE as i64) as usize % CHUNK_SIZE;
+            let z = ((pos.z % CHUNK_SIZE as i64) + CHUNK_SIZE as i64) as usize % CHUNK_SIZE;
+
+            return chunk_data
+                .get_block(Vector3::new(x as usize, y as usize, z as usize))
+                .map(|t| t.block_type);
+        }
+    }
+
+    return None;
+}
+
+fn absolute_pos_to_chunk(pos: Vector3<i64>) -> Vector3<i32> {
+    Vector3::new(
+        (pos.x as f64 / CHUNK_SIZE as f64).floor() as i32,
+        (pos.y as f64 / CHUNK_SIZE as f64).floor() as i32,
+        (pos.z as f64 / CHUNK_SIZE as f64).floor() as i32,
+    )
 }
 
 pub type Color = [u8; 4];

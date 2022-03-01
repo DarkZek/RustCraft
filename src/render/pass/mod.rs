@@ -7,9 +7,7 @@ use crate::services::chunk_service::chunk::{ChunkData, Chunks};
 use crate::services::chunk_service::ChunkService;
 use crate::services::ui_service::UIService;
 use specs::{Read, ReadStorage, System, Write};
-use wgpu::{
-    Color, Extent3d, IndexFormat, LoadOp, Operations, TextureDimension, TextureViewDescriptor,
-};
+use wgpu::{Color, IndexFormat, LoadOp, Operations, TextureDimension, TextureViewDescriptor};
 
 pub mod buffer;
 pub mod prepass;
@@ -53,16 +51,6 @@ impl<'a> System<'a> for RenderSystem {
 
         let bloom_texture = render_state.effects.get_buffer();
         let bloom_frame = bloom_texture.create_view(&TextureViewDescriptor::default());
-
-        let frame_texture_descriptor = wgpu::TextureDescriptor {
-            label: Some("Chunk view texture"),
-            size: get_swapchain_size(),
-            mip_level_count: 1,
-            sample_count: 1,
-            dimension: TextureDimension::D2,
-            format: get_texture_format(),
-            usage: wgpu::TextureUsages::COPY_SRC | wgpu::TextureUsages::RENDER_ATTACHMENT,
-        };
 
         let frame_image_buffer = render_state.effects.get_buffer();
 

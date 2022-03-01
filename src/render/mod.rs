@@ -248,6 +248,8 @@ impl RenderState {
             };
         }
 
+        self.effects.resize_buffers();
+
         self.depth_texture = create_depth_texture(&self.device, &self.surface_desc);
         self.surface.configure(&self.device, &self.surface_desc)
     }

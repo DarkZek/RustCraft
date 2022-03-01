@@ -14,19 +14,11 @@ impl Player {
         Player { rot: [0.0, 0.0] }
     }
 
-    pub fn calculate_collider(center: Vector3<f32>) -> BoxCollider {
-        // Support negative chunks, % on negative numbers returns negative numbers
-        let relative_x = ((center.x % 16.0) + 16.0) % 16.0;
-        let relative_y = ((center.y % 16.0) + 16.0) % 16.0;
-        let relative_z = ((center.z % 16.0) + 16.0) % 16.0;
+    pub fn calculate_collider() -> BoxCollider {
+        let min = Point3::new(-0.3, -1.0, -0.3);
+        let max = Point3::new(0.3, 1.0, 0.3);
 
-        let p1 = Point3::new(relative_x - 0.3, relative_y, relative_z - 0.3);
-        let p2 = Point3::new(relative_x + 0.3, relative_y + 1.0, relative_z + 0.3);
-        BoxCollider {
-            p1,
-            p2,
-            center: center.into(),
-        }
+        BoxCollider { min, max }
     }
 }
 
@@ -53,6 +45,19 @@ pub fn move_forwards(axis: &[i32; 2], side_yaw: f32) -> [f32; 3] {
 #[derive(Debug)]
 pub struct PlayerEntity;
 
+impl PlayerEntity {
+    pub fn create_physics_object() -> PhysicsObject {
+        PhysicsObject {
+            velocity: Vector3::new(0.0, 0.0, 0.0),
+            position: Vector3::new(0.0, 80.0, 0.0),
+            old_position: Vector3::new(0.0, 80.0, 0.0),
+            new_position: Vector3::new(0.0, 80.0, 0.0),
+            collider: Player::calculate_collider(),
+            touching_ground: false,
+        }
+    }
+}
+
 impl Component for PlayerEntity {
     type Storage = FlaggedStorage<Self>;
 }
@@ -72,24 +77,5 @@ impl<'a> System<'a> for PlayerEntityCameraSyncSystem {
         let (_, player_physics) = (&player, &player_physics).join().last().unwrap();
 
         camera.move_first_person(&Point3::from(player_physics.position));
-    }
-}
-
-pub struct PlayerEntityColliderGeneratingSystem;
-
-impl<'a> System<'a> for PlayerEntityColliderGeneratingSystem {
-    type SystemData = (
-        ReadStorage<'a, PlayerEntity>,
-        WriteStorage<'a, PhysicsObject>,
-    );
-
-    fn run(&mut self, (player, mut player_physics): Self::SystemData) {
-        use specs::Join;
-
-        let (_, player_physics) = (&player, &mut player_physics).join().last().unwrap();
-
-        if player_physics.collider.center != player_physics.position.into() {
-            player_physics.collider = Player::calculate_collider(player_physics.position);
-        }
     }
 }

@@ -5,8 +5,8 @@ use crate::services::settings_service::SettingsService;
 use std::ops::Deref;
 use std::sync::Arc;
 use wgpu::{
-    Buffer, CommandEncoder, Device, Extent3d, ImageSubresourceRange, SurfaceConfiguration, Texture,
-    TextureAspect, TextureDimension, TextureUsages,
+    CommandEncoder, Device, ImageSubresourceRange, Texture, TextureAspect, TextureDimension,
+    TextureUsages,
 };
 
 pub mod bloom;
@@ -44,7 +44,7 @@ impl Deref for SCTexture {
 impl EffectPasses {
     pub fn new(settings: &SettingsService, device: Arc<Device>) -> EffectPasses {
         let bloom = Arc::new(BloomPostProcessingEffect::new(&device));
-        let merge = Arc::new(MergePostProcessingEffect::new(&device));
+        let merge = Arc::new(MergePostProcessingEffect::new(device.clone()));
 
         EffectPasses {
             bloom,
@@ -110,5 +110,10 @@ impl EffectPasses {
 
             self.buffers.push(texture);
         }
+    }
+
+    // Force regeneration of buffers
+    pub fn resize_buffers(&mut self) {
+        self.buffers = Vec::new();
     }
 }

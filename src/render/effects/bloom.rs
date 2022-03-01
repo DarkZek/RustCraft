@@ -1,22 +1,18 @@
 use crate::render::effects::merge::MergePostProcessingEffect;
-use crate::render::effects::{EffectPasses, SCTexture};
+use crate::render::effects::EffectPasses;
 use crate::render::{get_swapchain_size, get_texture_format, VERTICES_COVER_SCREEN};
-use crate::services::chunk_service::mesh::{SimpleVertex, UIVertex};
-use std::mem;
-use std::num::NonZeroU32;
+use crate::services::chunk_service::mesh::UIVertex;
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{
     BindGroupLayout, BindGroupLayoutDescriptor, BindGroupLayoutEntry, BindingResource, BindingType,
-    BlendState, Buffer, BufferBindingType, BufferUsages, CommandEncoder, Device, Extent3d, Queue,
-    RenderPassColorAttachment, RenderPipeline, SamplerBindingType, SamplerDescriptor, ShaderModule,
-    ShaderStages, SurfaceConfiguration, Texture, TextureDimension, TextureSampleType, TextureView,
-    TextureViewDescriptor, TextureViewDimension, VertexState,
+    BufferBindingType, BufferUsages, CommandEncoder, Device, RenderPassColorAttachment,
+    RenderPipeline, SamplerBindingType, SamplerDescriptor, ShaderModule, ShaderStages, Texture,
+    TextureSampleType, TextureViewDescriptor, TextureViewDimension, VertexState,
 };
 
 pub struct BloomPostProcessingEffect {
     pub bloom_render_pipeline: RenderPipeline,
     pub bloom_bind_group_layout: BindGroupLayout,
-    pub merge: MergePostProcessingEffect,
 }
 
 impl BloomPostProcessingEffect {
@@ -100,7 +96,6 @@ impl BloomPostProcessingEffect {
         BloomPostProcessingEffect {
             bloom_render_pipeline,
             bloom_bind_group_layout,
-            merge: MergePostProcessingEffect::new(device),
         }
     }
 
@@ -211,8 +206,10 @@ impl BloomPostProcessingEffect {
             input_is_pingpong = !input_is_pingpong;
         }
 
-        self.merge
-            .merge(encoder, &effect_passes.device, &bloom_texture_view, frame);
+        effect_passes
+            .merge
+            .clone()
+            .merge(effect_passes, encoder, &bloom_texture_view, frame);
 
         effect_passes.return_buffer(pingpong_buffer);
     }
