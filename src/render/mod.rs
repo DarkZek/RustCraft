@@ -2,15 +2,17 @@ use crate::render::background::Background;
 use crate::render::camera::Camera;
 use crate::render::effects::EffectPasses;
 use crate::render::loading::LoadingScreen;
+use crate::render::pass::outline::{BoxOutline, OutlineRenderer};
 use crate::render::pass::uniforms::Uniforms;
+use crate::render::vertices::{UIVertex, Vertex};
 use crate::services::asset_service::depth_map::{create_depth_texture, DEPTH_FORMAT};
 use crate::services::asset_service::AssetService;
-use crate::services::chunk_service::mesh::{UIVertex, Vertex};
 use crate::services::chunk_service::ChunkService;
 use crate::services::settings_service::SettingsService;
 use crate::services::{load_services, ServicesContext};
 use image::ImageFormat;
-use specs::{World, WorldExt};
+use nalgebra::Vector3;
+use specs::{Builder, World, WorldExt};
 use std::borrow::Borrow;
 use std::lazy::SyncOnceCell;
 use std::sync::{Arc, Mutex};
@@ -33,6 +35,7 @@ pub mod effects;
 pub mod loading;
 pub mod pass;
 pub mod screens;
+pub mod vertices;
 
 lazy_static! {
     pub static ref TEXTURE_FORMAT: SyncOnceCell<TextureFormat> = SyncOnceCell::new();
@@ -76,6 +79,7 @@ pub struct RenderState {
     depth_texture: (Texture, TextureView, Sampler),
 
     effects: EffectPasses,
+    outlines: OutlineRenderer,
 
     pub fps: u32,
     pub frames: u32,
@@ -176,6 +180,15 @@ impl RenderState {
 
         fill_vertices_cover_screen(&device);
 
+        // TODO: Find better place
+        let mut box_outline = BoxOutline::new(
+            Vector3::new(-2.0, 69.0, 2.0),
+            Vector3::new(1.0, 1.0, 1.0),
+            [0.0; 4],
+        );
+        box_outline.build(&device);
+        universe.create_entity().with(box_outline).build();
+
         let depth_texture = create_depth_texture(&device.clone(), &surface_desc);
 
         let render_pipeline = generate_render_pipeline(
@@ -211,6 +224,8 @@ impl RenderState {
         let effects =
             EffectPasses::new(&universe.read_resource::<SettingsService>(), device.clone());
 
+        let outlines = OutlineRenderer::new(device.clone());
+
         window.set_title("RustCraft");
 
         Self {
@@ -226,6 +241,7 @@ impl RenderState {
             uniform_bind_group,
             depth_texture,
             effects,
+            outlines,
             fps: 0,
             frames: 0,
             frame_capture_time: Instant::now(),

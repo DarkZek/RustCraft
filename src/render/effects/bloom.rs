@@ -1,13 +1,12 @@
-use crate::render::effects::merge::MergePostProcessingEffect;
 use crate::render::effects::EffectPasses;
-use crate::render::{get_swapchain_size, get_texture_format, VERTICES_COVER_SCREEN};
-use crate::services::chunk_service::mesh::UIVertex;
+use crate::render::vertices::UIVertex;
+use crate::render::{get_texture_format, VERTICES_COVER_SCREEN};
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{
     BindGroupLayout, BindGroupLayoutDescriptor, BindGroupLayoutEntry, BindingResource, BindingType,
-    BufferBindingType, BufferUsages, CommandEncoder, Device, RenderPassColorAttachment,
-    RenderPipeline, SamplerBindingType, SamplerDescriptor, ShaderModule, ShaderStages, Texture,
-    TextureSampleType, TextureViewDescriptor, TextureViewDimension, VertexState,
+    CommandEncoder, Device, RenderPassColorAttachment, RenderPipeline, SamplerBindingType,
+    SamplerDescriptor, ShaderModule, ShaderStages, Texture, TextureSampleType,
+    TextureViewDescriptor, TextureViewDimension, VertexState,
 };
 
 pub struct BloomPostProcessingEffect {

@@ -1,5 +1,5 @@
 use crate::render::get_texture_format;
-use crate::services::chunk_service::mesh::UIVertex;
+use crate::render::vertices::UIVertex;
 use crate::services::ui_service::meshdata::UIMeshData;
 use wgpu::{
     BlendComponent, Color, CommandEncoder, Device, IndexFormat, LoadOp, MultisampleState,

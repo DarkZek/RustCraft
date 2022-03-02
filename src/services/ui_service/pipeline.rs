@@ -1,5 +1,5 @@
 use crate::render::get_texture_format;
-use crate::services::chunk_service::mesh::UIVertex;
+use crate::render::vertices::UIVertex;
 use wgpu::{
     BindGroupLayout, BlendComponent, BlendState, Device, MultisampleState, RenderPipeline,
     VertexState,

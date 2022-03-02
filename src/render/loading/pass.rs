@@ -1,6 +1,6 @@
 use crate::helpers::Lerp;
 use crate::render::loading::{LoadingScreen, STANDARD_VERTICES};
-use crate::services::chunk_service::mesh::UIVertex;
+use crate::render::vertices::UIVertex;
 use instant::Instant;
 use std::thread;
 use wgpu::util::{BufferInitDescriptor, DeviceExt};

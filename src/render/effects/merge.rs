@@ -1,8 +1,8 @@
 use crate::render::{get_swapchain_size, get_texture_format, VERTICES_COVER_SCREEN};
-use crate::services::chunk_service::mesh::UIVertex;
 use std::sync::Arc;
 
 use crate::render::effects::EffectPasses;
+use crate::render::vertices::UIVertex;
 use wgpu::{
     BindGroupLayout, BindGroupLayoutDescriptor, BindGroupLayoutEntry, BindingResource, BindingType,
     CommandEncoder, Device, LoadOp, Operations, RenderPassColorAttachment, RenderPipeline,

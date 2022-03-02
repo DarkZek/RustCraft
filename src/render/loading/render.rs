@@ -1,6 +1,6 @@
 use crate::render::get_texture_format;
 use crate::render::loading::LoadingScreen;
-use crate::services::chunk_service::mesh::UIVertex;
+use crate::render::vertices::UIVertex;
 use nalgebra::{Matrix4, Orthographic3};
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{

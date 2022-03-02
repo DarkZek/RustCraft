@@ -5,6 +5,7 @@ use crate::game::physics::interpolator::{PhysicsInterpolationFactor, PhysicsInte
 use crate::game::physics::{Physics, PhysicsObject, PhysicsProcessingSystem};
 use crate::game::systems::DeltaTime;
 use crate::render::camera::Camera;
+use crate::render::pass::outline::BoxOutline;
 use crate::render::pass::prepass::{PostFrame, PreFrame};
 use crate::render::pass::RenderSystem;
 use crate::render::RenderState;
@@ -62,6 +63,7 @@ impl Game {
         universe.register::<PhysicsObject>();
         universe.register::<PlayerEntity>();
         universe.register::<ChunkData>();
+        universe.register::<BoxOutline>();
         universe.register::<RerenderChunkFlag>();
         universe.register::<UpdateChunkGraphics>();
         universe.insert::<ChunkEntityLookup>(ChunkEntityLookup::default());

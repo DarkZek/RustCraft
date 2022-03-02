@@ -1,4 +1,4 @@
-use crate::services::chunk_service::mesh::UIVertex;
+use crate::render::vertices::UIVertex;
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{Buffer, Device};
 

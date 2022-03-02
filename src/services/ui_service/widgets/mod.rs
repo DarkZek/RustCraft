@@ -1,5 +1,5 @@
+use crate::render::vertices::UIVertex;
 use crate::services::asset_service::atlas::ATLAS_LOOKUPS;
-use crate::services::chunk_service::mesh::UIVertex;
 use crate::services::ui_service::draw::draw_sprite;
 use crate::services::ui_service::fonts::{FontsManager, TextView};
 use crate::services::ui_service::meshdata::UIMeshData;

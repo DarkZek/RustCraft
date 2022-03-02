@@ -16,6 +16,7 @@ fn main() {
         "background",
         "gaussian",
         "addition",
+        "outline",
     ];
 
     for shader in shaders.iter() {

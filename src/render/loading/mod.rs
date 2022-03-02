@@ -1,5 +1,5 @@
 use crate::render::loading::models::load_splash;
-use crate::services::chunk_service::mesh::UIVertex;
+use crate::render::vertices::UIVertex;
 use lazy_static::lazy_static;
 use std::ops::DerefMut;
 use std::sync::{Arc, Mutex};

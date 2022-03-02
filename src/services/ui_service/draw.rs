@@ -2,8 +2,8 @@
 // This file is responsible for providing functions to easily draw rects
 //
 
+use crate::render::vertices::UIVertex;
 use crate::services::asset_service::index::TextureAtlasIndex;
-use crate::services::chunk_service::mesh::UIVertex;
 
 /// Draw sprite from texture atlas. This is used for things like inventory screens and icons.
 pub fn draw_sprite<'a>(

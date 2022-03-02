@@ -1,6 +1,7 @@
 use crate::game::game_state::{GameState, ProgramState};
 use crate::render::background::Background;
 use crate::render::camera::Camera;
+use crate::render::pass::outline::BoxOutline;
 use crate::render::{get_swapchain_size, get_texture_format, RenderState};
 use crate::services::asset_service::AssetService;
 use crate::services::chunk_service::chunk::{ChunkData, Chunks};
@@ -10,6 +11,7 @@ use specs::{Read, ReadStorage, System, Write};
 use wgpu::{Color, IndexFormat, LoadOp, Operations, TextureDimension, TextureViewDescriptor};
 
 pub mod buffer;
+pub mod outline;
 pub mod prepass;
 pub mod uniforms;
 
@@ -25,6 +27,7 @@ impl<'a> System<'a> for RenderSystem {
         Read<'a, UIService>,
         Read<'a, Background>,
         Read<'a, Camera>,
+        ReadStorage<'a, BoxOutline>,
     );
 
     /// Renders all visible chunks
@@ -39,6 +42,7 @@ impl<'a> System<'a> for RenderSystem {
             ui_service,
             background,
             camera,
+            box_outlines,
         ): Self::SystemData,
     ) {
         use specs::Join;
@@ -156,6 +160,13 @@ impl<'a> System<'a> for RenderSystem {
                 frame_image_buffer.as_image_copy(),
                 texture.texture.as_image_copy(),
                 get_swapchain_size(),
+            );
+
+            render_state.outlines.render(
+                &frame,
+                &mut encoder,
+                &render_state.uniform_bind_group,
+                &box_outlines,
             );
 
             ui_service.render(&frame, &mut encoder, &render_state.device, &asset_service);
