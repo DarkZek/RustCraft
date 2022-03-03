@@ -1,20 +1,28 @@
 use crate::render::effects::bloom::BloomPostProcessingEffect;
+use crate::render::effects::gaussian::GaussianBlurPostProcessingEffect;
 use crate::render::effects::merge::MergePostProcessingEffect;
 use crate::render::{get_swapchain_size, get_texture_format};
 use crate::services::settings_service::SettingsService;
 use std::ops::Deref;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use wgpu::{
     CommandEncoder, Device, ImageSubresourceRange, Texture, TextureAspect, TextureDimension,
     TextureUsages,
 };
 
 pub mod bloom;
+pub mod gaussian;
 pub mod merge;
+
+lazy_static! {
+    static ref DROP_TEXTURES: Mutex<bool> = Mutex::new(false);
+}
 
 pub struct EffectPasses {
     pub bloom: Arc<BloomPostProcessingEffect>,
-    pub merge: Arc<MergePostProcessingEffect>,
+
+    pub effect_gaussian: Arc<GaussianBlurPostProcessingEffect>,
+    pub effect_merge: Arc<MergePostProcessingEffect>,
 
     buffers: Vec<SCTexture>,
     dirty_buffers: Vec<SCTexture>,
@@ -29,7 +37,10 @@ pub struct SCTexture {
 
 impl Drop for SCTexture {
     fn drop(&mut self) {
-        log_warn!("SCTexture dropped");
+        // Check if we should log this
+        if !*DROP_TEXTURES.lock().unwrap() {
+            log_warn!("SCTexture dropped");
+        }
     }
 }
 
@@ -44,11 +55,13 @@ impl Deref for SCTexture {
 impl EffectPasses {
     pub fn new(settings: &SettingsService, device: Arc<Device>) -> EffectPasses {
         let bloom = Arc::new(BloomPostProcessingEffect::new(&device));
-        let merge = Arc::new(MergePostProcessingEffect::new(device.clone()));
+        let effect_gaussian = Arc::new(GaussianBlurPostProcessingEffect::new(&device));
+        let effect_merge = Arc::new(MergePostProcessingEffect::new(device.clone()));
 
         EffectPasses {
             bloom,
-            merge,
+            effect_gaussian,
+            effect_merge,
             buffers: vec![],
             dirty_buffers: vec![],
             device,
@@ -114,6 +127,9 @@ impl EffectPasses {
 
     // Force regeneration of buffers
     pub fn resize_buffers(&mut self) {
+        // Set flag allowing for textures to be dropped without warning
+        *DROP_TEXTURES.lock().unwrap() = true;
         self.buffers = Vec::new();
+        *DROP_TEXTURES.lock().unwrap() = false;
     }
 }
