@@ -24,6 +24,9 @@ use crate::services::networking_service::NetworkingService;
 use crate::services::settings_service::SettingsService;
 use crate::services::ui_service::fonts::system::FontComputingSystem;
 use crate::services::ui_service::UIService;
+use crate::world::player_selected_block_update::{
+    PlayerSelectedBlockUpdateSystem, PlayerSelectedBlockUpdateSystemData,
+};
 use specs::{DispatcherBuilder, World, WorldExt};
 use std::borrow::Borrow;
 use std::ops::Deref;
@@ -66,7 +69,6 @@ impl Game {
         universe.register::<BoxOutline>();
         universe.register::<RerenderChunkFlag>();
         universe.register::<UpdateChunkGraphics>();
-        universe.insert::<ChunkEntityLookup>(ChunkEntityLookup::default());
 
         let render_state = RenderState::new(&mut universe, &event_loop);
         let game_state = GameState::new(&mut universe);
@@ -82,6 +84,7 @@ impl Game {
         universe.insert(DeltaTime(delta_time.as_secs_f32()));
         universe.insert(render_state);
         universe.insert(game_state);
+        universe.insert(ChunkEntityLookup::default());
 
         Game {
             start,
@@ -118,6 +121,11 @@ impl Game {
                 PhysicsInterpolationSystem,
                 "physics_interpolation",
                 &["pre_frame"],
+            )
+            .with(
+                PlayerSelectedBlockUpdateSystem,
+                "player_selected_block_update",
+                &[],
             )
             .with(
                 PlayerEntityCameraSyncSystem,

@@ -131,10 +131,17 @@ impl OutlineRenderer {
 }
 
 pub struct BoxOutline {
-    pos: Vector3<f32>,
-    size: Vector3<f32>,
-    color: [f32; 4],
+    pub pos: Vector3<f32>,
+    pub size: Vector3<f32>,
+    pub color: [f32; 4],
     buffer: Option<Buffer>,
+    device: Arc<Device>,
+}
+
+impl BoxOutline {
+    pub fn move_to(&mut self, pos: Vector3<f32>) {
+        self.pos = pos;
+    }
 }
 
 impl Component for BoxOutline {
@@ -142,16 +149,22 @@ impl Component for BoxOutline {
 }
 
 impl BoxOutline {
-    pub fn new(pos: Vector3<f32>, size: Vector3<f32>, color: [f32; 4]) -> BoxOutline {
+    pub fn new(
+        pos: Vector3<f32>,
+        size: Vector3<f32>,
+        color: [f32; 4],
+        device: Arc<Device>,
+    ) -> BoxOutline {
         BoxOutline {
             pos,
             size,
             color,
             buffer: None,
+            device,
         }
     }
 
-    pub fn build(&mut self, device: &Device) {
+    pub fn build(&mut self) {
         let vertices = vec![
             // Horizontal lines
             LineVertex {
@@ -306,7 +319,7 @@ impl BoxOutline {
             },
         ];
 
-        let buffer = device.create_buffer_init(&BufferInitDescriptor {
+        let buffer = self.device.create_buffer_init(&BufferInitDescriptor {
             label: Some("Outline Vertices Buffer"),
             contents: &bytemuck::cast_slice(&vertices),
             usage: BufferUsages::VERTEX,

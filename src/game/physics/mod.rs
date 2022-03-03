@@ -1,5 +1,6 @@
 use crate::game::physics::collider::BoxCollider;
-use crate::services::chunk_service::chunk::{get_block, ChunkData, ChunkEntityLookup};
+use crate::services::chunk_service::chunk::{ChunkData, ChunkEntityLookup};
+use crate::world::WorldChunks;
 use nalgebra::Vector3;
 use specs::{Component, ReadStorage, System, VecStorage, Write, WriteStorage};
 use std::time::SystemTime;
@@ -150,11 +151,13 @@ fn move_entity_dir(
     let max_y = (bounds.max.y + 2.0) as i64;
     let max_z = (bounds.max.z + 2.0) as i64;
 
+    let world_chunks = WorldChunks::new(chunks, lookup);
+
     let mut hit = false;
     for y in min_y..max_y {
         for z in min_z..max_z {
             for x in min_x..max_x {
-                if let Some(block) = get_block(chunks, lookup, Vector3::new(x, y, z)) {
+                if let Some(block) = world_chunks.get_block(Vector3::new(x, y, z)) {
                     for mut bounding_box in block.get_collision_boxes() {
                         let bounding_box =
                             bounding_box.shift(Vector3::new(x as f32, y as f32, z as f32));

@@ -10,6 +10,9 @@ use crate::services::asset_service::AssetService;
 use crate::services::chunk_service::ChunkService;
 use crate::services::settings_service::SettingsService;
 use crate::services::{load_services, ServicesContext};
+use crate::world::player_selected_block_update::{
+    PlayerSelectedBlockUpdateSystem, PlayerSelectedBlockUpdateSystemData,
+};
 use image::ImageFormat;
 use nalgebra::Vector3;
 use specs::{Builder, World, WorldExt};
@@ -182,19 +185,16 @@ impl RenderState {
 
         // TODO: Find better place
         let mut box_outline = BoxOutline::new(
-            Vector3::new(-2.0, 69.0, 2.0),
+            Vector3::new(-1.0, 69.0, 0.0),
             Vector3::new(1.0, 1.0, 1.0),
             [0.0; 4],
+            device.clone(),
         );
-        box_outline.build(&device);
+        box_outline.build();
         universe.create_entity().with(box_outline).build();
-        let mut box_outline = BoxOutline::new(
-            Vector3::new(2.0, 68.5, 2.0),
-            Vector3::new(1.0, 1.0, 1.0),
-            [0.0; 4],
-        );
-        box_outline.build(&device);
-        universe.create_entity().with(box_outline).build();
+
+        let t = PlayerSelectedBlockUpdateSystemData::new(universe, device.clone());
+        universe.insert(t);
 
         let depth_texture = create_depth_texture(&device.clone(), &surface_desc);
 

@@ -35,20 +35,22 @@ impl Camera {
         }
     }
 
+    pub fn look_direction(&self) -> Vector3<f32> {
+        Vector3::new(
+            ((self.yaw - PI / 2.0).cos() * self.pitch.cos()) as f32,
+            self.pitch.sin() as f32,
+            (-(self.yaw - PI / 2.0).sin() * -self.pitch.cos()) as f32,
+        )
+    }
+
     /// Builds the view projection matrix with flipped axis for wgpu using Camera settings
     pub fn build_view_projection_matrix(&mut self) -> Matrix4<f32> {
         let opengl_to_wgpu_matrix: Matrix4<f32> = Matrix4::new(
             1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5, 1.0,
         );
 
-        let view_vector = Vector3::new(
-            ((self.yaw - PI / 2.0).cos() * self.pitch.cos()) as f32,
-            self.pitch.sin() as f32,
-            (-(self.yaw - PI / 2.0).sin() * -self.pitch.cos()) as f32,
-        );
-
         // No look_at_direction function so I need to do this grr
-        let target = Point3::from(view_vector) + self.eye.coords;
+        let target = Point3::from(self.look_direction()) + self.eye.coords;
 
         let view = Isometry3::look_at_rh(&self.eye, &target, &Vector3::y());
 
