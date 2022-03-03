@@ -2,7 +2,7 @@ use crate::block::blocks::BlockType;
 use crate::services::chunk_service::chunk::{ChunkData, ChunkEntityLookup};
 use crate::services::settings_service::CHUNK_SIZE;
 use nalgebra::Vector3;
-use specs::{ReadStorage, Write};
+use specs::{Read, ReadStorage, Write};
 
 pub mod player_selected_block_update;
 pub mod raycast;
@@ -10,13 +10,13 @@ pub mod raycast;
 /// This struct holds references to the chunks of the world and allows transformations and lookups to be made across chunk boundaries
 pub struct WorldChunks<'a> {
     chunks: &'a ReadStorage<'a, ChunkData>,
-    lookup: &'a Write<'a, ChunkEntityLookup>,
+    lookup: &'a Read<'a, ChunkEntityLookup>,
 }
 
 impl WorldChunks<'a> {
     pub fn new(
         chunks: &'a ReadStorage<ChunkData>,
-        lookup: &'a Write<ChunkEntityLookup>,
+        lookup: &'a Read<ChunkEntityLookup>,
     ) -> WorldChunks<'a> {
         WorldChunks { chunks, lookup }
     }

@@ -51,7 +51,7 @@ impl<'a> System<'a> for PlayerSelectedBlockUpdateSystem {
         Read<'a, Camera>,
         Write<'a, PlayerSelectedBlockUpdateSystemData>,
         ReadStorage<'a, ChunkData>,
-        Write<'a, ChunkEntityLookup>,
+        Read<'a, ChunkEntityLookup>,
         WriteStorage<'a, BoxOutline>,
         Entities<'a>,
     );
