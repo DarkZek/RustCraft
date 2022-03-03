@@ -67,7 +67,7 @@ impl<'a> System<'a> for PhysicsProcessingSystem {
 
         (&mut physics_objects).try_par_join().for_each(|entity| {
             // Check collisions
-            let slipperiness = 0.6;
+            let _slipperiness = 0.6;
 
             entity.velocity.x *= physics.slipperiness;
             entity.velocity.z *= physics.slipperiness;
@@ -171,7 +171,7 @@ fn move_entity_dir(
         }
     }
 
-    let mut new_position = bounds.shift(-position);
+    let new_position = bounds.shift(-position);
 
     (collider.delta(new_position), hit)
 }

@@ -54,7 +54,7 @@ impl SettingsService {
 
         log!("Using root directory {:?}", path);
 
-        let mut atlas_caching = true;
+        let atlas_caching = true;
         let debug_vertices = false;
 
         SettingsService {

@@ -11,7 +11,7 @@ use crate::services::chunk_service::ChunkService;
 use crate::services::settings_service::SettingsService;
 use crate::services::{load_services, ServicesContext};
 use crate::world::player_selected_block_update::{
-    PlayerSelectedBlockUpdateSystem, PlayerSelectedBlockUpdateSystemData,
+    PlayerSelectedBlockUpdateSystemData,
 };
 use image::ImageFormat;
 use nalgebra::Vector3;

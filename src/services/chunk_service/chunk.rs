@@ -1,9 +1,9 @@
-use crate::block::blocks::BlockType;
+
 use crate::services::chunk_service::mesh::culling::ViewableDirection;
 use crate::services::chunk_service::mesh::MeshData;
 use crate::services::settings_service::CHUNK_SIZE;
 use nalgebra::Vector3;
-use specs::{Component, Entity, ReadStorage, VecStorage, Write};
+use specs::{Component, Entity, VecStorage};
 use std::collections::HashMap;
 use wgpu::BindGroup;
 

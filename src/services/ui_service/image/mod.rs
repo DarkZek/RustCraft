@@ -58,7 +58,7 @@ impl ImageManager {
 
         self.model.clear();
 
-        for (id, image) in self.images.iter() {
+        for (_id, image) in self.images.iter() {
             let atlas_lookup = if image.flipped {
                 image.atlas_lookup.flipped()
             } else {

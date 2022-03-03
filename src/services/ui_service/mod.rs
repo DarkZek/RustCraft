@@ -38,7 +38,7 @@ impl UIService {
     pub fn new(
         context: &mut ServicesContext,
         assets: &AssetService,
-        universe: &mut World,
+        _universe: &mut World,
     ) -> UIService {
         let fonts = FontsManager::new(&assets, context.size.clone());
         // TODO: Bind resize events

@@ -6,9 +6,9 @@ pub struct SSAOEffect {}
 impl SSAOEffect {
     pub fn apply_ssao(
         &self,
-        effect_passes: &mut EffectPasses,
-        encoder: &mut CommandEncoder,
-        src: &TextureView,
+        _effect_passes: &mut EffectPasses,
+        _encoder: &mut CommandEncoder,
+        _src: &TextureView,
     ) {
     }
 }

@@ -50,7 +50,7 @@ impl WidgetManager {
     pub fn build(&mut self, device: &Device) {
         self.model.clear();
 
-        for (id, widget) in self.widgets.iter() {
+        for (_id, widget) in self.widgets.iter() {
             draw_widget(
                 widget.ty,
                 &mut self.model.total_vertices,
@@ -93,7 +93,7 @@ fn draw_button<'a>(
     scale: [f32; 2],
     color: Option<[f32; 4]>,
     state: ButtonState,
-    alignment: ObjectAlignment,
+    _alignment: ObjectAlignment,
 ) {
     let err = ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap();
     let (atlas_edge, atlas_center) = match state {

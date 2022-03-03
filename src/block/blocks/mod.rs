@@ -39,7 +39,7 @@ impl BlockStates {
         }
     }
 
-    pub fn generate(asset: &AssetService, settings: &SettingsService) {
+    pub fn generate(_asset: &AssetService, settings: &SettingsService) {
         let states = get_states();
         let blocks = get_blocks();
 

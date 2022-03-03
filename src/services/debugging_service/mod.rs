@@ -9,7 +9,7 @@ pub struct DebuggingService {
 }
 
 impl DebuggingService {
-    pub fn new(settings: &SettingsService, universe: &mut World) -> DebuggingService {
+    pub fn new(_settings: &SettingsService, universe: &mut World) -> DebuggingService {
         universe.insert(DebuggingOverlayElements::default());
         DebuggingService {
             overlay_shown: true,

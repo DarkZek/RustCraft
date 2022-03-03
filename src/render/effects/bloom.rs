@@ -1,17 +1,14 @@
 use crate::render::effects::EffectPasses;
-use crate::render::vertices::UIVertex;
-use crate::render::{get_texture_format, VERTICES_COVER_SCREEN};
+
+
 use wgpu::{
-    BindGroupLayout, BindGroupLayoutDescriptor, BindGroupLayoutEntry, BindingResource, BindingType,
-    CommandEncoder, Device, RenderPassColorAttachment, RenderPipeline, SamplerBindingType,
-    SamplerDescriptor, ShaderStages, Texture, TextureSampleType, TextureViewDescriptor,
-    TextureViewDimension, VertexState,
+    CommandEncoder, Device, Texture, TextureViewDescriptor,
 };
 
 pub struct BloomPostProcessingEffect {}
 
 impl BloomPostProcessingEffect {
-    pub fn new(device: &Device) -> BloomPostProcessingEffect {
+    pub fn new(_device: &Device) -> BloomPostProcessingEffect {
         BloomPostProcessingEffect {}
     }
 

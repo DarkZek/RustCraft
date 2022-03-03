@@ -44,7 +44,7 @@ impl ChunkData {
     pub fn set_mesh(&mut self, data: UpdateChunkMesh) {
         match data {
             UpdateChunkMesh {
-                chunk,
+                chunk: _,
                 opaque_model,
                 translucent_model,
                 viewable_map,

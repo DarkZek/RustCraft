@@ -444,7 +444,7 @@ fn write_cached_atlas(
 }
 
 fn load_cached_atlas_content(
-    settings: &SettingsService,
+    _settings: &SettingsService,
     atlas_path: &PathBuf,
     atlas_index_path: &PathBuf,
 ) -> Result<(DynamicImage, HashMap<String, TextureAtlasIndex>), Box<dyn std::error::Error>> {

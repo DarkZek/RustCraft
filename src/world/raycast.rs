@@ -38,8 +38,8 @@ impl WorldChunks<'a> {
 
             let mut query_positions = Vec::with_capacity(2 * 2 * 2);
             for x in 0..=1 {
-                for y in 0..=1 {
-                    for z in 0..=1 {
+                for _y in 0..=1 {
+                    for _z in 0..=1 {
                         let x = if x == 0 {
                             pos.x.floor() as i64
                         } else {

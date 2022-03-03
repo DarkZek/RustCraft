@@ -58,7 +58,7 @@ impl<'a> System<'a> for PlayerSelectedBlockUpdateSystem {
 
     fn run(
         &mut self,
-        (camera, mut instance, chunks, lookup, mut outlines, entities): Self::SystemData,
+        (camera, instance, chunks, lookup, mut outlines, _entities): Self::SystemData,
     ) {
         //let pos =
         let world_chunks = WorldChunks::new(&chunks, &lookup);

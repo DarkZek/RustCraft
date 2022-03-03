@@ -109,7 +109,7 @@ fn apply_color_to_chunk(
     mut pos: [i32; 3],
     color: [u8; 4],
     intensity: u8,
-    chunks: &Chunks,
+    _chunks: &Chunks,
     update: &mut UpdateChunkLighting,
 ) {
     if pos[0] >= 0 && pos[0] <= 15 && pos[1] >= 0 && pos[1] <= 15 && pos[2] >= 0 && pos[2] <= 15 {

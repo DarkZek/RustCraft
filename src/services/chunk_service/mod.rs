@@ -45,7 +45,7 @@ impl ChunkService {
     pub fn new(
         _settings: &SettingsService,
         context: &mut ServicesContext,
-        universe: &mut World,
+        _universe: &mut World,
     ) -> ChunkService {
         let model_bind_group_layout_descriptor = wgpu::BindGroupLayoutDescriptor {
             entries: &[wgpu::BindGroupLayoutEntry {

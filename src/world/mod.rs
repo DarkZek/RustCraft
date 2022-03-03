@@ -2,7 +2,7 @@ use crate::block::blocks::BlockType;
 use crate::services::chunk_service::chunk::{ChunkData, ChunkEntityLookup};
 use crate::services::settings_service::CHUNK_SIZE;
 use nalgebra::Vector3;
-use specs::{Read, ReadStorage, Write};
+use specs::{Read, ReadStorage};
 
 pub mod player_selected_block_update;
 pub mod raycast;

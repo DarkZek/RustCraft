@@ -54,7 +54,7 @@ impl Deref for SCTexture {
 }
 
 impl EffectPasses {
-    pub fn new(settings: &SettingsService, device: Arc<Device>) -> EffectPasses {
+    pub fn new(_settings: &SettingsService, device: Arc<Device>) -> EffectPasses {
         let bloom = Arc::new(BloomPostProcessingEffect::new(&device));
         let effect_gaussian = Arc::new(GaussianBlurPostProcessingEffect::new(&device));
         let effect_merge = Arc::new(MergePostProcessingEffect::new(device.clone()));

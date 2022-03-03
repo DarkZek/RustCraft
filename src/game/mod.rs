@@ -25,7 +25,7 @@ use crate::services::settings_service::SettingsService;
 use crate::services::ui_service::fonts::system::FontComputingSystem;
 use crate::services::ui_service::UIService;
 use crate::world::player_selected_block_update::{
-    PlayerSelectedBlockUpdateSystem, PlayerSelectedBlockUpdateSystemData,
+    PlayerSelectedBlockUpdateSystem,
 };
 use specs::{DispatcherBuilder, World, WorldExt};
 use std::borrow::Borrow;

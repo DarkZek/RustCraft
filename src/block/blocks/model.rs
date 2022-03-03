@@ -252,7 +252,7 @@ impl BlockModel {
                 continue;
             }
 
-            let mut normals: [f32; 3] = match face.normal {
+            let normals: [f32; 3] = match face.normal {
                 ViewableDirectionBitMap::Top => [0.0, 1.0, 0.0],
                 ViewableDirectionBitMap::Front => [1.0, 0.0, 0.0],
                 ViewableDirectionBitMap::Back => [-1.0, 0.0, 0.0],
