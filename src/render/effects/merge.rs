@@ -6,8 +6,8 @@ use crate::render::vertices::UIVertex;
 use wgpu::{
     BindGroupLayout, BindGroupLayoutDescriptor, BindGroupLayoutEntry, BindingResource, BindingType,
     CommandEncoder, Device, LoadOp, Operations, RenderPassColorAttachment, RenderPipeline,
-    SamplerBindingType, SamplerDescriptor, ShaderStages, Texture, TextureDimension,
-    TextureSampleType, TextureView, TextureViewDescriptor, TextureViewDimension, VertexState,
+    SamplerBindingType, SamplerDescriptor, ShaderStages, Texture, TextureSampleType, TextureView,
+    TextureViewDescriptor, TextureViewDimension, VertexState,
 };
 
 // Merges two textures

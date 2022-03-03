@@ -252,8 +252,6 @@ impl BlockModel {
                 continue;
             }
 
-            let atlas_index = face.texture.clone();
-
             let mut normals: [f32; 3] = match face.normal {
                 ViewableDirectionBitMap::Top => [0.0, 1.0, 0.0],
                 ViewableDirectionBitMap::Front => [1.0, 0.0, 0.0],

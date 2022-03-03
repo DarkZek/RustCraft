@@ -1,3 +1,4 @@
+use crate::render::camera::Camera;
 use crate::render::RenderState;
 use crate::services::chunk_service::chunk::{ChunkData, Chunks};
 use crate::services::chunk_service::lighting::UpdateChunkLighting;
@@ -7,7 +8,7 @@ use crate::services::chunk_service::ChunkService;
 use crate::services::settings_service::{SettingsService, CHUNK_SIZE};
 use nalgebra::Matrix4;
 use nalgebra::Vector3;
-use specs::{Component, DenseVecStorage, Entities, Join, Read, ReadStorage, Write};
+use specs::{Component, DenseVecStorage, Entities, Entity, Join, Read, ReadStorage, Write};
 use specs::{System, WriteStorage};
 use std::sync::Mutex;
 use std::time::SystemTime;
@@ -64,6 +65,7 @@ impl<'a> System<'a> for ChunkRerenderSystem {
         Read<'a, RenderState>,
         Entities<'a>,
         WriteStorage<'a, UpdateChunkGraphics>,
+        Read<'a, Camera>,
     );
 
     fn run(
@@ -76,6 +78,7 @@ impl<'a> System<'a> for ChunkRerenderSystem {
             render_system,
             entities,
             mut update_graphics,
+            camera,
         ): Self::SystemData,
     ) {
         // Create indexed by location chunks array
@@ -84,14 +87,26 @@ impl<'a> System<'a> for ChunkRerenderSystem {
         // Create list for parallel work to put result in to
         let meshes = Mutex::new(Vec::new());
 
-        let mut processed = 0;
+        let mut processed_chunks = Vec::new();
 
-        for (flag_entity, flag) in (&entities, &flags).join() {
+        loop {
             // Poll system resources
             chunk_service.system.poll();
 
+            let res =
+                get_closest_chunk(&entities, &flags, camera.eye.coords, &mut processed_chunks);
+
+            // No more chunks to process!
+            if res.is_none() {
+                break;
+            }
+
+            let (flag_entity, pos) = res.unwrap();
+
             // If the chunk exists
-            if let Option::Some(chunk) = chunks_loc.get_loc(flag.chunk) {
+            if let Option::Some(chunk) = chunks_loc.get_loc(pos) {
+                assert_eq!(chunk.position, pos);
+
                 // If the system has less than minimum amount of ram refuse to build mesh
                 if !chunk_service.system.should_alloc(LOW_MEMORY_MINIMUM_KB) {
                     // Only log message every 5 seconds
@@ -129,8 +144,7 @@ impl<'a> System<'a> for ChunkRerenderSystem {
             }
 
             // Limit chunks loaded per frame, just over a column
-            processed += 1;
-            if processed == 24 {
+            if processed_chunks.len() == 24 {
                 break;
             }
         }
@@ -148,6 +162,46 @@ impl<'a> System<'a> for ChunkRerenderSystem {
             flags.remove(to_delete);
         }
     }
+}
+
+fn get_closest_chunk(
+    entities: &Entities,
+    flags: &WriteStorage<RerenderChunkFlag>,
+    camera: Vector3<f32>,
+    processed: &mut Vec<Vector3<i32>>,
+) -> Option<(Entity, Vector3<i32>)> {
+    let mut closest = None;
+    let mut entity = None;
+    let mut closest_chunk_distance = 9999999.0;
+
+    for (flag_entity, flag) in (entities, flags).join() {
+        if processed.contains(&flag.chunk) {
+            continue;
+        }
+
+        let chunk_center = Vector3::new(
+            (flag.chunk.x * CHUNK_SIZE as i32) as f32 + (CHUNK_SIZE as f32 / 2.0),
+            (flag.chunk.y * CHUNK_SIZE as i32) as f32 + (CHUNK_SIZE as f32 / 2.0),
+            (flag.chunk.z * CHUNK_SIZE as i32) as f32 + (CHUNK_SIZE as f32 / 2.0),
+        );
+
+        let offset = chunk_center - camera;
+        let distance: f32 = offset.x.abs() + offset.y.abs() + offset.z.abs();
+
+        if distance < closest_chunk_distance {
+            closest_chunk_distance = distance;
+            entity = Some(flag_entity);
+            closest = Some(flag);
+        }
+    }
+
+    if closest.is_none() {
+        return None;
+    }
+
+    processed.push(closest.as_ref().unwrap().chunk);
+
+    return Some((entity.unwrap(), closest.as_ref().unwrap().chunk));
 }
 
 impl UpdateChunkMesh {

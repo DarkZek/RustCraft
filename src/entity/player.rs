@@ -2,7 +2,7 @@ use crate::game::physics::collider::BoxCollider;
 use crate::game::physics::PhysicsObject;
 use crate::render::camera::Camera;
 use nalgebra::{Point3, Vector3};
-use specs::{Component, FlaggedStorage, ReadStorage, System, Write, WriteStorage};
+use specs::{Component, FlaggedStorage, ReadStorage, System, Write};
 
 /// Stores info about the current local player.
 pub struct Player {

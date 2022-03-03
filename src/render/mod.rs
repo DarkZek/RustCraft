@@ -188,6 +188,13 @@ impl RenderState {
         );
         box_outline.build(&device);
         universe.create_entity().with(box_outline).build();
+        let mut box_outline = BoxOutline::new(
+            Vector3::new(2.0, 68.5, 2.0),
+            Vector3::new(1.0, 1.0, 1.0),
+            [0.0; 4],
+        );
+        box_outline.build(&device);
+        universe.create_entity().with(box_outline).build();
 
         let depth_texture = create_depth_texture(&device.clone(), &surface_desc);
 

@@ -1,12 +1,11 @@
 use crate::render::effects::EffectPasses;
 use crate::render::vertices::UIVertex;
 use crate::render::{get_texture_format, VERTICES_COVER_SCREEN};
-use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{
     BindGroupLayout, BindGroupLayoutDescriptor, BindGroupLayoutEntry, BindingResource, BindingType,
     CommandEncoder, Device, RenderPassColorAttachment, RenderPipeline, SamplerBindingType,
-    SamplerDescriptor, ShaderModule, ShaderStages, Texture, TextureSampleType,
-    TextureViewDescriptor, TextureViewDimension, VertexState,
+    SamplerDescriptor, ShaderStages, Texture, TextureSampleType, TextureViewDescriptor,
+    TextureViewDimension, VertexState,
 };
 
 pub struct BloomPostProcessingEffect {
@@ -161,7 +160,7 @@ impl BloomPostProcessingEffect {
         // If the input image should be pingpong and output should be the bloom buffer
         let mut input_is_pingpong = false;
 
-        for i in 0..amount {
+        for _ in 0..amount {
             let mut pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
                 label: Some("Gaussian Blur Render Pass Stage"),
                 color_attachments: &[RenderPassColorAttachment {

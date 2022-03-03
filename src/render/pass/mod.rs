@@ -2,13 +2,13 @@ use crate::game::game_state::{GameState, ProgramState};
 use crate::render::background::Background;
 use crate::render::camera::Camera;
 use crate::render::pass::outline::BoxOutline;
-use crate::render::{get_swapchain_size, get_texture_format, RenderState};
+use crate::render::{get_swapchain_size, RenderState};
 use crate::services::asset_service::AssetService;
 use crate::services::chunk_service::chunk::{ChunkData, Chunks};
 use crate::services::chunk_service::ChunkService;
 use crate::services::ui_service::UIService;
 use specs::{Read, ReadStorage, System, Write};
-use wgpu::{Color, IndexFormat, LoadOp, Operations, TextureDimension, TextureViewDescriptor};
+use wgpu::{Color, IndexFormat, LoadOp, Operations, TextureViewDescriptor};
 
 pub mod buffer;
 pub mod outline;
@@ -167,9 +167,10 @@ impl<'a> System<'a> for RenderSystem {
                 &mut encoder,
                 &render_state.uniform_bind_group,
                 &box_outlines,
+                &render_state.depth_texture.1,
             );
 
-            ui_service.render(&frame, &mut encoder, &render_state.device, &asset_service);
+            ui_service.render(&frame, &mut encoder, &asset_service);
 
             // Return buffers
             render_state.effects.return_buffer(frame_image_buffer);

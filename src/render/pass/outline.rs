@@ -1,18 +1,16 @@
 use crate::render::get_texture_format;
 use crate::render::vertices::LineVertex;
-use crate::services::chunk_service::chunk::Color;
+use crate::services::asset_service::depth_map::DEPTH_FORMAT;
 use nalgebra::Vector3;
-use specs::{Component, Join, Read, ReadStorage, VecStorage};
+use specs::{Component, Join, ReadStorage, VecStorage};
 use std::sync::Arc;
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{
-    BindGroup, Buffer, BufferBindingType, BufferUsages, CommandEncoder, Device, LoadOp, Operations,
-    RenderPipeline, ShaderModule, TextureView,
+    BindGroup, Buffer, BufferBindingType, BufferUsages, CommandEncoder, DepthBiasState, Device,
+    LoadOp, Operations, RenderPipeline, StencilState, TextureView,
 };
 
 pub struct OutlineRenderer {
-    frag_shader: ShaderModule,
-    vert_shader: ShaderModule,
     pipeline: RenderPipeline,
     device: Arc<Device>,
 }
@@ -70,7 +68,18 @@ impl OutlineRenderer {
                 cull_mode: None,
                 ..Default::default()
             },
-            depth_stencil: None,
+            depth_stencil: Some(wgpu::DepthStencilState {
+                format: DEPTH_FORMAT,
+                depth_write_enabled: true,
+                depth_compare: wgpu::CompareFunction::Less,
+                stencil: StencilState {
+                    front: wgpu::StencilFaceState::IGNORE,
+                    back: wgpu::StencilFaceState::IGNORE,
+                    read_mask: 0,
+                    write_mask: 0,
+                },
+                bias: DepthBiasState::default(),
+            }),
             multisample: wgpu::MultisampleState {
                 count: 1,
                 mask: !0,
@@ -79,12 +88,7 @@ impl OutlineRenderer {
             multiview: None,
         });
 
-        OutlineRenderer {
-            frag_shader,
-            vert_shader,
-            pipeline,
-            device,
-        }
+        OutlineRenderer { pipeline, device }
     }
 
     pub fn render(
@@ -93,6 +97,7 @@ impl OutlineRenderer {
         encoder: &mut CommandEncoder,
         bind_group: &BindGroup,
         outlines: &ReadStorage<BoxOutline>,
+        depth_map: &TextureView,
     ) {
         let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
             label: Some("Outline Render Pass"),
@@ -104,7 +109,14 @@ impl OutlineRenderer {
                     store: true,
                 },
             }],
-            depth_stencil_attachment: None,
+            depth_stencil_attachment: Some(wgpu::RenderPassDepthStencilAttachment {
+                view: &depth_map,
+                depth_ops: Some(Operations {
+                    load: LoadOp::Load,
+                    store: true,
+                }),
+                stencil_ops: None,
+            }),
         });
 
         render_pass.set_pipeline(&self.pipeline);

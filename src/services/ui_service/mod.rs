@@ -1,6 +1,7 @@
 use specs::World;
 use wgpu::{BindGroup, BindGroupLayout, Buffer, RenderPipeline};
 
+use crate::helpers::AtlasIndex;
 use pipeline::generate_render_pipeline;
 
 use crate::services::asset_service::AssetService;
@@ -45,10 +46,15 @@ impl UIService {
         let widget = WidgetManager::new(*context.size);
 
         let background_image = images
-            .create_image("gui/options_background")
+            .create_image(AtlasIndex::new_lookup("gui/options_background").lookup)
             .set_fullscreen(true)
             .set_type(ImageType::BACKGROUND(50))
             .build();
+
+        let mut crosshair = AtlasIndex::new_lookup("gui/widgets").lookup;
+
+        crosshair.v_max = crosshair.v_min + (crosshair.height() / 16.0);
+        crosshair.u_min = crosshair.u_max - (crosshair.width() / 16.0);
 
         let (projection_buffer, projection_bind_group, projection_bind_group_layout) =
             UIService::setup_ui_projection_matrix(context);

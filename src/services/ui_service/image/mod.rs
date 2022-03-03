@@ -1,4 +1,3 @@
-use crate::services::asset_service::atlas::ATLAS_LOOKUPS;
 use crate::services::asset_service::index::TextureAtlasIndex;
 use crate::services::ui_service::draw::draw_sprite;
 use crate::services::ui_service::meshdata::UIMeshData;
@@ -25,16 +24,10 @@ impl ImageManager {
         }
     }
 
-    pub fn create_image(&mut self, image: &str) -> ImageBuilder {
-        let atlas_lookup = ATLAS_LOOKUPS
-            .get()
-            .unwrap()
-            .get(image)
-            .unwrap_or(ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap())
-            .clone();
+    pub fn create_image(&mut self, atlas_lookup: TextureAtlasIndex) -> ImageBuilder {
         ImageBuilder {
             image: Some(Image {
-                name: image.to_string(),
+                name: None,
                 atlas_lookup,
                 fullscreen: false,
                 flipped: false,
@@ -133,7 +126,7 @@ impl ImageBuilder<'_> {
 }
 
 pub struct Image {
-    name: String,
+    name: Option<String>,
     atlas_lookup: TextureAtlasIndex,
     fullscreen: bool,
     flipped: bool,
@@ -141,6 +134,7 @@ pub struct Image {
 }
 
 pub enum ImageType {
+    // (Position, Scale) where position is from (0, 0) representing top left corner, to (1, 1) representing bottom right
     STATIC([f32; 2], [f32; 2]),
     BACKGROUND(u32),
 }
