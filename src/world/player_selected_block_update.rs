@@ -1,15 +1,12 @@
-use crate::game::physics::collider::BoxCollider;
 use crate::render::camera::Camera;
 use crate::render::pass::outline::BoxOutline;
 use crate::services::chunk_service::chunk::{ChunkData, ChunkEntityLookup};
 use crate::world::raycast::Raycast;
 use crate::world::WorldChunks;
-use nalgebra::{Point3, Vector3};
+use nalgebra::Vector3;
 use specs::{
-    Builder, Entities, Entity, Join, Read, ReadStorage, System, World, WorldExt, Write,
-    WriteStorage,
+    Builder, Entities, Entity, Read, ReadStorage, System, World, WorldExt, Write, WriteStorage,
 };
-use std::f32::consts::PI;
 use std::sync::Arc;
 use wgpu::Device;
 

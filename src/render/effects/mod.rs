@@ -13,6 +13,7 @@ use wgpu::{
 pub mod bloom;
 pub mod gaussian;
 pub mod merge;
+pub mod ssao;
 
 lazy_static! {
     static ref DROP_TEXTURES: Mutex<bool> = Mutex::new(false);

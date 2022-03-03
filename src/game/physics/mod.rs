@@ -2,12 +2,11 @@ use crate::game::physics::collider::BoxCollider;
 use crate::services::chunk_service::chunk::{ChunkData, ChunkEntityLookup};
 use crate::world::WorldChunks;
 use nalgebra::Vector3;
-use specs::{Component, ReadStorage, System, VecStorage, Write, WriteStorage};
+use specs::{Component, Read, ReadStorage, System, VecStorage, Write, WriteStorage};
 use std::time::SystemTime;
 
 pub mod collider;
 pub mod interpolator;
-pub mod system;
 
 pub struct Physics {
     pub slipperiness: f32,
@@ -45,12 +44,12 @@ impl<'a> System<'a> for PhysicsProcessingSystem {
         WriteStorage<'a, PhysicsObject>,
         ReadStorage<'a, ChunkData>,
         Write<'a, Physics>,
-        Write<'a, ChunkEntityLookup>,
+        Read<'a, ChunkEntityLookup>,
     );
 
     fn run(
         &mut self,
-        (mut physics_objects, chunks, mut physics, mut chunk_entity_lookup): Self::SystemData,
+        (mut physics_objects, chunks, mut physics, chunk_entity_lookup): Self::SystemData,
     ) {
         use crate::helpers::TryParJoin;
 
@@ -138,7 +137,7 @@ impl PhysicsObject {
 fn move_entity_dir(
     collider: &BoxCollider,
     chunks: &ReadStorage<ChunkData>,
-    lookup: &Write<ChunkEntityLookup>,
+    lookup: &Read<ChunkEntityLookup>,
     dir: Vector3<f32>,
     position: Vector3<f32>,
 ) -> (Vector3<f32>, bool) {
@@ -158,7 +157,7 @@ fn move_entity_dir(
         for z in min_z..max_z {
             for x in min_x..max_x {
                 if let Some(block) = world_chunks.get_block(Vector3::new(x, y, z)) {
-                    for mut bounding_box in block.get_collision_boxes() {
+                    for bounding_box in block.get_collision_boxes() {
                         let bounding_box =
                             bounding_box.shift(Vector3::new(x as f32, y as f32, z as f32));
 

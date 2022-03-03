@@ -1,4 +1,3 @@
-use crate::render::effects::bloom::BloomPostProcessingEffect;
 use crate::render::effects::EffectPasses;
 use crate::render::vertices::UIVertex;
 use crate::render::{get_texture_format, VERTICES_COVER_SCREEN};
