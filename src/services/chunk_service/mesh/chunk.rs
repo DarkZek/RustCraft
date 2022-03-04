@@ -5,6 +5,7 @@ use crate::services::chunk_service::chunk::ChunkData;
 use crate::services::chunk_service::mesh::culling::{calculate_viewable, ViewableDirection};
 use crate::services::chunk_service::mesh::ViewableDirectionBitMap;
 use crate::services::settings_service::CHUNK_SIZE;
+use fnv::FnvBuildHasher;
 use nalgebra::Vector3;
 use std::collections::HashMap;
 
@@ -40,7 +41,7 @@ impl<'a> ChunkData {
 
     pub fn generate_viewable_map(
         &self,
-        adjacent_chunks: HashMap<Vector3<i32>, Option<&ChunkData>>,
+        adjacent_chunks: HashMap<Vector3<i32>, Option<&ChunkData>, FnvBuildHasher>,
         chunk_edge_faces: bool,
     ) -> [[[ViewableDirection; 16]; 16]; 16] {
         let mut data = [[[ViewableDirection(0); CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];

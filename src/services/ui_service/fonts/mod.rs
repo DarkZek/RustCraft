@@ -1,3 +1,4 @@
+use fnv::{FnvBuildHasher, FnvHashMap};
 use std::collections::HashMap;
 
 use wgpu::Device;
@@ -18,7 +19,7 @@ pub mod variable_width;
 /// Fonts Manager is a subsystem of the User Interface Service.
 /// It's job is to manage fonts and allow other services to easily create new fonts on the screen as well as update and delete them.
 pub struct FontsManager {
-    pub texts: HashMap<usize, Text>,
+    pub texts: HashMap<usize, Text, FnvBuildHasher>,
     pub changed: bool,
     pub model: UIMeshData,
     pub atlas_coords: FontAtlasIndexs,
@@ -54,7 +55,7 @@ impl FontsManager {
         let character_widths = generate_variable_width_map(assets);
 
         FontsManager {
-            texts: HashMap::new(),
+            texts: FnvHashMap::default(),
             changed: true,
             atlas_coords: FontAtlasIndexs {
                 ascii: ascii_atlas_coords,

@@ -5,6 +5,7 @@ use crate::services::chunk_service::mesh::culling::ViewableDirection;
 use crate::services::chunk_service::mesh::rerendering::UpdateChunkMesh;
 use crate::services::chunk_service::mesh::MeshData;
 use crate::services::settings_service::SettingsService;
+use fnv::FnvHashMap;
 use nalgebra::Vector3;
 use std::collections::HashMap;
 
@@ -13,7 +14,7 @@ use std::collections::HashMap;
 impl ChunkData {
     pub fn generate_mesh(&self, chunks: &Chunks, settings: &SettingsService) -> UpdateChunkMesh {
         // Get adjacent chunks
-        let mut map = HashMap::new();
+        let mut map = FnvHashMap::default();
         map.insert(
             Vector3::new(0, 1, 0),
             chunks.get_loc(self.position + Vector3::new(0, 1, 0)),

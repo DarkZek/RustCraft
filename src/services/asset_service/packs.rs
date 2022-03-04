@@ -1,4 +1,5 @@
 use crate::services::asset_service::{AssetService, ResourcePack};
+use fnv::{FnvBuildHasher, FnvHashMap};
 use image::{DynamicImage, ImageFormat};
 use std::collections::HashMap;
 use std::fs;
@@ -60,8 +61,8 @@ impl AssetService {
     }
 }
 
-fn load_resources(archive: &mut ZipArchive<File>) -> HashMap<String, DynamicImage> {
-    let mut out = HashMap::new();
+fn load_resources(archive: &mut ZipArchive<File>) -> HashMap<String, DynamicImage, FnvBuildHasher> {
+    let mut out = FnvHashMap::default();
 
     for i in 0..archive.len() {
         let mut item = archive.by_index(i).unwrap();

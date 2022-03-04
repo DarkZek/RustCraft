@@ -5,6 +5,7 @@
 use crate::services::asset_service::index::TextureAtlasIndex;
 use crate::services::settings_service::SettingsService;
 use crate::services::ServicesContext;
+use fnv::FnvBuildHasher;
 use image::DynamicImage;
 use native_dialog::{MessageDialog, MessageType};
 use std::collections::HashMap;
@@ -32,7 +33,7 @@ pub struct AssetService {
     pub atlas: Option<Texture>,
     // TODO: Change from using string based lookup system to using hashed id's internally, and also add direct access via vec and make hashmap simply give index to vec
     // also cache popular block models for faster chunk gen
-    pub atlas_index: Option<HashMap<String, TextureAtlasIndex>>,
+    pub atlas_index: Option<HashMap<String, TextureAtlasIndex, FnvBuildHasher>>,
     pub atlas_sampler: Option<Sampler>,
     pub atlas_bind_group_layout: Option<BindGroupLayout>,
     pub atlas_bind_group: Option<BindGroup>,
@@ -43,7 +44,7 @@ pub struct ResourcePack {
     name: String,
     author: String,
     version: String,
-    textures: HashMap<String, DynamicImage>,
+    textures: HashMap<String, DynamicImage, FnvBuildHasher>,
     modified: SystemTime,
 }
 

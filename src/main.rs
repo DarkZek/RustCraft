@@ -1,6 +1,7 @@
 #![feature(once_cell)]
 #![feature(trivial_bounds)]
 #![feature(in_band_lifetimes)]
+#![feature(async_closure)]
 
 #[macro_use]
 extern crate lazy_static;

@@ -1,8 +1,9 @@
-use crate::block::blocks::{BLOCK_STATES};
+use crate::block::blocks::BLOCK_STATES;
 use crate::helpers::lerp_color;
 use crate::services::chunk_service::chunk::{ChunkData, Chunks, RawLightingData};
 use crate::services::settings_service::CHUNK_SIZE;
-use nalgebra::{Vector3};
+use fnv::{FnvBuildHasher, FnvHashMap};
+use nalgebra::Vector3;
 use specs::{Component, DenseVecStorage};
 use std::collections::HashMap;
 
@@ -170,14 +171,14 @@ fn apply_color_to_chunk(
 
 pub struct UpdateChunkLighting {
     pub chunk: RawLightingData,
-    pub adjacent: HashMap<Vector3<i32>, RawLightingData>,
+    pub adjacent: HashMap<Vector3<i32>, RawLightingData, FnvBuildHasher>,
 }
 
 impl UpdateChunkLighting {
     pub fn new() -> UpdateChunkLighting {
         UpdateChunkLighting {
             chunk: [[[[255, 255, 255, 0]; 16]; 16]; 16],
-            adjacent: HashMap::new(),
+            adjacent: FnvHashMap::default(),
         }
     }
 }

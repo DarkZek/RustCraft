@@ -7,6 +7,7 @@ use crate::services::asset_service::index::TextureAtlasIndex;
 use crate::services::asset_service::AssetService;
 use crate::services::chunk_service::mesh::ViewableDirectionBitMap;
 use crate::services::settings_service::SettingsService;
+use fnv::FnvBuildHasher;
 use nalgebra::{Point, Vector3};
 use serde_json::Value;
 use std::collections::HashMap;
@@ -420,7 +421,7 @@ macro_rules! define_blocks {
             }
 
             #[allow(unused_variables, unreachable_code)]
-            pub fn get_model(&self, atlas_lookups: &HashMap<String, TextureAtlasIndex>) -> BlockModel {
+            pub fn get_model(&self, atlas_lookups: &HashMap<String, TextureAtlasIndex, FnvBuildHasher>) -> BlockModel {
                 match *self {
                     $(
                         BlockType::$name {

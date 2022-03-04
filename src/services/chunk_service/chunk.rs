@@ -1,20 +1,20 @@
-
 use crate::services::chunk_service::mesh::culling::ViewableDirection;
 use crate::services::chunk_service::mesh::MeshData;
 use crate::services::settings_service::CHUNK_SIZE;
+use fnv::{FnvBuildHasher, FnvHashMap};
 use nalgebra::Vector3;
 use specs::{Component, Entity, VecStorage};
 use std::collections::HashMap;
 use wgpu::BindGroup;
 
 pub struct ChunkEntityLookup {
-    pub map: HashMap<Vector3<i32>, Entity>,
+    pub map: HashMap<Vector3<i32>, Entity, FnvBuildHasher>,
 }
 
 impl Default for ChunkEntityLookup {
     fn default() -> Self {
         ChunkEntityLookup {
-            map: HashMap::new(),
+            map: FnvHashMap::default(),
         }
     }
 }
@@ -73,12 +73,12 @@ pub type RawLightingData = [[[Color; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
 pub struct Chunks<'a> {
     data: Option<Vec<&'a ChunkData>>,
     data_mut: Option<Vec<&'a mut ChunkData>>,
-    map: HashMap<Vector3<i32>, usize>,
+    map: HashMap<Vector3<i32>, usize, FnvBuildHasher>,
 }
 
 impl Chunks<'_> {
     pub fn new(data: Vec<&ChunkData>) -> Chunks {
-        let mut map = HashMap::new();
+        let mut map = FnvHashMap::default();
         for (i, chunk) in data.iter().enumerate() {
             map.insert(chunk.position, i);
         }
@@ -90,7 +90,7 @@ impl Chunks<'_> {
         }
     }
     pub fn new_mut(data_mut: Vec<&mut ChunkData>) -> Chunks {
-        let mut map = HashMap::new();
+        let mut map = FnvHashMap::default();
         for (i, chunk) in data_mut.iter().enumerate() {
             map.insert(chunk.position, i);
         }

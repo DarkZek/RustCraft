@@ -6,12 +6,15 @@ use crate::services::chunk_service::mesh::culling::ViewableDirection;
 use crate::services::chunk_service::mesh::MeshData;
 use crate::services::chunk_service::ChunkService;
 use crate::services::settings_service::{SettingsService, CHUNK_SIZE};
+use futures::executor::block_on;
 use nalgebra::Matrix4;
 use nalgebra::Vector3;
 use specs::{Component, DenseVecStorage, Entities, Entity, Join, Read, ReadStorage, Write};
 use specs::{System, WriteStorage};
+use std::mem;
+use std::mem::transmute;
 use std::sync::Mutex;
-use std::time::SystemTime;
+use std::time::{Instant, SystemTime};
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{BindGroup, BindGroupLayout, BindingResource, BufferBinding, Device};
 
@@ -124,6 +127,10 @@ impl<'a> System<'a> for ChunkRerenderSystem {
                     return;
                 }
 
+                // Mark the thread as static so tokio doesn't complain, the thread ends by the time this function ends so is guaranteed to be valid memory.
+                // let chunk = unsafe { mem::transmute::<&ChunkData, &'static ChunkData>(&chunk) };
+                //
+                // let t = tokio::spawn(async {
                 // Generate mesh & gpu buffers
                 let mut update = chunk.generate_mesh(&chunks_loc, &settings);
 
@@ -139,6 +146,9 @@ impl<'a> System<'a> for ChunkRerenderSystem {
                     .lock()
                     .unwrap()
                     .push((Some(update), Some(lighting_update), flag_entity));
+                // });
+                //
+                // block_on(t);
             } else {
                 meshes.lock().unwrap().push((None, None, flag_entity));
             }
@@ -173,7 +183,13 @@ fn get_closest_chunk(
     let mut closest = None;
     let mut entity = None;
     let mut closest_chunk_distance = 9999999.0;
-
+    println!(
+        "{}",
+        (entities, flags)
+            .join()
+            .collect::<Vec<(Entity, &RerenderChunkFlag)>>()
+            .len()
+    );
     for (flag_entity, flag) in (entities, flags).join() {
         if processed.contains(&flag.chunk) {
             continue;

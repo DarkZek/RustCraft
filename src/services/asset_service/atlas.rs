@@ -2,6 +2,7 @@ use crate::services::asset_service::index::TextureAtlasIndex;
 use crate::services::asset_service::{AssetService, ResourcePack};
 use crate::services::settings_service::SettingsService;
 use core::num::NonZeroU32;
+use fnv::{FnvBuildHasher, FnvHashMap};
 use image::{DynamicImage, GenericImageView, ImageBuffer, Rgba};
 use std::collections::HashMap;
 use std::convert::TryFrom;
@@ -21,7 +22,8 @@ pub const ATLAS_WIDTH: u32 = 4096;
 pub const ATLAS_HEIGHT: u32 = (4096.0 * 2.0) as u32;
 
 // Create global atlas lookup variable
-pub static ATLAS_LOOKUPS: SyncOnceCell<HashMap<String, TextureAtlasIndex>> = SyncOnceCell::new();
+pub static ATLAS_LOOKUPS: SyncOnceCell<HashMap<String, TextureAtlasIndex, FnvBuildHasher>> =
+    SyncOnceCell::new();
 
 impl AssetService {
     /// Generate a a new texture atlas from a list of textures and a resources directory
@@ -34,7 +36,7 @@ impl AssetService {
     ) -> (
         DynamicImage,
         Texture,
-        HashMap<String, TextureAtlasIndex>,
+        HashMap<String, TextureAtlasIndex, FnvBuildHasher>,
         Sampler,
     ) {
         let start_time = SystemTime::now();
@@ -69,7 +71,8 @@ impl AssetService {
             usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST,
         });
 
-        let mut atlas_index: HashMap<String, TextureAtlasIndex> = HashMap::new();
+        let mut atlas_index: HashMap<String, TextureAtlasIndex, FnvBuildHasher> =
+            FnvHashMap::default();
         let mut atlas_img = None;
 
         if settings.atlas_cache_reading {
@@ -152,7 +155,7 @@ impl AssetService {
 
 fn generate_atlas(
     textures: Vec<(String, DynamicImage)>,
-    atlas_index: &mut HashMap<String, TextureAtlasIndex>,
+    atlas_index: &mut HashMap<String, TextureAtlasIndex, FnvBuildHasher>,
 ) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
     let mut atlas: ImageBuffer<Rgba<u8>, Vec<u8>> =
         image::ImageBuffer::new(ATLAS_WIDTH, ATLAS_HEIGHT);
@@ -289,9 +292,11 @@ fn invalid_texture(x: u32, y: u32, texture_size: u32) -> Rgba<u8> {
     }
 }
 
-fn sort_textures(textures: &mut HashMap<String, DynamicImage>) -> Vec<(String, DynamicImage)> {
+fn sort_textures(
+    textures: &mut HashMap<String, DynamicImage, FnvBuildHasher>,
+) -> Vec<(String, DynamicImage)> {
     // Create a new array we can sort by
-    let mut buckets = HashMap::new();
+    let mut buckets = FnvHashMap::default();
     let mut out = Vec::new();
 
     for (name, texture) in textures.into_iter() {
@@ -394,7 +399,7 @@ fn write_cached_atlas(
     atlas_path: &PathBuf,
     atlas_index_path: &PathBuf,
     atlas_info_path: &PathBuf,
-    atlas_index: &HashMap<String, TextureAtlasIndex>,
+    atlas_index: &HashMap<String, TextureAtlasIndex, FnvBuildHasher>,
     zip_name: &str,
     atlas: &ImageBuffer<Rgba<u8>, Vec<u8>>,
     resource_pack: &mut ResourcePack,
@@ -447,14 +452,22 @@ fn load_cached_atlas_content(
     _settings: &SettingsService,
     atlas_path: &PathBuf,
     atlas_index_path: &PathBuf,
-) -> Result<(DynamicImage, HashMap<String, TextureAtlasIndex>), Box<dyn std::error::Error>> {
+) -> Result<
+    (
+        DynamicImage,
+        HashMap<String, TextureAtlasIndex, FnvBuildHasher>,
+    ),
+    Box<dyn std::error::Error>,
+> {
     let img = image::open(atlas_path)?;
 
     let mut index_file = File::open(atlas_index_path)?;
     let mut data = Vec::new();
     index_file.read_to_end(&mut data)?;
 
-    let index = serde_json::from_slice::<HashMap<String, TextureAtlasIndex>>(data.as_slice())?;
+    let index = serde_json::from_slice::<HashMap<String, TextureAtlasIndex, FnvBuildHasher>>(
+        data.as_slice(),
+    )?;
 
     Ok((img, index))
 }
@@ -466,7 +479,10 @@ fn load_cached_atlas(
     zip_name: &str,
     resource_pack: &ResourcePack,
     settings: &SettingsService,
-) -> Option<(DynamicImage, HashMap<String, TextureAtlasIndex>)> {
+) -> Option<(
+    DynamicImage,
+    HashMap<String, TextureAtlasIndex, FnvBuildHasher>,
+)> {
     let pack_details_match = {
         match File::open(&atlas_info_path) {
             Ok(mut file) => {

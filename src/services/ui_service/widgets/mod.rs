@@ -4,6 +4,7 @@ use crate::services::ui_service::draw::draw_sprite;
 use crate::services::ui_service::fonts::{FontsManager, TextView};
 use crate::services::ui_service::meshdata::UIMeshData;
 use crate::services::ui_service::{ObjectAlignment, Positioning};
+use fnv::{FnvBuildHasher, FnvHashMap};
 use std::collections::HashMap;
 use wgpu::Device;
 use winit::dpi::PhysicalSize;
@@ -11,7 +12,7 @@ use winit::dpi::PhysicalSize;
 /// Image Manager is a subsystem of the User Interface Service.
 /// It's job is to manage images and allow other services to easily create new images on the screen as well as update and delete them.
 pub struct WidgetManager {
-    widgets: HashMap<usize, Widget>,
+    widgets: HashMap<usize, Widget, FnvBuildHasher>,
     pub model: UIMeshData,
     pub size: PhysicalSize<u32>,
 }
@@ -19,7 +20,7 @@ pub struct WidgetManager {
 impl WidgetManager {
     pub fn new(size: PhysicalSize<u32>) -> WidgetManager {
         WidgetManager {
-            widgets: HashMap::new(),
+            widgets: FnvHashMap::default(),
             model: UIMeshData::new(),
             size,
         }

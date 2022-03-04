@@ -1,6 +1,7 @@
 use crate::services::asset_service::index::TextureAtlasIndex;
 use crate::services::ui_service::draw::draw_sprite;
 use crate::services::ui_service::meshdata::UIMeshData;
+use fnv::{FnvBuildHasher, FnvHashMap};
 use std::collections::HashMap;
 use wgpu::Device;
 use winit::dpi::PhysicalSize;
@@ -8,7 +9,7 @@ use winit::dpi::PhysicalSize;
 /// Image Manager is a subsystem of the User Interface Service.
 /// It's job is to manage images and allow other services to easily create new images on the screen as well as update and delete them.
 pub struct ImageManager {
-    images: HashMap<usize, Image>,
+    images: HashMap<usize, Image, FnvBuildHasher>,
     pub model: UIMeshData,
     pub size: PhysicalSize<u32>,
     build: bool,
@@ -17,7 +18,7 @@ pub struct ImageManager {
 impl ImageManager {
     pub fn new(size: PhysicalSize<u32>) -> ImageManager {
         ImageManager {
-            images: HashMap::new(),
+            images: FnvHashMap::default(),
             model: UIMeshData::new(),
             size,
             build: false,

@@ -5,11 +5,12 @@ use crate::services::chunk_service::ChunkService;
 use crate::services::ui_service::fonts::TextView;
 use crate::services::ui_service::{ObjectAlignment, Positioning, UIService};
 use crate::VERSION;
+use fnv::{FnvBuildHasher, FnvHashMap};
 use specs::{Join, Read, ReadStorage, System, Write};
 use std::collections::HashMap;
 
 pub struct DebuggingOverlayElements {
-    pub texts: HashMap<DebuggingItem, TextView>,
+    pub texts: HashMap<DebuggingItem, TextView, FnvBuildHasher>,
     pub enabled: bool,
     pub fps: u32,
     pub physics_update_rate: u32,
@@ -18,7 +19,7 @@ pub struct DebuggingOverlayElements {
 impl Default for DebuggingOverlayElements {
     fn default() -> Self {
         DebuggingOverlayElements {
-            texts: HashMap::new(),
+            texts: FnvHashMap::default(),
             enabled: true,
             fps: 0,
             physics_update_rate: 0,
