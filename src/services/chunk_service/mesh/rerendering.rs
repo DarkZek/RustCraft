@@ -9,8 +9,11 @@ use crate::services::settings_service::{SettingsService, CHUNK_SIZE};
 use futures::executor::block_on;
 use nalgebra::Matrix4;
 use nalgebra::Vector3;
+use rayon::iter::IntoParallelRefIterator;
+use specs::prelude::ParallelIterator;
 use specs::{Component, DenseVecStorage, Entities, Entity, Join, Read, ReadStorage, Write};
 use specs::{System, WriteStorage};
+use std::cmp::Ordering;
 use std::mem;
 use std::mem::transmute;
 use std::sync::Mutex;
@@ -44,8 +47,8 @@ pub struct UpdateChunkMesh {
 }
 
 pub struct UpdateChunkGraphics {
-    pub(crate) mesh: UpdateChunkMesh,
-    pub(crate) lighting: UpdateChunkLighting,
+    pub mesh: UpdateChunkMesh,
+    pub lighting: UpdateChunkLighting,
 }
 
 impl Component for UpdateChunkGraphics {
@@ -87,80 +90,55 @@ impl<'a> System<'a> for ChunkRerenderSystem {
         // Create indexed by location chunks array
         let chunks_loc = Chunks::new(chunks.join().collect::<Vec<&ChunkData>>());
 
-        // Create list for parallel work to put result in to
-        let meshes = Mutex::new(Vec::new());
+        // Poll system resources
+        chunk_service.system.poll();
 
-        let mut processed_chunks = Vec::new();
+        // If the system has less than minimum amount of ram refuse to build mesh
+        if !chunk_service.system.should_alloc(LOW_MEMORY_MINIMUM_KB) {
+            // Only log message every 5 seconds
+            if chunk_service
+                .low_memory_reminded
+                .elapsed()
+                .unwrap()
+                .as_secs_f32()
+                > LOW_MEMORY_WARNING_PERIOD
+            {
+                chunk_service.system.memory_warn();
 
-        loop {
-            // Poll system resources
-            chunk_service.system.poll();
-
-            let res =
-                get_closest_chunk(&entities, &flags, camera.eye.coords, &mut processed_chunks);
-
-            // No more chunks to process!
-            if res.is_none() {
-                break;
+                chunk_service.low_memory_reminded = SystemTime::now();
             }
-
-            let (flag_entity, pos) = res.unwrap();
-
-            // If the chunk exists
-            if let Option::Some(chunk) = chunks_loc.get_loc(pos) {
-                assert_eq!(chunk.position, pos);
-
-                // If the system has less than minimum amount of ram refuse to build mesh
-                if !chunk_service.system.should_alloc(LOW_MEMORY_MINIMUM_KB) {
-                    // Only log message every 5 seconds
-                    if chunk_service
-                        .low_memory_reminded
-                        .elapsed()
-                        .unwrap()
-                        .as_secs_f32()
-                        > LOW_MEMORY_WARNING_PERIOD
-                    {
-                        chunk_service.system.memory_warn();
-
-                        chunk_service.low_memory_reminded = SystemTime::now();
-                    }
-                    return;
-                }
-
-                // Mark the thread as static so tokio doesn't complain, the thread ends by the time this function ends so is guaranteed to be valid memory.
-                // let chunk = unsafe { mem::transmute::<&ChunkData, &'static ChunkData>(&chunk) };
-                //
-                // let t = tokio::spawn(async {
-                // Generate mesh & gpu buffers
-                let mut update = chunk.generate_mesh(&chunks_loc, &settings);
-
-                update.create_buffers(
-                    &render_system.device,
-                    &chunk_service.model_bind_group_layout,
-                );
-
-                let lighting_update = chunk.calculate_lighting(&chunks_loc);
-
-                // Output result into lock
-                meshes
-                    .lock()
-                    .unwrap()
-                    .push((Some(update), Some(lighting_update), flag_entity));
-                // });
-                //
-                // block_on(t);
-            } else {
-                meshes.lock().unwrap().push((None, None, flag_entity));
-            }
-
-            // Limit chunks loaded per frame, just over a column
-            if processed_chunks.len() == 24 {
-                break;
-            }
+            return;
         }
 
+        let chunks_to_compute = get_closest_chunks(&entities, &flags, camera.eye.coords);
+
+        let meshes = chunks_to_compute
+            .par_iter()
+            .map(|(to_delete, pos)| {
+                // If the chunk exists
+                if let Option::Some(chunk) = chunks_loc.get_loc(pos.chunk) {
+                    assert_eq!(chunk.position, pos.chunk);
+
+                    // Generate mesh & gpu buffers
+                    let mut update = chunk.generate_mesh(&chunks_loc, &settings);
+
+                    update.create_buffers(
+                        &render_system.device,
+                        &chunk_service.model_bind_group_layout,
+                    );
+
+                    let lighting_update = chunk.calculate_lighting(&chunks_loc);
+
+                    // Output result into lock
+                    (Some(update), Some(lighting_update), *to_delete)
+                } else {
+                    (None, None, *to_delete)
+                }
+            })
+            .collect::<Vec<(Option<UpdateChunkMesh>, Option<UpdateChunkLighting>, Entity)>>();
+
         // Apply the results of the work
-        for (mesh, lighting, to_delete) in meshes.into_inner().unwrap() {
+        for (mesh, lighting, to_delete) in meshes {
             if let Option::Some(mesh) = mesh {
                 if let Option::Some(lighting) = lighting {
                     entities
@@ -174,50 +152,43 @@ impl<'a> System<'a> for ChunkRerenderSystem {
     }
 }
 
-fn get_closest_chunk(
+fn get_closest_chunks<'a>(
     entities: &Entities,
-    flags: &WriteStorage<RerenderChunkFlag>,
+    flags: &'a WriteStorage<RerenderChunkFlag>,
     camera: Vector3<f32>,
-    processed: &mut Vec<Vector3<i32>>,
-) -> Option<(Entity, Vector3<i32>)> {
-    let mut closest = None;
-    let mut entity = None;
-    let mut closest_chunk_distance = 9999999.0;
-    println!(
-        "{}",
-        (entities, flags)
-            .join()
-            .collect::<Vec<(Entity, &RerenderChunkFlag)>>()
-            .len()
-    );
-    for (flag_entity, flag) in (entities, flags).join() {
-        if processed.contains(&flag.chunk) {
-            continue;
-        }
+) -> Vec<(Entity, &'a RerenderChunkFlag)> {
+    let chunk_size = CHUNK_SIZE as i32;
 
-        let chunk_center = Vector3::new(
-            (flag.chunk.x * CHUNK_SIZE as i32) as f32 + (CHUNK_SIZE as f32 / 2.0),
-            (flag.chunk.y * CHUNK_SIZE as i32) as f32 + (CHUNK_SIZE as f32 / 2.0),
-            (flag.chunk.z * CHUNK_SIZE as i32) as f32 + (CHUNK_SIZE as f32 / 2.0),
+    let mut chunks = (entities, flags)
+        .join()
+        .collect::<Vec<(Entity, &RerenderChunkFlag)>>();
+
+    chunks.sort_unstable_by(|(entity_1, flag_1), (entity_2, flag_2)| {
+        let chunk_center_1 = Vector3::new(
+            (flag_1.chunk.x * chunk_size) as f32 + (chunk_size / 2) as f32,
+            (flag_1.chunk.y * chunk_size) as f32 + (chunk_size / 2) as f32,
+            (flag_1.chunk.z * chunk_size) as f32 + (chunk_size / 2) as f32,
         );
 
-        let offset = chunk_center - camera;
-        let distance: f32 = offset.x.abs() + offset.y.abs() + offset.z.abs();
+        let chunk_center_2 = Vector3::new(
+            (flag_2.chunk.x * chunk_size) as f32 + (chunk_size / 2) as f32,
+            (flag_2.chunk.y * chunk_size) as f32 + (chunk_size / 2) as f32,
+            (flag_2.chunk.z * chunk_size) as f32 + (chunk_size / 2) as f32,
+        );
 
-        if distance < closest_chunk_distance {
-            closest_chunk_distance = distance;
-            entity = Some(flag_entity);
-            closest = Some(flag);
-        }
-    }
+        let offset_1 = chunk_center_1 - camera;
+        let distance_1: f32 = offset_1.x.abs() + offset_1.y.abs() + offset_1.z.abs();
 
-    if closest.is_none() {
-        return None;
-    }
+        let offset_2 = chunk_center_2 - camera;
+        let distance_2: f32 = offset_2.x.abs() + offset_2.y.abs() + offset_2.z.abs();
 
-    processed.push(closest.as_ref().unwrap().chunk);
+        distance_1.partial_cmp(&distance_2).unwrap()
+    });
 
-    return Some((entity.unwrap(), closest.as_ref().unwrap().chunk));
+    // Only render 80 chunks at a time
+    chunks.truncate(80);
+
+    chunks
 }
 
 impl UpdateChunkMesh {

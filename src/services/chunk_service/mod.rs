@@ -13,7 +13,7 @@ use specs::{Entities, ReadStorage, World, Write, WriteStorage};
 use crate::game::resources::SystemResources;
 use crate::services::chunk_service::mesh::rerendering::RerenderChunkFlag;
 use std::cmp::Ordering;
-use std::time::SystemTime;
+use std::time::{Instant, SystemTime};
 use wgpu::{BindGroupLayout, BufferBindingType};
 
 pub mod blocks;
@@ -36,6 +36,7 @@ pub struct ChunkService {
 
     system: SystemResources,
     low_memory_reminded: SystemTime,
+    start_time: Instant,
 
     // Chunks have updated so update culling next frame
     update_culling: bool,
@@ -77,6 +78,7 @@ impl ChunkService {
             previous_player_pos: Vector3::zeros(),
             system: SystemResources::new(),
             low_memory_reminded: SystemTime::now(),
+            start_time: Instant::now(),
             update_culling: false,
         };
 

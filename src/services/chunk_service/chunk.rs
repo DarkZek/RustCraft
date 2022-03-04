@@ -89,6 +89,7 @@ impl Chunks<'_> {
             map,
         }
     }
+
     pub fn new_mut(data_mut: Vec<&mut ChunkData>) -> Chunks {
         let mut map = FnvHashMap::default();
         for (i, chunk) in data_mut.iter().enumerate() {
@@ -100,6 +101,10 @@ impl Chunks<'_> {
             data_mut: Some(data_mut),
             map,
         }
+    }
+
+    pub fn len(&self) -> usize {
+        self.map.len()
     }
 
     pub fn get_loc(&self, loc: Vector3<i32>) -> Option<&ChunkData> {

@@ -2239,6 +2239,7 @@ dependencies = [
  "nalgebra",
  "native-dialog",
  "rand 0.7.3",
+ "rayon",
  "rc_logging",
  "rc_network",
  "reqwest",

@@ -5,6 +5,12 @@ use crate::services::chunk_service::mesh::rerendering::{UpdateChunkGraphics, Upd
 use crate::services::chunk_service::ChunkService;
 use specs::{Join, Write};
 use specs::{System, WriteStorage};
+use std::sync::Mutex;
+use std::time::Instant;
+
+lazy_static! {
+    static ref TEST: Mutex<usize> = Mutex::new(0);
+}
 
 pub struct ChunkMeshUpdateSystem;
 
@@ -31,6 +37,14 @@ impl<'a> System<'a> for ChunkMeshUpdateSystem {
                     if let Some(chunk) = chunks_loc.get_mut_loc(coords) {
                         chunk.add_adjacent_lighting(lighting);
                     }
+                }
+
+                (*TEST.lock().unwrap()) += 1;
+                if *TEST.lock().unwrap() == 15_000 {
+                    println!(
+                        "Took {}s to render 15,000 chunks",
+                        chunk_service.start_time.elapsed().as_secs_f32()
+                    )
                 }
             }
         }
