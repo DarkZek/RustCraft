@@ -17,6 +17,7 @@ fn main() {
         "gaussian",
         "addition",
         "outline",
+        "ssao",
     ];
 
     for shader in shaders.iter() {

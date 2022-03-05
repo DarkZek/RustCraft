@@ -3,6 +3,7 @@ use crate::services::chunk_service::chunk::{ChunkData, Chunks};
 use crate::services::chunk_service::ChunkService;
 use crate::services::settings_service::CHUNK_SIZE;
 use nalgebra::{ArrayStorage, Matrix, Matrix4, Vector3, U1, U4};
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use specs::Join;
 use specs::{Read, ReadStorage, System, Write};
 
@@ -26,7 +27,7 @@ pub fn calculate_frustum_culling(
     chunks: &ReadStorage<ChunkData>,
 ) -> Vec<Vector3<i32>> {
     let chunks = Chunks::new(chunks.join().collect::<Vec<&ChunkData>>());
-    let frustum = Frustum::from_matrix(cam.projection_matrix);
+    let frustum = Frustum::from_matrix(cam.final_matrix);
 
     if let None = frustum {
         return Vec::new();
@@ -36,22 +37,32 @@ pub fn calculate_frustum_culling(
 
     let mut visible_chunks = Vec::new();
 
-    for pos in viewable_chunks {
-        let chunk = chunks.get_loc(*pos).unwrap();
+    let chunks = viewable_chunks
+        .par_iter()
+        .map(|pos| {
+            let chunk = chunks.get_loc(*pos).unwrap();
 
-        let relative_pos = chunk.position * CHUNK_SIZE as i32;
-        let relative_pos = Vector3::new(
-            relative_pos.x as f32 - cam.eye.x,
-            relative_pos.y as f32 - cam.eye.y,
-            relative_pos.z as f32 - cam.eye.z,
-        );
+            let relative_pos = chunk.position * CHUNK_SIZE as i32;
+            let relative_pos = Vector3::new(
+                relative_pos.x as f32 - cam.eye.x,
+                relative_pos.y as f32 - cam.eye.y,
+                relative_pos.z as f32 - cam.eye.z,
+            );
 
-        if chunk.opaque_model.vertices_buffer.is_some()
-            || chunk.translucent_model.vertices_buffer.is_some()
-        {
             if frustum.is_visible(relative_pos, 25.0) {
-                visible_chunks.push(pos.clone());
+                if chunk.opaque_model.vertices_buffer.is_some()
+                    || chunk.translucent_model.vertices_buffer.is_some()
+                {
+                    return Some(pos.clone());
+                }
             }
+            None
+        })
+        .collect::<Vec<Option<Vector3<i32>>>>();
+
+    for chunk in chunks {
+        if let Some(val) = chunk {
+            visible_chunks.push(val);
         }
     }
 

@@ -1,3 +1,4 @@
+use crate::render::device::get_device;
 use wgpu::{
     Extent3d, Sampler, Texture, TextureAspect, TextureDimension, TextureView,
     TextureViewDescriptor, TextureViewDimension,
@@ -6,7 +7,6 @@ use wgpu::{
 pub const DEPTH_FORMAT: wgpu::TextureFormat = wgpu::TextureFormat::Depth32Float;
 
 pub fn create_depth_texture(
-    device: &wgpu::Device,
     surface_desc: &wgpu::SurfaceConfiguration,
 ) -> (Texture, TextureView, Sampler) {
     let sampler_descriptor = wgpu::SamplerDescriptor {
@@ -38,7 +38,7 @@ pub fn create_depth_texture(
         usage: wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::TEXTURE_BINDING,
     };
 
-    let texture = device.create_texture(&texture_descriptor);
+    let texture = get_device().create_texture(&texture_descriptor);
     let view = texture.create_view(&TextureViewDescriptor {
         label: Some("Main depth map texture view"),
         format: Some(DEPTH_FORMAT),
@@ -49,7 +49,7 @@ pub fn create_depth_texture(
         array_layer_count: None,
         mip_level_count: None,
     });
-    let sampler = device.create_sampler(&sampler_descriptor);
+    let sampler = get_device().create_sampler(&sampler_descriptor);
 
     (texture, view, sampler)
 }

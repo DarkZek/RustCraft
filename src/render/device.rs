@@ -1,21 +1,21 @@
 use crate::render::RenderState;
 use futures::executor::block_on;
+use std::lazy::SyncOnceCell;
 use wgpu::{Adapter, AdapterInfo, Backends, Device, Features, Instance, Queue, Surface};
 use winit::dpi::PhysicalSize;
 use winit::window::Window;
+
+static DEVICE: SyncOnceCell<Device> = SyncOnceCell::new();
+
+pub fn get_device() -> &'static Device {
+    DEVICE.get().unwrap()
+}
 
 impl RenderState {
     /// Gets a gpu devices we will use
     pub fn get_devices(
         window: &Window,
-    ) -> (
-        PhysicalSize<u32>,
-        Surface,
-        AdapterInfo,
-        Device,
-        Queue,
-        Adapter,
-    ) {
+    ) -> (PhysicalSize<u32>, Surface, AdapterInfo, Queue, Adapter) {
         let size = window.inner_size();
 
         let wgpu = Instance::new(Backends::BROWSER_WEBGPU | Backends::VULKAN);
@@ -57,7 +57,7 @@ impl RenderState {
                     max_vertex_attributes: 16,
                     max_vertex_buffer_array_stride: 2048,
                     max_push_constant_size: 8,
-                    min_uniform_buffer_offset_alignment: 256,
+                    min_uniform_buffer_offset_alignment: 128,
                     min_storage_buffer_offset_alignment: 256,
                     max_inter_stage_shader_components: 60,
                     max_compute_workgroup_storage_size: 16352,
@@ -72,6 +72,8 @@ impl RenderState {
         ))
         .unwrap();
 
-        (size, surface, gpu_info, device, queue, adapter)
+        DEVICE.set(device).unwrap();
+
+        (size, surface, gpu_info, queue, adapter)
     }
 }

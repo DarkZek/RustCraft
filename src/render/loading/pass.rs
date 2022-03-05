@@ -1,4 +1,5 @@
 use crate::helpers::Lerp;
+use crate::render::device::get_device;
 use crate::render::loading::{LoadingScreen, STANDARD_VERTICES};
 use crate::render::vertices::UIVertex;
 use instant::Instant;
@@ -84,26 +85,20 @@ impl LoadingScreen {
             bottom_right,
         ];
 
-        let vertices_buffer = self
-            .device
-            .as_ref()
-            .create_buffer_init(&BufferInitDescriptor {
-                label: Some("Loading verticles buffer descriptor"),
-                contents: &bytemuck::cast_slice(vertices.as_slice()),
-                usage: BufferUsages::VERTEX,
-            });
+        let vertices_buffer = get_device().create_buffer_init(&BufferInitDescriptor {
+            label: Some("Loading verticles buffer descriptor"),
+            contents: &bytemuck::cast_slice(vertices.as_slice()),
+            usage: BufferUsages::VERTEX,
+        });
 
         let texture = self.surface.get_current_texture().unwrap();
         let frame = texture
             .texture
             .create_view(&wgpu::TextureViewDescriptor::default());
 
-        let mut encoder =
-            self.device
-                .as_ref()
-                .create_command_encoder(&wgpu::CommandEncoderDescriptor {
-                    label: Some("Loading command encoder descriptor"),
-                });
+        let mut encoder = get_device().create_command_encoder(&wgpu::CommandEncoderDescriptor {
+            label: Some("Loading command encoder descriptor"),
+        });
 
         {
             let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {

@@ -1,6 +1,7 @@
 use crate::render::{get_swapchain_size, get_texture_format, VERTICES_COVER_SCREEN};
 use std::sync::Arc;
 
+use crate::render::device::get_device;
 use crate::render::effects::EffectPasses;
 use crate::render::vertices::UIVertex;
 use wgpu::{
@@ -14,20 +15,19 @@ use wgpu::{
 pub struct MergePostProcessingEffect {
     pub render_pipeline: RenderPipeline,
     pub bind_group_layout: BindGroupLayout,
-    pub device: Arc<Device>,
 }
 
 impl MergePostProcessingEffect {
-    pub fn new(device: Arc<Device>) -> MergePostProcessingEffect {
-        let vert_shader = device.create_shader_module(&wgpu::include_spirv!(
+    pub fn new() -> MergePostProcessingEffect {
+        let vert_shader = get_device().create_shader_module(&wgpu::include_spirv!(
             "../../../assets/shaders/addition_vert.spv"
         ));
 
-        let frag_shader = device.create_shader_module(&wgpu::include_spirv!(
+        let frag_shader = get_device().create_shader_module(&wgpu::include_spirv!(
             "../../../assets/shaders/addition_frag.spv"
         ));
 
-        let bind_group_layout = device.create_bind_group_layout(&BindGroupLayoutDescriptor {
+        let bind_group_layout = get_device().create_bind_group_layout(&BindGroupLayoutDescriptor {
             label: Some("Merge Bind Group Layout"),
             entries: &[
                 BindGroupLayoutEntry {
@@ -60,51 +60,51 @@ impl MergePostProcessingEffect {
         });
 
         let render_pipeline_layout =
-            device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+            get_device().create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
                 label: Some("Merge effect pipeline layout descriptor"),
                 bind_group_layouts: &[&bind_group_layout],
                 push_constant_ranges: &[],
             });
 
-        let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-            label: Some("Merge effect pipeline"),
-            layout: Option::from(&render_pipeline_layout),
-            vertex: VertexState {
-                module: &vert_shader,
-                entry_point: "main",
-                buffers: &[UIVertex::desc()],
-            },
-            primitive: wgpu::PrimitiveState {
-                topology: wgpu::PrimitiveTopology::TriangleList,
-                strip_index_format: None,
-                front_face: wgpu::FrontFace::Ccw,
-                cull_mode: None,
-                unclipped_depth: false,
-                polygon_mode: wgpu::PolygonMode::Fill,
-                conservative: false,
-            },
-            depth_stencil: None,
-            multisample: wgpu::MultisampleState {
-                count: 1,
-                mask: !0,
-                alpha_to_coverage_enabled: false,
-            },
-            fragment: Some(wgpu::FragmentState {
-                module: &frag_shader,
-                entry_point: "main",
-                targets: &[wgpu::ColorTargetState {
-                    format: get_texture_format(),
-                    write_mask: wgpu::ColorWrites::ALL,
-                    blend: None,
-                }],
-            }),
-            multiview: None,
-        });
+        let render_pipeline =
+            get_device().create_render_pipeline(&wgpu::RenderPipelineDescriptor {
+                label: Some("Merge effect pipeline"),
+                layout: Option::from(&render_pipeline_layout),
+                vertex: VertexState {
+                    module: &vert_shader,
+                    entry_point: "main",
+                    buffers: &[UIVertex::desc()],
+                },
+                primitive: wgpu::PrimitiveState {
+                    topology: wgpu::PrimitiveTopology::TriangleList,
+                    strip_index_format: None,
+                    front_face: wgpu::FrontFace::Ccw,
+                    cull_mode: None,
+                    unclipped_depth: false,
+                    polygon_mode: wgpu::PolygonMode::Fill,
+                    conservative: false,
+                },
+                depth_stencil: None,
+                multisample: wgpu::MultisampleState {
+                    count: 1,
+                    mask: !0,
+                    alpha_to_coverage_enabled: false,
+                },
+                fragment: Some(wgpu::FragmentState {
+                    module: &frag_shader,
+                    entry_point: "main",
+                    targets: &[wgpu::ColorTargetState {
+                        format: get_texture_format(),
+                        write_mask: wgpu::ColorWrites::ALL,
+                        blend: None,
+                    }],
+                }),
+                multiview: None,
+            });
 
         MergePostProcessingEffect {
             render_pipeline,
             bind_group_layout,
-            device,
         }
     }
 
@@ -126,9 +126,9 @@ impl MergePostProcessingEffect {
             get_swapchain_size(),
         );
 
-        let sampler = self.device.create_sampler(&SamplerDescriptor::default());
+        let sampler = get_device().create_sampler(&SamplerDescriptor::default());
 
-        let bind_group = self.device.create_bind_group(&wgpu::BindGroupDescriptor {
+        let bind_group = get_device().create_bind_group(&wgpu::BindGroupDescriptor {
             label: Some("Merge Effect Bind Group"),
             layout: &self.bind_group_layout,
             entries: &[

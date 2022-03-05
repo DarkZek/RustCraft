@@ -93,7 +93,7 @@ impl FontsManager {
     }
 
     /// Totals the vertices if any of the text has changed
-    pub fn total(&mut self, device: &Device) {
+    pub fn total(&mut self) {
         if self.changed {
             self.changed = false;
 
@@ -110,12 +110,12 @@ impl FontsManager {
                 self.model.total_vertices.append(&mut text.vertices.clone());
             }
 
-            self.model.build_buf(device);
+            self.model.build_buf();
         }
     }
 
     /// Recreate on resize
-    pub fn resized(&mut self, size: &PhysicalSize<u32>, device: &Device) {
+    pub fn resized(&mut self, size: &PhysicalSize<u32>) {
         self.size = size.clone();
 
         for (_, text) in self.texts.iter_mut() {
@@ -123,6 +123,6 @@ impl FontsManager {
         }
 
         self.changed = true;
-        self.total(device);
+        self.total();
     }
 }

@@ -1,13 +1,15 @@
+use crate::render::device::get_device;
 use crate::render::effects::bloom::BloomPostProcessingEffect;
 use crate::render::effects::gaussian::GaussianBlurPostProcessingEffect;
 use crate::render::effects::merge::MergePostProcessingEffect;
+use crate::render::effects::ssao::SSAOEffect;
 use crate::render::{get_swapchain_size, get_texture_format};
 use crate::services::settings_service::SettingsService;
 use std::ops::Deref;
 use std::sync::{Arc, Mutex};
 use wgpu::{
-    CommandEncoder, Device, ImageSubresourceRange, Texture, TextureAspect, TextureDimension,
-    TextureUsages,
+    BindGroup, CommandEncoder, Device, ImageSubresourceRange, Queue, Texture, TextureAspect,
+    TextureDimension, TextureUsages,
 };
 
 pub mod bloom;
@@ -21,14 +23,13 @@ lazy_static! {
 
 pub struct EffectPasses {
     pub bloom: Arc<BloomPostProcessingEffect>,
+    pub ssao: Arc<SSAOEffect>,
 
     pub effect_gaussian: Arc<GaussianBlurPostProcessingEffect>,
     pub effect_merge: Arc<MergePostProcessingEffect>,
 
     buffers: Vec<SCTexture>,
     dirty_buffers: Vec<SCTexture>,
-
-    device: Arc<Device>,
 }
 
 // A struct the same size as the swapchain
@@ -54,18 +55,19 @@ impl Deref for SCTexture {
 }
 
 impl EffectPasses {
-    pub fn new(_settings: &SettingsService, device: Arc<Device>) -> EffectPasses {
-        let bloom = Arc::new(BloomPostProcessingEffect::new(&device));
-        let effect_gaussian = Arc::new(GaussianBlurPostProcessingEffect::new(&device));
-        let effect_merge = Arc::new(MergePostProcessingEffect::new(device.clone()));
+    pub fn new(queue: &mut Queue, _settings: &SettingsService) -> EffectPasses {
+        let bloom = Arc::new(BloomPostProcessingEffect::new());
+        let ssao = Arc::new(SSAOEffect::new(queue));
+        let effect_gaussian = Arc::new(GaussianBlurPostProcessingEffect::new());
+        let effect_merge = Arc::new(MergePostProcessingEffect::new());
 
         EffectPasses {
             bloom,
+            ssao,
             effect_gaussian,
             effect_merge,
             buffers: vec![],
             dirty_buffers: vec![],
-            device,
         }
     }
 
@@ -78,6 +80,18 @@ impl EffectPasses {
         self.bloom
             .clone()
             .create_bloom_effect(self, encoder, bloom_texture, frame)
+    }
+
+    pub fn apply_ssao(
+        &mut self,
+        encoder: &mut CommandEncoder,
+        normals: &Texture,
+        positions: &Texture,
+        projection_bind_group: &BindGroup,
+    ) -> SCTexture {
+        self.ssao
+            .clone()
+            .apply_ssao(self, encoder, normals, positions, projection_bind_group)
     }
 
     pub fn get_buffer(&mut self) -> SCTexture {
@@ -96,7 +110,7 @@ impl EffectPasses {
             };
 
             SCTexture {
-                texture: self.device.create_texture(&texture_descriptor),
+                texture: get_device().create_texture(&texture_descriptor),
             }
         } else {
             self.buffers.pop().unwrap()

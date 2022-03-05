@@ -1,3 +1,4 @@
+use crate::render::device::get_device;
 use crate::render::get_texture_format;
 use crate::render::vertices::LineVertex;
 use crate::services::asset_service::depth_map::DEPTH_FORMAT;
@@ -12,40 +13,52 @@ use wgpu::{
 
 pub struct OutlineRenderer {
     pipeline: RenderPipeline,
-    device: Arc<Device>,
 }
 
 impl OutlineRenderer {
-    pub fn new(device: Arc<Device>) -> OutlineRenderer {
-        let vert_shader = device.create_shader_module(&wgpu::include_spirv!(
+    pub fn new() -> OutlineRenderer {
+        let vert_shader = get_device().create_shader_module(&wgpu::include_spirv!(
             "../../../assets/shaders/outline_vert.spv"
         ));
 
-        let frag_shader = device.create_shader_module(&wgpu::include_spirv!(
+        let frag_shader = get_device().create_shader_module(&wgpu::include_spirv!(
             "../../../assets/shaders/outline_frag.spv"
         ));
 
-        let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-            label: None,
-            bind_group_layouts: &[&device.create_bind_group_layout(
-                &wgpu::BindGroupLayoutDescriptor {
-                    entries: &[wgpu::BindGroupLayoutEntry {
-                        binding: 0,
-                        visibility: wgpu::ShaderStages::VERTEX,
-                        ty: wgpu::BindingType::Buffer {
-                            ty: BufferBindingType::Uniform,
-                            min_binding_size: None,
-                            has_dynamic_offset: false,
-                        },
-                        count: None,
-                    }],
-                    label: Some("Unknown uniform buffer bind group layout"),
-                },
-            )],
-            push_constant_ranges: &[],
-        });
+        let pipeline_layout =
+            get_device().create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+                label: None,
+                bind_group_layouts: &[&get_device().create_bind_group_layout(
+                    &wgpu::BindGroupLayoutDescriptor {
+                        entries: &[
+                            wgpu::BindGroupLayoutEntry {
+                                binding: 0,
+                                visibility: wgpu::ShaderStages::VERTEX,
+                                ty: wgpu::BindingType::Buffer {
+                                    ty: BufferBindingType::Uniform,
+                                    min_binding_size: None,
+                                    has_dynamic_offset: false,
+                                },
+                                count: None,
+                            },
+                            wgpu::BindGroupLayoutEntry {
+                                binding: 1,
+                                visibility: wgpu::ShaderStages::VERTEX,
+                                ty: wgpu::BindingType::Buffer {
+                                    ty: BufferBindingType::Uniform,
+                                    min_binding_size: None,
+                                    has_dynamic_offset: false,
+                                },
+                                count: None,
+                            },
+                        ],
+                        label: Some("View Projection uniform buffer bind group layout"),
+                    },
+                )],
+                push_constant_ranges: &[],
+            });
 
-        let pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
+        let pipeline = get_device().create_render_pipeline(&wgpu::RenderPipelineDescriptor {
             label: Some("Outline Render Pipeline"),
             layout: Some(&pipeline_layout),
             vertex: wgpu::VertexState {
@@ -88,7 +101,7 @@ impl OutlineRenderer {
             multiview: None,
         });
 
-        OutlineRenderer { pipeline, device }
+        OutlineRenderer { pipeline }
     }
 
     pub fn render(
@@ -135,7 +148,6 @@ pub struct BoxOutline {
     pub size: Vector3<f32>,
     pub color: [f32; 4],
     buffer: Option<Buffer>,
-    device: Arc<Device>,
 }
 
 impl BoxOutline {
@@ -149,18 +161,12 @@ impl Component for BoxOutline {
 }
 
 impl BoxOutline {
-    pub fn new(
-        pos: Vector3<f32>,
-        size: Vector3<f32>,
-        color: [f32; 4],
-        device: Arc<Device>,
-    ) -> BoxOutline {
+    pub fn new(pos: Vector3<f32>, size: Vector3<f32>, color: [f32; 4]) -> BoxOutline {
         BoxOutline {
             pos,
             size,
             color,
             buffer: None,
-            device,
         }
     }
 
@@ -319,7 +325,7 @@ impl BoxOutline {
             },
         ];
 
-        let buffer = self.device.create_buffer_init(&BufferInitDescriptor {
+        let buffer = get_device().create_buffer_init(&BufferInitDescriptor {
             label: Some("Outline Vertices Buffer"),
             contents: &bytemuck::cast_slice(&vertices),
             usage: BufferUsages::VERTEX,

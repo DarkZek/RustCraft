@@ -1,6 +1,7 @@
 use crate::game::game_state::{GameState, ProgramState};
 use crate::render::background::Background;
 use crate::render::camera::Camera;
+use crate::render::device::get_device;
 use crate::render::pass::outline::BoxOutline;
 use crate::render::{get_swapchain_size, RenderState};
 use crate::services::asset_service::AssetService;
@@ -56,16 +57,24 @@ impl<'a> System<'a> for RenderSystem {
         let bloom_texture = render_state.effects.get_buffer();
         let bloom_frame = bloom_texture.create_view(&TextureViewDescriptor::default());
 
+        let normal_map_texture = render_state.effects.get_buffer();
+        let normal_map_frame = normal_map_texture.create_view(&TextureViewDescriptor::default());
+
+        let position_map_texture = render_state.effects.get_buffer();
+        let position_map_frame =
+            position_map_texture.create_view(&TextureViewDescriptor::default());
+
+        let view_projection_bind_group = render_state.projection_bind_group.take().unwrap();
+        let view_projection_fragment_bind_group =
+            render_state.fragment_projection_bind_group.take().unwrap();
+
         let frame_image_buffer = render_state.effects.get_buffer();
 
         let frame_image_view = frame_image_buffer.create_view(&TextureViewDescriptor::default());
 
-        let mut encoder =
-            render_state
-                .device
-                .create_command_encoder(&wgpu::CommandEncoderDescriptor {
-                    label: Some("Main Render Loop Command Encoder"),
-                });
+        let mut encoder = get_device().create_command_encoder(&wgpu::CommandEncoderDescriptor {
+            label: Some("Main Render Loop Command Encoder"),
+        });
 
         {
             if game_state.state == ProgramState::InGame {
@@ -94,6 +103,22 @@ impl<'a> System<'a> for RenderSystem {
                                 store: true,
                             },
                         },
+                        wgpu::RenderPassColorAttachment {
+                            view: &normal_map_frame,
+                            resolve_target: None,
+                            ops: Operations {
+                                load: LoadOp::Clear(Color::BLACK),
+                                store: true,
+                            },
+                        },
+                        wgpu::RenderPassColorAttachment {
+                            view: &position_map_frame,
+                            resolve_target: None,
+                            ops: Operations {
+                                load: LoadOp::Clear(Color::BLACK),
+                                store: true,
+                            },
+                        },
                     ],
                     depth_stencil_attachment: Some(wgpu::RenderPassDepthStencilAttachment {
                         view: &render_state.depth_texture.1,
@@ -111,7 +136,7 @@ impl<'a> System<'a> for RenderSystem {
                     &asset_service.atlas_bind_group.as_ref().unwrap().clone(),
                     &[],
                 );
-                render_pass.set_bind_group(1, &render_state.uniform_bind_group, &[]);
+                render_pass.set_bind_group(1, &view_projection_bind_group, &[]);
 
                 // Opaque pass
                 for pos in &chunk_service.visible_chunks {
@@ -155,6 +180,13 @@ impl<'a> System<'a> for RenderSystem {
                 .effects
                 .apply_bloom(&mut encoder, &*bloom_texture, &frame_image_buffer);
 
+            let frame_image_buffer = render_state.effects.apply_ssao(
+                &mut encoder,
+                &*normal_map_texture,
+                &*position_map_texture,
+                &view_projection_fragment_bind_group,
+            );
+
             // Merge vfx buffer into main swapchain
             encoder.copy_texture_to_texture(
                 frame_image_buffer.as_image_copy(),
@@ -165,7 +197,7 @@ impl<'a> System<'a> for RenderSystem {
             render_state.outlines.render(
                 &frame,
                 &mut encoder,
-                &render_state.uniform_bind_group,
+                &view_projection_bind_group,
                 &box_outlines,
                 &render_state.depth_texture.1,
             );
@@ -175,6 +207,8 @@ impl<'a> System<'a> for RenderSystem {
             // Return buffers
             render_state.effects.return_buffer(frame_image_buffer);
             render_state.effects.return_buffer(bloom_texture);
+            render_state.effects.return_buffer(normal_map_texture);
+            render_state.effects.return_buffer(position_map_texture);
 
             // Clean used buffers
             render_state.effects.clean_buffers(&mut encoder);
@@ -185,5 +219,8 @@ impl<'a> System<'a> for RenderSystem {
         }
 
         std::mem::drop(frame);
+
+        render_state.projection_bind_group = Some(view_projection_bind_group);
+        render_state.fragment_projection_bind_group = Some(view_projection_fragment_bind_group);
     }
 }

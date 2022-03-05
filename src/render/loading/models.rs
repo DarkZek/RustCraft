@@ -1,3 +1,4 @@
+use crate::render::device::get_device;
 use crate::render::get_texture_format;
 use image::ImageFormat;
 use std::convert::TryFrom;
@@ -9,10 +10,7 @@ use wgpu::{
     TextureViewDimension,
 };
 
-pub fn load_splash(
-    device: &Device,
-    queue: &mut Queue,
-) -> (Texture, Sampler, BindGroupLayout, BindGroup) {
+pub fn load_splash(queue: &mut Queue) -> (Texture, Sampler, BindGroupLayout, BindGroup) {
     let splash_image = include_bytes!("../../../../RustCraft/assets/splash.png");
     let splash_image = image::load_from_memory_with_format(splash_image, ImageFormat::Png).unwrap();
 
@@ -25,17 +23,17 @@ pub fn load_splash(
         depth_or_array_layers: 1,
     };
 
-    let diffuse_buffer = device.create_buffer_init(&BufferInitDescriptor {
+    let diffuse_buffer = get_device().create_buffer_init(&BufferInitDescriptor {
         label: Some("Loading splash screen image buffer"),
         contents: &diffuse_rgba,
         usage: BufferUsages::COPY_SRC,
     });
 
-    let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
+    let mut encoder = get_device().create_command_encoder(&wgpu::CommandEncoderDescriptor {
         label: Some("Loading splash screen command encoder"),
     });
 
-    let diffuse_texture = device.create_texture(&wgpu::TextureDescriptor {
+    let diffuse_texture = get_device().create_texture(&wgpu::TextureDescriptor {
         label: Some("Loading splash screen texture"),
         size,
         mip_level_count: 1,
@@ -81,15 +79,14 @@ pub fn load_splash(
         border_color: None,
     };
 
-    let diffuse_sampler = device.create_sampler(&diffuse_sampler_descriptor);
+    let diffuse_sampler = get_device().create_sampler(&diffuse_sampler_descriptor);
 
-    let bindings = load_splash_image_bindings(device, &diffuse_texture, &diffuse_sampler);
+    let bindings = load_splash_image_bindings(&diffuse_texture, &diffuse_sampler);
 
     (diffuse_texture, diffuse_sampler, bindings.0, bindings.1)
 }
 
 pub fn load_splash_image_bindings(
-    device: &Device,
     diffuse_texture: &Texture,
     diffuse_sampler: &Sampler,
 ) -> (BindGroupLayout, BindGroup) {
@@ -105,7 +102,7 @@ pub fn load_splash_image_bindings(
     });
 
     let texture_bind_group_layout =
-        device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+        get_device().create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
             entries: &[
                 wgpu::BindGroupLayoutEntry {
                     binding: 0,
@@ -127,7 +124,7 @@ pub fn load_splash_image_bindings(
             label: Some("Loading splash screen bind group layout"),
         });
 
-    let texture_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+    let texture_bind_group = get_device().create_bind_group(&wgpu::BindGroupDescriptor {
         layout: &texture_bind_group_layout,
         entries: &[
             wgpu::BindGroupEntry {

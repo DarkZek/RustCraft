@@ -1,3 +1,4 @@
+use crate::render::device::get_device;
 use crate::render::get_texture_format;
 use crate::render::loading::LoadingScreen;
 use crate::render::vertices::UIVertex;
@@ -11,24 +12,23 @@ use winit::dpi::PhysicalSize;
 
 impl LoadingScreen {
     pub fn generate_loading_render_pipeline(
-        device: &Device,
         bind_group_layouts: &[&BindGroupLayout],
     ) -> RenderPipeline {
         let render_pipeline_layout =
-            device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+            get_device().create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
                 label: Some("Loading screen pipeline layout descriptor"),
                 bind_group_layouts,
                 push_constant_ranges: &[],
             });
 
-        let vs_module = device.create_shader_module(&wgpu::include_spirv!(
+        let vs_module = get_device().create_shader_module(&wgpu::include_spirv!(
             "../../../assets/shaders/loading_vert.spv"
         ));
-        let fs_module = device.create_shader_module(&wgpu::include_spirv!(
+        let fs_module = get_device().create_shader_module(&wgpu::include_spirv!(
             "../../../assets/shaders/loading_frag.spv"
         ));
 
-        device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
+        get_device().create_render_pipeline(&wgpu::RenderPipelineDescriptor {
             label: Some("Loading render pipeline"),
             layout: Option::from(&render_pipeline_layout),
             vertex: VertexState {
@@ -77,7 +77,6 @@ impl LoadingScreen {
 
     pub fn setup_ui_projection_matrix(
         size: PhysicalSize<u32>,
-        device: &Device,
     ) -> (Buffer, BindGroup, BindGroupLayout) {
         let ratio = size.width as f32 / size.height as f32;
 
@@ -99,7 +98,7 @@ impl LoadingScreen {
 
         let matrix: Matrix4<f32> = projection.into();
 
-        let matrix_buffer = device.create_buffer_init(&BufferInitDescriptor {
+        let matrix_buffer = get_device().create_buffer_init(&BufferInitDescriptor {
             label: Some("Loading screen projection matrix buffer"),
             contents: &bytemuck::cast_slice(matrix.as_slice()),
             usage: wgpu::BufferUsages::UNIFORM
@@ -108,7 +107,7 @@ impl LoadingScreen {
         });
 
         let matrix_bind_group_layout =
-            device.create_bind_group_layout(&matrix_binding_layout_descriptor);
+            get_device().create_bind_group_layout(&matrix_binding_layout_descriptor);
 
         let matrix_bind_group_descriptor = wgpu::BindGroupDescriptor {
             layout: &matrix_bind_group_layout,
@@ -123,7 +122,7 @@ impl LoadingScreen {
             label: Some("Loading screen projection matrix bind group"),
         };
 
-        let matrix_bind_group = device.create_bind_group(&matrix_bind_group_descriptor);
+        let matrix_bind_group = get_device().create_bind_group(&matrix_bind_group_descriptor);
 
         (matrix_buffer, matrix_bind_group, matrix_bind_group_layout)
     }

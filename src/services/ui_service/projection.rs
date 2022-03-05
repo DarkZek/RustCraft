@@ -1,3 +1,4 @@
+use crate::render::device::get_device;
 use crate::render::RenderState;
 use crate::services::ui_service::UIService;
 use crate::services::ServicesContext;
@@ -41,7 +42,7 @@ impl UIService {
 
         let matrix: Matrix4<f32> = projection.into();
 
-        let matrix_buffer = context.device.create_buffer_init(&BufferInitDescriptor {
+        let matrix_buffer = get_device().create_buffer_init(&BufferInitDescriptor {
             label: Some("Main UI Projection Matrix Buffer"),
             contents: &bytemuck::cast_slice(matrix.as_slice()),
             usage: wgpu::BufferUsages::UNIFORM
@@ -49,9 +50,8 @@ impl UIService {
                 | wgpu::BufferUsages::COPY_SRC,
         });
 
-        let matrix_bind_group_layout = context
-            .device
-            .create_bind_group_layout(&matrix_binding_layout_descriptor);
+        let matrix_bind_group_layout =
+            get_device().create_bind_group_layout(&matrix_binding_layout_descriptor);
 
         let matrix_bind_group_descriptor = wgpu::BindGroupDescriptor {
             layout: &matrix_bind_group_layout,
@@ -66,9 +66,7 @@ impl UIService {
             label: Some("Main UI Projection Matrix Bind Group"),
         };
 
-        let matrix_bind_group = context
-            .device
-            .create_bind_group(&matrix_bind_group_descriptor);
+        let matrix_bind_group = get_device().create_bind_group(&matrix_bind_group_descriptor);
 
         (matrix_buffer, matrix_bind_group, matrix_bind_group_layout)
     }
@@ -90,13 +88,11 @@ impl UIService {
         let mut matrix: Matrix4<f32> = projection.into();
         matrix = matrix * opengl_to_wgpu_matrix;
 
-        let mut encoder = render
-            .device
-            .create_command_encoder(&wgpu::CommandEncoderDescriptor {
-                label: Some("Main Projection Matrix Command Encoder"),
-            });
+        let mut encoder = get_device().create_command_encoder(&wgpu::CommandEncoderDescriptor {
+            label: Some("Main Projection Matrix Command Encoder"),
+        });
 
-        let matrix_buffer = render.device.create_buffer_init(&BufferInitDescriptor {
+        let matrix_buffer = get_device().create_buffer_init(&BufferInitDescriptor {
             label: Some("Main ui projection matrix buffer"),
             contents: &bytemuck::cast_slice(matrix.as_slice()),
             usage: wgpu::BufferUsages::UNIFORM
@@ -104,7 +100,7 @@ impl UIService {
                 | wgpu::BufferUsages::COPY_SRC,
         });
 
-        self.fonts.resized(&size, &render.device);
+        self.fonts.resized(&size);
 
         encoder.copy_buffer_to_buffer(
             &matrix_buffer,

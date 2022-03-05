@@ -1,3 +1,4 @@
+use crate::render::device::get_device;
 use crate::render::loading::models::load_splash;
 use crate::render::vertices::UIVertex;
 use lazy_static::lazy_static;
@@ -119,7 +120,6 @@ const STANDARD_VERTICES: [UIVertex; 18] = [
 ///
 pub struct LoadingScreen {
     pipeline: RenderPipeline,
-    device: Arc<Device>,
     queue: Arc<Mutex<Queue>>,
     surface: Arc<Surface>,
     default_vertices_buffer: Buffer,
@@ -136,25 +136,23 @@ impl LoadingScreen {
     pub fn new(
         size: &PhysicalSize<u32>,
         surface: Arc<Surface>,
-        device: Arc<Device>,
         queue: Arc<Mutex<Queue>>,
     ) -> LoadingScreen {
-        let default_vertices_buffer = load_buffers(device.as_ref());
+        let default_vertices_buffer = load_buffers();
 
         let (splash_texture, splash_sampler, splash_bind_group_layout, splash_bind_group) =
-            load_splash(device.as_ref(), queue.lock().unwrap().deref_mut());
+            load_splash(queue.lock().unwrap().deref_mut());
 
         let (view_buffer, view_bindgroup, view_bindgroup_layout) =
-            LoadingScreen::setup_ui_projection_matrix(size.clone(), device.as_ref());
+            LoadingScreen::setup_ui_projection_matrix(size.clone());
 
-        let pipeline = LoadingScreen::generate_loading_render_pipeline(
-            device.as_ref(),
-            &[&splash_bind_group_layout, &view_bindgroup_layout],
-        );
+        let pipeline = LoadingScreen::generate_loading_render_pipeline(&[
+            &splash_bind_group_layout,
+            &view_bindgroup_layout,
+        ]);
 
         LoadingScreen {
             pipeline,
-            device,
             surface,
             queue,
             default_vertices_buffer,
@@ -198,9 +196,9 @@ impl LoadingScreen {
     // }
 }
 
-pub fn load_buffers(device: &Device) -> Buffer {
-    let defaults_buffer = device.create_buffer_init(&BufferInitDescriptor {
-        label: Some("Loading Verticles Buffer"),
+pub fn load_buffers() -> Buffer {
+    let defaults_buffer = get_device().create_buffer_init(&BufferInitDescriptor {
+        label: Some("Loading Vertices Buffer"),
         contents: &bytemuck::cast_slice(STANDARD_VERTICES.as_ref()),
         usage: BufferUsages::VERTEX,
     });

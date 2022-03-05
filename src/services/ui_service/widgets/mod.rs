@@ -63,7 +63,7 @@ impl WidgetManager {
             );
         }
 
-        self.model.build_buf(device);
+        self.model.build_buf();
     }
 }
 

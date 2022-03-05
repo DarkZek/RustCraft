@@ -1,3 +1,4 @@
+use crate::render::device::get_device;
 use crate::services::asset_service::AssetService;
 use wgpu::{
     BindGroup, BindGroupLayout, Device, Sampler, SamplerBindingType, Texture, TextureAspect,
@@ -7,7 +8,6 @@ use wgpu::{
 impl AssetService {
     /// Create the information for the gpu to know how to deal with the atlas
     pub fn generate_atlas_bindings(
-        device: &Device,
         diffuse_texture: &Texture,
         diffuse_sampler: &Sampler,
     ) -> (BindGroupLayout, BindGroup) {
@@ -23,7 +23,7 @@ impl AssetService {
         });
 
         let texture_bind_group_layout =
-            device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+            get_device().create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
                 label: Some("Asset Service Texture Atlas Bind Group Layout"),
                 entries: &[
                     wgpu::BindGroupLayoutEntry {
@@ -45,7 +45,7 @@ impl AssetService {
                 ],
             });
 
-        let texture_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+        let texture_bind_group = get_device().create_bind_group(&wgpu::BindGroupDescriptor {
             layout: &texture_bind_group_layout,
             label: Some("Asset Service Texture Atlas Bind Group"),
             entries: &[

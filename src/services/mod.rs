@@ -3,11 +3,8 @@ use crate::services::debugging_service::DebuggingService;
 use crate::services::input_service::InputService;
 use crate::services::networking_service::NetworkingService;
 use crate::services::{
-    asset_service::AssetService,
-    audio_service::AudioService,
-    chunk_service::ChunkService,
-    settings_service::SettingsService,
-    ui_service::{UIService},
+    asset_service::AssetService, audio_service::AudioService, chunk_service::ChunkService,
+    settings_service::SettingsService, ui_service::UIService,
 };
 use rc_logging::LoggingService;
 use specs::World;
@@ -29,7 +26,6 @@ pub mod ui_service;
 
 /// Stores references to important devices needed during initialization of the services.
 pub struct ServicesContext<'a> {
-    pub device: Arc<Device>,
     pub queue: Arc<Mutex<Queue>>,
     pub size: &'a PhysicalSize<u32>,
     pub window: Arc<Window>,
@@ -37,13 +33,11 @@ pub struct ServicesContext<'a> {
 
 impl<'a> ServicesContext<'_> {
     pub fn new(
-        device: Arc<Device>,
         queue: Arc<Mutex<Queue>>,
         size: &'a PhysicalSize<u32>,
         window: Arc<Window>,
     ) -> ServicesContext<'a> {
         ServicesContext {
-            device,
             queue,
             size,
             window,

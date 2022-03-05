@@ -52,7 +52,7 @@ impl ImageManager {
         self.build = true;
     }
 
-    pub fn build(&mut self, device: &Device) {
+    pub fn build(&mut self) {
         if !self.build {
             return;
         }
@@ -99,7 +99,7 @@ impl ImageManager {
             }
         }
 
-        self.model.build_buf(device);
+        self.model.build_buf();
     }
 }
 

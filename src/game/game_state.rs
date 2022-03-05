@@ -2,6 +2,8 @@ use crate::entity::player::{move_forwards, Player, PlayerEntity};
 use crate::game::physics::PhysicsObject;
 use crate::helpers::Clamp;
 use crate::render::camera::Camera;
+use crate::render::device::get_device;
+use crate::render::pass::uniforms::RenderViewProjectionUniforms;
 use crate::render::RenderState;
 use crate::services::input_service::actions::ActionSheet;
 use crate::services::input_service::input::{GameChanges, InputChange};
@@ -71,11 +73,9 @@ impl<'a> System<'a> for PlayerMovementSystem {
             mut actionsheet,
         ): Self::SystemData,
     ) {
-        let mut encoder = render
-            .device
-            .create_command_encoder(&wgpu::CommandEncoderDescriptor {
-                label: Some("Player movement command encoder"),
-            });
+        let mut encoder = get_device().create_command_encoder(&wgpu::CommandEncoderDescriptor {
+            label: Some("Player movement command encoder"),
+        });
 
         if events.look != [0.0, 0.0] {
             let player = &mut game_state.player;
@@ -135,22 +135,10 @@ impl<'a> System<'a> for PlayerMovementSystem {
             }
         }
 
-        render.uniforms.update_view_proj(&mut camera);
-
-        let uniform_buffer = render.device.create_buffer_init(&BufferInitDescriptor {
-            label: Some("View Projection Buffer"),
-            contents: &bytemuck::cast_slice(&render.uniforms.view_proj),
-            usage: wgpu::BufferUsages::UNIFORM
-                | wgpu::BufferUsages::COPY_DST
-                | wgpu::BufferUsages::COPY_SRC,
-        });
-
-        encoder.copy_buffer_to_buffer(
-            &uniform_buffer,
-            0x0,
+        RenderViewProjectionUniforms::update_uniform_buffers(
+            &mut camera,
+            &mut encoder,
             &render.uniform_buffer,
-            0x0,
-            std::mem::size_of_val(&render.uniforms) as wgpu::BufferAddress,
         );
 
         render.queue.submit(Some(encoder.finish()));

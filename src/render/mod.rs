@@ -1,20 +1,19 @@
 use crate::render::background::Background;
 use crate::render::camera::Camera;
+use crate::render::device::get_device;
 use crate::render::effects::EffectPasses;
 use crate::render::loading::LoadingScreen;
 use crate::render::pass::outline::{BoxOutline, OutlineRenderer};
-use crate::render::pass::uniforms::Uniforms;
+use crate::render::pass::uniforms::RenderViewProjectionUniforms;
 use crate::render::vertices::{UIVertex, Vertex};
 use crate::services::asset_service::depth_map::{create_depth_texture, DEPTH_FORMAT};
 use crate::services::asset_service::AssetService;
 use crate::services::chunk_service::ChunkService;
 use crate::services::settings_service::SettingsService;
 use crate::services::{load_services, ServicesContext};
-use crate::world::player_selected_block_update::{
-    PlayerSelectedBlockUpdateSystemData,
-};
+use crate::world::player_selected_block_update::PlayerSelectedBlockUpdateSystemData;
 use image::ImageFormat;
-use nalgebra::Vector3;
+use nalgebra::{Matrix4, Vector3};
 use specs::{Builder, World, WorldExt};
 use std::borrow::Borrow;
 use std::lazy::SyncOnceCell;
@@ -40,11 +39,19 @@ pub mod pass;
 pub mod screens;
 pub mod vertices;
 
+#[rustfmt::skip]
 lazy_static! {
     pub static ref TEXTURE_FORMAT: SyncOnceCell<TextureFormat> = SyncOnceCell::new();
 
     // A buffer that holds vertices that will cover the entire screen when drawn with no view matrix
     pub static ref VERTICES_COVER_SCREEN: SyncOnceCell<wgpu::Buffer> = SyncOnceCell::new();
+    
+    pub static ref OPENGL_TO_WGPU_MATRIX: Matrix4<f32> = Matrix4::new(
+        1.0, 0.0, 0.0, 0.0,
+        0.0, 1.0, 0.0, 0.0,
+        0.0, 0.0, 0.5, 0.0,
+        0.0, 0.0, 0.5, 1.0,
+    );
 }
 
 pub static mut SWAPCHAIN_SIZE: Extent3d = Extent3d {
@@ -67,17 +74,16 @@ pub struct RenderState {
     surface: Arc<wgpu::Surface>,
     surface_desc: wgpu::SurfaceConfiguration,
 
-    pub device: Arc<wgpu::Device>,
     pub queue: wgpu::Queue,
     pub window: Arc<Window>,
 
     render_pipeline: wgpu::RenderPipeline,
 
-    size: winit::dpi::PhysicalSize<u32>,
+    size: PhysicalSize<u32>,
 
-    pub uniforms: Uniforms,
     pub uniform_buffer: wgpu::Buffer,
-    uniform_bind_group: wgpu::BindGroup,
+    projection_bind_group: Option<wgpu::BindGroup>,
+    fragment_projection_bind_group: Option<wgpu::BindGroup>,
 
     depth_texture: (Texture, TextureView, Sampler),
 
@@ -121,8 +127,7 @@ impl RenderState {
         );
 
         // Get the window setup ASAP so we can show loading screen
-        let (size, surface, gpu_info, device, queue, adapter) =
-            RenderState::get_devices(window.borrow());
+        let (size, surface, gpu_info, queue, adapter) = RenderState::get_devices(window.borrow());
 
         log!(format!(
             "Using {:?} {} {} with backend {:?}",
@@ -130,7 +135,6 @@ impl RenderState {
         ));
 
         // Convert to forms that can be used in multiple places
-        let device = Arc::new(device);
         let queue = Arc::new(Mutex::new(queue));
 
         // Limited to vsync here
@@ -150,7 +154,7 @@ impl RenderState {
             }
         }
 
-        surface.configure(&device, &surface_desc);
+        surface.configure(get_device(), &surface_desc);
 
         TEXTURE_FORMAT
             .set(surface_desc.format)
@@ -159,14 +163,14 @@ impl RenderState {
         let surface = Arc::new(surface);
 
         // Start showing loading screen
-        let loading = LoadingScreen::new(&size, surface.clone(), device.clone(), queue.clone());
+        let loading = LoadingScreen::new(&size, surface.clone(), queue.clone());
         loading.start_loop();
 
-        universe.insert(Background::new(&device));
+        universe.insert(Background::new());
 
         // Start the intensive job of loading services
         load_services(
-            ServicesContext::new(device.clone(), queue.clone(), &size, window.clone()),
+            ServicesContext::new(queue.clone(), &size, window.clone()),
             universe,
         );
 
@@ -174,32 +178,34 @@ impl RenderState {
 
         // TODO: Combine uniforms into camera
         let mut camera = Camera::new(&size);
-        let mut uniforms = Uniforms::new();
-        uniforms.update_view_proj(&mut camera);
-        let (uniform_buffer, uniform_bind_group_layout, uniform_bind_group) =
-            uniforms.create_uniform_buffers(&device.clone());
+
+        let (
+            uniform_buffer,
+            uniform_bind_group_layout,
+            uniform_bind_group,
+            fragment_bind_group_layout,
+            fragment_bind_group,
+        ) = RenderViewProjectionUniforms.create_uniform_buffers();
 
         universe.insert(camera);
 
-        fill_vertices_cover_screen(&device);
+        fill_vertices_cover_screen();
 
         // TODO: Find better place
         let mut box_outline = BoxOutline::new(
             Vector3::new(-1.0, 69.0, 0.0),
             Vector3::new(1.0, 1.0, 1.0),
             [0.0; 4],
-            device.clone(),
         );
         box_outline.build();
         universe.create_entity().with(box_outline).build();
 
-        let t = PlayerSelectedBlockUpdateSystemData::new(universe, device.clone());
+        let t = PlayerSelectedBlockUpdateSystemData::new(universe);
         universe.insert(t);
 
-        let depth_texture = create_depth_texture(&device.clone(), &surface_desc);
+        let depth_texture = create_depth_texture(&surface_desc);
 
         let render_pipeline = generate_render_pipeline(
-            &device,
             universe.read_resource::<SettingsService>().backface_culling,
             &[
                 &universe
@@ -225,27 +231,28 @@ impl RenderState {
             thread::sleep(Duration::from_millis(25));
         }
 
+        // Create effects buffers
+        let effects = EffectPasses::new(
+            &mut queue.lock().unwrap(),
+            &universe.read_resource::<SettingsService>(),
+        );
+
         let queue = Arc::try_unwrap(queue).ok().unwrap().into_inner().unwrap();
 
-        // Create effects buffers
-        let effects =
-            EffectPasses::new(&universe.read_resource::<SettingsService>(), device.clone());
-
-        let outlines = OutlineRenderer::new(device.clone());
+        let outlines = OutlineRenderer::new();
 
         window.set_title("RustCraft");
 
         Self {
             surface,
             surface_desc,
-            device,
             queue,
             window,
             size,
             render_pipeline,
-            uniforms,
             uniform_buffer,
-            uniform_bind_group,
+            projection_bind_group: Some(uniform_bind_group),
+            fragment_projection_bind_group: Some(fragment_bind_group),
             depth_texture,
             effects,
             outlines,
@@ -273,8 +280,8 @@ impl RenderState {
 
         self.effects.resize_buffers();
 
-        self.depth_texture = create_depth_texture(&self.device, &self.surface_desc);
-        self.surface.configure(&self.device, &self.surface_desc)
+        self.depth_texture = create_depth_texture(&self.surface_desc);
+        self.surface.configure(get_device(), &self.surface_desc);
     }
 }
 
@@ -285,24 +292,24 @@ impl Default for RenderState {
 }
 
 fn generate_render_pipeline(
-    device: &Device,
     culling: bool,
     bind_group_layouts: &[&BindGroupLayout],
 ) -> RenderPipeline {
-    let vs_module = device.create_shader_module(&wgpu::include_spirv!(
+    let vs_module = get_device().create_shader_module(&wgpu::include_spirv!(
         "../../assets/shaders/shader_vert.spv"
     ));
-    let fs_module = device.create_shader_module(&wgpu::include_spirv!(
+    let fs_module = get_device().create_shader_module(&wgpu::include_spirv!(
         "../../assets/shaders/shader_frag.spv"
     ));
 
-    let render_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-        label: Some("Main render pipeline layout"),
-        bind_group_layouts,
-        push_constant_ranges: &[],
-    });
+    let render_pipeline_layout =
+        get_device().create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+            label: Some("Main render pipeline layout"),
+            bind_group_layouts,
+            push_constant_ranges: &[],
+        });
 
-    device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
+    get_device().create_render_pipeline(&wgpu::RenderPipelineDescriptor {
         label: Some("Main render pipeline"),
         layout: Some(&render_pipeline_layout),
         vertex: VertexState {
@@ -340,6 +347,7 @@ fn generate_render_pipeline(
             module: &fs_module,
             entry_point: "main",
             targets: &[
+                // Color output
                 wgpu::ColorTargetState {
                     format: get_texture_format(),
                     write_mask: wgpu::ColorWrites::ALL,
@@ -356,6 +364,41 @@ fn generate_render_pipeline(
                         },
                     }),
                 },
+                // Bloom pass brightness threshold
+                wgpu::ColorTargetState {
+                    format: get_texture_format(),
+                    write_mask: wgpu::ColorWrites::ALL,
+                    blend: Some(wgpu::BlendState {
+                        color: BlendComponent {
+                            src_factor: wgpu::BlendFactor::SrcAlpha,
+                            dst_factor: wgpu::BlendFactor::OneMinusSrcAlpha,
+                            operation: wgpu::BlendOperation::Add,
+                        },
+                        alpha: BlendComponent {
+                            src_factor: wgpu::BlendFactor::One,
+                            dst_factor: wgpu::BlendFactor::Zero,
+                            operation: wgpu::BlendOperation::Add,
+                        },
+                    }),
+                },
+                // Normal map
+                wgpu::ColorTargetState {
+                    format: get_texture_format(),
+                    write_mask: wgpu::ColorWrites::ALL,
+                    blend: Some(wgpu::BlendState {
+                        color: BlendComponent {
+                            src_factor: wgpu::BlendFactor::SrcAlpha,
+                            dst_factor: wgpu::BlendFactor::OneMinusSrcAlpha,
+                            operation: wgpu::BlendOperation::Add,
+                        },
+                        alpha: BlendComponent {
+                            src_factor: wgpu::BlendFactor::One,
+                            dst_factor: wgpu::BlendFactor::Zero,
+                            operation: wgpu::BlendOperation::Add,
+                        },
+                    }),
+                },
+                // Position map
                 wgpu::ColorTargetState {
                     format: get_texture_format(),
                     write_mask: wgpu::ColorWrites::ALL,
@@ -378,8 +421,8 @@ fn generate_render_pipeline(
     })
 }
 
-fn fill_vertices_cover_screen(device: &Device) {
-    let vertex_buffer = device.create_buffer_init(&BufferInitDescriptor {
+fn fill_vertices_cover_screen() {
+    let vertex_buffer = get_device().create_buffer_init(&BufferInitDescriptor {
         label: Some("Cover Screen Vertices Buffer"),
         contents: &bytemuck::cast_slice(&[
             UIVertex {

@@ -1,3 +1,4 @@
+use crate::render::device::get_device;
 use crate::render::effects::EffectPasses;
 use crate::render::vertices::UIVertex;
 use crate::render::{get_texture_format, VERTICES_COVER_SCREEN};
@@ -14,39 +15,40 @@ pub struct GaussianBlurPostProcessingEffect {
 }
 
 impl GaussianBlurPostProcessingEffect {
-    pub fn new(device: &Device) -> GaussianBlurPostProcessingEffect {
-        let bloom_vert_shader = device.create_shader_module(&wgpu::include_spirv!(
+    pub fn new() -> GaussianBlurPostProcessingEffect {
+        let bloom_vert_shader = get_device().create_shader_module(&wgpu::include_spirv!(
             "../../../assets/shaders/gaussian_vert.spv"
         ));
 
-        let bloom_frag_shader = device.create_shader_module(&wgpu::include_spirv!(
+        let bloom_frag_shader = get_device().create_shader_module(&wgpu::include_spirv!(
             "../../../assets/shaders/gaussian_frag.spv"
         ));
 
-        let bloom_bind_group_layout = device.create_bind_group_layout(&BindGroupLayoutDescriptor {
-            label: Some("Gaussian Blur Bind Group Layout"),
-            entries: &[
-                BindGroupLayoutEntry {
-                    binding: 0,
-                    visibility: ShaderStages::FRAGMENT,
-                    ty: wgpu::BindingType::Texture {
-                        sample_type: TextureSampleType::Float { filterable: false },
-                        view_dimension: TextureViewDimension::D2,
-                        multisampled: false,
+        let bloom_bind_group_layout =
+            get_device().create_bind_group_layout(&BindGroupLayoutDescriptor {
+                label: Some("Gaussian Blur Bind Group Layout"),
+                entries: &[
+                    BindGroupLayoutEntry {
+                        binding: 0,
+                        visibility: ShaderStages::FRAGMENT,
+                        ty: wgpu::BindingType::Texture {
+                            sample_type: TextureSampleType::Float { filterable: false },
+                            view_dimension: TextureViewDimension::D2,
+                            multisampled: false,
+                        },
+                        count: None,
                     },
-                    count: None,
-                },
-                BindGroupLayoutEntry {
-                    binding: 1,
-                    visibility: ShaderStages::FRAGMENT,
-                    ty: BindingType::Sampler(SamplerBindingType::NonFiltering),
-                    count: None,
-                },
-            ],
-        });
+                    BindGroupLayoutEntry {
+                        binding: 1,
+                        visibility: ShaderStages::FRAGMENT,
+                        ty: BindingType::Sampler(SamplerBindingType::NonFiltering),
+                        count: None,
+                    },
+                ],
+            });
 
         let bloom_render_pipeline_layout =
-            device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+            get_device().create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
                 label: Some("Gaussian effect pipeline layout descriptor"),
                 bind_group_layouts: &[&bloom_bind_group_layout],
                 push_constant_ranges: &[wgpu::PushConstantRange {
@@ -56,7 +58,7 @@ impl GaussianBlurPostProcessingEffect {
             });
 
         let bloom_render_pipeline =
-            device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
+            get_device().create_render_pipeline(&wgpu::RenderPipelineDescriptor {
                 label: Some("Gaussian effect pipeline"),
                 layout: Option::from(&bloom_render_pipeline_layout),
                 vertex: VertexState {
@@ -116,44 +118,37 @@ impl GaussianBlurPostProcessingEffect {
 
         let bloom_texture_view = bloom_texture.create_view(&TextureViewDescriptor::default());
 
-        let sampler = effect_passes
-            .device
-            .create_sampler(&SamplerDescriptor::default());
+        let sampler = get_device().create_sampler(&SamplerDescriptor::default());
 
-        let bind_group = effect_passes
-            .device
-            .create_bind_group(&wgpu::BindGroupDescriptor {
-                label: Some("Gaussian Effect Bind Group"),
-                layout: &self.bloom_bind_group_layout,
-                entries: &[
-                    wgpu::BindGroupEntry {
-                        binding: 0,
-                        resource: BindingResource::TextureView(&bloom_texture_view),
-                    },
-                    wgpu::BindGroupEntry {
-                        binding: 1,
-                        resource: BindingResource::Sampler(&sampler),
-                    },
-                ],
-            });
+        let bind_group = get_device().create_bind_group(&wgpu::BindGroupDescriptor {
+            label: Some("Gaussian Effect Bind Group"),
+            layout: &self.bloom_bind_group_layout,
+            entries: &[
+                wgpu::BindGroupEntry {
+                    binding: 0,
+                    resource: BindingResource::TextureView(&bloom_texture_view),
+                },
+                wgpu::BindGroupEntry {
+                    binding: 1,
+                    resource: BindingResource::Sampler(&sampler),
+                },
+            ],
+        });
 
-        let bind_pingpong_group =
-            effect_passes
-                .device
-                .create_bind_group(&wgpu::BindGroupDescriptor {
-                    label: Some("Gaussian Effect Pingpong Bind Group"),
-                    layout: &self.bloom_bind_group_layout,
-                    entries: &[
-                        wgpu::BindGroupEntry {
-                            binding: 0,
-                            resource: BindingResource::TextureView(&pingpong_buffer_view),
-                        },
-                        wgpu::BindGroupEntry {
-                            binding: 1,
-                            resource: BindingResource::Sampler(&sampler),
-                        },
-                    ],
-                });
+        let bind_pingpong_group = get_device().create_bind_group(&wgpu::BindGroupDescriptor {
+            label: Some("Gaussian Effect Pingpong Bind Group"),
+            layout: &self.bloom_bind_group_layout,
+            entries: &[
+                wgpu::BindGroupEntry {
+                    binding: 0,
+                    resource: BindingResource::TextureView(&pingpong_buffer_view),
+                },
+                wgpu::BindGroupEntry {
+                    binding: 1,
+                    resource: BindingResource::Sampler(&sampler),
+                },
+            ],
+        });
 
         let mut horizontal = 0;
 

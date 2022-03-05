@@ -1,3 +1,4 @@
+use crate::render::device::get_device;
 use crate::render::get_texture_format;
 use crate::render::vertices::UIVertex;
 use crate::services::ui_service::meshdata::UIMeshData;
@@ -20,16 +21,16 @@ pub struct Background {
 }
 
 impl Background {
-    pub fn new(device: &Device) -> Background {
-        let vs_module = device.create_shader_module(&wgpu::include_spirv!(
+    pub fn new() -> Background {
+        let vs_module = get_device().create_shader_module(&wgpu::include_spirv!(
             "../../..//assets/shaders/background_vert.spv"
         ));
-        let fs_module = device.create_shader_module(&wgpu::include_spirv!(
+        let fs_module = get_device().create_shader_module(&wgpu::include_spirv!(
             "../../..//assets/shaders/background_frag.spv"
         ));
 
         let render_pipeline_layout =
-            device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+            get_device().create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
                 label: Some("Background render pipeline layout"),
                 bind_group_layouts: &[],
                 push_constant_ranges: &[PushConstantRange {
@@ -38,51 +39,52 @@ impl Background {
                 }],
             });
 
-        let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-            label: Some("Background render pipeline"),
-            layout: Some(&render_pipeline_layout),
-            vertex: VertexState {
-                module: &vs_module,
-                entry_point: "main",
-                buffers: &[UIVertex::desc()],
-            },
-            primitive: wgpu::PrimitiveState {
-                topology: wgpu::PrimitiveTopology::TriangleList,
-                strip_index_format: None,
-                front_face: wgpu::FrontFace::Ccw,
-                cull_mode: None,
-                unclipped_depth: false,
-                polygon_mode: wgpu::PolygonMode::Fill,
-                conservative: false,
-            },
-            depth_stencil: None,
-            multisample: MultisampleState {
-                count: 1,
-                mask: !0,
-                alpha_to_coverage_enabled: false,
-            },
-            fragment: Some(wgpu::FragmentState {
-                module: &fs_module,
-                entry_point: "main",
-                targets: &[wgpu::ColorTargetState {
-                    format: get_texture_format(),
-                    write_mask: wgpu::ColorWrites::ALL,
-                    blend: Some(wgpu::BlendState {
-                        color: BlendComponent {
-                            src_factor: wgpu::BlendFactor::SrcAlpha,
-                            dst_factor: wgpu::BlendFactor::OneMinusSrcAlpha,
-                            operation: wgpu::BlendOperation::Add,
-                        },
-                        alpha: BlendComponent {
-                            src_factor: wgpu::BlendFactor::One,
-                            dst_factor: wgpu::BlendFactor::Zero,
-                            operation: wgpu::BlendOperation::Add,
-                        },
-                    }),
-                }],
-            }),
-            multiview: None,
-        });
+        let render_pipeline =
+            get_device().create_render_pipeline(&wgpu::RenderPipelineDescriptor {
+                label: Some("Background render pipeline"),
+                layout: Some(&render_pipeline_layout),
+                vertex: VertexState {
+                    module: &vs_module,
+                    entry_point: "main",
+                    buffers: &[UIVertex::desc()],
+                },
+                primitive: wgpu::PrimitiveState {
+                    topology: wgpu::PrimitiveTopology::TriangleList,
+                    strip_index_format: None,
+                    front_face: wgpu::FrontFace::Ccw,
+                    cull_mode: None,
+                    unclipped_depth: false,
+                    polygon_mode: wgpu::PolygonMode::Fill,
+                    conservative: false,
+                },
+                depth_stencil: None,
+                multisample: MultisampleState {
+                    count: 1,
+                    mask: !0,
+                    alpha_to_coverage_enabled: false,
+                },
+                fragment: Some(wgpu::FragmentState {
+                    module: &fs_module,
+                    entry_point: "main",
+                    targets: &[wgpu::ColorTargetState {
+                        format: get_texture_format(),
+                        write_mask: wgpu::ColorWrites::ALL,
+                        blend: Some(wgpu::BlendState {
+                            color: BlendComponent {
+                                src_factor: wgpu::BlendFactor::SrcAlpha,
+                                dst_factor: wgpu::BlendFactor::OneMinusSrcAlpha,
+                                operation: wgpu::BlendOperation::Add,
+                            },
+                            alpha: BlendComponent {
+                                src_factor: wgpu::BlendFactor::One,
+                                dst_factor: wgpu::BlendFactor::Zero,
+                                operation: wgpu::BlendOperation::Add,
+                            },
+                        }),
+                    }],
+                }),
+                multiview: None,
+            });
 
         let top_color = [127.0 / 255.0, 172.0 / 255.0, 255.0 / 255.0, 1.0];
         let bottom_color = [170.0 / 255.0, 209.0 / 255.0, 254.0 / 255.0, 1.0];
@@ -101,7 +103,7 @@ impl Background {
         };
 
         background.generate_background();
-        background.data.build_buf(device);
+        background.data.build_buf();
 
         background
     }

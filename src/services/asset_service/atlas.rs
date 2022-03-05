@@ -1,3 +1,4 @@
+use crate::render::device::get_device;
 use crate::services::asset_service::index::TextureAtlasIndex;
 use crate::services::asset_service::{AssetService, ResourcePack};
 use crate::services::settings_service::SettingsService;
@@ -30,7 +31,6 @@ impl AssetService {
     pub fn generate_texture_atlas(
         resource_pack: &mut ResourcePack,
         zip_name: &str,
-        device: &Device,
         queue: &mut Queue,
         settings: &SettingsService,
     ) -> (
@@ -57,7 +57,7 @@ impl AssetService {
         atlas_info_path.push("atlas_info");
 
         //Create buffer
-        let diffuse_texture = device.create_texture(&wgpu::TextureDescriptor {
+        let diffuse_texture = get_device().create_texture(&wgpu::TextureDescriptor {
             label: Some("Asset Service Texture Atlas Texture"),
             size: wgpu::Extent3d {
                 width: ATLAS_WIDTH,
@@ -127,8 +127,7 @@ impl AssetService {
             );
         }
 
-        let diffuse_sampler =
-            process_image(atlas_img.as_mut().unwrap(), &diffuse_texture, queue, device);
+        let diffuse_sampler = process_image(atlas_img.as_mut().unwrap(), &diffuse_texture, queue);
 
         ATLAS_LOOKUPS
             .set(atlas_index.clone())
@@ -332,7 +331,6 @@ fn process_image(
     atlas_img: &mut DynamicImage,
     diffuse_texture: &Texture,
     queue: &mut Queue,
-    device: &Device,
 ) -> Sampler {
     let diffuse_rgba = atlas_img.as_rgba8().unwrap();
     let dimensions = diffuse_rgba.dimensions();
@@ -343,13 +341,13 @@ fn process_image(
         depth_or_array_layers: 1,
     };
 
-    let diffuse_buffer = device.create_buffer_init(&BufferInitDescriptor {
+    let diffuse_buffer = get_device().create_buffer_init(&BufferInitDescriptor {
         label: Some("Asset Service Texture Atlas Buffer"),
         contents: &diffuse_rgba,
         usage: BufferUsages::COPY_SRC,
     });
 
-    let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
+    let mut encoder = get_device().create_command_encoder(&wgpu::CommandEncoderDescriptor {
         label: Some("Asset Service Texture Atlas Command Encoder"),
     });
 
@@ -389,7 +387,7 @@ fn process_image(
         border_color: None,
     };
 
-    let diffuse_sampler = device.create_sampler(&diffuse_sampler_descriptor);
+    let diffuse_sampler = get_device().create_sampler(&diffuse_sampler_descriptor);
 
     diffuse_sampler
 }

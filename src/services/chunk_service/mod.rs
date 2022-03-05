@@ -11,6 +11,7 @@ use nalgebra::Vector3;
 use specs::{Entities, ReadStorage, World, Write, WriteStorage};
 
 use crate::game::resources::SystemResources;
+use crate::render::device::get_device;
 use crate::services::chunk_service::mesh::rerendering::RerenderChunkFlag;
 use std::cmp::Ordering;
 use std::time::{Instant, SystemTime};
@@ -36,7 +37,6 @@ pub struct ChunkService {
 
     system: SystemResources,
     low_memory_reminded: SystemTime,
-    start_time: Instant,
 
     // Chunks have updated so update culling next frame
     update_culling: bool,
@@ -63,9 +63,8 @@ impl ChunkService {
         };
 
         // Create the chunk bind group layout
-        let model_bind_group_layout = context
-            .device
-            .create_bind_group_layout(&model_bind_group_layout_descriptor);
+        let model_bind_group_layout =
+            get_device().create_bind_group_layout(&model_bind_group_layout_descriptor);
 
         let service = ChunkService {
             model_bind_group_layout,
@@ -78,7 +77,6 @@ impl ChunkService {
             previous_player_pos: Vector3::zeros(),
             system: SystemResources::new(),
             low_memory_reminded: SystemTime::now(),
-            start_time: Instant::now(),
             update_culling: false,
         };
 

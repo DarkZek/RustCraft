@@ -1,3 +1,4 @@
+use crate::render::device::get_device;
 use crate::render::vertices::UIVertex;
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{Buffer, Device};
@@ -24,14 +25,14 @@ impl UIMeshData {
         self.total_vertices.clear();
     }
 
-    pub fn build_buf(&mut self, device: &Device) {
-        self.total_vertex_buffer = Some(device.create_buffer_init(&BufferInitDescriptor {
+    pub fn build_buf(&mut self) {
+        self.total_vertex_buffer = Some(get_device().create_buffer_init(&BufferInitDescriptor {
             label: Some("UI Mesh Data Vertex Buffer"),
             contents: &bytemuck::cast_slice(&self.total_vertices),
             usage: wgpu::BufferUsages::VERTEX,
         }));
 
-        self.total_indices_buffer = Some(device.create_buffer_init(&BufferInitDescriptor {
+        self.total_indices_buffer = Some(get_device().create_buffer_init(&BufferInitDescriptor {
             label: Some("UI Mesh Data Indices Buffer"),
             contents: &bytemuck::cast_slice(&self.total_indices),
             usage: wgpu::BufferUsages::INDEX,

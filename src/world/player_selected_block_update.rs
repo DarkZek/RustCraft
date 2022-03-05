@@ -7,7 +7,6 @@ use nalgebra::Vector3;
 use specs::{
     Builder, Entities, Entity, Read, ReadStorage, System, World, WorldExt, Write, WriteStorage,
 };
-use std::sync::Arc;
 use wgpu::Device;
 
 pub struct PlayerSelectedBlockUpdateSystem;
@@ -29,12 +28,11 @@ impl Default for PlayerSelectedBlockUpdateSystemData {
 impl PlayerSelectedBlockUpdateSystemData {
     pub fn update_position(&mut self) {}
 
-    pub fn new(universe: &mut World, device: Arc<Device>) -> PlayerSelectedBlockUpdateSystemData {
+    pub fn new(universe: &mut World) -> PlayerSelectedBlockUpdateSystemData {
         let mut box_outline = BoxOutline::new(
             Vector3::new(-2.0, 69.0, 2.0),
             Vector3::new(1.0, 1.0, 1.0),
             [0.0; 4],
-            device.clone(),
         );
         box_outline.build();
         let outline = universe.create_entity().with(box_outline).build();

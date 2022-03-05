@@ -1,14 +1,11 @@
 use crate::render::effects::EffectPasses;
 
-
-use wgpu::{
-    CommandEncoder, Device, Texture, TextureViewDescriptor,
-};
+use wgpu::{CommandEncoder, Device, Texture, TextureViewDescriptor};
 
 pub struct BloomPostProcessingEffect {}
 
 impl BloomPostProcessingEffect {
-    pub fn new(_device: &Device) -> BloomPostProcessingEffect {
+    pub fn new() -> BloomPostProcessingEffect {
         BloomPostProcessingEffect {}
     }
 

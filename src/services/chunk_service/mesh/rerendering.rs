@@ -1,4 +1,5 @@
 use crate::render::camera::Camera;
+use crate::render::device::get_device;
 use crate::render::RenderState;
 use crate::services::chunk_service::chunk::{ChunkData, Chunks};
 use crate::services::chunk_service::lighting::UpdateChunkLighting;
@@ -122,10 +123,7 @@ impl<'a> System<'a> for ChunkRerenderSystem {
                     // Generate mesh & gpu buffers
                     let mut update = chunk.generate_mesh(&chunks_loc, &settings);
 
-                    update.create_buffers(
-                        &render_system.device,
-                        &chunk_service.model_bind_group_layout,
-                    );
+                    update.create_buffers(&chunk_service.model_bind_group_layout);
 
                     let lighting_update = chunk.calculate_lighting(&chunks_loc);
 
@@ -192,12 +190,12 @@ fn get_closest_chunks<'a>(
 }
 
 impl UpdateChunkMesh {
-    pub fn create_buffers(&mut self, device: &Device, bind_group_layout: &BindGroupLayout) {
+    pub fn create_buffers(&mut self, bind_group_layout: &BindGroupLayout) {
         let opaque_vertices = &self.opaque_model.vertices;
         let translucent_vertices = &self.translucent_model.vertices;
 
         if opaque_vertices.len() != 0 {
-            let vertex_buffer = device.create_buffer_init(&BufferInitDescriptor {
+            let vertex_buffer = get_device().create_buffer_init(&BufferInitDescriptor {
                 label: Some("Chunk Opaque Mesh Data Buffer"),
                 contents: &bytemuck::cast_slice(&opaque_vertices),
                 usage: wgpu::BufferUsages::VERTEX,
@@ -206,7 +204,7 @@ impl UpdateChunkMesh {
         }
 
         if translucent_vertices.len() != 0 {
-            let vertex_buffer = device.create_buffer_init(&BufferInitDescriptor {
+            let vertex_buffer = get_device().create_buffer_init(&BufferInitDescriptor {
                 label: Some("Chunk Translucent Mesh Data Buffer"),
                 contents: &bytemuck::cast_slice(&translucent_vertices),
                 usage: wgpu::BufferUsages::VERTEX,
@@ -220,7 +218,7 @@ impl UpdateChunkMesh {
         self.translucent_model.indices_buffer_len = translucent_indices.len() as u32;
 
         if self.opaque_model.indices_buffer_len != 0 {
-            let indices_buffer = device.create_buffer_init(&BufferInitDescriptor {
+            let indices_buffer = get_device().create_buffer_init(&BufferInitDescriptor {
                 label: Some("Chunk Opaque Mesh Data Indices Buffer"),
                 contents: &bytemuck::cast_slice(&opaque_indices),
                 usage: wgpu::BufferUsages::INDEX,
@@ -229,7 +227,7 @@ impl UpdateChunkMesh {
         }
 
         if self.translucent_model.indices_buffer_len != 0 {
-            let indices_buffer = device.create_buffer_init(&BufferInitDescriptor {
+            let indices_buffer = get_device().create_buffer_init(&BufferInitDescriptor {
                 label: Some("Chunk Translucent Mesh Data Indices Buffer"),
                 contents: &bytemuck::cast_slice(&translucent_indices),
                 usage: wgpu::BufferUsages::INDEX,
@@ -245,7 +243,7 @@ impl UpdateChunkMesh {
         ))
         .into();
 
-        let model_buffer = device.create_buffer_init(&BufferInitDescriptor {
+        let model_buffer = get_device().create_buffer_init(&BufferInitDescriptor {
             label: Some("Chunk translation matrix buffer"),
             contents: &bytemuck::cast_slice(&[model.clone()]),
             usage: wgpu::BufferUsages::UNIFORM
@@ -253,7 +251,7 @@ impl UpdateChunkMesh {
                 | wgpu::BufferUsages::COPY_SRC,
         });
 
-        let model_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+        let model_bind_group = get_device().create_bind_group(&wgpu::BindGroupDescriptor {
             label: Some("Chunk translation matrix bind group"),
             layout: &bind_group_layout,
             entries: &[wgpu::BindGroupEntry {

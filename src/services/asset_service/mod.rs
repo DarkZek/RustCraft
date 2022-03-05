@@ -125,13 +125,12 @@ impl AssetService {
         let (atlas_image, atlas, atlas_index, atlas_sampler) = AssetService::generate_texture_atlas(
             &mut selected_pack,
             resource_packs.get(0).unwrap(),
-            context.device.as_ref(),
             context.queue.lock().unwrap().deref_mut(),
             settings,
         );
 
         let (atlas_bind_group_layout, atlas_bind_group) =
-            AssetService::generate_atlas_bindings(&mut context.device, &atlas, &atlas_sampler);
+            AssetService::generate_atlas_bindings(&atlas, &atlas_sampler);
 
         AssetService {
             resource_packs,
