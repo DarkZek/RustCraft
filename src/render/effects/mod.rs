@@ -2,6 +2,7 @@ use crate::render::device::get_device;
 use crate::render::effects::bloom::BloomPostProcessingEffect;
 use crate::render::effects::gaussian::GaussianBlurPostProcessingEffect;
 use crate::render::effects::merge::MergePostProcessingEffect;
+use crate::render::effects::multiply::MultiplyPostProcessingEffect;
 use crate::render::effects::ssao::SSAOEffect;
 use crate::render::{get_swapchain_size, get_texture_format};
 use crate::services::settings_service::SettingsService;
@@ -9,12 +10,13 @@ use std::ops::Deref;
 use std::sync::{Arc, Mutex};
 use wgpu::{
     BindGroup, CommandEncoder, Device, ImageSubresourceRange, Queue, Texture, TextureAspect,
-    TextureDimension, TextureUsages,
+    TextureDimension, TextureFormat, TextureUsages,
 };
 
 pub mod bloom;
 pub mod gaussian;
 pub mod merge;
+pub mod multiply;
 pub mod ssao;
 
 lazy_static! {
@@ -27,30 +29,18 @@ pub struct EffectPasses {
 
     pub effect_gaussian: Arc<GaussianBlurPostProcessingEffect>,
     pub effect_merge: Arc<MergePostProcessingEffect>,
+    pub effect_multiply: Arc<MultiplyPostProcessingEffect>,
+
+    pub normal_map: Texture,
+    pub position_map: Texture,
 
     buffers: Vec<SCTexture>,
     dirty_buffers: Vec<SCTexture>,
 }
 
-// A struct the same size as the swapchain
-pub struct SCTexture {
-    texture: Texture,
-}
-
-impl Drop for SCTexture {
-    fn drop(&mut self) {
-        // Check if we should log this
-        if !*DROP_TEXTURES.lock().unwrap() {
-            log_warn!("SCTexture dropped");
-        }
-    }
-}
-
-impl Deref for SCTexture {
-    type Target = Texture;
-
-    fn deref(&self) -> &Self::Target {
-        &self.texture
+impl Default for EffectPasses {
+    fn default() -> Self {
+        todo!()
     }
 }
 
@@ -60,12 +50,36 @@ impl EffectPasses {
         let ssao = Arc::new(SSAOEffect::new(queue));
         let effect_gaussian = Arc::new(GaussianBlurPostProcessingEffect::new());
         let effect_merge = Arc::new(MergePostProcessingEffect::new());
+        let effect_multiply = Arc::new(MultiplyPostProcessingEffect::new());
+
+        let normal_map = get_device().create_texture(&wgpu::TextureDescriptor {
+            label: Some("Normal Map texture"),
+            size: get_swapchain_size(),
+            mip_level_count: 1,
+            sample_count: 1,
+            dimension: TextureDimension::D2,
+            format: TextureFormat::Rgba16Float,
+            usage: TextureUsages::RENDER_ATTACHMENT | TextureUsages::TEXTURE_BINDING,
+        });
+
+        let position_map = get_device().create_texture(&wgpu::TextureDescriptor {
+            label: Some("Position Map texture"),
+            size: get_swapchain_size(),
+            mip_level_count: 1,
+            sample_count: 1,
+            dimension: TextureDimension::D2,
+            format: TextureFormat::Rgba16Float,
+            usage: TextureUsages::RENDER_ATTACHMENT | TextureUsages::TEXTURE_BINDING,
+        });
 
         EffectPasses {
             bloom,
             ssao,
             effect_gaussian,
             effect_merge,
+            effect_multiply,
+            normal_map,
+            position_map,
             buffers: vec![],
             dirty_buffers: vec![],
         }
@@ -85,13 +99,12 @@ impl EffectPasses {
     pub fn apply_ssao(
         &mut self,
         encoder: &mut CommandEncoder,
-        normals: &Texture,
-        positions: &Texture,
         projection_bind_group: &BindGroup,
-    ) -> SCTexture {
+        sc: &Texture,
+    ) {
         self.ssao
             .clone()
-            .apply_ssao(self, encoder, normals, positions, projection_bind_group)
+            .apply_ssao(self, encoder, projection_bind_group, sc)
     }
 
     pub fn get_buffer(&mut self) -> SCTexture {
@@ -146,5 +159,27 @@ impl EffectPasses {
         *DROP_TEXTURES.lock().unwrap() = true;
         self.buffers = Vec::new();
         *DROP_TEXTURES.lock().unwrap() = false;
+    }
+}
+
+// A struct the same size as the swapchain
+pub struct SCTexture {
+    texture: Texture,
+}
+
+impl Drop for SCTexture {
+    fn drop(&mut self) {
+        // Check if we should log this
+        if !*DROP_TEXTURES.lock().unwrap() {
+            log_warn!("SCTexture dropped");
+        }
+    }
+}
+
+impl Deref for SCTexture {
+    type Target = Texture;
+
+    fn deref(&self) -> &Self::Target {
+        &self.texture
     }
 }

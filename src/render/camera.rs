@@ -13,7 +13,6 @@ pub struct Camera {
     pub zfar: f32,
     pub view: Matrix4<f32>,
     pub proj: Matrix4<f32>,
-    pub final_matrix: Matrix4<f32>,
 }
 
 const FIRST_PERSON_OFFSET: [f32; 3] = [0.0, 1.6, 0.0];
@@ -35,7 +34,6 @@ impl Camera {
             zfar: 2000.0,
             view: Matrix4::zeros(),
             proj: Matrix4::zeros(),
-            final_matrix: Matrix4::zeros(),
         }
     }
 
@@ -49,10 +47,6 @@ impl Camera {
 
     /// Builds the view projection matrix with flipped axis for wgpu using Camera settings
     pub fn build_view_projection_matrix(&mut self) -> (Matrix4<f32>, Matrix4<f32>) {
-        let opengl_to_wgpu_matrix: Matrix4<f32> = Matrix4::new(
-            1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5, 1.0,
-        );
-
         // No look_at_direction function so I need to do this grr
         let target = Point3::from(self.look_direction()) + self.eye.coords;
 
@@ -60,7 +54,6 @@ impl Camera {
 
         let proj = Perspective3::new(self.aspect, self.fovy, self.znear, self.zfar);
 
-        self.final_matrix = (opengl_to_wgpu_matrix * proj.as_matrix()) * view.to_homogeneous();
         self.view = view.to_homogeneous();
         self.proj = *proj.as_matrix();
 

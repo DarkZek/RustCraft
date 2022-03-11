@@ -23,8 +23,7 @@ void main() {
     v_applied_color = applied_color;
     v_tex_coords = a_tex_coords;
 
-    mat3 normalMatrix = transpose(inverse(mat3(u_view * model)));
-    v_normal = normalMatrix * -normal;
+    v_normal = normal;
 
     vec4 viewPos = u_view * model * vec4(a_position, 1.0);
 

@@ -5,6 +5,7 @@ use crate::game::physics::interpolator::{PhysicsInterpolationFactor, PhysicsInte
 use crate::game::physics::{Physics, PhysicsObject, PhysicsProcessingSystem};
 use crate::game::systems::DeltaTime;
 use crate::render::camera::Camera;
+use crate::render::effects::EffectPasses;
 use crate::render::pass::outline::BoxOutline;
 use crate::render::pass::prepass::{PostFrame, PreFrame};
 use crate::render::pass::RenderSystem;
@@ -24,9 +25,7 @@ use crate::services::networking_service::NetworkingService;
 use crate::services::settings_service::SettingsService;
 use crate::services::ui_service::fonts::system::FontComputingSystem;
 use crate::services::ui_service::UIService;
-use crate::world::player_selected_block_update::{
-    PlayerSelectedBlockUpdateSystem,
-};
+use crate::world::player_selected_block_update::PlayerSelectedBlockUpdateSystem;
 use specs::{DispatcherBuilder, World, WorldExt};
 use std::borrow::Borrow;
 use std::ops::Deref;
@@ -206,6 +205,9 @@ impl Game {
                                 self.universe.read_resource::<RenderState>().borrow(),
                                 physical_size,
                             );
+                        self.universe
+                            .write_resource::<EffectPasses>()
+                            .resize_buffers();
                     }
                     WindowEvent::ScaleFactorChanged { new_inner_size, .. } => {
                         let render_state: &mut RenderState = self.universe.get_mut().unwrap();

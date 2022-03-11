@@ -34,5 +34,6 @@ void main() {
     }
 
     normal_color = vec4(normalize(normal), 1.0);
+    //f_color = vec4(normalize(normal), 1.0);
     position_color = vec4(position, 1.0);
 }

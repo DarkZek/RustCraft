@@ -26,8 +26,11 @@ pub fn calculate_frustum_culling(
     viewable_chunks: &Vec<Vector3<i32>>,
     chunks: &ReadStorage<ChunkData>,
 ) -> Vec<Vector3<i32>> {
+    let opengl_to_wgpu_matrix: Matrix4<f32> = Matrix4::new(
+        1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5, 1.0,
+    );
     let chunks = Chunks::new(chunks.join().collect::<Vec<&ChunkData>>());
-    let frustum = Frustum::from_matrix(cam.final_matrix);
+    let frustum = Frustum::from_matrix(opengl_to_wgpu_matrix * cam.proj * cam.view);
 
     if let None = frustum {
         return Vec::new();

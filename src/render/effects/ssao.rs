@@ -2,10 +2,13 @@ use crate::helpers::Lerp;
 use crate::render::device::get_device;
 use crate::render::effects::{EffectPasses, SCTexture};
 use crate::render::vertices::UIVertex;
-use crate::render::{get_texture_format, VERTICES_COVER_SCREEN};
+use crate::render::{
+    get_swapchain_size, get_texture_format, VERTICES_COVER_SCREEN, VERTICES_COVER_SCREEN_VIEWPORT,
+};
 use nalgebra::{Vector3, Vector4};
 use rand::Rng;
 use std::convert::TryFrom;
+use std::mem;
 use std::num::{NonZeroU32, NonZeroU64};
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{
@@ -13,8 +16,8 @@ use wgpu::{
     BindingResource, BindingType, Buffer, BufferBinding, BufferBindingType, BufferSize,
     BufferUsages, CommandBuffer, CommandEncoder, Extent3d, ImageDataLayout, Origin3d, Queue,
     RenderPassColorAttachment, RenderPipeline, Sampler, SamplerBindingType, SamplerDescriptor,
-    ShaderStages, Texture, TextureAspect, TextureFormat, TextureSampleType, TextureView,
-    TextureViewDescriptor, TextureViewDimension, VertexState,
+    ShaderStages, Texture, TextureAspect, TextureDimension, TextureFormat, TextureSampleType,
+    TextureUsages, TextureView, TextureViewDescriptor, TextureViewDimension, VertexState,
 };
 
 pub struct SSAOEffect {
@@ -23,6 +26,7 @@ pub struct SSAOEffect {
     ssao_bind_group_layout: BindGroupLayout,
     kernel_sample: Buffer,
     sampler: Sampler,
+    pub(crate) ssao_color: Texture,
 }
 
 impl SSAOEffect {
@@ -159,7 +163,7 @@ impl SSAOEffect {
                     module: &ssao_frag_shader,
                     entry_point: "main",
                     targets: &[wgpu::ColorTargetState {
-                        format: get_texture_format(),
+                        format: TextureFormat::R8Unorm,
                         write_mask: wgpu::ColorWrites::ALL,
                         blend: None,
                     }],
@@ -173,7 +177,20 @@ impl SSAOEffect {
             /// How to deal with out of bounds accesses in the u (i.e. x) direction
             address_mode_u: AddressMode::Repeat,
             address_mode_v: AddressMode::Repeat,
+            address_mode_w: AddressMode::ClampToEdge,
             ..SamplerDescriptor::default()
+        });
+
+        let ssao_color = get_device().create_texture(&wgpu::TextureDescriptor {
+            label: Some("SSAO Color texture"),
+            size: get_swapchain_size(),
+            mip_level_count: 1,
+            sample_count: 1,
+            dimension: wgpu::TextureDimension::D2,
+            format: TextureFormat::R8Unorm,
+            usage: wgpu::TextureUsages::RENDER_ATTACHMENT
+                | TextureUsages::TEXTURE_BINDING
+                | TextureUsages::COPY_SRC, //TODO: Remove
         });
 
         SSAOEffect {
@@ -182,6 +199,7 @@ impl SSAOEffect {
             ssao_bind_group_layout,
             kernel_sample,
             sampler,
+            ssao_color,
         }
     }
 
@@ -282,14 +300,11 @@ impl SSAOEffect {
         &self,
         effect_passes: &mut EffectPasses,
         encoder: &mut CommandEncoder,
-        normals: &Texture,
-        position: &Texture,
         projection_bind_group: &BindGroup,
-    ) -> SCTexture {
-        let ssao_data = effect_passes.get_buffer();
-
-        let ssao_data_view = ssao_data
-            .texture
+        dest: &Texture,
+    ) {
+        let ssao_data_view = self
+            .ssao_color
             .create_view(&TextureViewDescriptor::default());
 
         let bind_group = get_device().create_bind_group(&wgpu::BindGroupDescriptor {
@@ -299,13 +314,17 @@ impl SSAOEffect {
                 wgpu::BindGroupEntry {
                     binding: 0,
                     resource: BindingResource::TextureView(
-                        &position.create_view(&TextureViewDescriptor::default()),
+                        &effect_passes
+                            .position_map
+                            .create_view(&TextureViewDescriptor::default()),
                     ),
                 },
                 wgpu::BindGroupEntry {
                     binding: 1,
                     resource: BindingResource::TextureView(
-                        &normals.create_view(&TextureViewDescriptor::default()),
+                        &effect_passes
+                            .normal_map
+                            .create_view(&TextureViewDescriptor::default()),
                     ),
                 },
                 wgpu::BindGroupEntry {
@@ -346,11 +365,21 @@ impl SSAOEffect {
         pass.set_bind_group(0, &bind_group, &[]);
         pass.set_bind_group(1, projection_bind_group, &[]);
 
-        pass.set_vertex_buffer(0, VERTICES_COVER_SCREEN.get().unwrap().slice(..));
+        pass.set_vertex_buffer(0, VERTICES_COVER_SCREEN_VIEWPORT.get().unwrap().slice(..));
 
         pass.draw(0..6, 0..1);
 
-        ssao_data
+        mem::drop(pass);
+
+        let m = effect_passes.effect_multiply.clone();
+        m.multiply(
+            effect_passes,
+            encoder,
+            &self
+                .ssao_color
+                .create_view(&TextureViewDescriptor::default()),
+            dest,
+        );
     }
 }
 

@@ -81,12 +81,8 @@ impl UIService {
             10.0,
         );
 
-        let opengl_to_wgpu_matrix: Matrix4<f32> = Matrix4::new(
-            1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5, 1.0,
-        );
-
         let mut matrix: Matrix4<f32> = projection.into();
-        matrix = matrix * opengl_to_wgpu_matrix;
+        matrix = matrix;
 
         let mut encoder = get_device().create_command_encoder(&wgpu::CommandEncoderDescriptor {
             label: Some("Main Projection Matrix Command Encoder"),

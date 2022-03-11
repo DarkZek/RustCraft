@@ -2,6 +2,7 @@ use crate::game::game_state::{GameState, ProgramState};
 use crate::render::background::Background;
 use crate::render::camera::Camera;
 use crate::render::device::get_device;
+use crate::render::effects::EffectPasses;
 use crate::render::pass::outline::BoxOutline;
 use crate::render::{get_swapchain_size, RenderState};
 use crate::services::asset_service::AssetService;
@@ -29,6 +30,7 @@ impl<'a> System<'a> for RenderSystem {
         Read<'a, Background>,
         Read<'a, Camera>,
         ReadStorage<'a, BoxOutline>,
+        Write<'a, EffectPasses>,
     );
 
     /// Renders all visible chunks
@@ -44,6 +46,7 @@ impl<'a> System<'a> for RenderSystem {
             background,
             camera,
             box_outlines,
+            mut effect_passes,
         ): Self::SystemData,
     ) {
         use specs::Join;
@@ -54,21 +57,21 @@ impl<'a> System<'a> for RenderSystem {
             .texture
             .create_view(&wgpu::TextureViewDescriptor::default());
 
-        let bloom_texture = render_state.effects.get_buffer();
+        let bloom_texture = effect_passes.get_buffer();
         let bloom_frame = bloom_texture.create_view(&TextureViewDescriptor::default());
 
-        let normal_map_texture = render_state.effects.get_buffer();
-        let normal_map_frame = normal_map_texture.create_view(&TextureViewDescriptor::default());
-
-        let position_map_texture = render_state.effects.get_buffer();
-        let position_map_frame =
-            position_map_texture.create_view(&TextureViewDescriptor::default());
+        let normal_map_frame = effect_passes
+            .normal_map
+            .create_view(&TextureViewDescriptor::default());
+        let position_map_frame = effect_passes
+            .position_map
+            .create_view(&TextureViewDescriptor::default());
 
         let view_projection_bind_group = render_state.projection_bind_group.take().unwrap();
         let view_projection_fragment_bind_group =
             render_state.fragment_projection_bind_group.take().unwrap();
 
-        let frame_image_buffer = render_state.effects.get_buffer();
+        let frame_image_buffer = effect_passes.get_buffer();
 
         let frame_image_view = frame_image_buffer.create_view(&TextureViewDescriptor::default());
 
@@ -176,15 +179,12 @@ impl<'a> System<'a> for RenderSystem {
                 }
             }
 
-            render_state
-                .effects
-                .apply_bloom(&mut encoder, &*bloom_texture, &frame_image_buffer);
+            effect_passes.apply_bloom(&mut encoder, &*bloom_texture, &frame_image_buffer);
 
-            let frame_image_buffer = render_state.effects.apply_ssao(
+            effect_passes.apply_ssao(
                 &mut encoder,
-                &*normal_map_texture,
-                &*position_map_texture,
                 &view_projection_fragment_bind_group,
+                &*frame_image_buffer,
             );
 
             // Merge vfx buffer into main swapchain
@@ -205,13 +205,11 @@ impl<'a> System<'a> for RenderSystem {
             ui_service.render(&frame, &mut encoder, &asset_service);
 
             // Return buffers
-            render_state.effects.return_buffer(frame_image_buffer);
-            render_state.effects.return_buffer(bloom_texture);
-            render_state.effects.return_buffer(normal_map_texture);
-            render_state.effects.return_buffer(position_map_texture);
+            effect_passes.return_buffer(frame_image_buffer);
+            effect_passes.return_buffer(bloom_texture);
 
             // Clean used buffers
-            render_state.effects.clean_buffers(&mut encoder);
+            effect_passes.clean_buffers(&mut encoder);
 
             render_state.queue.submit(Some(encoder.finish()));
 

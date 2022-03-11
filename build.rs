@@ -18,6 +18,7 @@ fn main() {
         "addition",
         "outline",
         "ssao",
+        "multiply",
     ];
 
     for shader in shaders.iter() {

@@ -43,15 +43,12 @@ pub mod vertices;
 lazy_static! {
     pub static ref TEXTURE_FORMAT: SyncOnceCell<TextureFormat> = SyncOnceCell::new();
 
-    // A buffer that holds vertices that will cover the entire screen when drawn with no view matrix
-    pub static ref VERTICES_COVER_SCREEN: SyncOnceCell<wgpu::Buffer> = SyncOnceCell::new();
+    // Buffers that holds vertices that will cover the entire screen when drawn with no view matrix
     
-    pub static ref OPENGL_TO_WGPU_MATRIX: Matrix4<f32> = Matrix4::new(
-        1.0, 0.0, 0.0, 0.0,
-        0.0, 1.0, 0.0, 0.0,
-        0.0, 0.0, 0.5, 0.0,
-        0.0, 0.0, 0.5, 1.0,
-    );
+    // Texture goes from -1,-1 to 1,1
+    pub static ref VERTICES_COVER_SCREEN_VIEWPORT: SyncOnceCell<wgpu::Buffer> = SyncOnceCell::new();
+    // Texture goes from 0,0 to 1,1
+    pub static ref VERTICES_COVER_SCREEN: SyncOnceCell<wgpu::Buffer> = SyncOnceCell::new();
 }
 
 pub static mut SWAPCHAIN_SIZE: Extent3d = Extent3d {
@@ -87,7 +84,6 @@ pub struct RenderState {
 
     depth_texture: (Texture, TextureView, Sampler),
 
-    effects: EffectPasses,
     outlines: OutlineRenderer,
 
     pub fps: u32,
@@ -237,6 +233,8 @@ impl RenderState {
             &universe.read_resource::<SettingsService>(),
         );
 
+        universe.insert(effects);
+
         let queue = Arc::try_unwrap(queue).ok().unwrap().into_inner().unwrap();
 
         let outlines = OutlineRenderer::new();
@@ -254,7 +252,6 @@ impl RenderState {
             projection_bind_group: Some(uniform_bind_group),
             fragment_projection_bind_group: Some(fragment_bind_group),
             depth_texture,
-            effects,
             outlines,
             fps: 0,
             frames: 0,
@@ -277,8 +274,6 @@ impl RenderState {
                 depth_or_array_layers: 1,
             };
         }
-
-        self.effects.resize_buffers();
 
         self.depth_texture = create_depth_texture(&self.surface_desc);
         self.surface.configure(get_device(), &self.surface_desc);
@@ -383,7 +378,7 @@ fn generate_render_pipeline(
                 },
                 // Normal map
                 wgpu::ColorTargetState {
-                    format: get_texture_format(),
+                    format: TextureFormat::Rgba16Float,
                     write_mask: wgpu::ColorWrites::ALL,
                     blend: Some(wgpu::BlendState {
                         color: BlendComponent {
@@ -400,7 +395,7 @@ fn generate_render_pipeline(
                 },
                 // Position map
                 wgpu::ColorTargetState {
-                    format: get_texture_format(),
+                    format: TextureFormat::Rgba16Float,
                     write_mask: wgpu::ColorWrites::ALL,
                     blend: Some(wgpu::BlendState {
                         color: BlendComponent {
@@ -460,4 +455,43 @@ fn fill_vertices_cover_screen() {
     });
 
     VERTICES_COVER_SCREEN.set(vertex_buffer).unwrap();
+
+    let vertex_buffer = get_device().create_buffer_init(&BufferInitDescriptor {
+        label: Some("Cover Screen Viewport Vertices Buffer"),
+        contents: &bytemuck::cast_slice(&[
+            UIVertex {
+                position: [-1.0, 1.0],
+                tex_coords: [0.0, 0.0],
+                color: [0.0; 4],
+            },
+            UIVertex {
+                position: [1.0, 1.0],
+                tex_coords: [1.0, 0.0],
+                color: [0.0; 4],
+            },
+            UIVertex {
+                position: [-1.0, -1.0],
+                tex_coords: [0.0, 1.0],
+                color: [0.0; 4],
+            },
+            UIVertex {
+                position: [1.0, 1.0],
+                tex_coords: [1.0, 0.0],
+                color: [0.0; 4],
+            },
+            UIVertex {
+                position: [1.0, -1.0],
+                tex_coords: [1.0, 1.0],
+                color: [0.0; 4],
+            },
+            UIVertex {
+                position: [-1.0, -1.0],
+                tex_coords: [0.0, 1.0],
+                color: [0.0; 4],
+            },
+        ]),
+        usage: BufferUsages::VERTEX,
+    });
+
+    VERTICES_COVER_SCREEN_VIEWPORT.set(vertex_buffer).unwrap();
 }
