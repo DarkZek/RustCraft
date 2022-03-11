@@ -26,7 +26,7 @@ impl ActionSheet {
         self.sprinting = sprinting;
     }
 
-    pub fn get_sprinting(&mut self) -> bool {
+    pub fn get_sprinting(&self) -> bool {
         self.sprinting
     }
 

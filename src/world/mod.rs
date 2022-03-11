@@ -11,6 +11,8 @@ pub mod raycast;
 pub struct WorldChunks<'a> {
     chunks: &'a ReadStorage<'a, ChunkData>,
     lookup: &'a Read<'a, ChunkEntityLookup>,
+    // Generally multiple chunk lookups are close by each other and are in the same chunk, so cache the previous chunk to prevent hashmap lookup
+    last_chunk: Option<&'a ChunkData>,
 }
 
 impl WorldChunks<'a> {
@@ -18,10 +20,51 @@ impl WorldChunks<'a> {
         chunks: &'a ReadStorage<ChunkData>,
         lookup: &'a Read<ChunkEntityLookup>,
     ) -> WorldChunks<'a> {
-        WorldChunks { chunks, lookup }
+        WorldChunks {
+            chunks,
+            lookup,
+            last_chunk: None,
+        }
     }
 
-    pub fn get_block(&self, pos: Vector3<i64>) -> Option<&'a BlockType> {
+    pub fn get_block(&mut self, pos: Vector3<i64>) -> Option<&'a BlockType> {
+        let chunk_pos = absolute_pos_to_chunk(pos);
+
+        // Try load previous chunk
+        let chunk_data =
+            if self.last_chunk.is_some() && self.last_chunk.unwrap().position == chunk_pos {
+                self.last_chunk.unwrap()
+            } else {
+                // Lookup chunk
+                if let Some(chunk_entity) = self.lookup.map.get(&chunk_pos) {
+                    if let Some(chunk_data) = self.chunks.get(*chunk_entity) {
+                        self.last_chunk = Some(chunk_data);
+                        chunk_data
+                    } else {
+                        return None;
+                    }
+                } else {
+                    return None;
+                }
+            };
+
+        let x = ((pos.x % CHUNK_SIZE as i64) + CHUNK_SIZE as i64) as usize % CHUNK_SIZE;
+        let y = ((pos.y % CHUNK_SIZE as i64) + CHUNK_SIZE as i64) as usize % CHUNK_SIZE;
+        let z = ((pos.z % CHUNK_SIZE as i64) + CHUNK_SIZE as i64) as usize % CHUNK_SIZE;
+
+        if let Some(block) = chunk_data.get_block(Vector3::new(x as usize, y as usize, z as usize))
+        {
+            if block.block_type == &(BlockType::Air {}) {
+                return None;
+            }
+
+            return Some(block.block_type);
+        } else {
+            return None;
+        }
+    }
+
+    pub fn get_block_uncached(&self, pos: Vector3<i64>) -> Option<&'a BlockType> {
         let chunk_pos = absolute_pos_to_chunk(pos);
 
         if let Some(chunk_entity) = self.lookup.map.get(&chunk_pos) {

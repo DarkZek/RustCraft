@@ -76,6 +76,7 @@ impl AssetService {
         let mut atlas_img = None;
 
         if settings.atlas_cache_reading {
+            println!("Attempting to reach atlas cache");
             // Check if they're the same resource pack
             if let Some((image, map)) = load_cached_atlas(
                 &atlas_path,

@@ -14,7 +14,7 @@ pub enum InputChange {
 
 /// Tracks user input_service's since the last frame.
 /// Naming them things like movement instead of WASD keys makes it easier to support multiple input_service device types.
-pub struct GameChanges {
+pub struct InputState {
     pub movement: [i32; 2],
     pub look: [f64; 2],
     pub use_item: bool,
@@ -31,9 +31,9 @@ pub struct GameChanges {
     window: Arc<Window>,
 }
 
-impl GameChanges {
-    pub fn new(window: Arc<Window>) -> GameChanges {
-        GameChanges {
+impl InputState {
+    pub fn new(window: Arc<Window>) -> InputState {
+        InputState {
             movement: [0; 2],
             look: [0.0; 2],
             use_item: false,
@@ -199,7 +199,7 @@ impl GameChanges {
     }
 }
 
-impl<'a> Default for GameChanges {
+impl<'a> Default for InputState {
     fn default() -> Self {
         unimplemented!()
     }

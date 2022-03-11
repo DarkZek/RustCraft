@@ -27,13 +27,10 @@ layout(set=1, binding=0) uniform Uniforms {
 };
 
 void main() {
-    // Get position at point
+
+    // Sample textures
     vec3 fragPos = texture(sampler2D(gPosition, samp), TexCoords).xyz;
-
-    // Get normal value at point
     vec3 normal = texture(sampler2D(gNormal, samp), TexCoords).rgb;
-
-    // Get a random vector for noise
     vec3 randomVec = texture(sampler2D(texNoise, samp), TexCoords * noiseScale).xyz;
 
     // create TBN change-of-basis matrix: from tangent-space to view-space
@@ -70,5 +67,4 @@ void main() {
     occlusion = 1.0 - (occlusion / float(kernelSize));
 
     FragColor = occlusion;
-//    FragColor = -textureLod(sampler2D(gPosition, samp), TexCoords, 0).z / 10.0;
 }

@@ -323,6 +323,22 @@ macro_rules! define_blocks {
             }
 
             #[allow(unused_variables, unreachable_code)]
+            pub fn get_collidable(&self) -> bool {
+                match *self {
+                    $(
+                        BlockType::$name {
+                            $($fname,)?
+                        } => {
+                            $(
+                                return $collidable;
+                            )?
+                            return true;
+                        }
+                    )+
+                }
+            }
+
+            #[allow(unused_variables, unreachable_code)]
             pub fn is_block_full(&self) -> bool {
                 match *self {
                     $(
@@ -2014,6 +2030,7 @@ define_blocks! {
             vec![BlockType::Cobweb { }]
         },
         model BlockModel::square_block(["block/cobweb"; 6]),
+        collidable false,
         transparent true,
     }
     Grass {
@@ -2539,6 +2556,7 @@ define_blocks! {
             vec![BlockType::Dandelion { }]
         },
         model BlockModel::plant_block("block/dandelion"),
+        collidable false,
         transparent true,
     }
     Poppy {
@@ -2549,6 +2567,7 @@ define_blocks! {
             vec![BlockType::Poppy { }]
         },
         model BlockModel::plant_block("block/poppy"),
+        collidable false,
         transparent true,
     }
     BlueOrchid {
@@ -2569,6 +2588,7 @@ define_blocks! {
             vec![BlockType::Allium { }]
         },
         model BlockModel::plant_block("block/allium"),
+        collidable false,
         transparent true,
     }
     AzureBluet {
@@ -2579,6 +2599,7 @@ define_blocks! {
             vec![BlockType::AzureBluet { }]
         },
         model BlockModel::plant_block("block/azure_bluet"),
+        collidable false,
         transparent true,
     }
     RedTulip {
@@ -2589,6 +2610,7 @@ define_blocks! {
             vec![BlockType::RedTulip { }]
         },
         model BlockModel::plant_block("block/red_tulip"),
+        collidable false,
         transparent true,
     }
     OrangeTulip {
@@ -2599,6 +2621,7 @@ define_blocks! {
             vec![BlockType::OrangeTulip { }]
         },
         model BlockModel::plant_block("block/orange_tulip"),
+        collidable false,
         transparent true,
     }
     WhiteTulip {
@@ -2609,6 +2632,7 @@ define_blocks! {
             vec![BlockType::WhiteTulip { }]
         },
         model BlockModel::plant_block("block/white_tulip"),
+        collidable false,
         transparent true,
     }
     PinkTulip {
@@ -2619,6 +2643,7 @@ define_blocks! {
             vec![BlockType::PinkTulip { }]
         },
         model BlockModel::plant_block("block/pink_tulip"),
+        collidable false,
         transparent true,
     }
     OxeyeDaisy {
@@ -2629,6 +2654,7 @@ define_blocks! {
             vec![BlockType::OxeyeDaisy { }]
         },
         model BlockModel::plant_block("block/oxeye_daisy"),
+        collidable false,
         transparent true,
     }
     Cornflower {
@@ -2639,6 +2665,7 @@ define_blocks! {
             vec![BlockType::Cornflower { }]
         },
         model BlockModel::plant_block("block/cornflower"),
+        collidable false,
         transparent true,
     }
     WitherRose {
@@ -2649,6 +2676,7 @@ define_blocks! {
             vec![BlockType::WitherRose { }]
         },
         model BlockModel::plant_block("block/wither_rose"),
+        collidable false,
         transparent true,
     }
     LilyOfTheValley {
@@ -2659,6 +2687,7 @@ define_blocks! {
             vec![BlockType::LilyOfTheValley { }]
         },
         model BlockModel::plant_block("block/lily_of_the_valley"),
+        collidable false,
         transparent true,
     }
     BrownMushroom {
@@ -2669,6 +2698,7 @@ define_blocks! {
             vec![BlockType::BrownMushroom { }]
         },
         model BlockModel::plant_block("block/brown_mushroom"),
+        collidable false,
         transparent true,
     }
     RedMushroom {
@@ -2679,6 +2709,7 @@ define_blocks! {
             vec![BlockType::RedMushroom { }]
         },
         model BlockModel::plant_block("block/red_mushroom"),
+        collidable false,
         transparent true,
     }
     GoldBlock {

@@ -1,6 +1,6 @@
 use crate::game::systems::DeltaTime;
 use crate::render::RenderState;
-use crate::services::input_service::input::GameChanges;
+use crate::services::input_service::input::InputState;
 use specs::{System, Write};
 use std::time::{Instant, SystemTime};
 
@@ -31,7 +31,7 @@ impl<'a> System<'a> for PreFrame {
 pub struct PostFrame;
 
 impl<'a> System<'a> for PostFrame {
-    type SystemData = (Write<'a, RenderState>, Write<'a, GameChanges>);
+    type SystemData = (Write<'a, RenderState>, Write<'a, InputState>);
 
     fn run(&mut self, (mut render_state, mut game_changes): Self::SystemData) {
         render_state.last_frame_time = SystemTime::now();

@@ -1,7 +1,8 @@
 use crate::block::blocks::BlockStates;
 use crate::entity::player::{PlayerEntity, PlayerEntityCameraSyncSystem};
-use crate::game::game_state::{GameState, PlayerMovementSystem, ProgramState};
+use crate::game::game_state::{GameState, PlayerActionsSystem, ProgramState};
 use crate::game::physics::interpolator::{PhysicsInterpolationFactor, PhysicsInterpolationSystem};
+use crate::game::physics::player::PlayerMovementSystem;
 use crate::game::physics::{Physics, PhysicsObject, PhysicsProcessingSystem};
 use crate::game::systems::DeltaTime;
 use crate::render::camera::Camera;
@@ -18,7 +19,7 @@ use crate::services::chunk_service::mesh::rerendering::{
 };
 use crate::services::chunk_service::mesh::update::ChunkMeshUpdateSystem;
 use crate::services::debugging_service::system::DebuggingOverlaySystem;
-use crate::services::input_service::input::GameChanges;
+use crate::services::input_service::input::InputState;
 use crate::services::logging_service::LoggingSystem;
 use crate::services::networking_service::system::NetworkingSyncSystem;
 use crate::services::networking_service::NetworkingService;
@@ -109,6 +110,7 @@ impl Game {
             .with(PreFrame, "pre_frame", &[])
             .with(NetworkingSyncSystem, "networking_sync", &[])
             .with(PlayerMovementSystem, "player_movement", &["pre_frame"])
+            .with(PlayerActionsSystem, "player_actions", &["pre_frame"])
             .with(FontComputingSystem, "font_computing", &["pre_frame"])
             .with(
                 DebuggingOverlaySystem,
@@ -129,7 +131,12 @@ impl Game {
             .with(
                 PlayerEntityCameraSyncSystem,
                 "playerentity_camera_sync",
-                &["player_movement", "pre_frame", "physics_interpolation"],
+                &[
+                    "player_movement",
+                    "player_actions",
+                    "pre_frame",
+                    "physics_interpolation",
+                ],
             )
             .with(
                 FrustumCullingSystem,
@@ -178,7 +185,7 @@ impl Game {
                         .read_resource::<RenderState>()
                         .window
                         .inner_size();
-                    self.universe.write_resource::<GameChanges>().resized(&size);
+                    self.universe.write_resource::<InputState>().resized(&size);
                 }
                 Event::WindowEvent {
                     ref event,
@@ -195,7 +202,7 @@ impl Game {
                         let render_state: &mut RenderState = self.universe.get_mut().unwrap();
                         render_state.resize(*physical_size);
                         self.universe
-                            .write_resource::<GameChanges>()
+                            .write_resource::<InputState>()
                             .resized(physical_size);
                         self.universe.write_resource::<Camera>().aspect =
                             physical_size.width as f32 / physical_size.height as f32;
@@ -215,7 +222,7 @@ impl Game {
                     }
                     _ => {
                         self.universe
-                            .write_resource::<GameChanges>()
+                            .write_resource::<InputState>()
                             .handle_event(event);
                     }
                 },

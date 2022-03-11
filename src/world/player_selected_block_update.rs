@@ -59,7 +59,7 @@ impl<'a> System<'a> for PlayerSelectedBlockUpdateSystem {
         (camera, instance, chunks, lookup, mut outlines, _entities): Self::SystemData,
     ) {
         //let pos =
-        let world_chunks = WorldChunks::new(&chunks, &lookup);
+        let mut world_chunks = WorldChunks::new(&chunks, &lookup);
 
         let direction = camera.look_direction();
 

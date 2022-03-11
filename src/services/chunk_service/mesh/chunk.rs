@@ -140,7 +140,7 @@ impl<'a> ChunkData {
         let block_id = self.world[pos.x][pos.y][pos.z];
 
         if block_id != 0 {
-            BLOCK_STATES.get().unwrap().get_block(block_id as usize - 1)
+            BLOCK_STATES.get().unwrap().get_block(block_id as usize)
         } else {
             None
         }

@@ -4,7 +4,7 @@ use crate::world::WorldChunks;
 use nalgebra::Vector3;
 
 impl WorldChunks<'a> {
-    pub fn do_raycast(&self, cast: Raycast) -> Option<Vector3<i64>> {
+    pub fn do_raycast(&mut self, cast: Raycast) -> Option<Vector3<i64>> {
         let query_blocks = self.get_raycast_candidates(&cast);
 
         let mut closest_position = None;
@@ -29,7 +29,7 @@ impl WorldChunks<'a> {
         closest_position
     }
 
-    fn get_raycast_candidates(&self, cast: &Raycast) -> Vec<(Vector3<i64>, &'a BlockType)> {
+    fn get_raycast_candidates(&mut self, cast: &Raycast) -> Vec<(Vector3<i64>, &'a BlockType)> {
         let mut positions = Vec::new();
 
         // Move along line
