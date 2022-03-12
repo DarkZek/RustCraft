@@ -1,8 +1,7 @@
 use crate::entity::player::{move_forwards, PlayerEntity};
 use crate::game::game_state::GameState;
 use crate::game::physics::{move_entity_dir, PhysicsObject};
-use crate::render::camera::Camera;
-use crate::render::RenderState;
+
 use crate::services::chunk_service::chunk::{ChunkData, ChunkEntityLookup};
 use crate::services::input_service::actions::ActionSheet;
 use crate::services::input_service::input::InputState;
@@ -28,7 +27,7 @@ impl<'a> System<'a> for PlayerMovementSystem {
         (
             events,
             actionsheet,
-            mut game_state,
+            game_state,
             player_entity,
             mut player_physics,
             chunks,
@@ -45,7 +44,7 @@ impl<'a> System<'a> for PlayerMovementSystem {
             }
         } else {
             // Slow movement when in air
-            movement_modifier * 0.4;
+            movement_modifier *= 0.6;
         }
 
         if events.movement != [0, 0] {
@@ -58,7 +57,7 @@ impl<'a> System<'a> for PlayerMovementSystem {
             movement = movement.mul(movement_modifier);
 
             // Check collisions
-            let (final_movement, collision) = move_entity_dir(
+            let (final_movement, _collision) = move_entity_dir(
                 &entity.collider,
                 &chunks,
                 &chunk_entity_lookup,
@@ -69,7 +68,7 @@ impl<'a> System<'a> for PlayerMovementSystem {
             entity.new_position += final_movement;
 
             // Check collisions
-            let (final_movement, collision) = move_entity_dir(
+            let (final_movement, _collision) = move_entity_dir(
                 &entity.collider,
                 &chunks,
                 &chunk_entity_lookup,
@@ -80,7 +79,7 @@ impl<'a> System<'a> for PlayerMovementSystem {
             entity.new_position += final_movement;
 
             // Check collisions
-            let (final_movement, collision) = move_entity_dir(
+            let (final_movement, _collision) = move_entity_dir(
                 &entity.collider,
                 &chunks,
                 &chunk_entity_lookup,

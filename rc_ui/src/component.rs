@@ -5,6 +5,6 @@
 pub trait UIComponent {
     fn render(&self);
 
-    /// Is re-ran every frame to check if we should re-render
+    /// Called every frame to check if we should re-render
     fn rerender(&self) -> bool;
 }

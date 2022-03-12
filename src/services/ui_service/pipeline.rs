@@ -2,7 +2,7 @@ use crate::render::device::get_device;
 use crate::render::get_texture_format;
 use crate::render::vertices::UIVertex;
 use wgpu::{
-    BindGroupLayout, BlendComponent, BlendState, Device, MultisampleState, RenderPipeline,
+    BindGroupLayout, BlendComponent, BlendState, MultisampleState, RenderPipeline,
     VertexState,
 };
 

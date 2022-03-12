@@ -1,7 +1,7 @@
 use crate::render::device::get_device;
 use crate::render::vertices::UIVertex;
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
-use wgpu::{Buffer, Device};
+use wgpu::{Buffer};
 
 pub struct UIMeshData {
     pub total_vertices: Vec<UIVertex>,

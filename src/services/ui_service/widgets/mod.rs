@@ -48,7 +48,7 @@ impl WidgetManager {
         WidgetView { id }
     }
 
-    pub fn build(&mut self, device: &Device) {
+    pub fn build(&mut self, _device: &Device) {
         self.model.clear();
 
         for (_id, widget) in self.widgets.iter() {

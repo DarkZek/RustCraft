@@ -13,7 +13,7 @@ use crate::services::settings_service::SettingsService;
 use crate::services::{load_services, ServicesContext};
 use crate::world::player_selected_block_update::PlayerSelectedBlockUpdateSystemData;
 use image::ImageFormat;
-use nalgebra::{Matrix4, Vector3};
+use nalgebra::{Vector3};
 use specs::{Builder, World, WorldExt};
 use std::borrow::Borrow;
 use std::lazy::SyncOnceCell;
@@ -22,7 +22,7 @@ use std::thread;
 use std::time::{Duration, Instant, SystemTime};
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{
-    AdapterInfo, BindGroupLayout, BlendComponent, BufferUsages, DepthBiasState, Device, Extent3d,
+    AdapterInfo, BindGroupLayout, BlendComponent, BufferUsages, DepthBiasState, Extent3d,
     Face, FrontFace, MultisampleState, PolygonMode, PrimitiveState, PrimitiveTopology,
     RenderPipeline, Sampler, StencilState, Texture, TextureFormat, TextureView, VertexState,
 };
@@ -173,13 +173,13 @@ impl RenderState {
         LoadingScreen::update_state(95.0);
 
         // TODO: Combine uniforms into camera
-        let mut camera = Camera::new(&size);
+        let camera = Camera::new(&size);
 
         let (
             uniform_buffer,
             uniform_bind_group_layout,
             uniform_bind_group,
-            fragment_bind_group_layout,
+            _fragment_bind_group_layout,
             fragment_bind_group,
         ) = RenderViewProjectionUniforms.create_uniform_buffers();
 

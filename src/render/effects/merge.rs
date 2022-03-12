@@ -1,12 +1,12 @@
 use crate::render::{get_swapchain_size, get_texture_format, VERTICES_COVER_SCREEN};
-use std::sync::Arc;
+
 
 use crate::render::device::get_device;
 use crate::render::effects::EffectPasses;
 use crate::render::vertices::UIVertex;
 use wgpu::{
     BindGroupLayout, BindGroupLayoutDescriptor, BindGroupLayoutEntry, BindingResource, BindingType,
-    CommandEncoder, Device, LoadOp, Operations, RenderPassColorAttachment, RenderPipeline,
+    CommandEncoder, LoadOp, Operations, RenderPassColorAttachment, RenderPipeline,
     SamplerBindingType, SamplerDescriptor, ShaderStages, Texture, TextureSampleType, TextureView,
     TextureViewDescriptor, TextureViewDimension, VertexState,
 };

@@ -22,7 +22,7 @@ impl Physics {
     pub fn new() -> Physics {
         Physics {
             slipperiness: 0.06,
-            gravity: 0.2,
+            gravity: 0.15,
             // gravity: 0.0,
             drag: 0.02,
             updates_per_second: 0,
@@ -83,7 +83,7 @@ impl<'a> System<'a> for PhysicsProcessingSystem {
             entity.new_position = entity.position;
 
             // Apply velocity
-            let (movement, collision) = move_entity_dir(
+            let (movement, _collision) = move_entity_dir(
                 &entity.collider,
                 &chunks,
                 &chunk_entity_lookup,
@@ -94,7 +94,7 @@ impl<'a> System<'a> for PhysicsProcessingSystem {
             entity.new_position += movement;
 
             // Apply velocity
-            let (movement, collision) = move_entity_dir(
+            let (movement, _collision) = move_entity_dir(
                 &entity.collider,
                 &chunks,
                 &chunk_entity_lookup,

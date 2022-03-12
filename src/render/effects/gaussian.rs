@@ -4,7 +4,7 @@ use crate::render::vertices::UIVertex;
 use crate::render::{get_texture_format, VERTICES_COVER_SCREEN};
 use wgpu::{
     BindGroupLayout, BindGroupLayoutDescriptor, BindGroupLayoutEntry, BindingResource, BindingType,
-    CommandEncoder, Device, RenderPassColorAttachment, RenderPipeline, SamplerBindingType,
+    CommandEncoder, RenderPassColorAttachment, RenderPipeline, SamplerBindingType,
     SamplerDescriptor, ShaderStages, Texture, TextureSampleType, TextureViewDescriptor,
     TextureViewDimension, VertexState,
 };

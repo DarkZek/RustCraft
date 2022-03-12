@@ -6,7 +6,7 @@ use nalgebra::{Matrix4, Orthographic3};
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{
     BindGroup, BindGroupLayout, BlendComponent, BlendState, Buffer, BufferBinding,
-    BufferBindingType, Device, RenderPipeline, VertexState,
+    BufferBindingType, RenderPipeline, VertexState,
 };
 use winit::dpi::PhysicalSize;
 

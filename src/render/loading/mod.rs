@@ -6,7 +6,7 @@ use std::ops::DerefMut;
 use std::sync::{Arc, Mutex};
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{
-    BindGroup, BindGroupLayout, Buffer, BufferUsages, Device, Queue, RenderPipeline, Sampler,
+    BindGroup, BindGroupLayout, Buffer, BufferUsages, Queue, RenderPipeline, Sampler,
     Surface, Texture,
 };
 use winit::dpi::PhysicalSize;

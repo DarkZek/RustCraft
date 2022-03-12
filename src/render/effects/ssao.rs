@@ -1,23 +1,23 @@
-use crate::helpers::Lerp;
+
 use crate::render::device::get_device;
-use crate::render::effects::{EffectPasses, SCTexture};
+use crate::render::effects::{EffectPasses};
 use crate::render::vertices::UIVertex;
 use crate::render::{
-    get_swapchain_size, get_texture_format, VERTICES_COVER_SCREEN, VERTICES_COVER_SCREEN_VIEWPORT,
+    get_swapchain_size, VERTICES_COVER_SCREEN_VIEWPORT,
 };
-use nalgebra::{Vector3, Vector4};
+use nalgebra::{Vector3};
 use rand::Rng;
-use std::convert::TryFrom;
+
 use std::mem;
-use std::num::{NonZeroU32, NonZeroU64};
-use wgpu::util::{BufferInitDescriptor, DeviceExt};
+
+use wgpu::util::{DeviceExt};
 use wgpu::{
     AddressMode, BindGroup, BindGroupLayout, BindGroupLayoutDescriptor, BindGroupLayoutEntry,
-    BindingResource, BindingType, Buffer, BufferBinding, BufferBindingType, BufferSize,
-    BufferUsages, CommandBuffer, CommandEncoder, Extent3d, ImageDataLayout, Origin3d, Queue,
+    BindingResource, BindingType, Buffer, BufferBindingType,
+    BufferUsages, CommandEncoder, Extent3d, Origin3d, Queue,
     RenderPassColorAttachment, RenderPipeline, Sampler, SamplerBindingType, SamplerDescriptor,
-    ShaderStages, Texture, TextureAspect, TextureDimension, TextureFormat, TextureSampleType,
-    TextureUsages, TextureView, TextureViewDescriptor, TextureViewDimension, VertexState,
+    ShaderStages, Texture, TextureAspect, TextureFormat, TextureSampleType,
+    TextureUsages, TextureViewDescriptor, TextureViewDimension, VertexState,
 };
 
 pub struct SSAOEffect {
@@ -31,7 +31,7 @@ pub struct SSAOEffect {
 
 impl SSAOEffect {
     pub fn new(queue: &mut Queue) -> SSAOEffect {
-        let mut encoder = get_device().create_command_encoder(&wgpu::CommandEncoderDescriptor {
+        let encoder = get_device().create_command_encoder(&wgpu::CommandEncoderDescriptor {
             label: Some("SSAO Setup Command Encoder"),
         });
 
@@ -282,7 +282,7 @@ impl SSAOEffect {
         let mut rand = rand::thread_rng();
         let mut ssao_noise = Vec::new();
 
-        for i in 0..(size * size) {
+        for _i in 0..(size * size) {
             let noise = [
                 rand.gen_range(0.0, 1.0) * 2.0 - 1.0,
                 rand.gen_range(0.0, 1.0) * 2.0 - 1.0,

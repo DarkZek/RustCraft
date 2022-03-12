@@ -4,10 +4,10 @@ use crate::render::vertices::LineVertex;
 use crate::services::asset_service::depth_map::DEPTH_FORMAT;
 use nalgebra::Vector3;
 use specs::{Component, Join, ReadStorage, VecStorage};
-use std::sync::Arc;
+
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{
-    BindGroup, Buffer, BufferBindingType, BufferUsages, CommandEncoder, DepthBiasState, Device,
+    BindGroup, Buffer, BufferBindingType, BufferUsages, CommandEncoder, DepthBiasState,
     LoadOp, Operations, RenderPipeline, StencilState, TextureView,
 };
 

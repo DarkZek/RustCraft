@@ -9,7 +9,7 @@ use crate::services::settings_service::SettingsService;
 use std::ops::Deref;
 use std::sync::{Arc, Mutex};
 use wgpu::{
-    BindGroup, CommandEncoder, Device, ImageSubresourceRange, Queue, Texture, TextureAspect,
+    BindGroup, CommandEncoder, ImageSubresourceRange, Queue, Texture, TextureAspect,
     TextureDimension, TextureFormat, TextureUsages,
 };
 

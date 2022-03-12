@@ -5,7 +5,7 @@ use std::convert::TryFrom;
 use std::num::NonZeroU32;
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{
-    BindGroup, BindGroupLayout, BufferUsages, Device, ImageDataLayout, Queue, Sampler,
+    BindGroup, BindGroupLayout, BufferUsages, ImageDataLayout, Queue, Sampler,
     SamplerBindingType, Texture, TextureAspect, TextureSampleType, TextureViewDescriptor,
     TextureViewDimension,
 };

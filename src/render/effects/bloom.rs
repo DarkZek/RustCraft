@@ -1,6 +1,6 @@
 use crate::render::effects::EffectPasses;
 
-use wgpu::{CommandEncoder, Device, Texture, TextureViewDescriptor};
+use wgpu::{CommandEncoder, Texture, TextureViewDescriptor};
 
 pub struct BloomPostProcessingEffect {}
 

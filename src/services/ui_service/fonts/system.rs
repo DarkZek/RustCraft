@@ -7,7 +7,7 @@ pub struct FontComputingSystem;
 impl<'a> System<'a> for FontComputingSystem {
     type SystemData = (Write<'a, UIService>, Read<'a, RenderState>);
 
-    fn run(&mut self, (mut ui_service, render_state): Self::SystemData) {
+    fn run(&mut self, (mut ui_service, _render_state): Self::SystemData) {
         ui_service.fonts.total();
         ui_service.images.build();
     }

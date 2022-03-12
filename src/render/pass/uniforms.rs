@@ -1,11 +1,11 @@
 use crate::render::camera::Camera;
 use crate::render::device::get_device;
-use nalgebra::Matrix4;
+
 use std::num::NonZeroU64;
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{
     BindGroup, BindGroupLayout, Buffer, BufferAddress, BufferBinding, BufferBindingType,
-    BufferSize, CommandEncoder, Device, ShaderStages,
+    BufferSize, CommandEncoder,
 };
 use zerocopy::{AsBytes, FromBytes};
 

@@ -3,7 +3,7 @@ use crate::render::get_texture_format;
 use crate::render::vertices::UIVertex;
 use crate::services::ui_service::meshdata::UIMeshData;
 use wgpu::{
-    BlendComponent, Color, CommandEncoder, Device, IndexFormat, LoadOp, MultisampleState,
+    BlendComponent, Color, CommandEncoder, IndexFormat, LoadOp, MultisampleState,
     Operations, PushConstantRange, RenderPipeline, ShaderStages, TextureView, VertexState,
 };
 

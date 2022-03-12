@@ -1,4 +1,4 @@
-use crate::entity::player::{move_forwards, Player, PlayerEntity};
+use crate::entity::player::{Player, PlayerEntity};
 use crate::game::physics::PhysicsObject;
 use crate::helpers::Clamp;
 use crate::render::camera::Camera;
@@ -7,11 +7,11 @@ use crate::render::pass::uniforms::RenderViewProjectionUniforms;
 use crate::render::RenderState;
 use crate::services::input_service::actions::ActionSheet;
 use crate::services::input_service::input::{InputChange, InputState};
-use nalgebra::Vector3;
+
 use specs::{Builder, Join, Read, ReadStorage, System, World, WorldExt, Write, WriteStorage};
 use std::f32::consts::PI;
-use std::ops::Mul;
-use wgpu::util::{BufferInitDescriptor, DeviceExt};
+
+
 
 /// Stores the current state of the game. Currently this is mostly just looking after player movement.
 pub struct GameState {
@@ -64,7 +64,7 @@ impl<'a> System<'a> for PlayerActionsSystem {
     fn run(
         &mut self,
         (
-            mut render,
+            render,
             events,
             mut camera,
             mut game_state,

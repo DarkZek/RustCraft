@@ -14,7 +14,7 @@ use std::path::PathBuf;
 use std::time::{SystemTime, UNIX_EPOCH};
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{
-    BufferUsages, Device, ImageDataLayout, Queue, Sampler, Texture, TextureAspect, TextureFormat,
+    BufferUsages, ImageDataLayout, Queue, Sampler, Texture, TextureAspect, TextureFormat,
 };
 
 // TODO: Refactor

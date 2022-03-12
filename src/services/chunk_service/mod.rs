@@ -6,9 +6,9 @@ use crate::render::camera::Camera;
 use crate::services::chunk_service::chunk::{ChunkData, ChunkEntityLookup, RawChunkData};
 use crate::services::chunk_service::frustum_culling::calculate_frustum_culling;
 use crate::services::settings_service::SettingsService;
-use crate::services::ServicesContext;
+
 use nalgebra::Vector3;
-use specs::{Entities, ReadStorage, World, Write, WriteStorage};
+use specs::{Entities, ReadStorage, Write, WriteStorage};
 
 use crate::game::resources::SystemResources;
 use crate::render::device::get_device;

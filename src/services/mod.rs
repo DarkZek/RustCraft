@@ -9,7 +9,7 @@ use crate::services::{
 use rc_logging::LoggingService;
 use specs::World;
 use std::sync::{Arc, Mutex};
-use wgpu::{Device, Queue};
+use wgpu::{Queue};
 use winit::dpi::PhysicalSize;
 use winit::window::Window;
 

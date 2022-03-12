@@ -3,7 +3,7 @@ use crate::services::ui_service::draw::draw_sprite;
 use crate::services::ui_service::meshdata::UIMeshData;
 use fnv::{FnvBuildHasher, FnvHashMap};
 use std::collections::HashMap;
-use wgpu::Device;
+
 use winit::dpi::PhysicalSize;
 
 /// Image Manager is a subsystem of the User Interface Service.

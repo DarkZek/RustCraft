@@ -1,7 +1,7 @@
 use crate::render::device::get_device;
 use crate::services::asset_service::AssetService;
 use wgpu::{
-    BindGroup, BindGroupLayout, Device, Sampler, SamplerBindingType, Texture, TextureAspect,
+    BindGroup, BindGroupLayout, Sampler, SamplerBindingType, Texture, TextureAspect,
     TextureFormat, TextureSampleType, TextureViewDescriptor, TextureViewDimension,
 };
 
