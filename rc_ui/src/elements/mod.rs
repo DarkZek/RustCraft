@@ -1,4 +1,5 @@
 pub mod image;
+pub mod rect;
 
 use crate::vertex::UIVertex;
 

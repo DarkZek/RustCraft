@@ -130,7 +130,7 @@ impl GaussianBlurPostProcessingEffect {
                 },
                 wgpu::BindGroupEntry {
                     binding: 1,
-                    resource: BindingResource::Sampler(&sampler),
+                    resource: BindingResource::Sampler(&self.sampler),
                 },
             ],
         });

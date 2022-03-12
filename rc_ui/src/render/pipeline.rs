@@ -1,105 +1,79 @@
+use crate::positioning::{Layout, LayoutScheme};
+use crate::render::combine::combine_render_pipeline;
+use crate::render::default::default_render_pipeline;
 use crate::render::{get_device, get_swapchain_format};
 use crate::vertex::UIVertex;
 use crate::UIController;
+use nalgebra::Vector2;
 use wgpu::{
     BindGroup, BindGroupLayout, BindGroupLayoutDescriptor, BindGroupLayoutEntry, BindingResource,
-    Buffer, Extent3d, LoadOp, Operations, RenderPassColorAttachment, RenderPipeline, ShaderStages,
-    Texture, TextureSampleType, TextureViewDescriptor, TextureViewDimension, VertexState,
+    Buffer, CommandEncoder, Extent3d, LoadOp, Operations, Queue, RenderPassColorAttachment,
+    RenderPipeline, Sampler, SamplerDescriptor, ShaderStages, Texture, TextureSampleType,
+    TextureViewDescriptor, TextureViewDimension, VertexState,
 };
 
 pub struct UIRenderPipeline {
-    default_component_render_pipeline: RenderPipeline,
+    default_render_pipeline: RenderPipeline,
+    combine_render_pipeline: RenderPipeline,
+    pub combine_image_bind_group_layout: BindGroupLayout,
+
+    pub(crate) layout: Layout,
 
     pub projection_buffer: Buffer,
     pub projection_bind_group_layout: BindGroupLayout,
     pub projection_bind_group: BindGroup,
+    sampler: Sampler,
 }
 
 impl UIRenderPipeline {
     pub fn new(size: Extent3d) -> UIRenderPipeline {
-        let vert_shader = get_device()
-            .create_shader_module(&wgpu::include_spirv!("../../shaders/default_vert.spv"));
-
-        let frag_shader = get_device()
-            .create_shader_module(&wgpu::include_spirv!("../../shaders/default_frag.spv"));
-
         let (projection_buffer, projection_bind_group, projection_bind_group_layout) =
             UIRenderPipeline::setup_ui_projection_matrix(size);
 
-        let render_pipeline_layout =
-            get_device().create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-                label: Some("UI Default pipeline layout descriptor"),
-                bind_group_layouts: &[&projection_bind_group_layout],
-                push_constant_ranges: &[],
-            });
+        let default_render_pipeline = default_render_pipeline(&projection_bind_group_layout);
+        let (combine_render_pipeline, combine_image_bind_group_layout) =
+            combine_render_pipeline(&projection_bind_group_layout);
 
-        let default_component_render_pipeline =
-            get_device().create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-                label: Some("UI Default pipeline"),
-                layout: Option::from(&render_pipeline_layout),
-                vertex: VertexState {
-                    module: &vert_shader,
-                    entry_point: "main",
-                    buffers: &[UIVertex::desc()],
-                },
-                primitive: wgpu::PrimitiveState {
-                    topology: wgpu::PrimitiveTopology::TriangleList,
-                    strip_index_format: None,
-                    front_face: wgpu::FrontFace::Ccw,
-                    cull_mode: None,
-                    unclipped_depth: false,
-                    polygon_mode: wgpu::PolygonMode::Fill,
-                    conservative: false,
-                },
-                depth_stencil: None,
-                multisample: wgpu::MultisampleState {
-                    count: 1,
-                    mask: !0,
-                    alpha_to_coverage_enabled: false,
-                },
-                fragment: Some(wgpu::FragmentState {
-                    module: &frag_shader,
-                    entry_point: "main",
-                    targets: &[wgpu::ColorTargetState {
-                        format: *get_swapchain_format(),
-                        write_mask: wgpu::ColorWrites::ALL,
-                        blend: None,
-                    }],
-                }),
-                multiview: None,
-            });
+        let sampler = get_device().create_sampler(&SamplerDescriptor::default());
+
+        let layout = Layout::new(
+            Vector2::zeros(),
+            Vector2::new(1280.0, 720.0),
+            Vector2::zeros(),
+            LayoutScheme::TopLeft,
+        );
 
         UIRenderPipeline {
-            default_component_render_pipeline,
+            default_render_pipeline,
+            combine_render_pipeline,
+            combine_image_bind_group_layout,
+            layout,
             projection_buffer,
             projection_bind_group_layout,
             projection_bind_group,
+            sampler,
         }
     }
 
-    pub fn render(&self, controller: &UIController, output_image: &Texture) {
-        let mut encoder = get_device().create_command_encoder(&wgpu::CommandEncoderDescriptor {
-            label: Some("UI Render Command Encoder"),
-        });
-
+    pub fn render(
+        &self,
+        controller: &UIController,
+        output_image: &Texture,
+        encoder: &mut CommandEncoder,
+    ) {
         let output_image_view = output_image.create_view(&TextureViewDescriptor::default());
 
+        // Render components onto image
         for component_data in &controller.components {
-            let component = &*component_data.data.lock().unwrap();
-
             // If we don't need to re-render it, don't
-            if !component.rerender() || component_data.texture.is_none() {
+            if component_data.texture.is_none() {
                 continue;
             }
 
-            let component_image = component_data
-                .texture
-                .as_ref()
-                .unwrap()
-                .create_view(&TextureViewDescriptor::default());
+            let component_image = component_data.texture_view.as_ref().unwrap();
 
             let mut pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-                label: Some("UI Render Pass"),
+                label: Some("UI Render Component Pass"),
                 color_attachments: &[RenderPassColorAttachment {
                     view: &component_image,
                     resolve_target: None,
@@ -111,16 +85,64 @@ impl UIRenderPipeline {
                 depth_stencil_attachment: None,
             });
 
-            pass.set_pipeline(&self.default_component_render_pipeline);
+            pass.set_pipeline(&self.default_render_pipeline);
 
-            pass.set_bind_group(0, &self.projection_bind_group, &[]);
+            pass.set_bind_group(0, &component_data.projection_bind_group, &[]);
 
             pass.set_vertex_buffer(
                 0,
-                component_data.vertices_buffer.as_ref().unwrap().slice(..),
+                component_data
+                    .element_vertices_buffer
+                    .as_ref()
+                    .unwrap()
+                    .slice(..),
             );
 
-            pass.draw(0..component_data.vertices, 0..1);
+            pass.draw(0..component_data.element_vertices, 0..1);
+        }
+
+        // Render
+        for component_data in &controller.components {
+            // If we don't need to re-render it, don't
+            if component_data.texture.is_none() {
+                continue;
+            }
+
+            let component_image = component_data
+                .texture
+                .as_ref()
+                .unwrap()
+                .create_view(&TextureViewDescriptor::default());
+
+            let mut pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+                label: Some("UI Render Combination Pass"),
+                color_attachments: &[RenderPassColorAttachment {
+                    view: &output_image_view,
+                    resolve_target: None,
+                    ops: Operations {
+                        load: LoadOp::Load,
+                        store: true,
+                    },
+                }],
+                depth_stencil_attachment: None,
+            });
+
+            pass.set_pipeline(&self.combine_render_pipeline);
+
+            pass.set_bind_group(0, &self.projection_bind_group, &[]);
+
+            pass.set_bind_group(1, component_data.texture_bind_group.as_ref().unwrap(), &[]);
+
+            pass.set_vertex_buffer(
+                0,
+                component_data
+                    .component_vertices_buffer
+                    .as_ref()
+                    .unwrap()
+                    .slice(..),
+            );
+
+            pass.draw(0..component_data.component_vertices, 0..1);
         }
     }
 }

@@ -1,18 +1,21 @@
 use crate::services::asset_service::AssetService;
 use crate::services::ui_service::UIService;
 use wgpu::{
-    CommandEncoder, IndexFormat, LoadOp, Operations, Texture, TextureView, TextureViewDescriptor,
+    CommandEncoder, IndexFormat, LoadOp, Operations, Queue, Texture, TextureView,
+    TextureViewDescriptor,
 };
 
 impl UIService {
     /// Renders the user interface. This also runs all of the sub managers render functions.
     pub fn render(
-        &self,
+        &mut self,
         frame: &Texture,
         encoder: &mut CommandEncoder,
         asset_service: &AssetService,
+        queue: &mut Queue,
     ) {
-        self.controller.render(frame);
+        self.controller.process(queue);
+        self.controller.render(frame, encoder);
 
         let frame = frame.create_view(&TextureViewDescriptor::default());
 

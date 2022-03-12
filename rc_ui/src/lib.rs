@@ -4,10 +4,11 @@ use crate::component::{ComponentData, UIComponent};
 use crate::render::pipeline::UIRenderPipeline;
 use crate::render::{DEVICE, SWAPCHAIN_FORMAT};
 use std::sync::{Arc, Mutex};
-use wgpu::{Device, Extent3d, Texture, TextureFormat};
+use wgpu::{CommandEncoder, Device, Extent3d, Queue, Texture, TextureFormat};
 
 pub mod component;
 pub mod elements;
+pub mod positioning;
 pub mod render;
 pub mod vertex;
 
@@ -45,8 +46,18 @@ impl UIController {
         }
     }
 
-    pub fn render(&self, output_image: &Texture) {
-        self.pipeline.render(self, output_image);
+    pub fn process(&mut self, queue: &mut Queue) {
+        for component in &mut self.components {
+            UIController::process_component(
+                component,
+                &self.pipeline.layout,
+                &self.pipeline.combine_image_bind_group_layout,
+            );
+        }
+    }
+
+    pub fn render(&self, output_image: &Texture, encoder: &mut CommandEncoder) {
+        self.pipeline.render(self, output_image, encoder);
     }
 }
 

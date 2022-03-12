@@ -26,7 +26,7 @@ impl<'a> System<'a> for RenderSystem {
         Read<'a, AssetService>,
         Read<'a, ChunkService>,
         ReadStorage<'a, ChunkData>,
-        Read<'a, UIService>,
+        Write<'a, UIService>,
         Read<'a, Background>,
         Read<'a, Camera>,
         ReadStorage<'a, BoxOutline>,
@@ -42,7 +42,7 @@ impl<'a> System<'a> for RenderSystem {
             asset_service,
             chunk_service,
             chunks,
-            ui_service,
+            mut ui_service,
             background,
             camera,
             box_outlines,
@@ -202,7 +202,12 @@ impl<'a> System<'a> for RenderSystem {
                 &render_state.depth_texture.1,
             );
 
-            ui_service.render(&texture.texture, &mut encoder, &asset_service);
+            ui_service.render(
+                &texture.texture,
+                &mut encoder,
+                &asset_service,
+                &mut render_state.queue,
+            );
 
             // Return buffers
             effect_passes.return_buffer(frame_image_buffer);

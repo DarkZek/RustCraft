@@ -4,24 +4,26 @@ use crate::vertex::UIVertex;
 pub struct UIImage {}
 
 impl UIImage {
-    pub fn new() {}
+    pub fn new() -> UIImage {
+        UIImage {}
+    }
 }
 
 impl UIElement for UIImage {
     fn render(&self) -> Vec<UIVertex> {
         vec![
             UIVertex {
-                position: [-1.0, -1.0],
+                position: [-50.0, -50.0],
                 tex_coords: [0.0, 0.0],
                 color: [1.0; 4],
             },
             UIVertex {
-                position: [1.0, -1.0],
+                position: [50.0, -50.0],
                 tex_coords: [0.0, 0.0],
                 color: [1.0; 4],
             },
             UIVertex {
-                position: [1.0, 1.0],
+                position: [50.0, 50.0],
                 tex_coords: [0.0, 0.0],
                 color: [1.0; 4],
             },

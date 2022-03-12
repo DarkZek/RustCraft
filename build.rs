@@ -21,6 +21,7 @@ fn main() {
         "./shaders/ssao",
         "./shaders/multiply",
         "./rc_ui/shaders/default",
+        "./rc_ui/shaders/combine",
     ];
 
     for shader in shaders.iter() {

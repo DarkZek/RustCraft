@@ -5,7 +5,9 @@ use std::sync::Arc;
 use std::sync::Mutex;
 use wgpu::{Device, TextureFormat};
 
+mod combine;
 mod component;
+mod default;
 pub mod pipeline;
 pub mod projection;
 

@@ -13,24 +13,7 @@ impl UIRenderPipeline {
             format!("{}x{}", size.width, size.height)
         );
 
-        let projection = Orthographic3::new(
-            -(size.width as f32 / 2.0),
-            size.width as f32 / 2.0,
-            size.height as f32 / 2.0,
-            -(size.height as f32 / 2.0),
-            0.1,
-            10.0,
-        );
-
-        let matrix: Matrix4<f32> = projection.into();
-
-        let projection_buffer = get_device().create_buffer_init(&BufferInitDescriptor {
-            label: Some("UI Projection Matrix Buffer"),
-            contents: &bytemuck::cast_slice(matrix.as_slice()),
-            usage: wgpu::BufferUsages::UNIFORM
-                | wgpu::BufferUsages::COPY_DST
-                | wgpu::BufferUsages::COPY_SRC,
-        });
+        let projection_buffer = Self::setup_ui_projection_matrix_buffer(size);
 
         let projection_bind_group_layout =
             get_device().create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
@@ -65,6 +48,25 @@ impl UIRenderPipeline {
             projection_bind_group,
             projection_bind_group_layout,
         )
+    }
+
+    pub fn setup_ui_projection_matrix_buffer(size: Extent3d) -> Buffer {
+        let projection = Orthographic3::new(
+            -(size.width as f32 / 2.0),
+            size.width as f32 / 2.0,
+            size.height as f32 / 2.0,
+            -(size.height as f32 / 2.0),
+            0.1,
+            10.0,
+        );
+
+        let matrix: Matrix4<f32> = projection.into();
+
+        get_device().create_buffer_init(&BufferInitDescriptor {
+            label: Some("UI Projection Matrix Buffer"),
+            contents: &bytemuck::cast_slice(matrix.as_slice()),
+            usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+        })
     }
 
     pub fn update_ui_projection_matrix(&self, queue: &mut Queue, size: &Extent3d) {

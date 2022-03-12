@@ -11,8 +11,6 @@ use crate::services::input_service::input::{InputChange, InputState};
 use specs::{Builder, Join, Read, ReadStorage, System, World, WorldExt, Write, WriteStorage};
 use std::f32::consts::PI;
 
-
-
 /// Stores the current state of the game. Currently this is mostly just looking after player movement.
 pub struct GameState {
     pub state: ProgramState,
@@ -104,7 +102,7 @@ impl<'a> System<'a> for PlayerActionsSystem {
         if actionsheet.get_jump() {
             let (_, player_physics) = (&player_entity, &mut player_physics).join().last().unwrap();
             if player_physics.touching_ground {
-                player_physics.velocity.y += 1.0;
+                player_physics.velocity.y += 0.7;
             }
         }
 
