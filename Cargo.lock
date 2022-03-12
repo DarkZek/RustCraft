@@ -2102,6 +2102,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "rc_ui"
+version = "0.1.0"
+dependencies = [
+ "rc_logging",
+ "wgpu",
+]
+
+[[package]]
 name = "redox_syscall"
 version = "0.2.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2221,6 +2229,7 @@ dependencies = [
  "rayon",
  "rc_logging",
  "rc_network",
+ "rc_ui",
  "reqwest",
  "serde",
  "serde_json",

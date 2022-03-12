@@ -1,8 +1,11 @@
 use specs::World;
+use std::sync::{Arc, Mutex};
 use wgpu::{BindGroup, BindGroupLayout, Buffer, RenderPipeline};
 
 use crate::helpers::AtlasIndex;
 use pipeline::generate_render_pipeline;
+use rc_ui::component::UIComponent;
+use rc_ui::render::{UIController, UIRenderer};
 
 use crate::services::asset_service::AssetService;
 use crate::services::ui_service::fonts::FontsManager;
@@ -10,6 +13,7 @@ use crate::services::ui_service::image::{ImageManager, ImageType, ImageView};
 use crate::services::ui_service::widgets::WidgetManager;
 use crate::services::ServicesContext;
 
+pub mod crosshair;
 pub mod draw;
 pub mod fonts;
 pub mod image;
@@ -31,6 +35,7 @@ pub struct UIService {
     projection_bind_group: BindGroup,
     projection_bind_group_layout: BindGroupLayout,
     pub background_image: ImageView,
+    controller: UIController,
 }
 
 impl UIService {
@@ -64,6 +69,8 @@ impl UIService {
             &projection_bind_group_layout,
         ]);
 
+        let controller = UIController::new(Box::new(RCRenderer::new()));
+
         UIService {
             fonts,
             images,
@@ -73,6 +80,7 @@ impl UIService {
             projection_bind_group,
             projection_bind_group_layout,
             background_image,
+            controller,
         }
     }
 }
@@ -107,4 +115,18 @@ pub enum ObjectAlignment {
 pub enum Positioning {
     Absolute,
     Relative,
+}
+
+pub struct RCRenderer {}
+
+impl RCRenderer {
+    fn new() -> RCRenderer {
+        RCRenderer {}
+    }
+}
+
+impl UIRenderer for RCRenderer {
+    fn setup(&self) -> Vec<Arc<Mutex<dyn UIComponent + Send + Sync>>> {
+        vec![]
+    }
 }

@@ -1,0 +1,12 @@
+/home/darkzek/Projects/RustCraft/rc_ui/target/debug/deps/getrandom-7ee63d858417b731.rmeta: /home/darkzek/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.5/src/lib.rs /home/darkzek/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.5/src/error.rs /home/darkzek/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.5/src/util.rs /home/darkzek/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.5/src/util_libc.rs /home/darkzek/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.5/src/use_file.rs /home/darkzek/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.5/src/linux_android.rs
+
+/home/darkzek/Projects/RustCraft/rc_ui/target/debug/deps/libgetrandom-7ee63d858417b731.rlib: /home/darkzek/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.5/src/lib.rs /home/darkzek/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.5/src/error.rs /home/darkzek/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.5/src/util.rs /home/darkzek/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.5/src/util_libc.rs /home/darkzek/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.5/src/use_file.rs /home/darkzek/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.5/src/linux_android.rs
+
+/home/darkzek/Projects/RustCraft/rc_ui/target/debug/deps/getrandom-7ee63d858417b731.d: /home/darkzek/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.5/src/lib.rs /home/darkzek/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.5/src/error.rs /home/darkzek/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.5/src/util.rs /home/darkzek/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.5/src/util_libc.rs /home/darkzek/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.5/src/use_file.rs /home/darkzek/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.5/src/linux_android.rs
+
+/home/darkzek/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.5/src/lib.rs:
+/home/darkzek/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.5/src/error.rs:
+/home/darkzek/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.5/src/util.rs:
+/home/darkzek/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.5/src/util_libc.rs:
+/home/darkzek/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.5/src/use_file.rs:
+/home/darkzek/.cargo/registry/src/github.com-1ecc6299db9ec823/getrandom-0.2.5/src/linux_android.rs:

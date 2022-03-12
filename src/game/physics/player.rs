@@ -35,15 +35,21 @@ impl<'a> System<'a> for PlayerMovementSystem {
             chunk_entity_lookup,
         ): Self::SystemData,
     ) {
+        let (_, entity) = (&player_entity, &mut player_physics).join().last().unwrap();
+
         let mut movement_modifier = 0.12;
 
-        if actionsheet.get_sprinting() {
-            movement_modifier *= 2.1;
+        if entity.touching_ground {
+            if actionsheet.get_sprinting() {
+                movement_modifier *= 2.1;
+            }
+        } else {
+            // Slow movement when in air
+            movement_modifier * 0.4;
         }
 
         if events.movement != [0, 0] {
             //TODO: Try make a macro out of this, I tried once but it kept saying it could find the macro :(
-            let (_, entity) = (&player_entity, &mut player_physics).join().last().unwrap();
 
             // Update camera with change (assumes first person for now)
             let mut movement: Vector3<f32> =
