@@ -9,21 +9,21 @@ fn main() {
 
     // Shaders
     let shaders = [
-        "ui_text",
-        "ui_images",
-        "loading",
-        "shader",
-        "background",
-        "gaussian",
-        "addition",
-        "outline",
-        "ssao",
-        "multiply",
+        "./src/shaders/ui_text",
+        "./src/shaders/ui_images",
+        "./src/shaders/loading",
+        "./src/shaders/shader",
+        "./src/shaders/background",
+        "./src/shaders/gaussian",
+        "./src/shaders/addition",
+        "./src/shaders/outline",
+        "./src/shaders/ssao",
+        "./src/shaders/multiply",
     ];
 
     for shader in shaders.iter() {
         println!("cargo:rerun-if-changed=assets/shaders/{}.frag", shader);
-        fs::remove_file(format!("./assets/shaders/{}_frag.spv", shader));
+        fs::remove_file(format!("{}_frag.spv", shader));
         Command::new("glslangValidator")
             .arg("-H")
             .arg("-V")
@@ -34,7 +34,7 @@ fn main() {
             .expect("failed to execute process");
 
         println!("cargo:rerun-if-changed=assets/shaders/{}.vert", shader);
-        fs::remove_file(format!("./assets/shaders/{}_vert.spv", shader));
+        fs::remove_file(format!("{}_vert.spv", shader));
         Command::new("glslangValidator")
             .arg("-H")
             .arg("-V")

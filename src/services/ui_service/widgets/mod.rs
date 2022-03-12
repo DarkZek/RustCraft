@@ -1,10 +1,10 @@
-use crate::render::vertices::UIVertex;
 use crate::services::asset_service::atlas::ATLAS_LOOKUPS;
 use crate::services::ui_service::draw::draw_sprite;
 use crate::services::ui_service::fonts::{FontsManager, TextView};
 use crate::services::ui_service::meshdata::UIMeshData;
 use crate::services::ui_service::{ObjectAlignment, Positioning};
 use fnv::{FnvBuildHasher, FnvHashMap};
+use rc_ui::vertex::UIVertex;
 use std::collections::HashMap;
 use wgpu::Device;
 use winit::dpi::PhysicalSize;

@@ -1,7 +1,7 @@
 use crate::render::device::get_device;
 use crate::render::effects::EffectPasses;
-use crate::render::vertices::UIVertex;
 use crate::render::{get_swapchain_size, get_texture_format, VERTICES_COVER_SCREEN};
+use rc_ui::vertex::UIVertex;
 use wgpu::{
     BindGroupLayout, BindGroupLayoutDescriptor, BindGroupLayoutEntry, BindingResource, BindingType,
     CommandEncoder, LoadOp, Operations, RenderPassColorAttachment, RenderPipeline,
@@ -17,13 +17,11 @@ pub struct MultiplyPostProcessingEffect {
 
 impl MultiplyPostProcessingEffect {
     pub fn new() -> MultiplyPostProcessingEffect {
-        let vert_shader = get_device().create_shader_module(&wgpu::include_spirv!(
-            "../../../assets/shaders/multiply_vert.spv"
-        ));
+        let vert_shader = get_device()
+            .create_shader_module(&wgpu::include_spirv!("../../shaders/multiply_vert.spv"));
 
-        let frag_shader = get_device().create_shader_module(&wgpu::include_spirv!(
-            "../../../assets/shaders/multiply_frag.spv"
-        ));
+        let frag_shader = get_device()
+            .create_shader_module(&wgpu::include_spirv!("../../shaders/multiply_frag.spv"));
 
         let bind_group_layout = get_device().create_bind_group_layout(&BindGroupLayoutDescriptor {
             label: Some("Multiply Bind Group Layout"),

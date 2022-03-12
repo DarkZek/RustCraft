@@ -15,8 +15,8 @@ impl Player {
     }
 
     pub fn calculate_collider() -> BoxCollider {
-        let min = Point3::new(-0.3, -1.0, -0.3);
-        let max = Point3::new(0.3, 1.0, 0.3);
+        let min = Point3::new(-0.3, 0.0, -0.3);
+        let max = Point3::new(0.3, 2.0, 0.3);
 
         BoxCollider { min, max }
     }

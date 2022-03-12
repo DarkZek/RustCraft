@@ -1,23 +1,19 @@
-
 use crate::render::device::get_device;
-use crate::render::effects::{EffectPasses};
-use crate::render::vertices::UIVertex;
-use crate::render::{
-    get_swapchain_size, VERTICES_COVER_SCREEN_VIEWPORT,
-};
-use nalgebra::{Vector3};
+use crate::render::effects::EffectPasses;
+use crate::render::{get_swapchain_size, VERTICES_COVER_SCREEN_VIEWPORT};
+use nalgebra::Vector3;
 use rand::Rng;
+use rc_ui::vertex::UIVertex;
 
 use std::mem;
 
-use wgpu::util::{DeviceExt};
+use wgpu::util::DeviceExt;
 use wgpu::{
     AddressMode, BindGroup, BindGroupLayout, BindGroupLayoutDescriptor, BindGroupLayoutEntry,
-    BindingResource, BindingType, Buffer, BufferBindingType,
-    BufferUsages, CommandEncoder, Extent3d, Origin3d, Queue,
-    RenderPassColorAttachment, RenderPipeline, Sampler, SamplerBindingType, SamplerDescriptor,
-    ShaderStages, Texture, TextureAspect, TextureFormat, TextureSampleType,
-    TextureUsages, TextureViewDescriptor, TextureViewDimension, VertexState,
+    BindingResource, BindingType, Buffer, BufferBindingType, BufferUsages, CommandEncoder,
+    Extent3d, Origin3d, Queue, RenderPassColorAttachment, RenderPipeline, Sampler,
+    SamplerBindingType, SamplerDescriptor, ShaderStages, Texture, TextureAspect, TextureFormat,
+    TextureSampleType, TextureUsages, TextureViewDescriptor, TextureViewDimension, VertexState,
 };
 
 pub struct SSAOEffect {
@@ -37,13 +33,11 @@ impl SSAOEffect {
 
         queue.submit([encoder.finish()]);
 
-        let ssao_vert_shader = get_device().create_shader_module(&wgpu::include_spirv!(
-            "../../../assets/shaders/ssao_vert.spv"
-        ));
+        let ssao_vert_shader =
+            get_device().create_shader_module(&wgpu::include_spirv!("../../shaders/ssao_vert.spv"));
 
-        let ssao_frag_shader = get_device().create_shader_module(&wgpu::include_spirv!(
-            "../../../assets/shaders/ssao_frag.spv"
-        ));
+        let ssao_frag_shader =
+            get_device().create_shader_module(&wgpu::include_spirv!("../../shaders/ssao_frag.spv"));
 
         let ssao_bind_group_layout =
             get_device().create_bind_group_layout(&BindGroupLayoutDescriptor {

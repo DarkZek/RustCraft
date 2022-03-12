@@ -1,7 +1,7 @@
 use crate::render::device::get_device;
 use crate::render::effects::EffectPasses;
-use crate::render::vertices::UIVertex;
 use crate::render::{get_texture_format, VERTICES_COVER_SCREEN};
+use rc_ui::vertex::UIVertex;
 use wgpu::{
     BindGroupLayout, BindGroupLayoutDescriptor, BindGroupLayoutEntry, BindingResource, BindingType,
     CommandEncoder, RenderPassColorAttachment, RenderPipeline, SamplerBindingType,
@@ -16,13 +16,11 @@ pub struct GaussianBlurPostProcessingEffect {
 
 impl GaussianBlurPostProcessingEffect {
     pub fn new() -> GaussianBlurPostProcessingEffect {
-        let bloom_vert_shader = get_device().create_shader_module(&wgpu::include_spirv!(
-            "../../../assets/shaders/gaussian_vert.spv"
-        ));
+        let bloom_vert_shader = get_device()
+            .create_shader_module(&wgpu::include_spirv!("../../shaders/gaussian_vert.spv"));
 
-        let bloom_frag_shader = get_device().create_shader_module(&wgpu::include_spirv!(
-            "../../../assets/shaders/gaussian_frag.spv"
-        ));
+        let bloom_frag_shader = get_device()
+            .create_shader_module(&wgpu::include_spirv!("../../shaders/gaussian_frag.spv"));
 
         let bloom_bind_group_layout =
             get_device().create_bind_group_layout(&BindGroupLayoutDescriptor {

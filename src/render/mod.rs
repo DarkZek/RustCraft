@@ -5,7 +5,7 @@ use crate::render::effects::EffectPasses;
 use crate::render::loading::LoadingScreen;
 use crate::render::pass::outline::{BoxOutline, OutlineRenderer};
 use crate::render::pass::uniforms::RenderViewProjectionUniforms;
-use crate::render::vertices::{UIVertex, Vertex};
+use crate::render::vertices::Vertex;
 use crate::services::asset_service::depth_map::{create_depth_texture, DEPTH_FORMAT};
 use crate::services::asset_service::AssetService;
 use crate::services::chunk_service::ChunkService;
@@ -13,7 +13,8 @@ use crate::services::settings_service::SettingsService;
 use crate::services::{load_services, ServicesContext};
 use crate::world::player_selected_block_update::PlayerSelectedBlockUpdateSystemData;
 use image::ImageFormat;
-use nalgebra::{Vector3};
+use nalgebra::Vector3;
+use rc_ui::vertex::UIVertex;
 use specs::{Builder, World, WorldExt};
 use std::borrow::Borrow;
 use std::lazy::SyncOnceCell;
@@ -22,9 +23,9 @@ use std::thread;
 use std::time::{Duration, Instant, SystemTime};
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{
-    AdapterInfo, BindGroupLayout, BlendComponent, BufferUsages, DepthBiasState, Extent3d,
-    Face, FrontFace, MultisampleState, PolygonMode, PrimitiveState, PrimitiveTopology,
-    RenderPipeline, Sampler, StencilState, Texture, TextureFormat, TextureView, VertexState,
+    AdapterInfo, BindGroupLayout, BlendComponent, BufferUsages, DepthBiasState, Extent3d, Face,
+    FrontFace, MultisampleState, PolygonMode, PrimitiveState, PrimitiveTopology, RenderPipeline,
+    Sampler, StencilState, Texture, TextureFormat, TextureView, VertexState,
 };
 use winit::dpi::PhysicalSize;
 use winit::event_loop::EventLoop;
@@ -290,12 +291,10 @@ fn generate_render_pipeline(
     culling: bool,
     bind_group_layouts: &[&BindGroupLayout],
 ) -> RenderPipeline {
-    let vs_module = get_device().create_shader_module(&wgpu::include_spirv!(
-        "../../assets/shaders/shader_vert.spv"
-    ));
-    let fs_module = get_device().create_shader_module(&wgpu::include_spirv!(
-        "../../assets/shaders/shader_frag.spv"
-    ));
+    let vs_module =
+        get_device().create_shader_module(&wgpu::include_spirv!("../shaders/shader_vert.spv"));
+    let fs_module =
+        get_device().create_shader_module(&wgpu::include_spirv!("../shaders/shader_frag.spv"));
 
     let render_pipeline_layout =
         get_device().create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {

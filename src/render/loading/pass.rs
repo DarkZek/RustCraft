@@ -1,8 +1,8 @@
 use crate::helpers::Lerp;
 use crate::render::device::get_device;
 use crate::render::loading::{LoadingScreen, STANDARD_VERTICES};
-use crate::render::vertices::UIVertex;
 use instant::Instant;
+use rc_ui::vertex::UIVertex;
 use std::thread;
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{BufferUsages, Color, LoadOp, Operations};

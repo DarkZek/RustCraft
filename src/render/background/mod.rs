@@ -1,10 +1,10 @@
 use crate::render::device::get_device;
 use crate::render::get_texture_format;
-use crate::render::vertices::UIVertex;
 use crate::services::ui_service::meshdata::UIMeshData;
+use rc_ui::vertex::UIVertex;
 use wgpu::{
-    BlendComponent, Color, CommandEncoder, IndexFormat, LoadOp, MultisampleState,
-    Operations, PushConstantRange, RenderPipeline, ShaderStages, TextureView, VertexState,
+    BlendComponent, Color, CommandEncoder, IndexFormat, LoadOp, MultisampleState, Operations,
+    PushConstantRange, RenderPipeline, ShaderStages, TextureView, VertexState,
 };
 
 static CLEAR_COLOR: Color = Color {
@@ -22,12 +22,10 @@ pub struct Background {
 
 impl Background {
     pub fn new() -> Background {
-        let vs_module = get_device().create_shader_module(&wgpu::include_spirv!(
-            "../../..//assets/shaders/background_vert.spv"
-        ));
-        let fs_module = get_device().create_shader_module(&wgpu::include_spirv!(
-            "../../..//assets/shaders/background_frag.spv"
-        ));
+        let vs_module = get_device()
+            .create_shader_module(&wgpu::include_spirv!("../../shaders/background_vert.spv"));
+        let fs_module = get_device()
+            .create_shader_module(&wgpu::include_spirv!("../../shaders/background_frag.spv"));
 
         let render_pipeline_layout =
             get_device().create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {

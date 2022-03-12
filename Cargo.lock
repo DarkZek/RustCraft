@@ -2105,6 +2105,7 @@ dependencies = [
 name = "rc_ui"
 version = "0.1.0"
 dependencies = [
+ "bytemuck",
  "rc_logging",
  "wgpu",
 ]

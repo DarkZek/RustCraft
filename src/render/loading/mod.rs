@@ -1,13 +1,13 @@
 use crate::render::device::get_device;
 use crate::render::loading::models::load_splash;
-use crate::render::vertices::UIVertex;
 use lazy_static::lazy_static;
+use rc_ui::vertex::UIVertex;
 use std::ops::DerefMut;
 use std::sync::{Arc, Mutex};
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{
-    BindGroup, BindGroupLayout, Buffer, BufferUsages, Queue, RenderPipeline, Sampler,
-    Surface, Texture,
+    BindGroup, BindGroupLayout, Buffer, BufferUsages, Queue, RenderPipeline, Sampler, Surface,
+    Texture,
 };
 use winit::dpi::PhysicalSize;
 

@@ -1,8 +1,8 @@
 use crate::render::device::get_device;
 use crate::render::get_texture_format;
 use crate::render::loading::LoadingScreen;
-use crate::render::vertices::UIVertex;
 use nalgebra::{Matrix4, Orthographic3};
+use rc_ui::vertex::UIVertex;
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{
     BindGroup, BindGroupLayout, BlendComponent, BlendState, Buffer, BufferBinding,
@@ -21,12 +21,10 @@ impl LoadingScreen {
                 push_constant_ranges: &[],
             });
 
-        let vs_module = get_device().create_shader_module(&wgpu::include_spirv!(
-            "../../../assets/shaders/loading_vert.spv"
-        ));
-        let fs_module = get_device().create_shader_module(&wgpu::include_spirv!(
-            "../../../assets/shaders/loading_frag.spv"
-        ));
+        let vs_module = get_device()
+            .create_shader_module(&wgpu::include_spirv!("../../shaders/loading_vert.spv"));
+        let fs_module = get_device()
+            .create_shader_module(&wgpu::include_spirv!("../../shaders/loading_frag.spv"));
 
         get_device().create_render_pipeline(&wgpu::RenderPipelineDescriptor {
             label: Some("Loading render pipeline"),

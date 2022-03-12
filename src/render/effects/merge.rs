@@ -1,9 +1,8 @@
 use crate::render::{get_swapchain_size, get_texture_format, VERTICES_COVER_SCREEN};
 
-
 use crate::render::device::get_device;
 use crate::render::effects::EffectPasses;
-use crate::render::vertices::UIVertex;
+use rc_ui::vertex::UIVertex;
 use wgpu::{
     BindGroupLayout, BindGroupLayoutDescriptor, BindGroupLayoutEntry, BindingResource, BindingType,
     CommandEncoder, LoadOp, Operations, RenderPassColorAttachment, RenderPipeline,
@@ -19,13 +18,11 @@ pub struct MergePostProcessingEffect {
 
 impl MergePostProcessingEffect {
     pub fn new() -> MergePostProcessingEffect {
-        let vert_shader = get_device().create_shader_module(&wgpu::include_spirv!(
-            "../../../assets/shaders/addition_vert.spv"
-        ));
+        let vert_shader = get_device()
+            .create_shader_module(&wgpu::include_spirv!("../../shaders/addition_vert.spv"));
 
-        let frag_shader = get_device().create_shader_module(&wgpu::include_spirv!(
-            "../../../assets/shaders/addition_frag.spv"
-        ));
+        let frag_shader = get_device()
+            .create_shader_module(&wgpu::include_spirv!("../../shaders/addition_frag.spv"));
 
         let bind_group_layout = get_device().create_bind_group_layout(&BindGroupLayoutDescriptor {
             label: Some("Merge Bind Group Layout"),

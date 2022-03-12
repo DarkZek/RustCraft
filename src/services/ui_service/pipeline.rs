@@ -1,20 +1,17 @@
 use crate::render::device::get_device;
 use crate::render::get_texture_format;
-use crate::render::vertices::UIVertex;
+use rc_ui::vertex::UIVertex;
 use wgpu::{
-    BindGroupLayout, BlendComponent, BlendState, MultisampleState, RenderPipeline,
-    VertexState,
+    BindGroupLayout, BlendComponent, BlendState, MultisampleState, RenderPipeline, VertexState,
 };
 
 /// Creates the user inferace render pipeline. This includes things like loading shaders.
 /// This happens because we have one render pass for the chunks, and a separate for user interfaces. This lets us use 2d vertices for UI as well as have more control over depth and perspective.
 pub fn generate_render_pipeline(bind_group_layouts: &[&BindGroupLayout]) -> RenderPipeline {
-    let vs_module = get_device().create_shader_module(&wgpu::include_spirv!(
-        "../../../assets/shaders/ui_text_vert.spv"
-    ));
-    let fs_module = get_device().create_shader_module(&wgpu::include_spirv!(
-        "../../../assets/shaders/ui_text_frag.spv"
-    ));
+    let vs_module =
+        get_device().create_shader_module(&wgpu::include_spirv!("../../shaders/ui_text_vert.spv"));
+    let fs_module =
+        get_device().create_shader_module(&wgpu::include_spirv!("../../shaders/ui_text_frag.spv"));
 
     let render_pipeline_layout =
         get_device().create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {

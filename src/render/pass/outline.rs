@@ -7,8 +7,8 @@ use specs::{Component, Join, ReadStorage, VecStorage};
 
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{
-    BindGroup, Buffer, BufferBindingType, BufferUsages, CommandEncoder, DepthBiasState,
-    LoadOp, Operations, RenderPipeline, StencilState, TextureView,
+    BindGroup, Buffer, BufferBindingType, BufferUsages, CommandEncoder, DepthBiasState, LoadOp,
+    Operations, RenderPipeline, StencilState, TextureView,
 };
 
 pub struct OutlineRenderer {
@@ -17,13 +17,11 @@ pub struct OutlineRenderer {
 
 impl OutlineRenderer {
     pub fn new() -> OutlineRenderer {
-        let vert_shader = get_device().create_shader_module(&wgpu::include_spirv!(
-            "../../../assets/shaders/outline_vert.spv"
-        ));
+        let vert_shader = get_device()
+            .create_shader_module(&wgpu::include_spirv!("../../shaders/outline_vert.spv"));
 
-        let frag_shader = get_device().create_shader_module(&wgpu::include_spirv!(
-            "../../../assets/shaders/outline_frag.spv"
-        ));
+        let frag_shader = get_device()
+            .create_shader_module(&wgpu::include_spirv!("../../shaders/outline_frag.spv"));
 
         let pipeline_layout =
             get_device().create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
