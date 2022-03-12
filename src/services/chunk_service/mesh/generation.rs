@@ -7,7 +7,6 @@ use crate::services::chunk_service::mesh::MeshData;
 use crate::services::settings_service::SettingsService;
 use fnv::FnvHashMap;
 use nalgebra::Vector3;
-use std::collections::HashMap;
 
 // Our mesh generation system
 

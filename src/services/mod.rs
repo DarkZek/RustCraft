@@ -58,7 +58,7 @@ pub fn load_services(mut context: ServicesContext, universe: &mut World) {
     let asset = AssetService::new(&settings, &mut context);
     LoadingScreen::update_state(60.0);
 
-    let chunk = ChunkService::new(&settings, &mut context, universe);
+    let chunk = ChunkService::new(&settings);
     LoadingScreen::update_state(80.0);
     let audio = AudioService::new();
     let ui = UIService::new(&mut context, &asset, universe);

@@ -7,20 +7,15 @@ use crate::services::chunk_service::mesh::culling::ViewableDirection;
 use crate::services::chunk_service::mesh::MeshData;
 use crate::services::chunk_service::ChunkService;
 use crate::services::settings_service::{SettingsService, CHUNK_SIZE};
-use futures::executor::block_on;
 use nalgebra::Matrix4;
 use nalgebra::Vector3;
 use rayon::iter::IntoParallelRefIterator;
 use specs::prelude::ParallelIterator;
 use specs::{Component, DenseVecStorage, Entities, Entity, Join, Read, ReadStorage, Write};
 use specs::{System, WriteStorage};
-use std::cmp::Ordering;
-use std::mem;
-use std::mem::transmute;
-use std::sync::Mutex;
-use std::time::{Instant, SystemTime};
+use std::time::SystemTime;
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
-use wgpu::{BindGroup, BindGroupLayout, BindingResource, BufferBinding, Device};
+use wgpu::{BindGroup, BindGroupLayout, BindingResource, BufferBinding};
 
 // TODO: Prioritise rendering visible chunks first
 
@@ -69,7 +64,6 @@ impl<'a> System<'a> for ChunkRerenderSystem {
         ReadStorage<'a, ChunkData>,
         Read<'a, SettingsService>,
         Write<'a, ChunkService>,
-        Read<'a, RenderState>,
         Entities<'a>,
         WriteStorage<'a, UpdateChunkGraphics>,
         Read<'a, Camera>,
@@ -82,7 +76,6 @@ impl<'a> System<'a> for ChunkRerenderSystem {
             chunks,
             settings,
             mut chunk_service,
-            render_system,
             entities,
             mut update_graphics,
             camera,
@@ -161,7 +154,7 @@ fn get_closest_chunks<'a>(
         .join()
         .collect::<Vec<(Entity, &RerenderChunkFlag)>>();
 
-    chunks.sort_unstable_by(|(entity_1, flag_1), (entity_2, flag_2)| {
+    chunks.sort_unstable_by(|(_, flag_1), (_, flag_2)| {
         let chunk_center_1 = Vector3::new(
             (flag_1.chunk.x * chunk_size) as f32 + (chunk_size / 2) as f32,
             (flag_1.chunk.y * chunk_size) as f32 + (chunk_size / 2) as f32,

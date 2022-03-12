@@ -14,7 +14,7 @@ use crate::game::resources::SystemResources;
 use crate::render::device::get_device;
 use crate::services::chunk_service::mesh::rerendering::RerenderChunkFlag;
 use std::cmp::Ordering;
-use std::time::{Instant, SystemTime};
+use std::time::SystemTime;
 use wgpu::{BindGroupLayout, BufferBindingType};
 
 pub mod blocks;
@@ -43,11 +43,7 @@ pub struct ChunkService {
 }
 
 impl ChunkService {
-    pub fn new(
-        _settings: &SettingsService,
-        context: &mut ServicesContext,
-        _universe: &mut World,
-    ) -> ChunkService {
+    pub fn new(_settings: &SettingsService) -> ChunkService {
         let model_bind_group_layout_descriptor = wgpu::BindGroupLayoutDescriptor {
             entries: &[wgpu::BindGroupLayoutEntry {
                 binding: 0,

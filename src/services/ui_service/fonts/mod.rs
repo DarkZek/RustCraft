@@ -1,7 +1,6 @@
 use fnv::{FnvBuildHasher, FnvHashMap};
 use std::collections::HashMap;
 
-use wgpu::Device;
 use winit::dpi::PhysicalSize;
 
 use crate::services::asset_service::index::TextureAtlasIndex;
