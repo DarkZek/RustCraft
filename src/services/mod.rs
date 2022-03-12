@@ -9,7 +9,7 @@ use crate::services::{
 use rc_logging::LoggingService;
 use specs::World;
 use std::sync::{Arc, Mutex};
-use wgpu::{Queue};
+use wgpu::Queue;
 use winit::dpi::PhysicalSize;
 use winit::window::Window;
 
@@ -60,6 +60,7 @@ pub fn load_services(mut context: ServicesContext, universe: &mut World) {
 
     let chunk = ChunkService::new(&settings);
     LoadingScreen::update_state(80.0);
+
     let audio = AudioService::new();
     let ui = UIService::new(&mut context, &asset, universe);
     let input = InputService::new(&mut context, universe);

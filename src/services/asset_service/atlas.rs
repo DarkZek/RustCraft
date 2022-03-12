@@ -13,9 +13,7 @@ use std::lazy::SyncOnceCell;
 use std::path::PathBuf;
 use std::time::{SystemTime, UNIX_EPOCH};
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
-use wgpu::{
-    BufferUsages, ImageDataLayout, Queue, Sampler, Texture, TextureAspect, TextureFormat,
-};
+use wgpu::{BufferUsages, ImageDataLayout, Queue, Sampler, Texture, TextureAspect, TextureFormat};
 
 // TODO: Refactor
 
@@ -76,7 +74,6 @@ impl AssetService {
         let mut atlas_img = None;
 
         if settings.atlas_cache_reading {
-            println!("Attempting to reach atlas cache");
             // Check if they're the same resource pack
             if let Some((image, map)) = load_cached_atlas(
                 &atlas_path,
@@ -112,7 +109,7 @@ impl AssetService {
                     &path,
                     &atlas_path,
                     &atlas_index_path,
-                    &atlas_index_path,
+                    &atlas_info_path,
                     &atlas_index,
                     zip_name,
                     &atlas,
