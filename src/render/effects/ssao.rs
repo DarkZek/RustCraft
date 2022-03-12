@@ -1,6 +1,6 @@
 use crate::render::device::get_device;
 use crate::render::effects::EffectPasses;
-use crate::render::{get_swapchain_size, VERTICES_COVER_SCREEN_VIEWPORT};
+use crate::render::{get_swapchain_size, VERTICES_COVER_SCREEN};
 use nalgebra::Vector3;
 use rand::Rng;
 use rc_ui::vertex::UIVertex;
@@ -33,11 +33,11 @@ impl SSAOEffect {
 
         queue.submit([encoder.finish()]);
 
-        let ssao_vert_shader =
-            get_device().create_shader_module(&wgpu::include_spirv!("../../shaders/ssao_vert.spv"));
+        let ssao_vert_shader = get_device()
+            .create_shader_module(&wgpu::include_spirv!("../../../shaders/ssao_vert.spv"));
 
-        let ssao_frag_shader =
-            get_device().create_shader_module(&wgpu::include_spirv!("../../shaders/ssao_frag.spv"));
+        let ssao_frag_shader = get_device()
+            .create_shader_module(&wgpu::include_spirv!("../../../shaders/ssao_frag.spv"));
 
         let ssao_bind_group_layout =
             get_device().create_bind_group_layout(&BindGroupLayoutDescriptor {
@@ -359,7 +359,7 @@ impl SSAOEffect {
         pass.set_bind_group(0, &bind_group, &[]);
         pass.set_bind_group(1, projection_bind_group, &[]);
 
-        pass.set_vertex_buffer(0, VERTICES_COVER_SCREEN_VIEWPORT.get().unwrap().slice(..));
+        pass.set_vertex_buffer(0, VERTICES_COVER_SCREEN.get().unwrap().slice(..));
 
         pass.draw(0..6, 0..1);
 

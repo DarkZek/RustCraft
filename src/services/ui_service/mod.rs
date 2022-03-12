@@ -1,13 +1,16 @@
 use specs::World;
 use std::sync::{Arc, Mutex};
-use wgpu::{BindGroup, BindGroupLayout, Buffer, RenderPipeline};
+use wgpu::{BindGroup, BindGroupLayout, Buffer, Extent3d, RenderPipeline};
 
 use crate::helpers::AtlasIndex;
+use crate::render::device::get_device;
+use crate::render::get_texture_format;
 use pipeline::generate_render_pipeline;
 use rc_ui::component::UIComponent;
-use rc_ui::render::{UIController, UIRenderer};
+use rc_ui::{UIController, UIRenderer};
 
 use crate::services::asset_service::AssetService;
+use crate::services::ui_service::crosshair::CrosshairComponent;
 use crate::services::ui_service::fonts::FontsManager;
 use crate::services::ui_service::image::{ImageManager, ImageType, ImageView};
 use crate::services::ui_service::widgets::WidgetManager;
@@ -69,7 +72,16 @@ impl UIService {
             &projection_bind_group_layout,
         ]);
 
-        let controller = UIController::new(Box::new(RCRenderer::new()));
+        let controller = UIController::new(
+            Box::new(RCRenderer::new()),
+            get_device(),
+            get_texture_format(),
+            Extent3d {
+                width: context.size.width,
+                height: context.size.height,
+                depth_or_array_layers: 0,
+            },
+        );
 
         UIService {
             fonts,
@@ -127,6 +139,7 @@ impl RCRenderer {
 
 impl UIRenderer for RCRenderer {
     fn setup(&self) -> Vec<Arc<Mutex<dyn UIComponent + Send + Sync>>> {
-        vec![]
+        let crosshair_component = Arc::new(Mutex::new(CrosshairComponent::new()));
+        vec![crosshair_component.clone()]
     }
 }

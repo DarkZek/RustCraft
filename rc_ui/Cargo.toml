@@ -9,3 +9,4 @@ edition = "2021"
 rc_logging = { path = "../logging" }
 wgpu = { version = "0.12.0", features = ["spirv"] }
 bytemuck = "1.2.0"
+nalgebra = "0.21.0"

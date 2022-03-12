@@ -45,9 +45,6 @@ lazy_static! {
     pub static ref TEXTURE_FORMAT: SyncOnceCell<TextureFormat> = SyncOnceCell::new();
 
     // Buffers that holds vertices that will cover the entire screen when drawn with no view matrix
-    
-    // Texture goes from -1,-1 to 1,1
-    pub static ref VERTICES_COVER_SCREEN_VIEWPORT: SyncOnceCell<wgpu::Buffer> = SyncOnceCell::new();
     // Texture goes from 0,0 to 1,1
     pub static ref VERTICES_COVER_SCREEN: SyncOnceCell<wgpu::Buffer> = SyncOnceCell::new();
 }
@@ -58,8 +55,8 @@ pub static mut SWAPCHAIN_SIZE: Extent3d = Extent3d {
     depth_or_array_layers: 1,
 };
 
-pub fn get_texture_format() -> TextureFormat {
-    *TEXTURE_FORMAT.get().unwrap()
+pub fn get_texture_format() -> &'static TextureFormat {
+    TEXTURE_FORMAT.get().unwrap()
 }
 
 pub fn get_swapchain_size() -> Extent3d {
@@ -292,9 +289,9 @@ fn generate_render_pipeline(
     bind_group_layouts: &[&BindGroupLayout],
 ) -> RenderPipeline {
     let vs_module =
-        get_device().create_shader_module(&wgpu::include_spirv!("../shaders/shader_vert.spv"));
+        get_device().create_shader_module(&wgpu::include_spirv!("../../shaders/shader_vert.spv"));
     let fs_module =
-        get_device().create_shader_module(&wgpu::include_spirv!("../shaders/shader_frag.spv"));
+        get_device().create_shader_module(&wgpu::include_spirv!("../../shaders/shader_frag.spv"));
 
     let render_pipeline_layout =
         get_device().create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
@@ -343,7 +340,7 @@ fn generate_render_pipeline(
             targets: &[
                 // Color output
                 wgpu::ColorTargetState {
-                    format: get_texture_format(),
+                    format: *get_texture_format(),
                     write_mask: wgpu::ColorWrites::ALL,
                     blend: Some(wgpu::BlendState {
                         color: BlendComponent {
@@ -360,7 +357,7 @@ fn generate_render_pipeline(
                 },
                 // Bloom pass brightness threshold
                 wgpu::ColorTargetState {
-                    format: get_texture_format(),
+                    format: *get_texture_format(),
                     write_mask: wgpu::ColorWrites::ALL,
                     blend: Some(wgpu::BlendState {
                         color: BlendComponent {
@@ -454,43 +451,4 @@ fn fill_vertices_cover_screen() {
     });
 
     VERTICES_COVER_SCREEN.set(vertex_buffer).unwrap();
-
-    let vertex_buffer = get_device().create_buffer_init(&BufferInitDescriptor {
-        label: Some("Cover Screen Viewport Vertices Buffer"),
-        contents: &bytemuck::cast_slice(&[
-            UIVertex {
-                position: [-1.0, 1.0],
-                tex_coords: [0.0, 0.0],
-                color: [0.0; 4],
-            },
-            UIVertex {
-                position: [1.0, 1.0],
-                tex_coords: [1.0, 0.0],
-                color: [0.0; 4],
-            },
-            UIVertex {
-                position: [-1.0, -1.0],
-                tex_coords: [0.0, 1.0],
-                color: [0.0; 4],
-            },
-            UIVertex {
-                position: [1.0, 1.0],
-                tex_coords: [1.0, 0.0],
-                color: [0.0; 4],
-            },
-            UIVertex {
-                position: [1.0, -1.0],
-                tex_coords: [1.0, 1.0],
-                color: [0.0; 4],
-            },
-            UIVertex {
-                position: [-1.0, -1.0],
-                tex_coords: [0.0, 1.0],
-                color: [0.0; 4],
-            },
-        ]),
-        usage: BufferUsages::VERTEX,
-    });
-
-    VERTICES_COVER_SCREEN_VIEWPORT.set(vertex_buffer).unwrap();
 }

@@ -2106,6 +2106,7 @@ name = "rc_ui"
 version = "0.1.0"
 dependencies = [
  "bytemuck",
+ "nalgebra",
  "rc_logging",
  "wgpu",
 ]

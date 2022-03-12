@@ -18,10 +18,10 @@ pub struct OutlineRenderer {
 impl OutlineRenderer {
     pub fn new() -> OutlineRenderer {
         let vert_shader = get_device()
-            .create_shader_module(&wgpu::include_spirv!("../../shaders/outline_vert.spv"));
+            .create_shader_module(&wgpu::include_spirv!("../../../shaders/outline_vert.spv"));
 
         let frag_shader = get_device()
-            .create_shader_module(&wgpu::include_spirv!("../../shaders/outline_frag.spv"));
+            .create_shader_module(&wgpu::include_spirv!("../../../shaders/outline_frag.spv"));
 
         let pipeline_layout =
             get_device().create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
@@ -68,7 +68,7 @@ impl OutlineRenderer {
                 module: &frag_shader,
                 entry_point: "main",
                 targets: &[wgpu::ColorTargetState {
-                    format: get_texture_format(),
+                    format: *get_texture_format(),
                     write_mask: wgpu::ColorWrites::ALL,
                     blend: None,
                 }],

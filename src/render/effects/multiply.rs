@@ -18,10 +18,10 @@ pub struct MultiplyPostProcessingEffect {
 impl MultiplyPostProcessingEffect {
     pub fn new() -> MultiplyPostProcessingEffect {
         let vert_shader = get_device()
-            .create_shader_module(&wgpu::include_spirv!("../../shaders/multiply_vert.spv"));
+            .create_shader_module(&wgpu::include_spirv!("../../../shaders/multiply_vert.spv"));
 
         let frag_shader = get_device()
-            .create_shader_module(&wgpu::include_spirv!("../../shaders/multiply_frag.spv"));
+            .create_shader_module(&wgpu::include_spirv!("../../../shaders/multiply_frag.spv"));
 
         let bind_group_layout = get_device().create_bind_group_layout(&BindGroupLayoutDescriptor {
             label: Some("Multiply Bind Group Layout"),
@@ -90,7 +90,7 @@ impl MultiplyPostProcessingEffect {
                     module: &frag_shader,
                     entry_point: "main",
                     targets: &[wgpu::ColorTargetState {
-                        format: get_texture_format(),
+                        format: *get_texture_format(),
                         write_mask: wgpu::ColorWrites::ALL,
                         blend: None,
                     }],

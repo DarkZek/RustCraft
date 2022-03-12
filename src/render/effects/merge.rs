@@ -5,7 +5,7 @@ use crate::render::effects::EffectPasses;
 use rc_ui::vertex::UIVertex;
 use wgpu::{
     BindGroupLayout, BindGroupLayoutDescriptor, BindGroupLayoutEntry, BindingResource, BindingType,
-    CommandEncoder, LoadOp, Operations, RenderPassColorAttachment, RenderPipeline,
+    CommandEncoder, LoadOp, Operations, RenderPassColorAttachment, RenderPipeline, Sampler,
     SamplerBindingType, SamplerDescriptor, ShaderStages, Texture, TextureSampleType, TextureView,
     TextureViewDescriptor, TextureViewDimension, VertexState,
 };
@@ -14,15 +14,16 @@ use wgpu::{
 pub struct MergePostProcessingEffect {
     pub render_pipeline: RenderPipeline,
     pub bind_group_layout: BindGroupLayout,
+    pub sampler: Sampler,
 }
 
 impl MergePostProcessingEffect {
     pub fn new() -> MergePostProcessingEffect {
         let vert_shader = get_device()
-            .create_shader_module(&wgpu::include_spirv!("../../shaders/addition_vert.spv"));
+            .create_shader_module(&wgpu::include_spirv!("../../../shaders/addition_vert.spv"));
 
         let frag_shader = get_device()
-            .create_shader_module(&wgpu::include_spirv!("../../shaders/addition_frag.spv"));
+            .create_shader_module(&wgpu::include_spirv!("../../../shaders/addition_frag.spv"));
 
         let bind_group_layout = get_device().create_bind_group_layout(&BindGroupLayoutDescriptor {
             label: Some("Merge Bind Group Layout"),
@@ -91,7 +92,7 @@ impl MergePostProcessingEffect {
                     module: &frag_shader,
                     entry_point: "main",
                     targets: &[wgpu::ColorTargetState {
-                        format: get_texture_format(),
+                        format: *get_texture_format(),
                         write_mask: wgpu::ColorWrites::ALL,
                         blend: None,
                     }],
@@ -99,9 +100,12 @@ impl MergePostProcessingEffect {
                 multiview: None,
             });
 
+        let sampler = get_device().create_sampler(&SamplerDescriptor::default());
+
         MergePostProcessingEffect {
             render_pipeline,
             bind_group_layout,
+            sampler,
         }
     }
 
@@ -123,8 +127,6 @@ impl MergePostProcessingEffect {
             get_swapchain_size(),
         );
 
-        let sampler = get_device().create_sampler(&SamplerDescriptor::default());
-
         let bind_group = get_device().create_bind_group(&wgpu::BindGroupDescriptor {
             label: Some("Merge Effect Bind Group"),
             layout: &self.bind_group_layout,
@@ -139,7 +141,7 @@ impl MergePostProcessingEffect {
                 },
                 wgpu::BindGroupEntry {
                     binding: 2,
-                    resource: BindingResource::Sampler(&sampler),
+                    resource: BindingResource::Sampler(&self.sampler),
                 },
             ],
         });

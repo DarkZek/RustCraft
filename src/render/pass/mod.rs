@@ -202,7 +202,7 @@ impl<'a> System<'a> for RenderSystem {
                 &render_state.depth_texture.1,
             );
 
-            ui_service.render(&frame, &mut encoder, &asset_service);
+            ui_service.render(&texture.texture, &mut encoder, &asset_service);
 
             // Return buffers
             effect_passes.return_buffer(frame_image_buffer);

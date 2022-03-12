@@ -4,7 +4,7 @@ use crate::render::{get_texture_format, VERTICES_COVER_SCREEN};
 use rc_ui::vertex::UIVertex;
 use wgpu::{
     BindGroupLayout, BindGroupLayoutDescriptor, BindGroupLayoutEntry, BindingResource, BindingType,
-    CommandEncoder, RenderPassColorAttachment, RenderPipeline, SamplerBindingType,
+    CommandEncoder, RenderPassColorAttachment, RenderPipeline, Sampler, SamplerBindingType,
     SamplerDescriptor, ShaderStages, Texture, TextureSampleType, TextureViewDescriptor,
     TextureViewDimension, VertexState,
 };
@@ -12,15 +12,16 @@ use wgpu::{
 pub struct GaussianBlurPostProcessingEffect {
     pub bloom_render_pipeline: RenderPipeline,
     pub bloom_bind_group_layout: BindGroupLayout,
+    pub sampler: Sampler,
 }
 
 impl GaussianBlurPostProcessingEffect {
     pub fn new() -> GaussianBlurPostProcessingEffect {
         let bloom_vert_shader = get_device()
-            .create_shader_module(&wgpu::include_spirv!("../../shaders/gaussian_vert.spv"));
+            .create_shader_module(&wgpu::include_spirv!("../../../shaders/gaussian_vert.spv"));
 
         let bloom_frag_shader = get_device()
-            .create_shader_module(&wgpu::include_spirv!("../../shaders/gaussian_frag.spv"));
+            .create_shader_module(&wgpu::include_spirv!("../../../shaders/gaussian_frag.spv"));
 
         let bloom_bind_group_layout =
             get_device().create_bind_group_layout(&BindGroupLayoutDescriptor {
@@ -83,7 +84,7 @@ impl GaussianBlurPostProcessingEffect {
                     module: &bloom_frag_shader,
                     entry_point: "main",
                     targets: &[wgpu::ColorTargetState {
-                        format: get_texture_format(),
+                        format: *get_texture_format(),
                         write_mask: wgpu::ColorWrites::ALL,
                         blend: None,
                     }],
@@ -91,9 +92,12 @@ impl GaussianBlurPostProcessingEffect {
                 multiview: None,
             });
 
+        let sampler = get_device().create_sampler(&SamplerDescriptor::default());
+
         GaussianBlurPostProcessingEffect {
             bloom_render_pipeline,
             bloom_bind_group_layout,
+            sampler,
         }
     }
 
@@ -115,8 +119,6 @@ impl GaussianBlurPostProcessingEffect {
             (*pingpong_buffer).create_view(&TextureViewDescriptor::default());
 
         let bloom_texture_view = bloom_texture.create_view(&TextureViewDescriptor::default());
-
-        let sampler = get_device().create_sampler(&SamplerDescriptor::default());
 
         let bind_group = get_device().create_bind_group(&wgpu::BindGroupDescriptor {
             label: Some("Gaussian Effect Bind Group"),
@@ -143,7 +145,7 @@ impl GaussianBlurPostProcessingEffect {
                 },
                 wgpu::BindGroupEntry {
                     binding: 1,
-                    resource: BindingResource::Sampler(&sampler),
+                    resource: BindingResource::Sampler(&self.sampler),
                 },
             ],
         });

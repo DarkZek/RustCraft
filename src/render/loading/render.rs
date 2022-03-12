@@ -22,9 +22,9 @@ impl LoadingScreen {
             });
 
         let vs_module = get_device()
-            .create_shader_module(&wgpu::include_spirv!("../../shaders/loading_vert.spv"));
+            .create_shader_module(&wgpu::include_spirv!("../../../shaders/loading_vert.spv"));
         let fs_module = get_device()
-            .create_shader_module(&wgpu::include_spirv!("../../shaders/loading_frag.spv"));
+            .create_shader_module(&wgpu::include_spirv!("../../../shaders/loading_frag.spv"));
 
         get_device().create_render_pipeline(&wgpu::RenderPipelineDescriptor {
             label: Some("Loading render pipeline"),
@@ -53,7 +53,7 @@ impl LoadingScreen {
                 module: &fs_module,
                 entry_point: "main",
                 targets: &[wgpu::ColorTargetState {
-                    format: get_texture_format(),
+                    format: *get_texture_format(),
                     write_mask: wgpu::ColorWrites::ALL,
                     blend: Some(BlendState {
                         color: BlendComponent {

@@ -71,25 +71,6 @@ impl BlockStates {
     pub fn get_id() {}
 }
 
-fn calculate_states_len(value: &Value) -> usize {
-    if value["properties"] == Value::Null {
-        return 1;
-    }
-
-    let mut ids = 0;
-    for (_, num) in value.get("properties").unwrap().as_object().unwrap() {
-        let size = num.as_array().unwrap().len();
-
-        if ids == 0 {
-            ids = size;
-        } else {
-            ids *= size;
-        }
-    }
-
-    return ids;
-}
-
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Copy)]
 enum PropertyType {
     Boolean(bool),

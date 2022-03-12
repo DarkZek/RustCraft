@@ -1,4 +1,5 @@
 use std::fs;
+use std::fs::File;
 use std::process::Command;
 
 fn main() {
@@ -9,38 +10,42 @@ fn main() {
 
     // Shaders
     let shaders = [
-        "./src/shaders/ui_text",
-        "./src/shaders/ui_images",
-        "./src/shaders/loading",
-        "./src/shaders/shader",
-        "./src/shaders/background",
-        "./src/shaders/gaussian",
-        "./src/shaders/addition",
-        "./src/shaders/outline",
-        "./src/shaders/ssao",
-        "./src/shaders/multiply",
+        "./shaders/ui_text",
+        "./shaders/ui_images",
+        "./shaders/loading",
+        "./shaders/shader",
+        "./shaders/background",
+        "./shaders/gaussian",
+        "./shaders/addition",
+        "./shaders/outline",
+        "./shaders/ssao",
+        "./shaders/multiply",
+        "./rc_ui/shaders/default",
     ];
 
     for shader in shaders.iter() {
-        println!("cargo:rerun-if-changed=assets/shaders/{}.frag", shader);
+        assert_eq!(true, File::open(format!("{}.frag", shader)).is_ok());
+        assert_eq!(true, File::open(format!("{}.vert", shader)).is_ok());
+
+        println!("cargo:rerun-if-changed={}.frag", shader);
         fs::remove_file(format!("{}_frag.spv", shader));
         Command::new("glslangValidator")
             .arg("-H")
             .arg("-V")
             .arg("-o")
-            .arg(format!("./assets/shaders/{}_frag.spv", shader))
-            .arg(format!("./assets/shaders/{}.frag", shader))
+            .arg(format!("{}_frag.spv", shader))
+            .arg(format!("{}.frag", shader))
             .output()
             .expect("failed to execute process");
 
-        println!("cargo:rerun-if-changed=assets/shaders/{}.vert", shader);
+        println!("cargo:rerun-if-changed={}.vert", shader);
         fs::remove_file(format!("{}_vert.spv", shader));
         Command::new("glslangValidator")
             .arg("-H")
             .arg("-V")
             .arg("-o")
-            .arg(format!("./assets/shaders/{}_vert.spv", shader))
-            .arg(format!("./assets/shaders/{}.vert", shader))
+            .arg(format!("{}_vert.spv", shader))
+            .arg(format!("{}.vert", shader))
             .output()
             .expect("failed to execute process");
     }

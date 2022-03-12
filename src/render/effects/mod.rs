@@ -115,7 +115,7 @@ impl EffectPasses {
                 mip_level_count: 1,
                 sample_count: 1,
                 dimension: TextureDimension::D2,
-                format: get_texture_format(),
+                format: *get_texture_format(),
                 usage: TextureUsages::RENDER_ATTACHMENT
                     | TextureUsages::TEXTURE_BINDING
                     | TextureUsages::COPY_DST

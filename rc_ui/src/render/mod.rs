@@ -1,26 +1,21 @@
 use crate::component::UIComponent;
+use crate::render::pipeline::UIRenderPipeline;
+use std::lazy::SyncOnceCell;
 use std::sync::Arc;
 use std::sync::Mutex;
+use wgpu::{Device, TextureFormat};
 
-/// The UI Controller is the main struct that holds the data for all UI data
-/// It holds a UIRenderer which instructs it how to perform opertions
-pub struct UIController {
-    renderer: Box<dyn UIRenderer + Send + Sync>,
-    components: Vec<Arc<Mutex<dyn UIComponent + Send + Sync>>>,
+mod component;
+pub mod pipeline;
+pub mod projection;
+
+pub(crate) static DEVICE: SyncOnceCell<&'static Device> = SyncOnceCell::new();
+pub(crate) static SWAPCHAIN_FORMAT: SyncOnceCell<&'static TextureFormat> = SyncOnceCell::new();
+
+pub(crate) fn get_device() -> &'static Device {
+    DEVICE.get().unwrap()
 }
 
-impl UIController {
-    /// Creates a new renderer using the instructions from `renderer`
-    pub fn new(renderer: Box<dyn UIRenderer + Send + Sync>) -> UIController {
-        let components = renderer.setup();
-
-        UIController {
-            renderer,
-            components,
-        }
-    }
-}
-
-pub trait UIRenderer {
-    fn setup(&self) -> Vec<Arc<Mutex<dyn UIComponent + Send + Sync>>>;
+pub(crate) fn get_swapchain_format() -> &'static TextureFormat {
+    SWAPCHAIN_FORMAT.get().unwrap()
 }

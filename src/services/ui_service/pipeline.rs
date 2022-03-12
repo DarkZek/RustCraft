@@ -8,10 +8,10 @@ use wgpu::{
 /// Creates the user inferace render pipeline. This includes things like loading shaders.
 /// This happens because we have one render pass for the chunks, and a separate for user interfaces. This lets us use 2d vertices for UI as well as have more control over depth and perspective.
 pub fn generate_render_pipeline(bind_group_layouts: &[&BindGroupLayout]) -> RenderPipeline {
-    let vs_module =
-        get_device().create_shader_module(&wgpu::include_spirv!("../../shaders/ui_text_vert.spv"));
-    let fs_module =
-        get_device().create_shader_module(&wgpu::include_spirv!("../../shaders/ui_text_frag.spv"));
+    let vs_module = get_device()
+        .create_shader_module(&wgpu::include_spirv!("../../../shaders/ui_text_vert.spv"));
+    let fs_module = get_device()
+        .create_shader_module(&wgpu::include_spirv!("../../../shaders/ui_text_frag.spv"));
 
     let render_pipeline_layout =
         get_device().create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
@@ -47,7 +47,7 @@ pub fn generate_render_pipeline(bind_group_layouts: &[&BindGroupLayout]) -> Rend
             module: &fs_module,
             entry_point: "main",
             targets: &[wgpu::ColorTargetState {
-                format: get_texture_format(),
+                format: *get_texture_format(),
                 write_mask: wgpu::ColorWrites::ALL,
                 blend: Some(BlendState {
                     color: BlendComponent {

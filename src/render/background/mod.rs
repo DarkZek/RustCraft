@@ -22,10 +22,12 @@ pub struct Background {
 
 impl Background {
     pub fn new() -> Background {
-        let vs_module = get_device()
-            .create_shader_module(&wgpu::include_spirv!("../../shaders/background_vert.spv"));
-        let fs_module = get_device()
-            .create_shader_module(&wgpu::include_spirv!("../../shaders/background_frag.spv"));
+        let vs_module = get_device().create_shader_module(&wgpu::include_spirv!(
+            "../../../shaders/background_vert.spv"
+        ));
+        let fs_module = get_device().create_shader_module(&wgpu::include_spirv!(
+            "../../../shaders/background_frag.spv"
+        ));
 
         let render_pipeline_layout =
             get_device().create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
@@ -65,7 +67,7 @@ impl Background {
                     module: &fs_module,
                     entry_point: "main",
                     targets: &[wgpu::ColorTargetState {
-                        format: get_texture_format(),
+                        format: *get_texture_format(),
                         write_mask: wgpu::ColorWrites::ALL,
                         blend: Some(wgpu::BlendState {
                             color: BlendComponent {

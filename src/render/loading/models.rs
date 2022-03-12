@@ -5,9 +5,8 @@ use std::convert::TryFrom;
 use std::num::NonZeroU32;
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{
-    BindGroup, BindGroupLayout, BufferUsages, ImageDataLayout, Queue, Sampler,
-    SamplerBindingType, Texture, TextureAspect, TextureSampleType, TextureViewDescriptor,
-    TextureViewDimension,
+    BindGroup, BindGroupLayout, BufferUsages, ImageDataLayout, Queue, Sampler, SamplerBindingType,
+    Texture, TextureAspect, TextureSampleType, TextureViewDescriptor, TextureViewDimension,
 };
 
 pub fn load_splash(queue: &mut Queue) -> (Texture, Sampler, BindGroupLayout, BindGroup) {
@@ -39,7 +38,7 @@ pub fn load_splash(queue: &mut Queue) -> (Texture, Sampler, BindGroupLayout, Bin
         mip_level_count: 1,
         sample_count: 1,
         dimension: wgpu::TextureDimension::D2,
-        format: get_texture_format(),
+        format: *get_texture_format(),
         usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST,
     });
 
@@ -92,7 +91,7 @@ pub fn load_splash_image_bindings(
 ) -> (BindGroupLayout, BindGroup) {
     let diffuse_texture_view = diffuse_texture.create_view(&TextureViewDescriptor {
         label: Some("Loading splash screen texture descriptor"),
-        format: Some(get_texture_format()),
+        format: Some(*get_texture_format()),
         dimension: Some(TextureViewDimension::D2),
         aspect: TextureAspect::All,
         base_mip_level: 0,
