@@ -2,25 +2,25 @@
 // Handles loading assets, the texture atlas and resource packs
 //
 
-use crate::services::asset_service::index::TextureAtlasIndex;
 use crate::services::settings_service::SettingsService;
 use crate::services::ServicesContext;
 use fnv::FnvBuildHasher;
 use image::DynamicImage;
 use native_dialog::{MessageDialog, MessageType};
+use rc_ui::atlas::TextureAtlasIndex;
 use std::collections::HashMap;
 use std::error::Error;
 use std::fs;
 use std::io::Cursor;
 use std::ops::DerefMut;
 use std::path::PathBuf;
+use std::sync::Arc;
 use std::time::SystemTime;
 use wgpu::{BindGroup, BindGroupLayout, Sampler, Texture};
 
 pub mod atlas;
 pub mod binding;
 pub mod depth_map;
-pub mod index;
 pub mod packs;
 
 static DEFAULT_RESOURCE_PACK: &str = "Faithful.zip";
@@ -30,13 +30,13 @@ pub struct AssetService {
     resource_packs: Vec<String>,
     selected_pack: Option<ResourcePack>,
     pub atlas_image: Option<DynamicImage>,
-    pub atlas: Option<Texture>,
+    pub atlas: Option<Arc<Texture>>,
     // TODO: Change from using string based lookup system to using hashed id's internally, and also add direct access via vec and make hashmap simply give index to vec
     // also cache popular block models for faster chunk gen
     pub atlas_index: Option<HashMap<String, TextureAtlasIndex, FnvBuildHasher>>,
     pub atlas_sampler: Option<Sampler>,
     pub atlas_bind_group_layout: Option<BindGroupLayout>,
-    pub atlas_bind_group: Option<BindGroup>,
+    pub atlas_bind_group: Option<Arc<BindGroup>>,
 }
 
 #[allow(dead_code)]
@@ -136,11 +136,11 @@ impl AssetService {
             resource_packs,
             selected_pack: Some(selected_pack),
             atlas_image: Some(atlas_image),
-            atlas: Some(atlas),
+            atlas: Some(Arc::new(atlas)),
             atlas_index: Some(atlas_index),
             atlas_sampler: Some(atlas_sampler),
             atlas_bind_group_layout: Some(atlas_bind_group_layout),
-            atlas_bind_group: Some(atlas_bind_group),
+            atlas_bind_group: Some(Arc::new(atlas_bind_group)),
         }
     }
 

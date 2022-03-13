@@ -1,7 +1,7 @@
-use crate::services::asset_service::index::TextureAtlasIndex;
 use crate::services::ui_service::draw::draw_sprite;
 use crate::services::ui_service::meshdata::UIMeshData;
 use fnv::{FnvBuildHasher, FnvHashMap};
+use rc_ui::atlas::TextureAtlasIndex;
 use std::collections::HashMap;
 
 use winit::dpi::PhysicalSize;

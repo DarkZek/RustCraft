@@ -57,7 +57,7 @@ impl UIController {
                 color: [0.0; 4],
             },
             UIVertex {
-                position: [position.x, position.y + layout.size.x],
+                position: [position.x, position.y + layout.size.y],
                 tex_coords: [0.0, 1.0],
                 color: [0.0; 4],
             },

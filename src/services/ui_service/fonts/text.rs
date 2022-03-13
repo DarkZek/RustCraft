@@ -1,7 +1,7 @@
-use crate::services::asset_service::index::TextureAtlasIndex;
 use crate::services::ui_service::draw::{draw_rect, draw_sprite};
 use crate::services::ui_service::fonts::{FontAtlasIndexs, FONT_TEXTURE_SIZE, LETTER_SPACING};
 use crate::services::ui_service::{ObjectAlignment, Positioning};
+use rc_ui::atlas::TextureAtlasIndex;
 use rc_ui::vertex::UIVertex;
 use winit::dpi::PhysicalSize;
 

@@ -1,6 +1,6 @@
-use crate::block::blocks::model::Rotate;
 use crate::render::vertices::Vertex;
 use nalgebra::Vector3;
+use rc_ui::atlas::Rotate;
 use wgpu::Buffer;
 
 pub mod chunk;
@@ -89,7 +89,10 @@ impl ViewableDirectionBitMap {
                 ViewableDirectionBitMap::Front => ViewableDirectionBitMap::Right,
                 ViewableDirectionBitMap::Back => ViewableDirectionBitMap::Left,
             },
-            _ => *self,
+            _ => {
+                log_warn!("Rotate not implemented");
+                *self
+            }
         }
     }
 }

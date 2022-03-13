@@ -1,6 +1,9 @@
 use crate::render::{get_device, get_swapchain_format};
 use crate::vertex::UIVertex;
-use wgpu::{BindGroupLayout, RenderPipeline, VertexState};
+use wgpu::{
+    BindGroupLayout, BindGroupLayoutDescriptor, BindGroupLayoutEntry, BindingType, RenderPipeline,
+    SamplerBindingType, ShaderStages, TextureSampleType, TextureViewDimension, VertexState,
+};
 
 /// Generates structures required for rendering default elements in components
 pub(crate) fn default_render_pipeline(
@@ -12,10 +15,32 @@ pub(crate) fn default_render_pipeline(
     let frag_shader =
         get_device().create_shader_module(&wgpu::include_spirv!("../../shaders/default_frag.spv"));
 
+    let bind_group_layout = get_device().create_bind_group_layout(&BindGroupLayoutDescriptor {
+        label: Some("UI Default Image Bind Group Layout"),
+        entries: &[
+            BindGroupLayoutEntry {
+                binding: 0,
+                visibility: ShaderStages::FRAGMENT,
+                ty: wgpu::BindingType::Texture {
+                    sample_type: TextureSampleType::Float { filterable: false },
+                    view_dimension: TextureViewDimension::D2,
+                    multisampled: false,
+                },
+                count: None,
+            },
+            BindGroupLayoutEntry {
+                binding: 1,
+                visibility: ShaderStages::FRAGMENT,
+                ty: BindingType::Sampler(SamplerBindingType::NonFiltering),
+                count: None,
+            },
+        ],
+    });
+
     let render_pipeline_layout =
         get_device().create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
             label: Some("UI Default pipeline layout descriptor"),
-            bind_group_layouts: &[&projection_bind_group_layout],
+            bind_group_layouts: &[&projection_bind_group_layout, &bind_group_layout],
             push_constant_ranges: &[],
         });
 

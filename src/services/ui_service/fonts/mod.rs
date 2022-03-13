@@ -3,12 +3,12 @@ use std::collections::HashMap;
 
 use winit::dpi::PhysicalSize;
 
-use crate::services::asset_service::index::TextureAtlasIndex;
 use crate::services::asset_service::AssetService;
 use crate::services::ui_service::fonts::text::Text;
 use crate::services::ui_service::fonts::text_builder::TextBuilder;
 use crate::services::ui_service::fonts::variable_width::generate_variable_width_map;
 use crate::services::ui_service::meshdata::UIMeshData;
+use rc_ui::atlas::TextureAtlasIndex;
 
 pub mod system;
 pub mod text;

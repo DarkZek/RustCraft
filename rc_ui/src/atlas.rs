@@ -1,8 +1,16 @@
-use crate::block::blocks::model::Rotate;
 use crate::helpers::Lerp;
 use nalgebra::Vector2;
+use serde::{Deserialize, Serialize};
 use std::f32::consts::PI;
 use std::ops::Mul;
+
+#[derive(Copy, Clone, PartialEq)]
+pub enum Rotate {
+    Deg0,
+    Deg90,
+    Deg180,
+    Deg270,
+}
 
 #[derive(Copy, Clone, Debug, Serialize, Deserialize)]
 pub struct TextureAtlasIndex {

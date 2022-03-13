@@ -20,32 +20,32 @@ impl UIElement for UIRect {
         vec![
             UIVertex {
                 position: [self.pos.x, self.pos.y],
-                tex_coords: [0.0, 0.0],
+                tex_coords: [-1.0, -1.0],
                 color: self.color.clone(),
             },
             UIVertex {
                 position: [self.pos.x + self.size.x, self.pos.y],
-                tex_coords: [0.0, 0.0],
+                tex_coords: [-1.0, -1.0],
                 color: self.color.clone(),
             },
             UIVertex {
                 position: [self.pos.x, self.pos.y + self.size.y],
-                tex_coords: [0.0, 0.0],
+                tex_coords: [-1.0, -1.0],
                 color: self.color.clone(),
             },
             UIVertex {
                 position: [self.pos.x + self.size.x, self.pos.y + self.size.y],
-                tex_coords: [0.0, 0.0],
+                tex_coords: [-1.0, -1.0],
                 color: self.color.clone(),
             },
             UIVertex {
                 position: [self.pos.x + self.size.x, self.pos.y],
-                tex_coords: [0.0, 0.0],
+                tex_coords: [-1.0, -1.0],
                 color: self.color.clone(),
             },
             UIVertex {
                 position: [self.pos.x, self.pos.y + self.size.y],
-                tex_coords: [0.0, 0.0],
+                tex_coords: [-1.0, -1.0],
                 color: self.color.clone(),
             },
         ]

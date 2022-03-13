@@ -136,7 +136,7 @@ impl<'a> System<'a> for RenderSystem {
                 render_pass.set_pipeline(&render_state.render_pipeline);
                 render_pass.set_bind_group(
                     0,
-                    &asset_service.atlas_bind_group.as_ref().unwrap().clone(),
+                    &asset_service.atlas_bind_group.as_ref().unwrap(),
                     &[],
                 );
                 render_pass.set_bind_group(1, &view_projection_bind_group, &[]);

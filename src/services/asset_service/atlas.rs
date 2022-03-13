@@ -1,10 +1,10 @@
 use crate::render::device::get_device;
-use crate::services::asset_service::index::TextureAtlasIndex;
 use crate::services::asset_service::{AssetService, ResourcePack};
 use crate::services::settings_service::SettingsService;
 use core::num::NonZeroU32;
 use fnv::{FnvBuildHasher, FnvHashMap};
 use image::{DynamicImage, GenericImageView, ImageBuffer, Rgba};
+use rc_ui::atlas::TextureAtlasIndex;
 use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::fs::File;

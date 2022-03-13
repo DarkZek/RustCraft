@@ -1,14 +1,14 @@
-use crate::block::blocks::model::{BlockFace, BlockModel, Rotate};
+use crate::block::blocks::model::{BlockFace, BlockModel};
 use crate::block::Block;
 use crate::game::physics::collider::BoxCollider;
 use crate::helpers::{AtlasIndex, TextureSubdivisionMethod};
 use crate::services::asset_service::atlas::ATLAS_LOOKUPS;
-use crate::services::asset_service::index::TextureAtlasIndex;
 use crate::services::asset_service::AssetService;
 use crate::services::chunk_service::mesh::ViewableDirectionBitMap;
 use crate::services::settings_service::SettingsService;
 use fnv::FnvBuildHasher;
 use nalgebra::{Point, Vector3};
+use rc_ui::atlas::{Rotate, TextureAtlasIndex};
 use serde_json::Value;
 use std::collections::HashMap;
 use std::lazy::SyncOnceCell;
@@ -3064,15 +3064,15 @@ define_blocks! {
             }
 
             if facing == Direction::South {
-                model.rotate_xz(crate::block::blocks::model::Rotate::Deg90);
+                model.rotate_xz(Rotate::Deg90);
             }
 
             if facing == Direction::North {
-                model.rotate_xz(crate::block::blocks::model::Rotate::Deg270);
+                model.rotate_xz(Rotate::Deg270);
             }
 
             if facing == Direction::East {
-                model.rotate_xz(crate::block::blocks::model::Rotate::Deg180);
+                model.rotate_xz(Rotate::Deg180);
             }
 
             model

@@ -1,20 +1,12 @@
 use crate::helpers::AtlasIndex;
 use crate::render::vertices::Vertex;
 use crate::services::asset_service::atlas::ATLAS_LOOKUPS;
-use crate::services::asset_service::index::TextureAtlasIndex;
 use crate::services::chunk_service::mesh::culling::ViewableDirection;
 use crate::services::chunk_service::mesh::ViewableDirectionBitMap;
 use nalgebra::Vector3;
+use rc_ui::atlas::{Rotate, TextureAtlasIndex};
 use std::f32::consts::PI;
 use std::ops::Mul;
-
-#[derive(Copy, Clone, PartialEq)]
-pub enum Rotate {
-    Deg0,
-    Deg90,
-    Deg180,
-    Deg270,
-}
 
 pub struct BlockModel {
     pub faces: Vec<BlockFace>,

@@ -91,6 +91,8 @@ impl UIRenderPipeline {
 
             pass.set_bind_group(0, &component_data.projection_bind_group, &[]);
 
+            pass.set_bind_group(1, &controller.bind_group, &[]);
+
             pass.set_vertex_buffer(
                 0,
                 component_data

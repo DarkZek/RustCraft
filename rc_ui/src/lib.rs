@@ -4,10 +4,12 @@ use crate::component::{ComponentData, UIComponent};
 use crate::render::pipeline::UIRenderPipeline;
 use crate::render::{DEVICE, SWAPCHAIN_FORMAT};
 use std::sync::{Arc, Mutex};
-use wgpu::{CommandEncoder, Device, Extent3d, Queue, Texture, TextureFormat};
+use wgpu::{BindGroup, CommandEncoder, Device, Extent3d, Queue, Texture, TextureFormat};
 
+pub mod atlas;
 pub mod component;
 pub mod elements;
+pub mod helpers;
 pub mod positioning;
 pub mod render;
 pub mod vertex;
@@ -18,6 +20,9 @@ pub struct UIController {
     renderer: Box<dyn UIRenderer + Send + Sync>,
     components: Vec<ComponentData>,
     pipeline: UIRenderPipeline,
+    // Currently unused, will be used when atlases are split into classes
+    pub atlas: Arc<Texture>,
+    pub bind_group: Arc<BindGroup>,
 }
 
 impl UIController {
@@ -27,6 +32,8 @@ impl UIController {
         device: &'static Device,
         swapchain_format: &'static TextureFormat,
         size: Extent3d,
+        atlas: Arc<Texture>,
+        bind_group: Arc<BindGroup>,
     ) -> UIController {
         DEVICE.set(device).unwrap();
         SWAPCHAIN_FORMAT.set(swapchain_format).unwrap();
@@ -43,6 +50,8 @@ impl UIController {
             renderer,
             components,
             pipeline,
+            atlas,
+            bind_group,
         }
     }
 

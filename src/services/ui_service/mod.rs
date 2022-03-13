@@ -1,22 +1,25 @@
+use fnv::FnvBuildHasher;
 use specs::World;
+use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
-use wgpu::{BindGroup, BindGroupLayout, Buffer, Extent3d, RenderPipeline};
+use wgpu::{BindGroup, BindGroupLayout, Buffer, Extent3d, RenderPipeline, Texture};
 
 use crate::helpers::AtlasIndex;
 use crate::render::device::get_device;
 use crate::render::get_texture_format;
 use pipeline::generate_render_pipeline;
+use rc_ui::atlas::TextureAtlasIndex;
 use rc_ui::component::UIComponent;
 use rc_ui::{UIController, UIRenderer};
 
 use crate::services::asset_service::AssetService;
-use crate::services::ui_service::crosshair::CrosshairComponent;
+use crate::services::ui_service::components::crosshair::CrosshairComponent;
+use crate::services::ui_service::components::inventory_bar::InventoryBarComponent;
 use crate::services::ui_service::fonts::FontsManager;
 use crate::services::ui_service::image::{ImageManager, ImageType, ImageView};
-use crate::services::ui_service::widgets::WidgetManager;
 use crate::services::ServicesContext;
 
-pub mod crosshair;
+pub mod components;
 pub mod draw;
 pub mod fonts;
 pub mod image;
@@ -24,7 +27,6 @@ pub mod meshdata;
 pub mod pipeline;
 mod projection;
 pub mod render_pass;
-pub mod widgets;
 
 /// Stores all info related on on screen user interfaces.
 /// Contains sub services named "Managers" to manage specific tasks, like font rendering.
@@ -32,7 +34,6 @@ pub mod widgets;
 pub struct UIService {
     pub fonts: FontsManager,
     pub images: ImageManager,
-    pub widget: WidgetManager,
     pipeline: RenderPipeline,
     projection_buffer: Buffer,
     projection_bind_group: BindGroup,
@@ -51,7 +52,6 @@ impl UIService {
         let fonts = FontsManager::new(&assets, context.size.clone());
         // TODO: Bind resize events
         let mut images = ImageManager::new(*context.size);
-        let widget = WidgetManager::new(*context.size);
 
         let background_image = images
             .create_image(AtlasIndex::new_lookup("gui/options_background").lookup)
@@ -73,7 +73,7 @@ impl UIService {
         ]);
 
         let controller = UIController::new(
-            Box::new(RCRenderer::new()),
+            Box::new(RCRenderer::new(&assets)),
             get_device(),
             get_texture_format(),
             Extent3d {
@@ -81,12 +81,13 @@ impl UIService {
                 height: context.size.height,
                 depth_or_array_layers: 0,
             },
+            assets.atlas.as_ref().unwrap().clone(),
+            assets.atlas_bind_group.as_ref().unwrap().clone(),
         );
 
         UIService {
             fonts,
             images,
-            widget,
             pipeline,
             projection_buffer,
             projection_bind_group,
@@ -129,17 +130,35 @@ pub enum Positioning {
     Relative,
 }
 
-pub struct RCRenderer {}
+pub struct RCRenderer {
+    crosshair_component: Arc<Mutex<CrosshairComponent>>,
+    inventory_bar_component: Arc<Mutex<InventoryBarComponent>>,
+}
 
 impl RCRenderer {
-    fn new() -> RCRenderer {
-        RCRenderer {}
+    fn new(assets: &AssetService) -> RCRenderer {
+        let crosshair_component = Arc::new(Mutex::new(CrosshairComponent::new()));
+        let inventory_bar_component = Arc::new(Mutex::new(InventoryBarComponent::new(
+            *assets
+                .atlas_index
+                .as_ref()
+                .unwrap()
+                .get("gui/widgets")
+                .unwrap(),
+        )));
+
+        RCRenderer {
+            crosshair_component,
+            inventory_bar_component,
+        }
     }
 }
 
 impl UIRenderer for RCRenderer {
     fn setup(&self) -> Vec<Arc<Mutex<dyn UIComponent + Send + Sync>>> {
-        let crosshair_component = Arc::new(Mutex::new(CrosshairComponent::new()));
-        vec![crosshair_component.clone()]
+        vec![
+            self.crosshair_component.clone(),
+            self.inventory_bar_component.clone(),
+        ]
     }
 }
