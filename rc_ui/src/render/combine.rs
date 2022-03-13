@@ -1,8 +1,9 @@
 use crate::render::{get_device, get_swapchain_format};
 use crate::vertex::UIVertex;
 use wgpu::{
-    BindGroupLayout, BindGroupLayoutDescriptor, BindGroupLayoutEntry, BindingType, RenderPipeline,
-    SamplerBindingType, ShaderStages, TextureSampleType, TextureViewDimension, VertexState,
+    BindGroupLayout, BindGroupLayoutDescriptor, BindGroupLayoutEntry, BindingType, BlendState,
+    RenderPipeline, SamplerBindingType, ShaderStages, TextureSampleType, TextureViewDimension,
+    VertexState,
 };
 
 /// Generates structures required for Combination functionality of the UI
@@ -73,7 +74,7 @@ pub(crate) fn combine_render_pipeline(
             targets: &[wgpu::ColorTargetState {
                 format: *get_swapchain_format(),
                 write_mask: wgpu::ColorWrites::ALL,
-                blend: None,
+                blend: Some(BlendState::PREMULTIPLIED_ALPHA_BLENDING),
             }],
         }),
         multiview: None,

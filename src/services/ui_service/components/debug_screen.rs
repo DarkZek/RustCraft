@@ -128,8 +128,8 @@ impl UIComponent for DebugScreenComponent {
                 text: if self.gpu_info.is_some() {
                     format!(
                         "{} {:?}",
-                        self.gpu_info.unwrap().name,
-                        self.gpu_info.unwrap().backend
+                        self.gpu_info.as_ref().unwrap().name,
+                        self.gpu_info.as_ref().unwrap().backend
                     )
                 } else {
                     String::from("Unknown Device")
@@ -187,7 +187,7 @@ impl<'a> System<'a> for DebuggingOverlaySystem {
 
         // Update chunks
         if screen.visible_chunks != chunk_service.visible_chunks.len() {
-            screen.chunks = chunk_service.visible_chunks.len();
+            screen.visible_chunks = chunk_service.visible_chunks.len();
             screen.dirty = true;
         }
         if screen.chunks != chunk_service.viewable_chunks.len() {
@@ -205,8 +205,8 @@ impl<'a> System<'a> for DebuggingOverlaySystem {
             screen.dirty = true;
         }
 
-        if screen.gpu_info != render_state.gpu_info {
-            screen.gpu_info = render_state.gpu_info;
+        if screen.gpu_info.is_none() {
+            screen.gpu_info = Some(render_state.gpu_info.clone());
             screen.dirty = true;
         }
 
