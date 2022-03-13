@@ -2106,6 +2106,9 @@ name = "rc_ui"
 version = "0.1.0"
 dependencies = [
  "bytemuck",
+ "fnv",
+ "image",
+ "lazy_static",
  "nalgebra",
  "rc_logging",
  "serde",

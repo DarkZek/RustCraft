@@ -46,16 +46,5 @@ impl UIService {
             render_pass.set_index_buffer(indices.slice(..), IndexFormat::Uint16);
             render_pass.draw_indexed(0..indices_len, 0, 0..1);
         }
-
-        if self.fonts.model.total_indices.len() != 0 {
-            // Draw fonts
-            let vertices = self.fonts.model.total_vertex_buffer.as_ref().unwrap();
-            let indices_len = self.fonts.model.total_indices.len() as u32;
-            let indices = self.fonts.model.total_indices_buffer.as_ref().unwrap();
-
-            render_pass.set_vertex_buffer(0, vertices.slice(..));
-            render_pass.set_index_buffer(indices.slice(..), IndexFormat::Uint16);
-            render_pass.draw_indexed(0..indices_len, 0, 0..1);
-        }
     }
 }

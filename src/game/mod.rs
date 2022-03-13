@@ -18,13 +18,12 @@ use crate::services::chunk_service::mesh::rerendering::{
     ChunkRerenderSystem, RerenderChunkFlag, UpdateChunkGraphics,
 };
 use crate::services::chunk_service::mesh::update::ChunkMeshUpdateSystem;
-use crate::services::debugging_service::system::DebuggingOverlaySystem;
 use crate::services::input_service::input::InputState;
 use crate::services::logging_service::LoggingSystem;
 use crate::services::networking_service::system::NetworkingSyncSystem;
 use crate::services::networking_service::NetworkingService;
 use crate::services::settings_service::SettingsService;
-use crate::services::ui_service::fonts::system::FontComputingSystem;
+use crate::services::ui_service::components::debug_screen::DebuggingOverlaySystem;
 use crate::services::ui_service::UIService;
 use crate::world::player_selected_block_update::PlayerSelectedBlockUpdateSystem;
 use specs::{DispatcherBuilder, World, WorldExt};
@@ -111,12 +110,7 @@ impl Game {
             .with(NetworkingSyncSystem, "networking_sync", &[])
             .with(PlayerMovementSystem, "player_movement", &["pre_frame"])
             .with(PlayerActionsSystem, "player_actions", &["pre_frame"])
-            .with(FontComputingSystem, "font_computing", &["pre_frame"])
-            .with(
-                DebuggingOverlaySystem,
-                "debugging_overlay_system",
-                &["pre_frame"],
-            )
+            .with(DebuggingOverlaySystem, "debugging_overlay", &["pre_frame"])
             .with(LoggingSystem, "logging_system", &["pre_frame"])
             .with(
                 PhysicsInterpolationSystem,
@@ -148,7 +142,6 @@ impl Game {
                 "render_frame",
                 &[
                     "player_movement",
-                    "font_computing",
                     "logging_system",
                     "frustum_culling",
                     "physics_interpolation",

@@ -33,7 +33,7 @@ impl UIController {
         let mut total_vertices = Vec::new();
 
         for element in data.render() {
-            total_vertices.append(&mut element.render());
+            total_vertices.append(&mut element.render(data.positioning()));
         }
 
         let vertex_buffer = get_device().create_buffer_init(&BufferInitDescriptor {

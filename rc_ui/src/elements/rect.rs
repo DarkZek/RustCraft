@@ -1,5 +1,6 @@
 use crate::elements::image::UIImage;
 use crate::elements::UIElement;
+use crate::positioning::Layout;
 use crate::vertex::UIVertex;
 use nalgebra::Vector2;
 
@@ -16,7 +17,7 @@ impl UIRect {
 }
 
 impl UIElement for UIRect {
-    fn render(&self) -> Vec<UIVertex> {
+    fn render(&self, layout: &Layout) -> Vec<UIVertex> {
         vec![
             UIVertex {
                 position: [self.pos.x, self.pos.y],

@@ -42,6 +42,7 @@ impl InventoryBarComponent {
                 Vector2::new(width, SLOT_SIZE + (BORDER_WIDTH * 2.0)),
                 Vector2::new(0.0, 0.0),
                 LayoutScheme::Bottom,
+                0.0,
             ),
             hotbar,
             selected_slot,
@@ -75,5 +76,11 @@ impl UIComponent for InventoryBarComponent {
 
     fn positioning(&self) -> &Layout {
         &self.layout
+    }
+
+    fn resized(&mut self) {}
+
+    fn visible(&self) -> bool {
+        true
     }
 }

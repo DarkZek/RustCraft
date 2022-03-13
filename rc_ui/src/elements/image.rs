@@ -1,5 +1,7 @@
 use crate::atlas::TextureAtlasIndex;
 use crate::elements::UIElement;
+use crate::helpers::draw_sprite;
+use crate::positioning::Layout;
 use crate::vertex::UIVertex;
 use nalgebra::Vector2;
 
@@ -22,38 +24,7 @@ impl UIImage {
 }
 
 impl UIElement for UIImage {
-    fn render(&self) -> Vec<UIVertex> {
-        vec![
-            UIVertex {
-                position: [self.pos.x, self.pos.y],
-                tex_coords: [self.index.u_min, self.index.v_min],
-                color: self.color.clone(),
-            },
-            UIVertex {
-                position: [self.pos.x + self.size.x, self.pos.y],
-                tex_coords: [self.index.u_max, self.index.v_min],
-                color: self.color.clone(),
-            },
-            UIVertex {
-                position: [self.pos.x, self.pos.y + self.size.y],
-                tex_coords: [self.index.u_min, self.index.v_max],
-                color: self.color.clone(),
-            },
-            UIVertex {
-                position: [self.pos.x + self.size.x, self.pos.y + self.size.y],
-                tex_coords: [self.index.u_max, self.index.v_max],
-                color: self.color.clone(),
-            },
-            UIVertex {
-                position: [self.pos.x + self.size.x, self.pos.y],
-                tex_coords: [self.index.u_max, self.index.v_min],
-                color: self.color.clone(),
-            },
-            UIVertex {
-                position: [self.pos.x, self.pos.y + self.size.y],
-                tex_coords: [self.index.u_min, self.index.v_max],
-                color: self.color.clone(),
-            },
-        ]
+    fn render(&self, layout: &Layout) -> Vec<UIVertex> {
+        draw_sprite(self.pos, self.size, self.index, self.color)
     }
 }

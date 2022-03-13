@@ -14,7 +14,7 @@ use std::fs;
 use std::io::Cursor;
 use std::ops::DerefMut;
 use std::path::PathBuf;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex, RwLock};
 use std::time::SystemTime;
 use wgpu::{BindGroup, BindGroupLayout, Sampler, Texture};
 
@@ -29,11 +29,11 @@ static DEFAULT_RESOURCE_PACK: &str = "Faithful.zip";
 pub struct AssetService {
     resource_packs: Vec<String>,
     selected_pack: Option<ResourcePack>,
-    pub atlas_image: Option<DynamicImage>,
+    pub atlas_image: Option<Arc<DynamicImage>>,
     pub atlas: Option<Arc<Texture>>,
     // TODO: Change from using string based lookup system to using hashed id's internally, and also add direct access via vec and make hashmap simply give index to vec
     // also cache popular block models for faster chunk gen
-    pub atlas_index: Option<HashMap<String, TextureAtlasIndex, FnvBuildHasher>>,
+    pub atlas_index: Option<Arc<RwLock<HashMap<String, TextureAtlasIndex, FnvBuildHasher>>>>,
     pub atlas_sampler: Option<Sampler>,
     pub atlas_bind_group_layout: Option<BindGroupLayout>,
     pub atlas_bind_group: Option<Arc<BindGroup>>,
@@ -135,9 +135,9 @@ impl AssetService {
         AssetService {
             resource_packs,
             selected_pack: Some(selected_pack),
-            atlas_image: Some(atlas_image),
+            atlas_image: Some(Arc::new(atlas_image)),
             atlas: Some(Arc::new(atlas)),
-            atlas_index: Some(atlas_index),
+            atlas_index: Some(Arc::new(RwLock::new(atlas_index))),
             atlas_sampler: Some(atlas_sampler),
             atlas_bind_group_layout: Some(atlas_bind_group_layout),
             atlas_bind_group: Some(Arc::new(atlas_bind_group)),

@@ -14,14 +14,14 @@ use rc_ui::{UIController, UIRenderer};
 
 use crate::services::asset_service::AssetService;
 use crate::services::ui_service::components::crosshair::CrosshairComponent;
+use crate::services::ui_service::components::debug_screen::DebugScreenComponent;
 use crate::services::ui_service::components::inventory_bar::InventoryBarComponent;
-use crate::services::ui_service::fonts::FontsManager;
+use crate::services::ui_service::components::pause::PauseMenuComponent;
 use crate::services::ui_service::image::{ImageManager, ImageType, ImageView};
 use crate::services::ServicesContext;
 
 pub mod components;
 pub mod draw;
-pub mod fonts;
 pub mod image;
 pub mod meshdata;
 pub mod pipeline;
@@ -32,7 +32,6 @@ pub mod render_pass;
 /// Contains sub services named "Managers" to manage specific tasks, like font rendering.
 #[allow(dead_code)]
 pub struct UIService {
-    pub fonts: FontsManager,
     pub images: ImageManager,
     pipeline: RenderPipeline,
     projection_buffer: Buffer,
@@ -40,6 +39,8 @@ pub struct UIService {
     projection_bind_group_layout: BindGroupLayout,
     pub background_image: ImageView,
     controller: UIController,
+
+    debugging_screen: Arc<Mutex<DebugScreenComponent>>,
 }
 
 impl UIService {
@@ -49,7 +50,6 @@ impl UIService {
         assets: &AssetService,
         _universe: &mut World,
     ) -> UIService {
-        let fonts = FontsManager::new(&assets, context.size.clone());
         // TODO: Bind resize events
         let mut images = ImageManager::new(*context.size);
 
@@ -72,8 +72,12 @@ impl UIService {
             &projection_bind_group_layout,
         ]);
 
+        let renderer = RCRenderer::new(&assets);
+
+        let debugging_screen = renderer.debug_screen_component.clone();
+
         let controller = UIController::new(
-            Box::new(RCRenderer::new(&assets)),
+            Box::new(renderer),
             get_device(),
             get_texture_format(),
             Extent3d {
@@ -82,11 +86,12 @@ impl UIService {
                 depth_or_array_layers: 0,
             },
             assets.atlas.as_ref().unwrap().clone(),
+            assets.atlas_image.as_ref().unwrap().clone(),
             assets.atlas_bind_group.as_ref().unwrap().clone(),
+            assets.atlas_index.as_ref().unwrap().clone(),
         );
 
         UIService {
-            fonts,
             images,
             pipeline,
             projection_buffer,
@@ -94,6 +99,7 @@ impl UIService {
             projection_bind_group_layout,
             background_image,
             controller,
+            debugging_screen,
         }
     }
 }
@@ -133,6 +139,8 @@ pub enum Positioning {
 pub struct RCRenderer {
     crosshair_component: Arc<Mutex<CrosshairComponent>>,
     inventory_bar_component: Arc<Mutex<InventoryBarComponent>>,
+    pause_menu_component: Arc<Mutex<PauseMenuComponent>>,
+    debug_screen_component: Arc<Mutex<DebugScreenComponent>>,
 }
 
 impl RCRenderer {
@@ -143,13 +151,19 @@ impl RCRenderer {
                 .atlas_index
                 .as_ref()
                 .unwrap()
+                .read()
+                .unwrap()
                 .get("gui/widgets")
                 .unwrap(),
         )));
+        let pause_menu_component = Arc::new(Mutex::new(PauseMenuComponent::new()));
+        let debug_screen_component = Arc::new(Mutex::new(DebugScreenComponent::new()));
 
         RCRenderer {
             crosshair_component,
             inventory_bar_component,
+            pause_menu_component,
+            debug_screen_component,
         }
     }
 }
@@ -159,6 +173,8 @@ impl UIRenderer for RCRenderer {
         vec![
             self.crosshair_component.clone(),
             self.inventory_bar_component.clone(),
+            self.pause_menu_component.clone(),
+            self.debug_screen_component.clone(),
         ]
     }
 }

@@ -121,4 +121,10 @@ pub trait UIComponent {
 
     /// Called to get the current position and size, respectively
     fn positioning(&self) -> &'_ Layout;
+
+    /// Called to get the current position and size, respectively
+    fn resized(&mut self);
+
+    /// Called to get the current position and size, respectively
+    fn visible(&self) -> bool;
 }

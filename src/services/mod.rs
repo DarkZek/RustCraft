@@ -1,5 +1,4 @@
 use crate::render::loading::LoadingScreen;
-use crate::services::debugging_service::DebuggingService;
 use crate::services::input_service::InputService;
 use crate::services::networking_service::NetworkingService;
 use crate::services::{
@@ -18,7 +17,6 @@ pub mod logging_service;
 pub mod asset_service;
 pub mod audio_service;
 pub mod chunk_service;
-pub mod debugging_service;
 pub mod input_service;
 pub mod networking_service;
 pub mod settings_service;
@@ -48,7 +46,6 @@ impl<'a> ServicesContext<'_> {
 /// Tells all of the services to load in order.
 pub fn load_services(mut context: ServicesContext, universe: &mut World) {
     let settings = SettingsService::new();
-    let debugging_service = DebuggingService::new(&settings, universe);
 
     // Set the logger
     LoggingService::new(&settings.path);
@@ -76,5 +73,4 @@ pub fn load_services(mut context: ServicesContext, universe: &mut World) {
     universe.insert(ui);
     universe.insert(input);
     universe.insert(networking_service);
-    universe.insert(debugging_service);
 }

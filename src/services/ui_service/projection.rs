@@ -96,8 +96,6 @@ impl UIService {
                 | wgpu::BufferUsages::COPY_SRC,
         });
 
-        self.fonts.resized(&size);
-
         encoder.copy_buffer_to_buffer(
             &matrix_buffer,
             0x0,

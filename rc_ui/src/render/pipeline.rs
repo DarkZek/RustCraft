@@ -42,6 +42,7 @@ impl UIRenderPipeline {
             Vector2::new(1280.0, 720.0),
             Vector2::zeros(),
             LayoutScheme::TopLeft,
+            0.0,
         );
 
         log!("Setup up UI pipeline");
@@ -70,7 +71,7 @@ impl UIRenderPipeline {
         // Render components onto image
         for component_data in &controller.components {
             // If we don't need to re-render it, don't
-            if !component_data.dirty {
+            if !component_data.dirty || !component_data.data.lock().unwrap().visible() {
                 continue;
             }
 
@@ -107,6 +108,10 @@ impl UIRenderPipeline {
 
         // Render component images onto swapchain
         for component_data in &controller.components {
+            if !component_data.data.lock().unwrap().visible() {
+                return;
+            }
+
             let mut pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
                 label: Some("UI Render Combination Pass"),
                 color_attachments: &[RenderPassColorAttachment {

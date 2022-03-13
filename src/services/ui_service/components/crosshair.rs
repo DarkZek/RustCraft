@@ -16,6 +16,7 @@ impl CrosshairComponent {
                 Vector2::new(20.0, 20.0),
                 Vector2::new(0.0, 0.0),
                 LayoutScheme::Center,
+                0.0,
             ),
         }
     }
@@ -35,5 +36,11 @@ impl UIComponent for CrosshairComponent {
 
     fn positioning(&self) -> &Layout {
         &self.layout
+    }
+
+    fn resized(&mut self) {}
+
+    fn visible(&self) -> bool {
+        true
     }
 }
