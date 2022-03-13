@@ -10,8 +10,8 @@ pub struct UIRect {
 }
 
 impl UIRect {
-    pub fn new(pos: Vector2<f32>, size: Vector2<f32>, color: [f32; 4]) -> UIRect {
-        UIRect { pos, size, color }
+    pub fn new(pos: Vector2<f32>, size: Vector2<f32>, color: [f32; 4]) -> Box<UIRect> {
+        Box::new(UIRect { pos, size, color })
     }
 }
 

@@ -1,5 +1,5 @@
 #[repr(C)]
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub struct UIVertex {
     pub position: [f32; 2],
     pub tex_coords: [f32; 2],

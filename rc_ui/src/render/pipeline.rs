@@ -5,9 +5,10 @@ use crate::render::{get_device, get_swapchain_format};
 use crate::vertex::UIVertex;
 use crate::UIController;
 use nalgebra::Vector2;
+use rc_logging::log;
 use wgpu::{
     BindGroup, BindGroupLayout, BindGroupLayoutDescriptor, BindGroupLayoutEntry, BindingResource,
-    Buffer, CommandEncoder, Extent3d, LoadOp, Operations, Queue, RenderPassColorAttachment,
+    Buffer, Color, CommandEncoder, Extent3d, LoadOp, Operations, Queue, RenderPassColorAttachment,
     RenderPipeline, Sampler, SamplerDescriptor, ShaderStages, Texture, TextureSampleType,
     TextureViewDescriptor, TextureViewDimension, VertexState,
 };
@@ -26,6 +27,7 @@ pub struct UIRenderPipeline {
 }
 
 impl UIRenderPipeline {
+    /// Creates render pipeline assets in GPU memory
     pub fn new(size: Extent3d) -> UIRenderPipeline {
         let (projection_buffer, projection_bind_group, projection_bind_group_layout) =
             UIRenderPipeline::setup_ui_projection_matrix(size);
@@ -37,11 +39,12 @@ impl UIRenderPipeline {
         let sampler = get_device().create_sampler(&SamplerDescriptor::default());
 
         let layout = Layout::new(
-            Vector2::zeros(),
             Vector2::new(1280.0, 720.0),
             Vector2::zeros(),
             LayoutScheme::TopLeft,
         );
+
+        log!("Setup up UI pipeline");
 
         UIRenderPipeline {
             default_render_pipeline,
@@ -55,6 +58,7 @@ impl UIRenderPipeline {
         }
     }
 
+    /// Loops through all components and renders them
     pub fn render(
         &self,
         controller: &UIController,
@@ -66,19 +70,17 @@ impl UIRenderPipeline {
         // Render components onto image
         for component_data in &controller.components {
             // If we don't need to re-render it, don't
-            if component_data.texture.is_none() {
+            if !component_data.dirty {
                 continue;
             }
-
-            let component_image = component_data.texture_view.as_ref().unwrap();
 
             let mut pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
                 label: Some("UI Render Component Pass"),
                 color_attachments: &[RenderPassColorAttachment {
-                    view: &component_image,
+                    view: &component_data.texture_view,
                     resolve_target: None,
                     ops: Operations {
-                        load: LoadOp::Load,
+                        load: LoadOp::Clear(Color::TRANSPARENT),
                         store: true,
                     },
                 }],
@@ -101,19 +103,8 @@ impl UIRenderPipeline {
             pass.draw(0..component_data.element_vertices, 0..1);
         }
 
-        // Render
+        // Render component images onto swapchain
         for component_data in &controller.components {
-            // If we don't need to re-render it, don't
-            if component_data.texture.is_none() {
-                continue;
-            }
-
-            let component_image = component_data
-                .texture
-                .as_ref()
-                .unwrap()
-                .create_view(&TextureViewDescriptor::default());
-
             let mut pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
                 label: Some("UI Render Combination Pass"),
                 color_attachments: &[RenderPassColorAttachment {

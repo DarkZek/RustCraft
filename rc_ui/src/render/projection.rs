@@ -1,6 +1,8 @@
 use crate::render::get_device;
 use crate::UIRenderPipeline;
-use nalgebra::{Matrix4, Orthographic3};
+use nalgebra::{
+    Isometry3, Matrix3, Matrix4, Orthographic3, Point3, Translation2, Translation3, Vector3,
+};
 use rc_logging::log;
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{BindGroup, BindGroupLayout, Buffer, BufferBinding, BufferBindingType, Extent3d, Queue};
@@ -8,11 +10,6 @@ use wgpu::{BindGroup, BindGroupLayout, Buffer, BufferBinding, BufferBindingType,
 impl UIRenderPipeline {
     /// Sets up the orthographic projection matrix for the UI render pipeline. This sets the size of the projection to be the same as the window dimensions.
     pub fn setup_ui_projection_matrix(size: Extent3d) -> (Buffer, BindGroup, BindGroupLayout) {
-        log!(
-            "Setting up UI screen with size: {}",
-            format!("{}x{}", size.width, size.height)
-        );
-
         let projection_buffer = Self::setup_ui_projection_matrix_buffer(size);
 
         let projection_bind_group_layout =
@@ -50,26 +47,17 @@ impl UIRenderPipeline {
         )
     }
 
+    /// Sets up a vec2 with the size of the viewport
     pub fn setup_ui_projection_matrix_buffer(size: Extent3d) -> Buffer {
-        let projection = Orthographic3::new(
-            -(size.width as f32 / 2.0),
-            size.width as f32 / 2.0,
-            size.height as f32 / 2.0,
-            -(size.height as f32 / 2.0),
-            0.1,
-            10.0,
-        );
-
-        let matrix: Matrix4<f32> = projection.into();
-
         get_device().create_buffer_init(&BufferInitDescriptor {
             label: Some("UI Projection Matrix Buffer"),
-            contents: &bytemuck::cast_slice(matrix.as_slice()),
+            contents: &bytemuck::cast_slice(&[size.width as f32, size.height as f32]),
             usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
         })
     }
 
     pub fn update_ui_projection_matrix(&self, queue: &mut Queue, size: &Extent3d) {
+        todo!();
         let projection = Orthographic3::new(
             -(size.width as f32 / 2.0),
             size.width as f32 / 2.0,
@@ -78,6 +66,9 @@ impl UIRenderPipeline {
             0.1,
             10.0,
         );
+        let ratio = size.width as f32 / size.height as f32;
+
+        let projection = Orthographic3::new(0.0, 500.0, -500.0, 0.0, 0.1, 10.0);
 
         let mut matrix: Matrix4<f32> = projection.into();
         matrix = matrix;

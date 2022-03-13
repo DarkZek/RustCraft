@@ -1,21 +1,24 @@
 use crate::elements::UIElement;
 use crate::positioning::Layout;
-use crate::render::get_device;
+use crate::render::{get_device, get_swapchain_format};
 use crate::{Extent3d, UIRenderPipeline};
 use nalgebra::Vector2;
 use std::sync::{Arc, Mutex};
 use wgpu::{
-    BindGroup, BindGroupLayout, Buffer, BufferBinding, BufferBindingType, Sampler, Texture,
-    TextureView,
+    BindGroup, BindGroupLayout, Buffer, BufferBinding, BufferBindingType, Sampler,
+    SamplerDescriptor, Texture, TextureView, TextureViewDescriptor,
 };
 
 pub(crate) struct ComponentData {
     pub id: usize,
     pub data: Arc<Mutex<dyn UIComponent + Send + Sync>>,
-    pub texture: Option<Texture>,
+    pub texture: Texture,
     pub texture_bind_group: Option<BindGroup>,
-    pub texture_sampler: Option<Sampler>,
-    pub texture_view: Option<TextureView>,
+    pub texture_sampler: Sampler,
+    pub texture_view: TextureView,
+
+    /// Needs to be re-rendered
+    pub dirty: bool,
 
     pub projection: Buffer,
     pub projection_bind_group: BindGroup,
@@ -29,7 +32,7 @@ pub(crate) struct ComponentData {
 
 impl ComponentData {
     pub fn wrap(data: Arc<Mutex<dyn UIComponent + Send + Sync>>) -> ComponentData {
-        let size = data.lock().unwrap().positioning().position;
+        let size = data.lock().unwrap().positioning().size;
 
         let projection = UIRenderPipeline::setup_ui_projection_matrix_buffer(Extent3d {
             width: size.x as u32,
@@ -65,12 +68,19 @@ impl ComponentData {
             label: Some("UI Component Projection Matrix Bind Group"),
         });
 
+        let texture = Self::create_component_texture(size.x as u32, size.y as u32);
+
+        let texture_view = texture.create_view(&wgpu::TextureViewDescriptor::default());
+
+        let texture_sampler = get_device().create_sampler(&SamplerDescriptor::default());
+
         ComponentData {
             data,
-            texture: None,
+            texture,
             texture_bind_group: None,
-            texture_sampler: None,
-            texture_view: None,
+            texture_sampler,
+            texture_view,
+            dirty: false,
             projection,
             projection_bind_group,
             component_vertices_buffer: None,
@@ -79,6 +89,22 @@ impl ComponentData {
             id: 0,
             element_vertices: 0,
         }
+    }
+
+    pub fn create_component_texture(width: u32, height: u32) -> Texture {
+        get_device().create_texture(&wgpu::TextureDescriptor {
+            label: Some("UI Component texture"),
+            size: Extent3d {
+                width,
+                height,
+                depth_or_array_layers: 1,
+            },
+            mip_level_count: 1,
+            sample_count: 1,
+            dimension: wgpu::TextureDimension::D2,
+            format: *get_swapchain_format(),
+            usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::RENDER_ATTACHMENT,
+        })
     }
 }
 

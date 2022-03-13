@@ -46,6 +46,7 @@ impl UIController {
         }
     }
 
+    /// Loops through all components and processes any changes made
     pub fn process(&mut self, queue: &mut Queue) {
         for component in &mut self.components {
             UIController::process_component(

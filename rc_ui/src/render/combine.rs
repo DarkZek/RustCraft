@@ -5,6 +5,7 @@ use wgpu::{
     SamplerBindingType, ShaderStages, TextureSampleType, TextureViewDimension, VertexState,
 };
 
+/// Generates structures required for Combination functionality of the UI
 pub(crate) fn combine_render_pipeline(
     projection_bind_group_layout: &BindGroupLayout,
 ) -> (RenderPipeline, BindGroupLayout) {

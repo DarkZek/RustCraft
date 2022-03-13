@@ -2,6 +2,7 @@ use crate::render::{get_device, get_swapchain_format};
 use crate::vertex::UIVertex;
 use wgpu::{BindGroupLayout, RenderPipeline, VertexState};
 
+/// Generates structures required for rendering default elements in components
 pub(crate) fn default_render_pipeline(
     projection_bind_group_layout: &BindGroupLayout,
 ) -> RenderPipeline {

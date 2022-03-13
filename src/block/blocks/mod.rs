@@ -3246,6 +3246,7 @@ define_blocks! {
 
             BlockModel { faces }
         },
+        collidable false,
         transparent true,
     }
     DiamondOre {
