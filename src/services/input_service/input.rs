@@ -20,6 +20,7 @@ pub struct InputState {
     pub use_item: bool,
     pub activate_item: bool,
     pub pause: bool,
+    pub debugging: bool,
     pub jump: bool,
     pub sneak: bool,
     pub ctrl: InputChange,
@@ -39,6 +40,7 @@ impl InputState {
             use_item: false,
             activate_item: false,
             pause: false,
+            debugging: false,
             jump: false,
             sneak: false,
             ctrl: InputChange::None,
@@ -53,6 +55,7 @@ impl InputState {
     pub fn clear(&mut self) {
         self.look = [0.0; 2];
         self.pause = false;
+        self.debugging = false;
     }
 
     fn item_used(&mut self) {
@@ -135,6 +138,9 @@ impl InputState {
     fn handle_keyboard_input(&mut self, pressed: bool, key: VirtualKeyCode) {
         if key == self.mappings.pause {
             self.pause = pressed;
+        }
+        if key == self.mappings.debugging {
+            self.debugging = pressed;
         }
 
         // Everything here on is game controls, so ignore if not grabbed

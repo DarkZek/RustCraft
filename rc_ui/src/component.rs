@@ -17,7 +17,7 @@ pub(crate) struct ComponentData {
     pub texture_sampler: Sampler,
     pub texture_view: TextureView,
 
-    /// Needs to be re-rendered
+    /// Flag that it needs to be re-rendered
     pub dirty: bool,
 
     pub projection: Buffer,
@@ -31,6 +31,7 @@ pub(crate) struct ComponentData {
 }
 
 impl ComponentData {
+    /// Wrap users component data in struct and create resources used for rendering the component
     pub fn wrap(data: Arc<Mutex<dyn UIComponent + Send + Sync>>) -> ComponentData {
         let size = data.lock().unwrap().positioning().size;
 
@@ -91,6 +92,7 @@ impl ComponentData {
         }
     }
 
+    /// Create a texture to cache the components view in
     pub fn create_component_texture(width: u32, height: u32) -> Texture {
         get_device().create_texture(&wgpu::TextureDescriptor {
             label: Some("UI Component texture"),

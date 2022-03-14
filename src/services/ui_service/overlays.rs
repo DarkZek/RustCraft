@@ -22,5 +22,10 @@ impl<'a> System<'a> for MenuOverlaySystem {
                 input_state.capture_mouse();
             }
         }
+
+        if sheet.get_debugging() {
+            let mut pause_screen = ui_service.debugging_screen.lock().unwrap();
+            pause_screen.enabled = !pause_screen.enabled;
+        }
     }
 }

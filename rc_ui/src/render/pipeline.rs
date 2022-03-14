@@ -109,7 +109,7 @@ impl UIRenderPipeline {
         // Render component images onto swapchain
         for component_data in &controller.components {
             if !component_data.data.lock().unwrap().visible() {
-                return;
+                continue;
             }
 
             let mut pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {

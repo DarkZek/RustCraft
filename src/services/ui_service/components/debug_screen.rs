@@ -27,7 +27,7 @@ pub struct DebugScreenComponent {
 
     /// Should re-render
     dirty: bool,
-    enabled: bool,
+    pub enabled: bool,
 }
 
 impl DebugScreenComponent {

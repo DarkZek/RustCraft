@@ -11,6 +11,8 @@ pub struct ActionSheet {
     sprinting: bool,
     /// Whether we should toggle the pause menu
     pause: bool,
+    /// Whether we should toggle the debugging screen
+    debugging: bool,
 }
 
 impl ActionSheet {
@@ -23,17 +25,19 @@ impl ActionSheet {
             screenshot: (Instant::now(), false),
             sprinting: false,
             pause: false,
+            debugging: false,
         }
     }
 
     pub fn reset(&mut self) {
-        self.use_item = (Instant::now(), false);
-        self.jump = (Instant::now(), false);
-        self.toggle_hud = (Instant::now(), false);
-        self.toggle_fullscreen = (Instant::now(), false);
-        self.screenshot = (Instant::now(), false);
+        self.use_item.1 = false;
+        self.jump.1 = false;
+        self.toggle_hud.1 = false;
+        self.toggle_fullscreen.1 = false;
+        self.screenshot.1 = false;
         self.sprinting = false;
         self.pause = false;
+        self.debugging = false;
     }
 
     pub fn set_sprinting(&mut self, sprinting: bool) {
@@ -54,9 +58,10 @@ impl ActionSheet {
     }
 
     pub fn set_jump(&mut self) {
-        if self.jump.0.elapsed().as_millis() < 250 {
+        if self.jump.0.elapsed().as_millis() < 150 {
             return;
         }
+        println!("JUMP");
         self.jump.1 = true;
     }
 
@@ -66,6 +71,14 @@ impl ActionSheet {
 
     pub fn set_pause(&mut self) {
         self.pause = true;
+    }
+
+    pub fn get_debugging(&self) -> bool {
+        self.debugging
+    }
+
+    pub fn set_debugging(&mut self) {
+        self.debugging = true;
     }
 }
 

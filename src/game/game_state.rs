@@ -103,6 +103,10 @@ impl<'a> System<'a> for PlayerActionsSystem {
             actionsheet.set_pause();
         }
 
+        if events.debugging {
+            actionsheet.set_debugging();
+        }
+
         if actionsheet.get_jump() {
             let (_, player_physics) = (&player_entity, &mut player_physics).join().last().unwrap();
             if player_physics.touching_ground {
