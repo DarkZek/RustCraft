@@ -1,5 +1,3 @@
-use crate::services::asset_service::atlas::ATLAS_LOOKUPS;
-use crate::services::chunk_service::chunk::{ChunkData, Color};
 use nalgebra::{Point3, Vector3};
 use rc_ui::atlas::TextureAtlasIndex;
 use specs::ReadStorage;
@@ -237,6 +235,8 @@ pub trait TryParJoin: Join {
         Self: Sized;
 }
 
+use crate::services::asset_service::atlas::ATLAS_LOOKUPS;
+use crate::services::chunk_service::chunk::{ChunkData, Color};
 #[cfg(not(target_arch = "wasm32"))]
 use specs::join::{JoinParIter, ParJoin};
 

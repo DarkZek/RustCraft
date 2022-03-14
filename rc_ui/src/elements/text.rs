@@ -77,6 +77,10 @@ impl UIElement for UIText {
 
         vertices
     }
+
+    fn position(&self) -> (Vector2<f32>, Vector2<f32>) {
+        (self.layout.offset, self.layout.size)
+    }
 }
 
 pub fn calculate_texture_coords(byte: u8) -> TextureAtlasIndex {

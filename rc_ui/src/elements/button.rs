@@ -8,6 +8,7 @@ use crate::positioning::{Layout, LayoutScheme};
 use crate::vertex::UIVertex;
 use crate::ATLAS_INDEXES;
 use nalgebra::Vector2;
+use rc_logging::log;
 
 const BUTTON_TEXT_PADDING: f32 = 0.28;
 // The size of the cap on the side of the button texture
@@ -63,6 +64,7 @@ impl UIButton {
 
 impl UIElement for UIButton {
     fn render(&self, layout: &Layout) -> Vec<UIVertex> {
+        log!("Re-render!!");
         let pos = self.layout.position_object(layout);
 
         let atlas_size = 1.0 / self.layout.size.y;
@@ -101,5 +103,32 @@ impl UIElement for UIButton {
         vertices.append(&mut self.text.render(&self.layout));
 
         vertices
+    }
+
+    fn position(&self) -> (Vector2<f32>, Vector2<f32>) {
+        (self.layout.offset, self.layout.size)
+    }
+
+    fn hovered(&mut self, state: bool) -> bool {
+        if state {
+            self.index = *ATLAS_INDEXES
+                .get()
+                .unwrap()
+                .read()
+                .unwrap()
+                .get("gui/button_hover")
+                .unwrap();
+        } else {
+            self.index = *ATLAS_INDEXES
+                .get()
+                .unwrap()
+                .read()
+                .unwrap()
+                .get("gui/button_normal")
+                .unwrap();
+        }
+
+        log!("HOvered!! {}", state);
+        true
     }
 }

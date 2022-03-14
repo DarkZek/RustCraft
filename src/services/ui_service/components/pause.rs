@@ -34,7 +34,7 @@ impl PauseMenuComponent {
 }
 
 impl UIComponent for PauseMenuComponent {
-    fn render(&self) -> Vec<Box<dyn UIElement + 'static>> {
+    fn render(&self) -> Vec<Box<dyn UIElement + Send + Sync + 'static>> {
         vec![UIButton::new(
             Layout {
                 size: Vector2::new(600.0, 60.0),
@@ -47,7 +47,7 @@ impl UIComponent for PauseMenuComponent {
     }
 
     fn rerender(&self) -> bool {
-        true
+        false
     }
 
     fn positioning(&self) -> &Layout {

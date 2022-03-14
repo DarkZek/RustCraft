@@ -8,11 +8,11 @@ pub struct MenuOverlaySystem;
 impl<'a> System<'a> for MenuOverlaySystem {
     type SystemData = (
         Read<'a, ActionSheet>,
-        Read<'a, UIService>,
+        Write<'a, UIService>,
         Write<'a, InputState>,
     );
 
-    fn run(&mut self, (sheet, ui_service, mut input_state): Self::SystemData) {
+    fn run(&mut self, (sheet, mut ui_service, mut input_state): Self::SystemData) {
         if sheet.get_pause() {
             let mut pause_screen = ui_service.pause_screen.lock().unwrap();
             pause_screen.visible = !pause_screen.visible;

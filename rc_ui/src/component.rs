@@ -12,13 +12,16 @@ use wgpu::{
 pub(crate) struct ComponentData {
     pub id: usize,
     pub data: Arc<Mutex<dyn UIComponent + Send + Sync>>,
-    pub texture: Texture,
+    pub objects: Vec<Box<dyn UIElement + Send + Sync>>,
+    pub texture: Option<Texture>,
     pub texture_bind_group: Option<BindGroup>,
     pub texture_sampler: Sampler,
-    pub texture_view: TextureView,
+    pub texture_view: Option<TextureView>,
 
     /// Flag that it needs to be re-rendered
     pub dirty: bool,
+    /// Flag that vertices should be re-generated
+    pub regenerate: bool,
 
     pub projection: Buffer,
     pub projection_bind_group: BindGroup,
@@ -69,19 +72,27 @@ impl ComponentData {
             label: Some("UI Component Projection Matrix Bind Group"),
         });
 
-        let texture = Self::create_component_texture(size.x as u32, size.y as u32);
+        let texture = if data.lock().unwrap().visible() {
+            Some(Self::create_component_texture(size.x as u32, size.y as u32))
+        } else {
+            None
+        };
 
-        let texture_view = texture.create_view(&wgpu::TextureViewDescriptor::default());
+        let texture_view = texture
+            .as_ref()
+            .map(|t| t.create_view(&wgpu::TextureViewDescriptor::default()));
 
         let texture_sampler = get_device().create_sampler(&SamplerDescriptor::default());
 
         ComponentData {
             data,
+            objects: vec![],
             texture,
             texture_bind_group: None,
             texture_sampler,
             texture_view,
             dirty: false,
+            regenerate: false,
             projection,
             projection_bind_group,
             component_vertices_buffer: None,
@@ -116,7 +127,7 @@ impl ComponentData {
 /// Each Component is rendered to their own image buffer
 pub trait UIComponent {
     /// Called to fetch a list of elements to render
-    fn render(&self) -> Vec<Box<dyn UIElement>>;
+    fn render(&self) -> Vec<Box<dyn UIElement + Sync + Send>>;
 
     /// Called every frame to check if we should re-render
     fn rerender(&self) -> bool;

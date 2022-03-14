@@ -1,4 +1,5 @@
 use crate::services::settings_service::key_mappings::KeyMapping;
+use nalgebra::Vector2;
 use std::borrow::Borrow;
 use std::sync::Arc;
 use winit::dpi::{PhysicalPosition, PhysicalSize};
@@ -24,7 +25,7 @@ pub struct InputState {
     pub jump: bool,
     pub sneak: bool,
     pub ctrl: InputChange,
-    pub mouse: Option<PhysicalPosition<f64>>,
+    pub mouse: Vector2<f32>,
 
     pub mappings: KeyMapping,
     pub mouse_home: PhysicalPosition<u32>,
@@ -44,7 +45,7 @@ impl InputState {
             jump: false,
             sneak: false,
             ctrl: InputChange::None,
-            mouse: None,
+            mouse: Vector2::zeros(),
             mappings: KeyMapping::default(),
             mouse_home: PhysicalPosition::new(0, 0),
             grabbed: false,
@@ -66,8 +67,8 @@ impl InputState {
         self.activate_item = true;
     }
 
-    fn cursor_position(&mut self, new: PhysicalPosition<f64>) {
-        self.mouse = Some(new);
+    fn cursor_position(&mut self, new: Vector2<f32>) {
+        self.mouse = new;
     }
 
     pub fn resized(&mut self, size: &PhysicalSize<u32>) {
@@ -112,7 +113,7 @@ impl InputState {
                 position,
                 ..
             } => {
-                self.cursor_position(*position);
+                self.cursor_position(Vector2::new(position.x as f32, position.y as f32));
 
                 if self.grabbed {
                     let raw_x = position.x as f64;
@@ -196,6 +197,9 @@ impl InputState {
             log_error!("Error grabbing cursor: {}", e);
         }
         self.window.set_cursor_visible(false);
+        if let Err(e) = self.window.set_cursor_position(self.mouse_home) {
+            log_error!("Error setting cursor position: {}", e);
+        }
         self.grabbed = true;
     }
 

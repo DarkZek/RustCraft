@@ -40,7 +40,7 @@ pub struct UIService {
     projection_bind_group: BindGroup,
     projection_bind_group_layout: BindGroupLayout,
     pub background_image: ImageView,
-    controller: UIController,
+    pub controller: UIController,
     window: Arc<Window>,
 
     debugging_screen: Arc<Mutex<DebugScreenComponent>>,
@@ -115,13 +115,6 @@ impl Default for UIService {
     fn default() -> Self {
         unimplemented!()
     }
-}
-
-#[derive(PartialEq, Clone)]
-pub enum TextAlignment {
-    Center,
-    Left,
-    Right,
 }
 
 #[derive(PartialEq, Clone, Copy)]

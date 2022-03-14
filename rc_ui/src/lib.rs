@@ -20,6 +20,7 @@ pub mod component;
 pub mod elements;
 pub mod fonts;
 pub mod helpers;
+pub mod interaction;
 pub mod positioning;
 pub mod render;
 pub mod vertex;
@@ -66,14 +67,10 @@ impl UIController {
         let pipeline = UIRenderPipeline::new(size);
 
         // Set text information
-        unsafe {
-            ATLAS_INDEXES.set(indexes).unwrap();
-        }
-        unsafe {
-            CHARACTER_WIDTHS
-                .set(RwLock::new(generate_variable_width_map(&atlas_image)))
-                .unwrap();
-        }
+        ATLAS_INDEXES.set(indexes).unwrap();
+        CHARACTER_WIDTHS
+            .set(RwLock::new(generate_variable_width_map(&atlas_image)))
+            .unwrap();
 
         UIController {
             renderer,
@@ -96,8 +93,8 @@ impl UIController {
         }
     }
 
-    pub fn render(&self, output_image: &Texture, encoder: &mut CommandEncoder) {
-        self.pipeline.render(self, output_image, encoder);
+    pub fn render(&mut self, output_image: &Texture, encoder: &mut CommandEncoder) {
+        UIRenderPipeline::render(self, output_image, encoder)
     }
 }
 

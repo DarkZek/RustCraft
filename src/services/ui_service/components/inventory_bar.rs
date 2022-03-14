@@ -52,7 +52,7 @@ impl InventoryBarComponent {
 }
 
 impl UIComponent for InventoryBarComponent {
-    fn render(&self) -> Vec<Box<dyn UIElement + 'static>> {
+    fn render(&self) -> Vec<Box<dyn UIElement + Send + Sync + 'static>> {
         vec![
             UIImage::new(
                 Vector2::new(0.0, 0.0),

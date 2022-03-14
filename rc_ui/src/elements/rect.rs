@@ -51,4 +51,8 @@ impl UIElement for UIRect {
             },
         ]
     }
+
+    fn position(&self) -> (Vector2<f32>, Vector2<f32>) {
+        (self.pos, self.size)
+    }
 }

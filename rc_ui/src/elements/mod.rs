@@ -5,7 +5,18 @@ pub mod text;
 
 use crate::positioning::Layout;
 use crate::vertex::UIVertex;
+use nalgebra::Vector2;
 
+/// Describes an element on the screen, like a button, textfield or rectangle.
 pub trait UIElement {
+    /// Renders an element to UIVertexes
     fn render(&self, parent: &Layout) -> Vec<UIVertex>;
+
+    /// Returns the offset and size respectively, used for hover handling
+    fn position(&self) -> (Vector2<f32>, Vector2<f32>);
+
+    /// Sets if an object is hovered
+    fn hovered(&mut self, state: bool) -> bool {
+        false
+    }
 }

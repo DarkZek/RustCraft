@@ -9,7 +9,6 @@ extern crate zerocopy;
 #[macro_use]
 extern crate rc_logging;
 
-#[macro_use]
 extern crate serde;
 
 use crate::game::Game;

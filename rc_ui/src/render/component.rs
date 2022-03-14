@@ -19,20 +19,25 @@ impl UIController {
         let data = component.data.lock().unwrap();
 
         // If we don't need to re-render, or render for the first time then don't bother
-        if !data.rerender() && component.component_vertices_buffer.is_some() {
-            component.dirty = false;
+        if !data.rerender()
+            && component.component_vertices_buffer.is_some()
+            && !component.regenerate
+        {
             return;
         }
 
         // Set dirty
         component.dirty = true;
+        component.regenerate = false;
 
         let layout = data.positioning();
         let position = layout.position_object(parent);
 
         let mut total_vertices = Vec::new();
 
-        for element in data.render() {
+        component.objects = data.render();
+
+        for element in &component.objects {
             total_vertices.append(&mut element.render(data.positioning()));
         }
 
@@ -87,20 +92,21 @@ impl UIController {
         component.component_vertices_buffer = Some(vertex_buffer);
         component.component_vertices = component_vertices.len() as u32;
 
-        component.texture_bind_group =
-            Some(get_device().create_bind_group(&wgpu::BindGroupDescriptor {
+        component.texture_bind_group = component.texture_view.as_ref().map(|texture_view| {
+            get_device().create_bind_group(&wgpu::BindGroupDescriptor {
                 label: Some("UI Combine Texture Bind Group"),
                 layout: &combine_image_bind_group_layout,
                 entries: &[
                     wgpu::BindGroupEntry {
                         binding: 0,
-                        resource: BindingResource::TextureView(&component.texture_view),
+                        resource: BindingResource::TextureView(&texture_view),
                     },
                     wgpu::BindGroupEntry {
                         binding: 1,
                         resource: BindingResource::Sampler(&component.texture_sampler),
                     },
                 ],
-            }));
+            })
+        });
     }
 }

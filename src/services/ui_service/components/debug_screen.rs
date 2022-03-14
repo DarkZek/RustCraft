@@ -54,7 +54,7 @@ impl DebugScreenComponent {
 }
 
 impl UIComponent for DebugScreenComponent {
-    fn render(&self) -> Vec<Box<dyn UIElement + 'static>> {
+    fn render(&self) -> Vec<Box<dyn UIElement + Send + Sync + 'static>> {
         vec![
             Box::new(UIText {
                 text: format!("Rustcraft v{} Alpha", VERSION),
@@ -180,6 +180,7 @@ impl<'a> System<'a> for DebuggingOverlaySystem {
         (chunk_service, mut ui_service, render_state, player, physics_objects, physics): Self::SystemData,
     ) {
         let mut screen = ui_service.debugging_screen.lock().unwrap();
+        screen.dirty = false;
 
         if !screen.enabled {
             return;

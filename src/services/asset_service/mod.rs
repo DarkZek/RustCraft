@@ -14,7 +14,7 @@ use std::fs;
 use std::io::Cursor;
 use std::ops::DerefMut;
 use std::path::PathBuf;
-use std::sync::{Arc, Mutex, RwLock};
+use std::sync::{Arc, RwLock};
 use std::time::SystemTime;
 use wgpu::{BindGroup, BindGroupLayout, Sampler, Texture};
 

@@ -27,4 +27,8 @@ impl UIElement for UIImage {
     fn render(&self, layout: &Layout) -> Vec<UIVertex> {
         draw_sprite(self.pos, self.size, self.index, self.color)
     }
+
+    fn position(&self) -> (Vector2<f32>, Vector2<f32>) {
+        (self.pos, self.size)
+    }
 }

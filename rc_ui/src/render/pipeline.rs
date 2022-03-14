@@ -3,7 +3,7 @@ use crate::render::combine::combine_render_pipeline;
 use crate::render::default::default_render_pipeline;
 use crate::render::{get_device, get_swapchain_format};
 use crate::vertex::UIVertex;
-use crate::UIController;
+use crate::{ComponentData, UIController};
 use nalgebra::Vector2;
 use rc_logging::log;
 use wgpu::{
@@ -61,24 +61,71 @@ impl UIRenderPipeline {
 
     /// Loops through all components and renders them
     pub fn render(
-        &self,
-        controller: &UIController,
+        controller: &mut UIController,
         output_image: &Texture,
         encoder: &mut CommandEncoder,
     ) {
         let output_image_view = output_image.create_view(&TextureViewDescriptor::default());
 
         // Render components onto image
-        for component_data in &controller.components {
-            // If we don't need to re-render it, don't
-            if !component_data.dirty || !component_data.data.lock().unwrap().visible() {
+        for component_data in &mut controller.components {
+            if !component_data.data.lock().unwrap().visible() {
+                // Not visible, unload resources
+                if component_data.texture.is_some() {
+                    component_data.texture = None;
+                    component_data.texture_view = None;
+                    component_data.texture_bind_group = None;
+                    component_data.dirty = true;
+                }
                 continue;
+            }
+
+            // If we don't need to re-render it, don't
+            if !component_data.dirty {
+                continue;
+            }
+
+            component_data.dirty = false;
+
+            let size = component_data.data.lock().unwrap().positioning().size;
+
+            // Ensure resources exist
+            if component_data.texture.is_none() {
+                component_data.texture = Some(ComponentData::create_component_texture(
+                    size.x as u32,
+                    size.y as u32,
+                ));
+                component_data.texture_view = Some(
+                    component_data
+                        .texture
+                        .as_ref()
+                        .unwrap()
+                        .create_view(&TextureViewDescriptor::default()),
+                );
+
+                component_data.texture_bind_group =
+                    Some(get_device().create_bind_group(&wgpu::BindGroupDescriptor {
+                        label: Some("UI Combine Texture Bind Group"),
+                        layout: &controller.pipeline.combine_image_bind_group_layout,
+                        entries: &[
+                            wgpu::BindGroupEntry {
+                                binding: 0,
+                                resource: BindingResource::TextureView(
+                                    &component_data.texture_view.as_ref().unwrap(),
+                                ),
+                            },
+                            wgpu::BindGroupEntry {
+                                binding: 1,
+                                resource: BindingResource::Sampler(&component_data.texture_sampler),
+                            },
+                        ],
+                    }));
             }
 
             let mut pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
                 label: Some("UI Render Component Pass"),
                 color_attachments: &[RenderPassColorAttachment {
-                    view: &component_data.texture_view,
+                    view: &component_data.texture_view.as_ref().unwrap(),
                     resolve_target: None,
                     ops: Operations {
                         load: LoadOp::Clear(Color::TRANSPARENT),
@@ -88,7 +135,7 @@ impl UIRenderPipeline {
                 depth_stencil_attachment: None,
             });
 
-            pass.set_pipeline(&self.default_render_pipeline);
+            pass.set_pipeline(&controller.pipeline.default_render_pipeline);
 
             pass.set_bind_group(0, &component_data.projection_bind_group, &[]);
 
@@ -108,7 +155,7 @@ impl UIRenderPipeline {
 
         // Render component images onto swapchain
         for component_data in &controller.components {
-            if !component_data.data.lock().unwrap().visible() {
+            if !component_data.texture.is_some() {
                 continue;
             }
 
@@ -125,9 +172,9 @@ impl UIRenderPipeline {
                 depth_stencil_attachment: None,
             });
 
-            pass.set_pipeline(&self.combine_render_pipeline);
+            pass.set_pipeline(&controller.pipeline.combine_render_pipeline);
 
-            pass.set_bind_group(0, &self.projection_bind_group, &[]);
+            pass.set_bind_group(0, &controller.pipeline.projection_bind_group, &[]);
 
             pass.set_bind_group(1, component_data.texture_bind_group.as_ref().unwrap(), &[]);
 

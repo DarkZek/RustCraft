@@ -8,6 +8,7 @@ use crate::render::RenderState;
 use crate::services::input_service::actions::ActionSheet;
 use crate::services::input_service::input::{InputChange, InputState};
 
+use crate::services::ui_service::UIService;
 use specs::{Builder, Join, Read, ReadStorage, System, World, WorldExt, Write, WriteStorage};
 use std::f32::consts::PI;
 
@@ -57,6 +58,7 @@ impl<'a> System<'a> for PlayerActionsSystem {
         ReadStorage<'a, PlayerEntity>,
         WriteStorage<'a, PhysicsObject>,
         Write<'a, ActionSheet>,
+        Write<'a, UIService>,
     );
 
     fn run(
@@ -69,11 +71,15 @@ impl<'a> System<'a> for PlayerActionsSystem {
             player_entity,
             mut player_physics,
             mut actionsheet,
+            mut ui_service,
         ): Self::SystemData,
     ) {
         let mut encoder = get_device().create_command_encoder(&wgpu::CommandEncoderDescriptor {
             label: Some("Player movement command encoder"),
         });
+
+        // Update ui cursor position
+        ui_service.controller.cursor_moved(events.mouse);
 
         if events.look != [0.0, 0.0] {
             let player = &mut game_state.player;

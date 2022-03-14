@@ -61,7 +61,7 @@ impl ActionSheet {
         if self.jump.0.elapsed().as_millis() < 150 {
             return;
         }
-        println!("JUMP");
+
         self.jump.1 = true;
     }
 
