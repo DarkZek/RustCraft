@@ -3,6 +3,7 @@ use specs::World;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use wgpu::{BindGroup, BindGroupLayout, Buffer, Extent3d, RenderPipeline, Texture};
+use winit::window::Window;
 
 use crate::helpers::AtlasIndex;
 use crate::render::device::get_device;
@@ -24,6 +25,7 @@ pub mod components;
 pub mod draw;
 pub mod image;
 pub mod meshdata;
+pub mod overlays;
 pub mod pipeline;
 mod projection;
 pub mod render_pass;
@@ -39,8 +41,10 @@ pub struct UIService {
     projection_bind_group_layout: BindGroupLayout,
     pub background_image: ImageView,
     controller: UIController,
+    window: Arc<Window>,
 
     debugging_screen: Arc<Mutex<DebugScreenComponent>>,
+    pause_screen: Arc<Mutex<PauseMenuComponent>>,
 }
 
 impl UIService {
@@ -75,6 +79,7 @@ impl UIService {
         let renderer = RCRenderer::new(&assets);
 
         let debugging_screen = renderer.debug_screen_component.clone();
+        let pause_screen = renderer.pause_menu_component.clone();
 
         let controller = UIController::new(
             Box::new(renderer),
@@ -99,7 +104,9 @@ impl UIService {
             projection_bind_group_layout,
             background_image,
             controller,
+            window: context.window.clone(),
             debugging_screen,
+            pause_screen,
         }
     }
 }

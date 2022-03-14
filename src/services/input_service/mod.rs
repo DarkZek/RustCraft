@@ -9,8 +9,10 @@ pub struct InputService {}
 
 impl InputService {
     pub fn new(context: &ServicesContext, universe: &mut World) -> InputService {
-        let changes = InputState::new(context.window.clone());
+        let mut changes = InputState::new(context.window.clone());
         let actionsheet = ActionSheet::new();
+
+        changes.capture_mouse();
 
         universe.insert(changes);
         universe.insert(actionsheet);

@@ -99,6 +99,10 @@ impl<'a> System<'a> for PlayerActionsSystem {
             actionsheet.set_jump();
         }
 
+        if events.pause {
+            actionsheet.set_pause();
+        }
+
         if actionsheet.get_jump() {
             let (_, player_physics) = (&player_entity, &mut player_physics).join().last().unwrap();
             if player_physics.touching_ground {

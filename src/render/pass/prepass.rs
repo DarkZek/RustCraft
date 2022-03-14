@@ -1,5 +1,6 @@
 use crate::game::systems::DeltaTime;
 use crate::render::RenderState;
+use crate::services::input_service::actions::ActionSheet;
 use crate::services::input_service::input::InputState;
 use specs::{System, Write};
 use std::time::{Instant, SystemTime};
@@ -7,9 +8,13 @@ use std::time::{Instant, SystemTime};
 pub struct PreFrame;
 
 impl<'a> System<'a> for PreFrame {
-    type SystemData = (Write<'a, RenderState>, Write<'a, DeltaTime>);
+    type SystemData = (
+        Write<'a, RenderState>,
+        Write<'a, DeltaTime>,
+        Write<'a, ActionSheet>,
+    );
 
-    fn run(&mut self, (mut render_state, mut delta_time): Self::SystemData) {
+    fn run(&mut self, (mut render_state, mut delta_time, mut action_sheet): Self::SystemData) {
         render_state.delta_time = render_state.last_frame_time.elapsed().unwrap();
 
         render_state.frames += 1;
@@ -25,6 +30,9 @@ impl<'a> System<'a> for PreFrame {
             render_state.frame_capture_time = Instant::now();
             render_state.frames = 0;
         }
+
+        // Reset all actions to complete
+        action_sheet.reset();
     }
 }
 

@@ -52,6 +52,7 @@ impl InputState {
 
     pub fn clear(&mut self) {
         self.look = [0.0; 2];
+        self.pause = false;
     }
 
     fn item_used(&mut self) {
@@ -89,11 +90,6 @@ impl InputState {
                 } else if button == &MouseButton::Right {
                     self.item_activated();
                 }
-
-                if !self.grabbed {
-                    self.grabbed = true;
-                    capture_mouse(self.window.borrow());
-                }
             }
 
             WindowEvent::KeyboardInput {
@@ -101,7 +97,7 @@ impl InputState {
                 input,
                 is_synthetic: _,
             } => {
-                if input.virtual_keycode != None && self.grabbed {
+                if input.virtual_keycode != None {
                     let key = input.virtual_keycode.unwrap();
 
                     self.handle_keyboard_input(input.state == ElementState::Pressed, key);
@@ -137,13 +133,24 @@ impl InputState {
     }
 
     fn handle_keyboard_input(&mut self, pressed: bool, key: VirtualKeyCode) {
-        if pressed {
-            if key == self.mappings.pause {
-                self.pause = true;
-                self.grabbed = false;
-                uncapture_mouse(&*self.window.borrow());
-            }
+        if key == self.mappings.pause {
+            self.pause = pressed;
+        }
 
+        // Everything here on is game controls, so ignore if not grabbed
+        if !self.grabbed {
+            return;
+        }
+
+        if key == self.mappings.jump {
+            self.jump = pressed;
+        }
+
+        if key == self.mappings.sneak {
+            self.sneak = pressed;
+        }
+
+        if pressed {
             if key == self.mappings.forwards {
                 self.movement[0] = 1;
             }
@@ -160,22 +167,10 @@ impl InputState {
                 self.movement[1] = -1;
             }
 
-            if key == self.mappings.jump {
-                self.jump = true;
-            }
-
-            if key == self.mappings.sneak {
-                self.sneak = true;
-            }
-
             if key == self.mappings.ctrl {
                 self.ctrl = InputChange::Pressed;
             }
         } else {
-            if key == self.mappings.pause {
-                self.pause = false;
-            }
-
             if key == self.mappings.forwards || key == self.mappings.backwards {
                 self.movement[0] = 0;
             }
@@ -184,18 +179,26 @@ impl InputState {
                 self.movement[1] = 0;
             }
 
-            if key == self.mappings.jump {
-                self.jump = false;
-            }
-
-            if key == self.mappings.sneak {
-                self.sneak = false;
-            }
-
             if key == self.mappings.ctrl {
                 self.ctrl = InputChange::Released;
             }
         }
+    }
+
+    pub fn capture_mouse(&mut self) {
+        if let Err(e) = self.window.set_cursor_grab(true) {
+            log_error!("Error grabbing cursor: {}", e);
+        }
+        self.window.set_cursor_visible(false);
+        self.grabbed = true;
+    }
+
+    pub fn uncapture_mouse(&mut self) {
+        if let Err(e) = self.window.set_cursor_grab(false) {
+            log_error!("Error releasing cursor: {}", e);
+        }
+        self.window.set_cursor_visible(true);
+        self.grabbed = false;
     }
 }
 
@@ -203,18 +206,4 @@ impl<'a> Default for InputState {
     fn default() -> Self {
         unimplemented!()
     }
-}
-
-fn capture_mouse(window: &Window) {
-    if let Err(e) = window.set_cursor_grab(true) {
-        log_error!("Error grabbing cursor: {}", e);
-    }
-    window.set_cursor_visible(false);
-}
-
-fn uncapture_mouse(window: &Window) {
-    if let Err(e) = window.set_cursor_grab(false) {
-        log_error!("Error releasing cursor: {}", e);
-    }
-    window.set_cursor_visible(true);
 }

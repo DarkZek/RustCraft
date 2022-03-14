@@ -24,6 +24,7 @@ use crate::services::networking_service::system::NetworkingSyncSystem;
 use crate::services::networking_service::NetworkingService;
 use crate::services::settings_service::SettingsService;
 use crate::services::ui_service::components::debug_screen::DebuggingOverlaySystem;
+use crate::services::ui_service::overlays::MenuOverlaySystem;
 use crate::services::ui_service::UIService;
 use crate::world::player_selected_block_update::PlayerSelectedBlockUpdateSystem;
 use specs::{DispatcherBuilder, World, WorldExt};
@@ -111,7 +112,7 @@ impl Game {
             .with(PlayerMovementSystem, "player_movement", &["pre_frame"])
             .with(PlayerActionsSystem, "player_actions", &["pre_frame"])
             .with(DebuggingOverlaySystem, "debugging_overlay", &["pre_frame"])
-            .with(LoggingSystem, "logging_system", &["pre_frame"])
+            .with(MenuOverlaySystem, "menu_overlays", &["pre_frame"])
             .with(
                 PhysicsInterpolationSystem,
                 "physics_interpolation",
@@ -142,12 +143,12 @@ impl Game {
                 "render_frame",
                 &[
                     "player_movement",
-                    "logging_system",
                     "frustum_culling",
                     "physics_interpolation",
                 ],
             )
             .with(PostFrame, "post_frame", &["render_frame"])
+            .with(LoggingSystem, "logging_system", &["post_frame"])
             .with(ChunkRerenderSystem, "chunk_rerendering", &["post_frame"])
             .with(
                 ChunkMeshUpdateSystem,

@@ -1,6 +1,7 @@
 use nalgebra::Vector2;
 
 /// Stores the way an object should present itself in space
+#[derive(Clone, Copy)]
 pub struct Layout {
     pub size: Vector2<f32>,
     pub offset: Vector2<f32>,
@@ -75,6 +76,7 @@ impl Layout {
 }
 
 /// Stores the scheme the object uses for positioning
+#[derive(Clone, Copy)]
 pub enum LayoutScheme {
     TopLeft,
     Left,
