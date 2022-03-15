@@ -20,7 +20,6 @@ pub struct PauseMenuComponent {
 
 impl PauseMenuComponent {
     pub fn new() -> PauseMenuComponent {
-        // Texture is 362x42, starting at 1,1
         PauseMenuComponent {
             layout: Layout::new(
                 Vector2::new(600.0, 600.0),

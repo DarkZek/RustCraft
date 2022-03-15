@@ -20,3 +20,17 @@ pub trait UIElement {
         false
     }
 }
+
+pub struct ElementData {
+    pub data: Box<dyn UIElement + Sync + Send>,
+    pub hovered: bool,
+}
+
+impl ElementData {
+    pub fn wrap(data: Box<dyn UIElement + Sync + Send>) -> ElementData {
+        ElementData {
+            data,
+            hovered: false,
+        }
+    }
+}

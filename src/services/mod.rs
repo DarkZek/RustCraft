@@ -1,4 +1,5 @@
 use crate::render::loading::LoadingScreen;
+use crate::services::entity_service::EntityService;
 use crate::services::input_service::InputService;
 use crate::services::networking_service::NetworkingService;
 use crate::services::{
@@ -17,6 +18,7 @@ pub mod logging_service;
 pub mod asset_service;
 pub mod audio_service;
 pub mod chunk_service;
+pub mod entity_service;
 pub mod input_service;
 pub mod networking_service;
 pub mod settings_service;
@@ -62,6 +64,8 @@ pub fn load_services(mut context: ServicesContext, universe: &mut World) {
     let ui = UIService::new(&mut context, &asset, universe);
     let input = InputService::new(&mut context, universe);
     let networking_service = NetworkingService::new(universe);
+    let entity_service = EntityService::new();
+
     LoadingScreen::update_state(90.0);
 
     flush_log!();
@@ -73,4 +77,5 @@ pub fn load_services(mut context: ServicesContext, universe: &mut World) {
     universe.insert(ui);
     universe.insert(input);
     universe.insert(networking_service);
+    universe.insert(entity_service);
 }

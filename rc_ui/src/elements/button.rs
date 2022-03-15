@@ -64,7 +64,6 @@ impl UIButton {
 
 impl UIElement for UIButton {
     fn render(&self, layout: &Layout) -> Vec<UIVertex> {
-        log!("Re-render!!");
         let pos = self.layout.position_object(layout);
 
         let atlas_size = 1.0 / self.layout.size.y;
@@ -128,7 +127,6 @@ impl UIElement for UIButton {
                 .unwrap();
         }
 
-        log!("HOvered!! {}", state);
         true
     }
 }

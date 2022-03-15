@@ -1,4 +1,4 @@
-use crate::elements::UIElement;
+use crate::elements::{ElementData, UIElement};
 use crate::positioning::Layout;
 use crate::render::{get_device, get_swapchain_format};
 use crate::{Extent3d, UIRenderPipeline};
@@ -11,8 +11,10 @@ use wgpu::{
 
 pub(crate) struct ComponentData {
     pub id: usize,
+
     pub data: Arc<Mutex<dyn UIComponent + Send + Sync>>,
-    pub objects: Vec<Box<dyn UIElement + Send + Sync>>,
+    pub objects: Vec<ElementData>,
+
     pub texture: Option<Texture>,
     pub texture_bind_group: Option<BindGroup>,
     pub texture_sampler: Sampler,
@@ -20,8 +22,8 @@ pub(crate) struct ComponentData {
 
     /// Flag that it needs to be re-rendered
     pub dirty: bool,
-    /// Flag that vertices should be re-generated
-    pub regenerate: bool,
+    /// Flag that vertices should be re-rendered
+    pub rerender: bool,
 
     pub projection: Buffer,
     pub projection_bind_group: BindGroup,
@@ -92,7 +94,7 @@ impl ComponentData {
             texture_sampler,
             texture_view,
             dirty: false,
-            regenerate: false,
+            rerender: false,
             projection,
             projection_bind_group,
             component_vertices_buffer: None,

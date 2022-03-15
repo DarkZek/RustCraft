@@ -1,3 +1,4 @@
+use crate::elements::ElementData;
 use crate::positioning::Layout;
 use crate::render::pipeline::UIRenderPipeline;
 use crate::render::{get_device, get_swapchain_format};
@@ -19,26 +20,27 @@ impl UIController {
         let data = component.data.lock().unwrap();
 
         // If we don't need to re-render, or render for the first time then don't bother
-        if !data.rerender()
-            && component.component_vertices_buffer.is_some()
-            && !component.regenerate
+        if !data.rerender() && component.component_vertices_buffer.is_some() && !component.rerender
         {
             return;
         }
-
-        // Set dirty
-        component.dirty = true;
-        component.regenerate = false;
 
         let layout = data.positioning();
         let position = layout.position_object(parent);
 
         let mut total_vertices = Vec::new();
 
-        component.objects = data.render();
+        // Rerender only, don't regenerate component
+        if !component.rerender {
+            component.objects = data
+                .render()
+                .into_iter()
+                .map(|t| ElementData::wrap(t))
+                .collect::<Vec<ElementData>>();
+        }
 
         for element in &component.objects {
-            total_vertices.append(&mut element.render(data.positioning()));
+            total_vertices.append(&mut element.data.render(data.positioning()));
         }
 
         let vertex_buffer = get_device().create_buffer_init(&BufferInitDescriptor {
@@ -108,5 +110,9 @@ impl UIController {
                 ],
             })
         });
+
+        // Set dirty
+        component.dirty = true;
+        component.rerender = false;
     }
 }
