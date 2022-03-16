@@ -9,7 +9,6 @@ use crate::vertex::UIVertex;
 use crate::ATLAS_INDEXES;
 use nalgebra::Vector2;
 use rc_logging::log;
-use specs::World;
 
 const BUTTON_TEXT_PADDING: f32 = 0.28;
 // The size of the cap on the side of the button texture
@@ -23,11 +22,10 @@ pub struct UIButton {
     color: [f32; 4],
     index: TextureAtlasIndex,
     text: UIText,
-    clicked: fn(&World),
 }
 
 impl UIButton {
-    pub fn new(layout: Layout, label: String, clicked: fn(&World)) -> Box<UIButton> {
+    pub fn new(layout: Layout, label: String) -> Box<UIButton> {
         let height = layout.size.y;
 
         let text = UIText {
@@ -60,7 +58,6 @@ impl UIButton {
             color: [1.0; 4],
             index,
             text,
-            clicked,
         })
     }
 }
@@ -131,9 +128,5 @@ impl UIElement for UIButton {
         }
 
         true
-    }
-
-    fn clicked(&mut self, universe: &World) {
-        self.clicked.call((universe,));
     }
 }

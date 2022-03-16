@@ -2,7 +2,6 @@ use crate::entity::player::PlayerEntity;
 use crate::game::physics::{Physics, PhysicsObject};
 use crate::render::RenderState;
 use crate::services::chunk_service::ChunkService;
-use crate::services::ui_service::components::UIComponents;
 use crate::services::ui_service::UIService;
 use crate::VERSION;
 use nalgebra::{Vector2, Vector3};
@@ -169,7 +168,7 @@ pub struct DebuggingOverlaySystem;
 impl<'a> System<'a> for DebuggingOverlaySystem {
     type SystemData = (
         Read<'a, ChunkService>,
-        Read<'a, UIComponents>,
+        Write<'a, UIService>,
         Read<'a, RenderState>,
         ReadStorage<'a, PlayerEntity>,
         ReadStorage<'a, PhysicsObject>,
@@ -178,9 +177,9 @@ impl<'a> System<'a> for DebuggingOverlaySystem {
 
     fn run(
         &mut self,
-        (chunk_service, ui_components, render_state, player, physics_objects, physics): Self::SystemData,
+        (chunk_service, mut ui_service, render_state, player, physics_objects, physics): Self::SystemData,
     ) {
-        let mut screen = ui_components.debug_screen_component.lock().unwrap();
+        let mut screen = ui_service.debugging_screen.lock().unwrap();
         screen.dirty = false;
 
         if !screen.enabled {

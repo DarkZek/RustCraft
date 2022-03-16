@@ -17,9 +17,7 @@ use crate::services::asset_service::AssetService;
 use crate::services::ui_service::components::crosshair::CrosshairComponent;
 use crate::services::ui_service::components::debug_screen::DebugScreenComponent;
 use crate::services::ui_service::components::inventory_bar::InventoryBarComponent;
-use crate::services::ui_service::components::options_screen::OptionsScreenComponent;
 use crate::services::ui_service::components::pause::PauseMenuComponent;
-use crate::services::ui_service::components::UIComponents;
 use crate::services::ui_service::image::{ImageManager, ImageType, ImageView};
 use crate::services::ServicesContext;
 
@@ -44,6 +42,9 @@ pub struct UIService {
     pub background_image: ImageView,
     pub controller: UIController,
     window: Arc<Window>,
+
+    debugging_screen: Arc<Mutex<DebugScreenComponent>>,
+    pause_screen: Arc<Mutex<PauseMenuComponent>>,
 }
 
 impl UIService {
@@ -51,7 +52,7 @@ impl UIService {
     pub fn new(
         context: &mut ServicesContext,
         assets: &AssetService,
-        universe: &mut World,
+        _universe: &mut World,
     ) -> UIService {
         // TODO: Bind resize events
         let mut images = ImageManager::new(*context.size);
@@ -75,11 +76,7 @@ impl UIService {
             &projection_bind_group_layout,
         ]);
 
-        let components = UIComponents::new(&assets);
-
-        let renderer = RCRenderer::new(&components);
-
-        universe.insert(components);
+        let renderer = RCRenderer::new(&assets);
 
         let debugging_screen = renderer.debug_screen_component.clone();
         let pause_screen = renderer.pause_menu_component.clone();
@@ -108,6 +105,8 @@ impl UIService {
             background_image,
             controller,
             window: context.window.clone(),
+            debugging_screen,
+            pause_screen,
         }
     }
 }
@@ -142,17 +141,29 @@ pub struct RCRenderer {
     inventory_bar_component: Arc<Mutex<InventoryBarComponent>>,
     pause_menu_component: Arc<Mutex<PauseMenuComponent>>,
     debug_screen_component: Arc<Mutex<DebugScreenComponent>>,
-    options_screen_component: Arc<Mutex<OptionsScreenComponent>>,
 }
 
 impl RCRenderer {
-    fn new(components: &UIComponents) -> RCRenderer {
+    fn new(assets: &AssetService) -> RCRenderer {
+        let crosshair_component = Arc::new(Mutex::new(CrosshairComponent::new()));
+        let inventory_bar_component = Arc::new(Mutex::new(InventoryBarComponent::new(
+            *assets
+                .atlas_index
+                .as_ref()
+                .unwrap()
+                .read()
+                .unwrap()
+                .get("gui/widgets")
+                .unwrap(),
+        )));
+        let pause_menu_component = Arc::new(Mutex::new(PauseMenuComponent::new()));
+        let debug_screen_component = Arc::new(Mutex::new(DebugScreenComponent::new()));
+
         RCRenderer {
-            crosshair_component: components.crosshair_component.clone(),
-            inventory_bar_component: components.inventory_bar_component.clone(),
-            pause_menu_component: components.pause_menu_component.clone(),
-            debug_screen_component: components.debug_screen_component.clone(),
-            options_screen_component: components.options_screen_component.clone(),
+            crosshair_component,
+            inventory_bar_component,
+            pause_menu_component,
+            debug_screen_component,
         }
     }
 }
@@ -164,7 +175,6 @@ impl UIRenderer for RCRenderer {
             self.inventory_bar_component.clone(),
             self.pause_menu_component.clone(),
             self.debug_screen_component.clone(),
-            self.options_screen_component.clone(),
         ]
     }
 }

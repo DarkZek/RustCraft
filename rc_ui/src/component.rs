@@ -3,7 +3,6 @@ use crate::positioning::Layout;
 use crate::render::{get_device, get_swapchain_format};
 use crate::{Extent3d, UIRenderPipeline};
 use nalgebra::Vector2;
-use specs::World;
 use std::sync::{Arc, Mutex};
 use wgpu::{
     BindGroup, BindGroupLayout, Buffer, BufferBinding, BufferBindingType, Sampler,
