@@ -129,7 +129,7 @@ impl ComponentData {
 /// Each Component is rendered to their own image buffer
 pub trait UIComponent {
     /// Called to fetch a list of elements to render
-    fn render(&self) -> Vec<Box<dyn UIElement + Sync + Send>>;
+    fn render(&mut self) -> Vec<Box<dyn UIElement + Sync + Send>>;
 
     /// Called every frame to check if we should re-render
     fn rerender(&self) -> bool;

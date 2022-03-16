@@ -23,7 +23,7 @@ impl CrosshairComponent {
 }
 
 impl UIComponent for CrosshairComponent {
-    fn render(&self) -> Vec<Box<dyn UIElement + Send + Sync + 'static>> {
+    fn render(&mut self) -> Vec<Box<dyn UIElement + Send + Sync + 'static>> {
         vec![
             UIRect::new(Vector2::new(8.0, 0.0), Vector2::new(4.0, 20.0), [1.0; 4]),
             UIRect::new(Vector2::new(0.0, 8.0), Vector2::new(20.0, 4.0), [1.0; 4]),

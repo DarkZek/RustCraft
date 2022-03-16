@@ -17,7 +17,7 @@ impl UIController {
         parent: &Layout,
         combine_image_bind_group_layout: &BindGroupLayout,
     ) {
-        let data = component.data.lock().unwrap();
+        let mut data = component.data.lock().unwrap();
 
         // If we don't need to re-render, or render for the first time then don't bother
         if !data.rerender() && component.component_vertices_buffer.is_some() && !component.rerender
@@ -25,7 +25,7 @@ impl UIController {
             return;
         }
 
-        let layout = data.positioning();
+        let layout = data.positioning().clone();
         let position = layout.position_object(parent);
 
         let mut total_vertices = Vec::new();

@@ -14,3 +14,4 @@ serde = { version = "1.0", default-features = false, features = ["derive", "std"
 image = { version = "0.23.3", default-features = false, features = ["png"] }
 lazy_static = "1.4.0"
 fnv = "1.0.3"
+specs = {version = "0.16.1"}

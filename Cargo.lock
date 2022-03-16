@@ -2112,6 +2112,7 @@ dependencies = [
  "nalgebra",
  "rc_logging",
  "serde",
+ "specs",
  "wgpu",
 ]
 

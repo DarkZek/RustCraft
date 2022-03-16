@@ -5,6 +5,11 @@ use nalgebra::Vector2;
 impl UIController {
     pub fn cursor_moved(&mut self, position: Vector2<f32>) {
         for component in &mut self.components {
+            // No click event for invisible components
+            if !component.data.lock().unwrap().visible() {
+                continue;
+            }
+
             let component_position = component
                 .data
                 .lock()
@@ -24,7 +29,10 @@ impl UIController {
                         // Made change, is dirty
                         component.rerender = true;
                     }
+
+                    // Found hovered object, we only want one hovered object so return
                     element.hovered = true;
+                    return;
                 } else {
                     // If element is not currently hovered, and the state is hovered them update the component and re-render
                     if element.hovered && element.data.hovered(false) {

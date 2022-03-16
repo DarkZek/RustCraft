@@ -32,7 +32,7 @@ use specs::{DispatcherBuilder, World, WorldExt};
 use std::borrow::Borrow;
 use std::ops::Deref;
 use std::time::{Duration, Instant};
-use winit::event::StartCause;
+use winit::event::{ElementState, MouseButton, StartCause};
 use winit::{
     event::{Event, WindowEvent},
     event_loop::ControlFlow,
@@ -220,10 +220,38 @@ impl Game {
                         let render_state: &mut RenderState = self.universe.get_mut().unwrap();
                         render_state.resize(**new_inner_size);
                     }
+                    WindowEvent::Focused(focused) => {
+                        if *focused {
+                            if self.universe.write_resource::<InputState>().attempt_grab {
+                                self.universe.write_resource::<InputState>().capture_mouse();
+                            }
+                        } else {
+                            self.universe
+                                .write_resource::<InputState>()
+                                .uncapture_mouse();
+                        }
+                    }
                     _ => {
                         self.universe
                             .write_resource::<InputState>()
                             .handle_event(event);
+
+                        if let WindowEvent::MouseInput {
+                            device_id,
+                            state,
+                            button,
+                            modifiers,
+                        } = event
+                        {
+                            self.universe
+                                .write_resource::<UIService>()
+                                .controller
+                                .clicked(
+                                    &self.universe,
+                                    state == &ElementState::Pressed,
+                                    button == &MouseButton::Left,
+                                );
+                        }
                     }
                 },
                 Event::MainEventsCleared => {

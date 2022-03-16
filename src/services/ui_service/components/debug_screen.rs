@@ -7,7 +7,7 @@ use crate::VERSION;
 use nalgebra::{Vector2, Vector3};
 use rc_ui::component::UIComponent;
 
-
+use crate::services::ui_service::components::UIComponents;
 use rc_ui::elements::text::UIText;
 use rc_ui::elements::UIElement;
 use rc_ui::fonts::TextAlignment;
@@ -54,7 +54,7 @@ impl DebugScreenComponent {
 }
 
 impl UIComponent for DebugScreenComponent {
-    fn render(&self) -> Vec<Box<dyn UIElement + Send + Sync + 'static>> {
+    fn render(&mut self) -> Vec<Box<dyn UIElement + Send + Sync + 'static>> {
         vec![
             Box::new(UIText {
                 text: format!("Rustcraft v{} Alpha", VERSION),
@@ -168,7 +168,7 @@ pub struct DebuggingOverlaySystem;
 impl<'a> System<'a> for DebuggingOverlaySystem {
     type SystemData = (
         Read<'a, ChunkService>,
-        Write<'a, UIService>,
+        Read<'a, UIComponents>,
         Read<'a, RenderState>,
         ReadStorage<'a, PlayerEntity>,
         ReadStorage<'a, PhysicsObject>,
@@ -177,9 +177,9 @@ impl<'a> System<'a> for DebuggingOverlaySystem {
 
     fn run(
         &mut self,
-        (chunk_service, ui_service, render_state, player, physics_objects, physics): Self::SystemData,
+        (chunk_service, ui_components, render_state, player, physics_objects, physics): Self::SystemData,
     ) {
-        let mut screen = ui_service.debugging_screen.lock().unwrap();
+        let mut screen = ui_components.debug_screen_component.lock().unwrap();
         screen.dirty = false;
 
         if !screen.enabled {

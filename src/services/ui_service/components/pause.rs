@@ -1,17 +1,14 @@
-
-
-
 use nalgebra::Vector2;
+use specs::WorldExt;
 
 use rc_ui::component::UIComponent;
 use rc_ui::elements::button::UIButton;
 
-
-
 use rc_ui::elements::UIElement;
 
+use crate::services::input_service::input::InputState;
+use crate::services::ui_service::components::UIComponents;
 use rc_ui::positioning::{Layout, LayoutScheme};
-
 
 pub struct PauseMenuComponent {
     layout: Layout,
@@ -33,16 +30,50 @@ impl PauseMenuComponent {
 }
 
 impl UIComponent for PauseMenuComponent {
-    fn render(&self) -> Vec<Box<dyn UIElement + Send + Sync + 'static>> {
-        vec![UIButton::new(
-            Layout {
-                size: Vector2::new(600.0, 60.0),
-                offset: Vector2::new(0.0, 0.0),
-                scheme: LayoutScheme::Top,
-                padding: 0.0,
-            },
-            String::from("Back To Game"),
-        )]
+    fn render(&mut self) -> Vec<Box<dyn UIElement + Send + Sync + 'static>> {
+        vec![
+            UIButton::new(
+                Layout {
+                    size: Vector2::new(600.0, 60.0),
+                    offset: Vector2::new(0.0, 0.0),
+                    scheme: LayoutScheme::Top,
+                    padding: 0.0,
+                },
+                String::from("Back To Game"),
+                |universe| {
+                    universe
+                        .read_resource::<UIComponents>()
+                        .pause_menu_component
+                        .lock()
+                        .unwrap()
+                        .visible = false;
+                    universe.write_resource::<InputState>().set_capture_mouse();
+                },
+            ),
+            UIButton::new(
+                Layout {
+                    size: Vector2::new(600.0, 60.0),
+                    offset: Vector2::new(0.0, 80.0),
+                    scheme: LayoutScheme::Top,
+                    padding: 0.0,
+                },
+                String::from("Options"),
+                |universe| {
+                    universe
+                        .read_resource::<UIComponents>()
+                        .pause_menu_component
+                        .lock()
+                        .unwrap()
+                        .visible = false;
+                    universe
+                        .read_resource::<UIComponents>()
+                        .options_screen_component
+                        .lock()
+                        .unwrap()
+                        .visible = true;
+                },
+            ),
+        ]
     }
 
     fn rerender(&self) -> bool {

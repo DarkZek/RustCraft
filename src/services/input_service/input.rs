@@ -29,7 +29,13 @@ pub struct InputState {
 
     pub mappings: KeyMapping,
     pub mouse_home: PhysicalPosition<u32>,
+
+    /// Is the window hiding the cursor
     pub grabbed: bool,
+
+    /// Should the window have hide the cursor
+    pub attempt_grab: bool,
+
     window: Arc<Window>,
 }
 
@@ -49,6 +55,7 @@ impl InputState {
             mappings: KeyMapping::default(),
             mouse_home: PhysicalPosition::new(0, 0),
             grabbed: false,
+            attempt_grab: false,
             window,
         }
     }
@@ -192,6 +199,12 @@ impl InputState {
         }
     }
 
+    /// Sets the state of the application that the mouse should be captured
+    pub fn set_capture_mouse(&mut self) {
+        self.capture_mouse();
+        self.attempt_grab = true;
+    }
+
     pub fn capture_mouse(&mut self) {
         if let Err(e) = self.window.set_cursor_grab(true) {
             log_error!("Error grabbing cursor: {}", e);
@@ -201,6 +214,12 @@ impl InputState {
             log_error!("Error setting cursor position: {}", e);
         }
         self.grabbed = true;
+    }
+
+    /// Sets the state of the application that the mouse should be captured
+    pub fn set_uncapture_mouse(&mut self) {
+        self.uncapture_mouse();
+        self.attempt_grab = false;
     }
 
     pub fn uncapture_mouse(&mut self) {
