@@ -1,6 +1,7 @@
 use crate::render::background::Background;
 use crate::render::camera::Camera;
 use crate::render::device::get_device;
+use crate::render::effects::buffer_pool::TextureBufferPool;
 use crate::render::effects::EffectPasses;
 use crate::render::loading::LoadingScreen;
 use crate::render::pass::outline::{BoxOutline, OutlineRenderer};
@@ -232,6 +233,7 @@ impl RenderState {
         );
 
         universe.insert(effects);
+        universe.insert(TextureBufferPool::new());
 
         let queue = Arc::try_unwrap(queue).ok().unwrap().into_inner().unwrap();
 

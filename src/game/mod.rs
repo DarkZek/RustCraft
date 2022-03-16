@@ -6,6 +6,7 @@ use crate::game::physics::player::PlayerMovementSystem;
 use crate::game::physics::{Physics, PhysicsObject, PhysicsProcessingSystem};
 use crate::game::systems::DeltaTime;
 use crate::render::camera::Camera;
+use crate::render::effects::buffer_pool::TextureBufferPool;
 use crate::render::effects::EffectPasses;
 use crate::render::pass::outline::BoxOutline;
 use crate::render::pass::prepass::{PostFrame, PreFrame};
@@ -207,8 +208,9 @@ impl Game {
                                 physical_size,
                             );
                         self.universe
-                            .write_resource::<EffectPasses>()
+                            .write_resource::<TextureBufferPool>()
                             .resize_buffers();
+                        self.universe.write_resource::<EffectPasses>().resize();
                     }
                     WindowEvent::ScaleFactorChanged { new_inner_size, .. } => {
                         let render_state: &mut RenderState = self.universe.get_mut().unwrap();

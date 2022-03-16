@@ -2,6 +2,7 @@ use crate::game::game_state::{GameState, ProgramState};
 use crate::render::background::Background;
 use crate::render::camera::Camera;
 use crate::render::device::get_device;
+use crate::render::effects::buffer_pool::TextureBufferPool;
 use crate::render::effects::EffectPasses;
 use crate::render::pass::outline::BoxOutline;
 use crate::render::{get_swapchain_size, RenderState};
@@ -10,6 +11,7 @@ use crate::services::chunk_service::chunk::{ChunkData, Chunks};
 use crate::services::chunk_service::ChunkService;
 use crate::services::ui_service::UIService;
 use specs::{Read, ReadStorage, System, Write};
+use std::mem;
 use wgpu::{Color, IndexFormat, LoadOp, Operations, TextureViewDescriptor};
 
 pub mod buffer;
@@ -30,7 +32,8 @@ impl<'a> System<'a> for RenderSystem {
         Read<'a, Background>,
         Read<'a, Camera>,
         ReadStorage<'a, BoxOutline>,
-        Write<'a, EffectPasses>,
+        Read<'a, EffectPasses>,
+        Write<'a, TextureBufferPool>,
     );
 
     /// Renders all visible chunks
@@ -46,7 +49,8 @@ impl<'a> System<'a> for RenderSystem {
             background,
             camera,
             box_outlines,
-            mut effect_passes,
+            effect_passes,
+            mut buffer_pool,
         ): Self::SystemData,
     ) {
         use specs::Join;
@@ -57,7 +61,8 @@ impl<'a> System<'a> for RenderSystem {
             .texture
             .create_view(&wgpu::TextureViewDescriptor::default());
 
-        let bloom_texture = effect_passes.get_buffer();
+        let bloom_texture = buffer_pool.get_buffer();
+
         let bloom_frame = bloom_texture.create_view(&TextureViewDescriptor::default());
 
         let normal_map_frame = effect_passes
@@ -71,7 +76,7 @@ impl<'a> System<'a> for RenderSystem {
         let view_projection_fragment_bind_group =
             render_state.fragment_projection_bind_group.take().unwrap();
 
-        let frame_image_buffer = effect_passes.get_buffer();
+        let frame_image_buffer = buffer_pool.get_buffer();
 
         let frame_image_view = frame_image_buffer.create_view(&TextureViewDescriptor::default());
 
@@ -177,30 +182,38 @@ impl<'a> System<'a> for RenderSystem {
                         0..1,
                     );
                 }
+
+                mem::drop(render_pass);
+
+                effect_passes.apply_bloom(
+                    &mut encoder,
+                    &mut buffer_pool,
+                    &*bloom_texture,
+                    &frame_image_buffer,
+                );
+
+                effect_passes.apply_ssao(
+                    &mut encoder,
+                    &mut buffer_pool,
+                    &view_projection_fragment_bind_group,
+                    &*frame_image_buffer,
+                );
+
+                // Merge vfx buffer into main swapchain
+                encoder.copy_texture_to_texture(
+                    frame_image_buffer.as_image_copy(),
+                    texture.texture.as_image_copy(),
+                    get_swapchain_size(),
+                );
+
+                render_state.outlines.render(
+                    &frame,
+                    &mut encoder,
+                    &view_projection_bind_group,
+                    &box_outlines,
+                    &render_state.depth_texture.1,
+                );
             }
-
-            effect_passes.apply_bloom(&mut encoder, &*bloom_texture, &frame_image_buffer);
-
-            effect_passes.apply_ssao(
-                &mut encoder,
-                &view_projection_fragment_bind_group,
-                &*frame_image_buffer,
-            );
-
-            // Merge vfx buffer into main swapchain
-            encoder.copy_texture_to_texture(
-                frame_image_buffer.as_image_copy(),
-                texture.texture.as_image_copy(),
-                get_swapchain_size(),
-            );
-
-            render_state.outlines.render(
-                &frame,
-                &mut encoder,
-                &view_projection_bind_group,
-                &box_outlines,
-                &render_state.depth_texture.1,
-            );
 
             ui_service.render(
                 &texture.texture,
@@ -210,11 +223,11 @@ impl<'a> System<'a> for RenderSystem {
             );
 
             // Return buffers
-            effect_passes.return_buffer(frame_image_buffer);
-            effect_passes.return_buffer(bloom_texture);
+            buffer_pool.return_buffer(frame_image_buffer);
+            buffer_pool.return_buffer(bloom_texture);
 
             // Clean used buffers
-            effect_passes.clean_buffers(&mut encoder);
+            buffer_pool.clean_buffers(&mut encoder);
 
             render_state.queue.submit(Some(encoder.finish()));
 

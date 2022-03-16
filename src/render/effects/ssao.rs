@@ -7,6 +7,7 @@ use rc_ui::vertex::UIVertex;
 
 use std::mem;
 
+use crate::render::effects::buffer_pool::TextureBufferPool;
 use wgpu::util::DeviceExt;
 use wgpu::{
     AddressMode, BindGroup, BindGroupLayout, BindGroupLayoutDescriptor, BindGroupLayoutEntry,
@@ -175,17 +176,7 @@ impl SSAOEffect {
             ..SamplerDescriptor::default()
         });
 
-        let ssao_color = get_device().create_texture(&wgpu::TextureDescriptor {
-            label: Some("SSAO Color texture"),
-            size: get_swapchain_size(),
-            mip_level_count: 1,
-            sample_count: 1,
-            dimension: wgpu::TextureDimension::D2,
-            format: TextureFormat::R8Unorm,
-            usage: wgpu::TextureUsages::RENDER_ATTACHMENT
-                | TextureUsages::TEXTURE_BINDING
-                | TextureUsages::COPY_SRC, //TODO: Remove
-        });
+        let ssao_color = Self::get_ssao_texture();
 
         SSAOEffect {
             ssao_render_pipeline,
@@ -195,6 +186,24 @@ impl SSAOEffect {
             sampler,
             ssao_color,
         }
+    }
+
+    pub fn resize(&mut self) {
+        self.ssao_color = Self::get_ssao_texture();
+    }
+
+    pub fn get_ssao_texture() -> Texture {
+        get_device().create_texture(&wgpu::TextureDescriptor {
+            label: Some("SSAO Color texture"),
+            size: get_swapchain_size(),
+            mip_level_count: 1,
+            sample_count: 1,
+            dimension: wgpu::TextureDimension::D2,
+            format: TextureFormat::R8Unorm,
+            usage: wgpu::TextureUsages::RENDER_ATTACHMENT
+                | TextureUsages::TEXTURE_BINDING
+                | TextureUsages::COPY_SRC,
+        })
     }
 
     pub fn get_kernel_sample() -> Buffer {
@@ -292,8 +301,9 @@ impl SSAOEffect {
 
     pub fn apply_ssao(
         &self,
-        effect_passes: &mut EffectPasses,
+        effect_passes: &EffectPasses,
         encoder: &mut CommandEncoder,
+        buffer_pool: &mut TextureBufferPool,
         projection_bind_group: &BindGroup,
         dest: &Texture,
     ) {
@@ -365,10 +375,10 @@ impl SSAOEffect {
 
         mem::drop(pass);
 
-        let m = effect_passes.effect_multiply.clone();
-        m.multiply(
+        effect_passes.effect_multiply.multiply(
             effect_passes,
             encoder,
+            buffer_pool,
             &self
                 .ssao_color
                 .create_view(&TextureViewDescriptor::default()),

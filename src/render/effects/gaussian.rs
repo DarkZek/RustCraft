@@ -1,4 +1,5 @@
 use crate::render::device::get_device;
+use crate::render::effects::buffer_pool::TextureBufferPool;
 use crate::render::effects::EffectPasses;
 use crate::render::{get_texture_format, VERTICES_COVER_SCREEN};
 use rc_ui::vertex::UIVertex;
@@ -104,8 +105,9 @@ impl GaussianBlurPostProcessingEffect {
     /// Blurs the texture in bloom_texture, output stored in bloom_texture
     pub fn apply_gaussian_blur(
         &self,
-        effect_passes: &mut EffectPasses,
+        effect_passes: &EffectPasses,
         encoder: &mut CommandEncoder,
+        buffer_pool: &mut TextureBufferPool,
         bloom_texture: &Texture,
         output: &Texture,
         amount: i32,
@@ -113,7 +115,7 @@ impl GaussianBlurPostProcessingEffect {
         // Amount must be even!
         assert_eq!(amount % 2, 0);
 
-        let pingpong_buffer = effect_passes.get_buffer();
+        let pingpong_buffer = buffer_pool.get_buffer();
 
         let pingpong_buffer_view =
             (*pingpong_buffer).create_view(&TextureViewDescriptor::default());
@@ -199,13 +201,14 @@ impl GaussianBlurPostProcessingEffect {
             input_is_pingpong = !input_is_pingpong;
         }
 
-        effect_passes.effect_merge.clone().merge(
+        effect_passes.effect_merge.merge(
             effect_passes,
             encoder,
+            buffer_pool,
             &bloom_texture_view,
             output,
         );
 
-        effect_passes.return_buffer(pingpong_buffer);
+        buffer_pool.return_buffer(pingpong_buffer);
     }
 }

@@ -1,4 +1,5 @@
 use crate::render::device::get_device;
+use crate::render::effects::buffer_pool::TextureBufferPool;
 use crate::render::effects::EffectPasses;
 use crate::render::{get_swapchain_size, get_texture_format, VERTICES_COVER_SCREEN};
 use rc_ui::vertex::UIVertex;
@@ -106,12 +107,13 @@ impl MultiplyPostProcessingEffect {
 
     pub fn multiply(
         &self,
-        effect_passes: &mut EffectPasses,
+        effect_passes: &EffectPasses,
         encoder: &mut CommandEncoder,
+        buffer_pool: &mut TextureBufferPool,
         filter: &TextureView,
         dest: &Texture,
     ) {
-        let temp_image = effect_passes.get_buffer();
+        let temp_image = buffer_pool.get_buffer();
 
         let temp_image_view = temp_image.create_view(&TextureViewDescriptor::default());
 
@@ -167,6 +169,6 @@ impl MultiplyPostProcessingEffect {
 
         pass.draw(0..6, 0..1);
 
-        effect_passes.return_buffer(temp_image);
+        buffer_pool.return_buffer(temp_image);
     }
 }
