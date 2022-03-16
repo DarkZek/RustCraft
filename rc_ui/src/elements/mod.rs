@@ -6,6 +6,7 @@ pub mod text;
 use crate::positioning::Layout;
 use crate::vertex::UIVertex;
 use nalgebra::Vector2;
+use specs::World;
 
 /// Describes an element on the screen, like a button, textfield or rectangle.
 pub trait UIElement {
@@ -19,6 +20,8 @@ pub trait UIElement {
     fn hovered(&mut self, state: bool) -> bool {
         false
     }
+
+    fn clicked(&mut self, universe: &World) {}
 }
 
 pub struct ElementData {

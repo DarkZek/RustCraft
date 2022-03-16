@@ -19,8 +19,7 @@ impl<'a> System<'a> for PreFrame {
 
         render_state.frames += 1;
 
-        //delta_time.0 = render_state.delta_time.as_secs_f32();
-        delta_time.0 = 1.0 / 60.0;
+        delta_time.0 = render_state.delta_time.as_secs_f32();
 
         if render_state.frame_capture_time.elapsed().as_millis() > 1000 {
             render_state.fps = (render_state.frames as f32

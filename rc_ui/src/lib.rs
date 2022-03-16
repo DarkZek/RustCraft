@@ -1,4 +1,5 @@
 #![feature(once_cell)]
+#![feature(fn_traits)]
 
 use crate::atlas::TextureAtlasIndex;
 use crate::component::{ComponentData, UIComponent};
@@ -10,6 +11,7 @@ use fnv::FnvBuildHasher;
 use fnv::FnvHashMap;
 use image::DynamicImage;
 use lazy_static::lazy_static;
+use specs::World;
 use std::collections::HashMap;
 use std::lazy::SyncOnceCell;
 use std::sync::{Arc, Mutex, RwLock};
@@ -31,7 +33,7 @@ lazy_static! {
 }
 
 /// The UI Controller is the main struct that holds the data for all UI data
-/// It holds a UIRenderer which instructs it how to perform opertions
+/// It holds a UIRenderer which instructs it how to perform operations
 pub struct UIController {
     renderer: Box<dyn UIRenderer + Send + Sync>,
     components: Vec<ComponentData>,
@@ -95,6 +97,17 @@ impl UIController {
 
     pub fn render(&mut self, output_image: &Texture, encoder: &mut CommandEncoder) {
         UIRenderPipeline::render(self, output_image, encoder)
+    }
+
+    pub fn clicked(&mut self, universe: &World, pressed: bool, left: bool) {
+        for component in &mut self.components {
+            for element in &mut component.objects {
+                if element.hovered && pressed && left {
+                    // Click!
+                    element.data.clicked(universe);
+                }
+            }
+        }
     }
 }
 

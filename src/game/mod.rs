@@ -31,7 +31,7 @@ use specs::{DispatcherBuilder, World, WorldExt};
 use std::borrow::Borrow;
 use std::ops::Deref;
 use std::time::{Duration, Instant};
-use winit::event::StartCause;
+use winit::event::{ElementState, MouseButton, StartCause};
 use winit::{
     event::{Event, WindowEvent},
     event_loop::ControlFlow,
@@ -218,6 +218,22 @@ impl Game {
                         self.universe
                             .write_resource::<InputState>()
                             .handle_event(event);
+                        if let WindowEvent::MouseInput {
+                            device_id,
+                            state,
+                            button,
+                            modifiers,
+                        } = event
+                        {
+                            self.universe
+                                .write_resource::<UIService>()
+                                .controller
+                                .clicked(
+                                    &self.universe,
+                                    state == &ElementState::Pressed,
+                                    button == &MouseButton::Left,
+                                );
+                        }
                     }
                 },
                 Event::MainEventsCleared => {

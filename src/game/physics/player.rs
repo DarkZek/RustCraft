@@ -2,6 +2,7 @@ use crate::entity::player::{move_forwards, PlayerEntity};
 use crate::game::game_state::GameState;
 use crate::game::physics::{move_entity_dir, PhysicsObject};
 
+use crate::game::systems::DeltaTime;
 use crate::services::chunk_service::chunk::{ChunkData, ChunkEntityLookup};
 use crate::services::input_service::actions::ActionSheet;
 use crate::services::input_service::input::InputState;
@@ -20,6 +21,7 @@ impl<'a> System<'a> for PlayerMovementSystem {
         WriteStorage<'a, PhysicsObject>,
         ReadStorage<'a, ChunkData>,
         Read<'a, ChunkEntityLookup>,
+        Read<'a, DeltaTime>,
     );
 
     fn run(
@@ -32,11 +34,12 @@ impl<'a> System<'a> for PlayerMovementSystem {
             mut player_physics,
             chunks,
             chunk_entity_lookup,
+            delta_time,
         ): Self::SystemData,
     ) {
         let (_, entity) = (&player_entity, &mut player_physics).join().last().unwrap();
 
-        let mut movement_modifier = 0.12;
+        let mut movement_modifier = 100.0;
 
         if entity.touching_ground {
             if actionsheet.get_sprinting() {
@@ -54,7 +57,7 @@ impl<'a> System<'a> for PlayerMovementSystem {
             let mut movement: Vector3<f32> =
                 move_forwards(&events.movement, game_state.player.rot[0]).into();
 
-            movement = movement.mul(movement_modifier);
+            movement = movement.mul(movement_modifier).mul(delta_time.0);
 
             // Check collisions
             let (final_movement, _collision) = move_entity_dir(

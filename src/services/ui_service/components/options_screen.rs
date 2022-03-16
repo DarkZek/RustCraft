@@ -15,14 +15,14 @@ use rc_ui::fonts::TextAlignment;
 use rc_ui::positioning::{Layout, LayoutScheme};
 use specs::{Read, System, WorldExt};
 
-pub struct PauseMenuComponent {
+pub struct OptionsScreenComponent {
     layout: Layout,
     pub visible: bool,
 }
 
-impl PauseMenuComponent {
-    pub fn new() -> PauseMenuComponent {
-        PauseMenuComponent {
+impl OptionsScreenComponent {
+    pub fn new() -> OptionsScreenComponent {
+        OptionsScreenComponent {
             layout: Layout::new(
                 Vector2::new(600.0, 600.0),
                 Vector2::new(0.0, 0.0),
@@ -34,49 +34,28 @@ impl PauseMenuComponent {
     }
 }
 
-impl UIComponent for PauseMenuComponent {
+impl UIComponent for OptionsScreenComponent {
     fn render(&self) -> Vec<Box<dyn UIElement + Send + Sync + 'static>> {
         vec![
             UIButton::new(
                 Layout {
-                    size: Vector2::new(600.0, 60.0),
+                    size: Vector2::new(290.0, 60.0),
                     offset: Vector2::new(0.0, 0.0),
-                    scheme: LayoutScheme::Top,
+                    scheme: LayoutScheme::Left,
                     padding: 0.0,
                 },
-                String::from("Back To Game"),
-                |universe| {
-                    universe
-                        .read_resource::<UIComponents>()
-                        .pause_menu_component
-                        .lock()
-                        .unwrap()
-                        .visible = false;
-                    universe.write_resource::<InputState>().capture_mouse();
-                },
+                String::from("SSAO: Enabled"),
+                |universe| {},
             ),
             UIButton::new(
                 Layout {
-                    size: Vector2::new(600.0, 60.0),
-                    offset: Vector2::new(0.0, 80.0),
-                    scheme: LayoutScheme::Top,
+                    size: Vector2::new(290.0, 60.0),
+                    offset: Vector2::new(310.0, 00.0),
+                    scheme: LayoutScheme::Left,
                     padding: 0.0,
                 },
-                String::from("Options"),
-                |universe| {
-                    universe
-                        .read_resource::<UIComponents>()
-                        .pause_menu_component
-                        .lock()
-                        .unwrap()
-                        .visible = false;
-                    universe
-                        .read_resource::<UIComponents>()
-                        .options_screen_component
-                        .lock()
-                        .unwrap()
-                        .visible = true;
-                },
+                String::from("Bloom: Enabled"),
+                |universe| {},
             ),
         ]
     }

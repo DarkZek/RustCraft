@@ -24,7 +24,10 @@ impl UIController {
                         // Made change, is dirty
                         component.rerender = true;
                     }
+
+                    // Found hovered object, we only want one hovered object so return
                     element.hovered = true;
+                    return;
                 } else {
                     // If element is not currently hovered, and the state is hovered them update the component and re-render
                     if element.hovered && element.data.hovered(false) {
