@@ -2,7 +2,7 @@ use nalgebra::Vector2;
 use rc_ui::atlas::TextureAtlasIndex;
 use rc_ui::component::UIComponent;
 use rc_ui::elements::image::UIImage;
-use rc_ui::elements::rect::UIRect;
+
 use rc_ui::elements::UIElement;
 use rc_ui::positioning::{Layout, LayoutScheme};
 
@@ -60,7 +60,7 @@ impl UIComponent for InventoryBarComponent {
                 self.hotbar,
             ),
             UIImage::new(
-                Vector2::new((self.slot as f32 * SLOT_SIZE), 0.0),
+                Vector2::new(self.slot as f32 * SLOT_SIZE, 0.0),
                 Vector2::new(
                     SLOT_SIZE + (BORDER_WIDTH * 2.0),
                     SLOT_SIZE + (BORDER_WIDTH * 2.0),

@@ -1,17 +1,17 @@
-use crate::render::RenderState;
-use crate::services::input_service::actions::ActionSheet;
-use crate::services::ui_service::UIService;
+
+
+
 use nalgebra::Vector2;
-use rc_ui::atlas::TextureAtlasIndex;
+
 use rc_ui::component::UIComponent;
 use rc_ui::elements::button::UIButton;
-use rc_ui::elements::image::UIImage;
-use rc_ui::elements::rect::UIRect;
-use rc_ui::elements::text::UIText;
+
+
+
 use rc_ui::elements::UIElement;
-use rc_ui::fonts::TextAlignment;
+
 use rc_ui::positioning::{Layout, LayoutScheme};
-use specs::{Read, System};
+
 
 pub struct PauseMenuComponent {
     layout: Layout,

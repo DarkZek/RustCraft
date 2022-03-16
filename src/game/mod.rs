@@ -208,6 +208,10 @@ impl Game {
                                 physical_size,
                             );
                         self.universe
+                            .write_resource::<UIService>()
+                            .controller
+                            .resize([physical_size.width, physical_size.height]);
+                        self.universe
                             .write_resource::<TextureBufferPool>()
                             .resize_buffers();
                         self.universe.write_resource::<EffectPasses>().resize();

@@ -1,7 +1,7 @@
 use crate::services::asset_service::AssetService;
 use crate::services::ui_service::UIService;
 use wgpu::{
-    CommandEncoder, IndexFormat, LoadOp, Operations, Queue, Texture, TextureView,
+    CommandEncoder, IndexFormat, LoadOp, Operations, Queue, Texture,
     TextureViewDescriptor,
 };
 

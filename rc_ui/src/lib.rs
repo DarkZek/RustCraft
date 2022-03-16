@@ -41,6 +41,8 @@ pub struct UIController {
     pub atlas: Arc<Texture>,
     pub atlas_image: Arc<DynamicImage>,
     pub bind_group: Arc<BindGroup>,
+
+    pub screen_size: [u32; 2],
 }
 
 impl UIController {
@@ -79,6 +81,7 @@ impl UIController {
             atlas,
             atlas_image,
             bind_group,
+            screen_size: [0; 2],
         }
     }
 
@@ -95,6 +98,10 @@ impl UIController {
 
     pub fn render(&mut self, output_image: &Texture, encoder: &mut CommandEncoder) {
         UIRenderPipeline::render(self, output_image, encoder)
+    }
+
+    pub fn resize(&mut self, size: [u32; 2]) {
+        self.screen_size = size;
     }
 }
 

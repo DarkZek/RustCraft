@@ -1,15 +1,15 @@
-use fnv::FnvBuildHasher;
+
 use specs::World;
-use std::collections::HashMap;
+
 use std::sync::{Arc, Mutex};
-use wgpu::{BindGroup, BindGroupLayout, Buffer, Extent3d, RenderPipeline, Texture};
+use wgpu::{BindGroup, BindGroupLayout, Buffer, Extent3d, RenderPipeline};
 use winit::window::Window;
 
 use crate::helpers::AtlasIndex;
 use crate::render::device::get_device;
 use crate::render::get_texture_format;
 use pipeline::generate_render_pipeline;
-use rc_ui::atlas::TextureAtlasIndex;
+
 use rc_ui::component::UIComponent;
 use rc_ui::{UIController, UIRenderer};
 

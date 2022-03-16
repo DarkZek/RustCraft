@@ -1,6 +1,6 @@
 use nalgebra::Vector2;
 use rc_ui::component::UIComponent;
-use rc_ui::elements::image::UIImage;
+
 use rc_ui::elements::rect::UIRect;
 use rc_ui::elements::UIElement;
 use rc_ui::positioning::{Layout, LayoutScheme};

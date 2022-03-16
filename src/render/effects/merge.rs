@@ -112,7 +112,7 @@ impl MergePostProcessingEffect {
 
     pub fn merge(
         &self,
-        effect_passes: &EffectPasses,
+        _effect_passes: &EffectPasses,
         encoder: &mut CommandEncoder,
         buffer_pool: &mut TextureBufferPool,
         src: &TextureView,

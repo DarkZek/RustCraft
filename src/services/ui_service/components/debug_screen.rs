@@ -6,8 +6,8 @@ use crate::services::ui_service::UIService;
 use crate::VERSION;
 use nalgebra::{Vector2, Vector3};
 use rc_ui::component::UIComponent;
-use rc_ui::elements::image::UIImage;
-use rc_ui::elements::rect::UIRect;
+
+
 use rc_ui::elements::text::UIText;
 use rc_ui::elements::UIElement;
 use rc_ui::fonts::TextAlignment;
@@ -177,7 +177,7 @@ impl<'a> System<'a> for DebuggingOverlaySystem {
 
     fn run(
         &mut self,
-        (chunk_service, mut ui_service, render_state, player, physics_objects, physics): Self::SystemData,
+        (chunk_service, ui_service, render_state, player, physics_objects, physics): Self::SystemData,
     ) {
         let mut screen = ui_service.debugging_screen.lock().unwrap();
         screen.dirty = false;

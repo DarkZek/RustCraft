@@ -91,7 +91,7 @@ fn should_draw_betweens(
                         && block.block_type.get_identifier()
                             == src_block.as_ref().unwrap().block_type.get_identifier()
                     {
-                        return false;
+                        return block.block_type.draw_betweens();
                     }
                     if !block.block_type.is_block_full() {
                         return true;

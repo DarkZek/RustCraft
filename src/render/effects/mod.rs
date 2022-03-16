@@ -5,12 +5,12 @@ use crate::render::effects::gaussian::GaussianBlurPostProcessingEffect;
 use crate::render::effects::merge::MergePostProcessingEffect;
 use crate::render::effects::multiply::MultiplyPostProcessingEffect;
 use crate::render::effects::ssao::SSAOEffect;
-use crate::render::{get_swapchain_size, get_texture_format};
+use crate::render::{get_swapchain_size};
 use crate::services::settings_service::SettingsService;
-use std::ops::Deref;
-use std::sync::{Arc, Mutex};
+
+
 use wgpu::{
-    BindGroup, CommandEncoder, ImageSubresourceRange, Queue, Texture, TextureAspect,
+    BindGroup, CommandEncoder, Queue, Texture,
     TextureDimension, TextureFormat, TextureUsages,
 };
 

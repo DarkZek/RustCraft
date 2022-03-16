@@ -107,7 +107,7 @@ impl MultiplyPostProcessingEffect {
 
     pub fn multiply(
         &self,
-        effect_passes: &EffectPasses,
+        _effect_passes: &EffectPasses,
         encoder: &mut CommandEncoder,
         buffer_pool: &mut TextureBufferPool,
         filter: &TextureView,

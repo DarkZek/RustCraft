@@ -9,7 +9,7 @@ use crate::services::settings_service::SettingsService;
 use fnv::FnvBuildHasher;
 use nalgebra::{Point, Vector3};
 use rc_ui::atlas::{Rotate, TextureAtlasIndex};
-use serde_json::Value;
+
 use std::collections::HashMap;
 use std::lazy::SyncOnceCell;
 use std::ops::Add;
@@ -225,6 +225,7 @@ macro_rules! define_blocks {
                 $(light_color $light_color:expr,)?
                 $(light_intensity $light_intensity:expr,)?
                 $(transparent $transparent:expr,)?
+                $(betweens $betweens:expr,)?
                 $(waterlogged $waterlogged:expr,)?
             }
         )+
@@ -341,6 +342,21 @@ macro_rules! define_blocks {
                             $($fname,)?
                         } => {
                             $(return $waterlogged;)?
+                            return false;
+                        }
+                    )+
+                }
+            }
+
+            /// Should draw faces between transparent blocks, like leaves
+            #[allow(unused_variables, unreachable_code)]
+            pub fn draw_betweens(&self) -> bool {
+                match *self {
+                    $(
+                        BlockType::$name {
+                            $($fname,)?
+                        } => {
+                            $(return $betweens;)?
                             return false;
                         }
                     )+
@@ -1324,6 +1340,7 @@ define_blocks! {
         },
         model BlockModel::square_coloured_block(["block/oak_leaves", "block/oak_leaves", "block/oak_leaves", "block/oak_leaves", "block/oak_leaves", "block/oak_leaves"], [60, 180, 35, 255]),
         transparent true,
+        betweens true,
     }
     SpruceLeaves {
         i 54,
@@ -1343,6 +1360,7 @@ define_blocks! {
         },
         model BlockModel::square_block(["block/spruce_leaves", "block/spruce_leaves", "block/spruce_leaves", "block/spruce_leaves", "block/spruce_leaves", "block/spruce_leaves"]),
         transparent true,
+        betweens true,
     }
     BirchLeaves {
         i 55,
@@ -1362,6 +1380,7 @@ define_blocks! {
         },
         model BlockModel::square_coloured_block(["block/birch_leaves", "block/birch_leaves", "block/birch_leaves", "block/birch_leaves", "block/birch_leaves", "block/birch_leaves"], [130, 180, 95, 255]),
         transparent true,
+        betweens true,
     }
     JungleLeaves {
         i 56,
@@ -1381,6 +1400,7 @@ define_blocks! {
         },
         model BlockModel::square_block(["block/jungle_leaves", "block/jungle_leaves", "block/jungle_leaves", "block/jungle_leaves", "block/jungle_leaves", "block/jungle_leaves"]),
         transparent true,
+        betweens true,
     }
     AcaciaLeaves {
         i 57,
@@ -1400,6 +1420,7 @@ define_blocks! {
         },
         model BlockModel::square_block(["block/acacia_leaves", "block/acacia_leaves", "block/acacia_leaves", "block/acacia_leaves", "block/acacia_leaves", "block/acacia_leaves"]),
         transparent true,
+        betweens true,
     }
     DarkOakLeaves {
         i 58,
@@ -1419,6 +1440,7 @@ define_blocks! {
         },
         model BlockModel::square_coloured_block(["block/dark_oak_leaves"; 6], [60, 180, 35, 255]),
         transparent true,
+        betweens true,
     }
     Sponge {
         i 59,
