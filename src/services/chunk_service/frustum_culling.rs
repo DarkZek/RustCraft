@@ -1,4 +1,7 @@
 use crate::render::camera::Camera;
+use crate::render::chunks_render_bundle::ChunksRenderBundle;
+use crate::render::RenderState;
+use crate::services::asset_service::AssetService;
 use crate::services::chunk_service::chunk::{ChunkData, Chunks};
 use crate::services::chunk_service::ChunkService;
 use crate::services::settings_service::CHUNK_SIZE;
@@ -15,10 +18,25 @@ impl<'a> System<'a> for FrustumCullingSystem {
         Write<'a, ChunkService>,
         Read<'a, Camera>,
         ReadStorage<'a, ChunkData>,
+        Write<'a, ChunksRenderBundle>,
+        Read<'a, RenderState>,
+        Read<'a, AssetService>,
     );
 
-    fn run(&mut self, (mut chunk_service, camera, chunks): Self::SystemData) {
-        chunk_service.update_frustum_culling(&camera, &chunks);
+    fn run(
+        &mut self,
+        (mut chunk_service, camera, chunks, mut chunks_render_bundle, render_state, asset_service): Self::SystemData,
+    ) {
+        if chunk_service.update_frustum_culling(&camera, &chunks) {
+            // Redo the render bundle
+            println!("Re-doing bundle");
+            chunks_render_bundle.create_render_bundle(
+                &render_state,
+                &asset_service,
+                &chunk_service,
+                &chunks,
+            );
+        }
     }
 }
 

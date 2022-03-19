@@ -16,6 +16,10 @@ impl<'a> System<'a> for ChunkMeshUpdateSystem {
     );
 
     fn run(&mut self, (mut flags, mut chunks, mut chunk_service): Self::SystemData) {
+        if flags.is_empty() {
+            return;
+        }
+
         let mut chunks_loc = Chunks::new_mut((&mut chunks).join().collect::<Vec<&mut ChunkData>>());
 
         for flag in flags.drain().join() {

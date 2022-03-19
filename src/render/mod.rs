@@ -1,5 +1,6 @@
 use crate::render::background::Background;
 use crate::render::camera::Camera;
+use crate::render::chunks_render_bundle::ChunksRenderBundle;
 use crate::render::device::get_device;
 use crate::render::effects::buffer_pool::TextureBufferPool;
 use crate::render::effects::EffectPasses;
@@ -9,6 +10,7 @@ use crate::render::pass::uniforms::RenderViewProjectionUniforms;
 use crate::render::vertices::Vertex;
 use crate::services::asset_service::depth_map::{create_depth_texture, DEPTH_FORMAT};
 use crate::services::asset_service::AssetService;
+use crate::services::chunk_service::chunk::{ChunkData, Chunks};
 use crate::services::chunk_service::ChunkService;
 use crate::services::settings_service::SettingsService;
 use crate::services::{load_services, ServicesContext};
@@ -16,7 +18,7 @@ use crate::world::player_selected_block_update::PlayerSelectedBlockUpdateSystemD
 use image::ImageFormat;
 use nalgebra::Vector3;
 use rc_ui::vertex::UIVertex;
-use specs::{Builder, World, WorldExt};
+use specs::{Builder, Join, ReadStorage, World, WorldExt};
 use std::borrow::Borrow;
 use std::lazy::SyncOnceCell;
 use std::sync::{Arc, Mutex};
@@ -25,8 +27,9 @@ use std::time::{Duration, Instant, SystemTime};
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{
     AdapterInfo, BindGroupLayout, BlendComponent, BufferUsages, DepthBiasState, Extent3d, Face,
-    FrontFace, MultisampleState, PolygonMode, PrimitiveState, PrimitiveTopology, RenderPipeline,
-    Sampler, StencilState, Texture, TextureFormat, TextureView, VertexState,
+    FrontFace, IndexFormat, MultisampleState, PolygonMode, PrimitiveState, PrimitiveTopology,
+    RenderBundle, RenderBundleDepthStencil, RenderBundleDescriptor, RenderBundleEncoderDescriptor,
+    RenderPipeline, Sampler, StencilState, Texture, TextureFormat, TextureView, VertexState,
 };
 use winit::dpi::PhysicalSize;
 use winit::event_loop::EventLoop;
@@ -34,6 +37,7 @@ use winit::window::{Icon, Window, WindowBuilder};
 
 pub mod background;
 pub mod camera;
+pub mod chunks_render_bundle;
 pub mod device;
 pub mod effects;
 pub mod loading;
@@ -93,6 +97,8 @@ pub struct RenderState {
 
     last_frame_time: SystemTime,
     delta_time: Duration,
+
+    chunks_render_bundle: Option<[RenderBundle; 1]>,
 }
 
 impl RenderState {
@@ -138,7 +144,7 @@ impl RenderState {
             format: surface.get_preferred_format(&adapter).unwrap(),
             width: size.width,
             height: size.height,
-            present_mode: wgpu::PresentMode::Immediate,
+            present_mode: wgpu::PresentMode::Mailbox,
         };
 
         unsafe {
@@ -162,6 +168,7 @@ impl RenderState {
         loading.start_loop();
 
         universe.insert(Background::new());
+        universe.insert(ChunksRenderBundle::new());
 
         // Start the intensive job of loading services
         load_services(
@@ -259,6 +266,7 @@ impl RenderState {
             gpu_info,
             last_frame_time,
             delta_time,
+            chunks_render_bundle: None,
         }
     }
 
