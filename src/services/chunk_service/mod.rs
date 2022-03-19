@@ -132,9 +132,9 @@ impl ChunkService {
     }
 
     pub fn update_frustum_culling(&mut self, camera: &Camera, chunks: &ReadStorage<ChunkData>) {
-        // To 3 dp
-        if ((camera.yaw * 100.0).round() == self.previous_player_yaw
-            && (camera.pitch * 100.0).round() == self.previous_player_pitch)
+        // To 2 dp
+        if ((camera.yaw * 10.0).round() == self.previous_player_yaw
+            && (camera.pitch * 10.0).round() == self.previous_player_pitch)
             && !self.update_culling
             && self.previous_player_pos.metric_distance(&camera.eye.coords) < 1.0
         {
@@ -144,10 +144,10 @@ impl ChunkService {
         self.update_culling = false;
         self.previous_player_pos = Vector3::new(camera.eye.x, camera.eye.y, camera.eye.z);
 
-        self.previous_player_yaw = (camera.yaw * 100.0).round();
-        self.previous_player_pitch = (camera.pitch * 100.0).round();
+        self.previous_player_yaw = (camera.yaw * 10.0).round();
+        self.previous_player_pitch = (camera.pitch * 10.0).round();
 
-        self.visible_chunks = calculate_frustum_culling(camera, &self.viewable_chunks, &chunks);
+        self.visible_chunks = calculate_frustum_culling(camera, &chunks);
     }
 
     // TODO: Run this every time the player moves between chunks

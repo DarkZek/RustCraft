@@ -14,6 +14,7 @@ use rc_ui::component::UIComponent;
 use rc_ui::{UIController, UIRenderer};
 
 use crate::services::asset_service::AssetService;
+use crate::services::settings_service::SettingsService;
 use crate::services::ui_service::components::crosshair::CrosshairComponent;
 use crate::services::ui_service::components::debug_screen::DebugScreenComponent;
 use crate::services::ui_service::components::inventory_bar::InventoryBarComponent;
@@ -51,6 +52,7 @@ impl UIService {
     pub fn new(
         context: &mut ServicesContext,
         assets: &AssetService,
+        settings: &SettingsService,
         universe: &mut World,
     ) -> UIService {
         // TODO: Bind resize events
@@ -75,7 +77,7 @@ impl UIService {
             &projection_bind_group_layout,
         ]);
 
-        let components = UIComponents::new(&assets);
+        let components = UIComponents::new(&assets, &settings);
 
         let renderer = RCRenderer::new(&components);
 

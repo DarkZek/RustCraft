@@ -1,6 +1,10 @@
+use crate::render::effects::bloom::BloomPostProcessingEffect;
+use crate::render::effects::ssao::SSAOEffect;
+use crate::render::effects::EffectPasses;
 use crate::render::RenderState;
 use crate::services::input_service::actions::ActionSheet;
 use crate::services::input_service::input::InputState;
+use crate::services::settings_service::SettingsService;
 use crate::services::ui_service::components::UIComponents;
 use crate::services::ui_service::UIService;
 use nalgebra::Vector2;
@@ -21,11 +25,13 @@ pub struct OptionsScreenComponent {
     layout: Layout,
     pub visible: bool,
     fullscreen: bool,
+    ssao: bool,
+    bloom: bool,
     edited: bool,
 }
 
 impl OptionsScreenComponent {
-    pub fn new() -> OptionsScreenComponent {
+    pub fn new(settings: &SettingsService) -> OptionsScreenComponent {
         OptionsScreenComponent {
             layout: Layout::new(
                 Vector2::new(600.0, 600.0),
@@ -34,7 +40,9 @@ impl OptionsScreenComponent {
                 0.0,
             ),
             visible: false,
-            fullscreen: false,
+            fullscreen: settings.config.fullscreen,
+            ssao: settings.config.ssao,
+            bloom: settings.config.bloom,
             edited: false,
         }
     }
@@ -52,8 +60,30 @@ impl UIComponent for OptionsScreenComponent {
                     scheme: LayoutScheme::TopLeft,
                     padding: 0.0,
                 },
-                String::from("SSAO: Enabled"),
-                |universe| {},
+                if self.ssao {
+                    String::from("SSAO: Enabled")
+                } else {
+                    String::from("SSAO: Disabled")
+                },
+                |universe| {
+                    let mut ui_component = universe.read_resource::<UIComponents>();
+                    let mut options_screen_component =
+                        ui_component.options_screen_component.lock().unwrap();
+
+                    options_screen_component.ssao = !options_screen_component.ssao;
+                    options_screen_component.edited = true;
+
+                    universe.write_resource::<SettingsService>().config.ssao =
+                        options_screen_component.ssao;
+
+                    if options_screen_component.ssao {
+                        universe.write_resource::<EffectPasses>().ssao = Some(SSAOEffect::new(
+                            &mut universe.write_resource::<RenderState>().queue,
+                        ));
+                    } else {
+                        universe.write_resource::<EffectPasses>().ssao = None;
+                    }
+                },
             ),
             UIButton::new(
                 Layout {
@@ -62,8 +92,29 @@ impl UIComponent for OptionsScreenComponent {
                     scheme: LayoutScheme::TopLeft,
                     padding: 0.0,
                 },
-                String::from("Bloom: Enabled"),
-                |universe| {},
+                if self.bloom {
+                    String::from("Bloom: Enabled")
+                } else {
+                    String::from("Bloom: Disabled")
+                },
+                |universe| {
+                    let mut ui_component = universe.read_resource::<UIComponents>();
+                    let mut options_screen_component =
+                        ui_component.options_screen_component.lock().unwrap();
+
+                    options_screen_component.bloom = !options_screen_component.bloom;
+                    options_screen_component.edited = true;
+
+                    universe.write_resource::<SettingsService>().config.bloom =
+                        options_screen_component.bloom;
+
+                    if options_screen_component.bloom {
+                        universe.write_resource::<EffectPasses>().bloom =
+                            Some(BloomPostProcessingEffect::new());
+                    } else {
+                        universe.write_resource::<EffectPasses>().bloom = None;
+                    }
+                },
             ),
             UIButton::new(
                 Layout {
@@ -78,26 +129,20 @@ impl UIComponent for OptionsScreenComponent {
                     String::from("Windowed")
                 },
                 |universe| {
-                    let fullscreen = universe
-                        .read_resource::<UIComponents>()
-                        .options_screen_component
-                        .lock()
-                        .unwrap()
-                        .fullscreen;
-                    universe
-                        .read_resource::<UIComponents>()
-                        .options_screen_component
-                        .lock()
-                        .unwrap()
-                        .edited = true;
-                    universe
-                        .read_resource::<UIComponents>()
-                        .options_screen_component
-                        .lock()
-                        .unwrap()
-                        .fullscreen = !fullscreen;
+                    let mut ui_component = universe.read_resource::<UIComponents>();
+                    let mut options_screen_component =
+                        ui_component.options_screen_component.lock().unwrap();
 
-                    if !fullscreen {
+                    options_screen_component.edited = true;
+                    options_screen_component.fullscreen = !options_screen_component.fullscreen;
+
+                    // Update settings
+                    universe
+                        .write_resource::<SettingsService>()
+                        .config
+                        .fullscreen = options_screen_component.fullscreen;
+
+                    if options_screen_component.fullscreen {
                         let mut mode = None;
 
                         //TODO: Pick better resolution

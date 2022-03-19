@@ -12,7 +12,7 @@ impl InputService {
         let mut changes = InputState::new(context.window.clone());
         let actionsheet = ActionSheet::new();
 
-        changes.set_capture_mouse();
+        //changes.set_capture_mouse();
 
         universe.insert(changes);
         universe.insert(actionsheet);

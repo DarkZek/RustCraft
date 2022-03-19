@@ -81,6 +81,11 @@ impl<'a> System<'a> for ChunkRerenderSystem {
             camera,
         ): Self::SystemData,
     ) {
+        // If there's no chunks to re-render, return
+        if flags.is_empty() {
+            return;
+        }
+
         // Create indexed by location chunks array
         let chunks_loc = Chunks::new(chunks.join().collect::<Vec<&ChunkData>>());
 

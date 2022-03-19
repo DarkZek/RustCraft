@@ -10,9 +10,14 @@ use crate::services::asset_service::AssetService;
 use crate::services::chunk_service::chunk::{ChunkData, Chunks};
 use crate::services::chunk_service::ChunkService;
 use crate::services::ui_service::UIService;
+use nalgebra::Vector3;
 use specs::{Read, ReadStorage, System, Write};
+use std::hash::Hash;
 use std::mem;
-use wgpu::{Color, IndexFormat, LoadOp, Operations, TextureViewDescriptor};
+use std::time::{Duration, Instant};
+use wgpu::{
+    Color, IndexFormat, LoadOp, Operations, RenderBundleEncoderDescriptor, TextureViewDescriptor,
+};
 
 pub mod buffer;
 pub mod outline;
@@ -56,7 +61,25 @@ impl<'a> System<'a> for RenderSystem {
         use specs::Join;
         let chunks = Chunks::new(chunks.join().collect::<Vec<&ChunkData>>());
 
-        let texture = render_state.surface.get_current_texture().unwrap();
+        let mut texture = None;
+
+        for _ in 0..20 {
+            if let Ok(val) = render_state.surface.get_current_texture() {
+                texture = Some(val);
+                break;
+            }
+
+            // Retry in 500ms
+            std::thread::sleep(Duration::from_millis(500));
+        }
+
+        if texture.is_none() {
+            log_error!("Failed to fetch swapchain texture.");
+            std::process::exit(0);
+        }
+
+        let texture = texture.unwrap();
+
         let frame = texture
             .texture
             .create_view(&wgpu::TextureViewDescriptor::default());
@@ -91,6 +114,8 @@ impl<'a> System<'a> for RenderSystem {
                     &mut encoder,
                     &[camera.yaw / (std::f32::consts::PI * 2.0), -camera.pitch],
                 );
+
+                let mut time = Instant::now();
 
                 let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
                     label: Some("Main Render Loop Render Pass"),
@@ -183,7 +208,13 @@ impl<'a> System<'a> for RenderSystem {
                     );
                 }
 
+                println!("Took {:?} to add all chunks to render pass", time.elapsed());
+                time = Instant::now();
+
                 mem::drop(render_pass);
+
+                println!("Took {:?} to drop render pass", time.elapsed());
+                time = Instant::now();
 
                 effect_passes.apply_bloom(
                     &mut encoder,
@@ -192,12 +223,18 @@ impl<'a> System<'a> for RenderSystem {
                     &frame_image_buffer,
                 );
 
+                println!("Took {:?} to add Bloom", time.elapsed());
+                time = Instant::now();
+
                 effect_passes.apply_ssao(
                     &mut encoder,
                     &mut buffer_pool,
                     &view_projection_fragment_bind_group,
                     &*frame_image_buffer,
                 );
+
+                println!("Took {:?} to add SSAO", time.elapsed());
+                time = Instant::now();
 
                 // Merge vfx buffer into main swapchain
                 encoder.copy_texture_to_texture(
@@ -213,6 +250,9 @@ impl<'a> System<'a> for RenderSystem {
                     &box_outlines,
                     &render_state.depth_texture.1,
                 );
+
+                println!("Took {:?} to combine to swapchain", time.elapsed());
+                time = Instant::now();
             }
 
             ui_service.render(

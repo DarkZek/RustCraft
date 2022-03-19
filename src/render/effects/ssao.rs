@@ -28,12 +28,6 @@ pub struct SSAOEffect {
 
 impl SSAOEffect {
     pub fn new(queue: &mut Queue) -> SSAOEffect {
-        let encoder = get_device().create_command_encoder(&wgpu::CommandEncoderDescriptor {
-            label: Some("SSAO Setup Command Encoder"),
-        });
-
-        queue.submit([encoder.finish()]);
-
         let ssao_vert_shader = get_device()
             .create_shader_module(&wgpu::include_spirv!("../../../shaders/ssao_vert.spv"));
 

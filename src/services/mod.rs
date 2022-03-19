@@ -11,7 +11,7 @@ use specs::World;
 use std::sync::{Arc, Mutex};
 use wgpu::Queue;
 use winit::dpi::PhysicalSize;
-use winit::window::Window;
+use winit::window::{Fullscreen, Window};
 
 #[macro_use]
 pub mod logging_service;
@@ -49,6 +49,22 @@ impl<'a> ServicesContext<'_> {
 pub fn load_services(mut context: ServicesContext, universe: &mut World) {
     let settings = SettingsService::new();
 
+    if settings.config.fullscreen {
+        let mut mode = None;
+
+        //TODO: Pick better resolution
+        for video_mode in context.window.current_monitor().unwrap().video_modes() {
+            mode = Some(video_mode);
+            break;
+        }
+
+        if let Some(mode) = mode {
+            context
+                .window
+                .set_fullscreen(Some(Fullscreen::Exclusive(mode)));
+        }
+    }
+
     // Set the logger
     LoggingService::new(&settings.path);
 
@@ -61,7 +77,7 @@ pub fn load_services(mut context: ServicesContext, universe: &mut World) {
     LoadingScreen::update_state(80.0);
 
     let audio = AudioService::new();
-    let ui = UIService::new(&mut context, &asset, universe);
+    let ui = UIService::new(&mut context, &asset, &settings, universe);
     let input = InputService::new(&mut context, universe);
     let networking_service = NetworkingService::new(universe);
     let entity_service = EntityService::new();

@@ -5,13 +5,11 @@ use crate::render::effects::gaussian::GaussianBlurPostProcessingEffect;
 use crate::render::effects::merge::MergePostProcessingEffect;
 use crate::render::effects::multiply::MultiplyPostProcessingEffect;
 use crate::render::effects::ssao::SSAOEffect;
-use crate::render::{get_swapchain_size};
+use crate::render::get_swapchain_size;
 use crate::services::settings_service::SettingsService;
 
-
 use wgpu::{
-    BindGroup, CommandEncoder, Queue, Texture,
-    TextureDimension, TextureFormat, TextureUsages,
+    BindGroup, CommandEncoder, Queue, Texture, TextureDimension, TextureFormat, TextureUsages,
 };
 
 pub mod bloom;
@@ -40,9 +38,17 @@ impl Default for EffectPasses {
 }
 
 impl EffectPasses {
-    pub fn new(queue: &mut Queue, _settings: &SettingsService) -> EffectPasses {
-        let bloom = Some(BloomPostProcessingEffect::new());
-        let ssao = Some(SSAOEffect::new(queue));
+    pub fn new(queue: &mut Queue, settings: &SettingsService) -> EffectPasses {
+        let bloom = if settings.config.bloom {
+            Some(BloomPostProcessingEffect::new())
+        } else {
+            None
+        };
+        let ssao = if settings.config.ssao {
+            Some(SSAOEffect::new(queue))
+        } else {
+            None
+        };
 
         let effect_gaussian = GaussianBlurPostProcessingEffect::new();
         let effect_merge = MergePostProcessingEffect::new();

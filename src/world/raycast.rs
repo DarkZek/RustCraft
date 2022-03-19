@@ -3,7 +3,7 @@ use crate::game::physics::collider::BoxCollider;
 use crate::world::WorldChunks;
 use nalgebra::Vector3;
 
-impl WorldChunks<'a> {
+impl<'a> WorldChunks<'a> {
     pub fn do_raycast(&mut self, cast: Raycast) -> Option<Vector3<i64>> {
         let query_blocks = self.get_raycast_candidates(&cast);
 

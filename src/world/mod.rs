@@ -15,7 +15,7 @@ pub struct WorldChunks<'a> {
     last_chunk: Option<&'a ChunkData>,
 }
 
-impl WorldChunks<'a> {
+impl<'a> WorldChunks<'a> {
     pub fn new(
         chunks: &'a ReadStorage<ChunkData>,
         lookup: &'a Read<ChunkEntityLookup>,

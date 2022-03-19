@@ -9,6 +9,18 @@ use nalgebra::Vector3;
 use specs::{Join, Read, ReadStorage, System, Write, WriteStorage};
 use std::ops::Mul;
 
+/// The base speed of the player
+const BASE_MOVEMENT_SPEED: f32 = 0.2;
+
+/// Multiplied by the movement speed when in the air
+const AIR_MOVEMENT_RETENTION: f32 = 0.6;
+
+/// Multiplied by the movement speed when sprinting
+const SPRINT_MOVEMENT_MULTIPLIER: f32 = 2.1;
+
+/// Amount of movement to apply as velocity
+const MOVEMENT_VELOCITY_RATIO: f32 = 0.1;
+
 pub struct PlayerMovementSystem;
 
 impl<'a> System<'a> for PlayerMovementSystem {
@@ -36,25 +48,25 @@ impl<'a> System<'a> for PlayerMovementSystem {
     ) {
         let (_, entity) = (&player_entity, &mut player_physics).join().last().unwrap();
 
-        let mut movement_modifier = 0.12;
+        let mut movement_modifier = BASE_MOVEMENT_SPEED;
 
         if entity.touching_ground {
             if actionsheet.get_sprinting() {
-                movement_modifier *= 2.1;
+                movement_modifier *= SPRINT_MOVEMENT_MULTIPLIER;
             }
         } else {
             // Slow movement when in air
-            movement_modifier *= 0.6;
+            movement_modifier *= AIR_MOVEMENT_RETENTION;
         }
 
         if events.movement != [0, 0] {
-            //TODO: Try make a macro out of this, I tried once but it kept saying it could find the macro :(
-
             // Update camera with change (assumes first person for now)
             let mut movement: Vector3<f32> =
                 move_forwards(&events.movement, game_state.player.rot[0]).into();
 
             movement = movement.mul(movement_modifier);
+
+            // Check collisions on three axis separately to allow for wall sliding
 
             // Check collisions
             let (final_movement, _collision) = move_entity_dir(
@@ -89,7 +101,7 @@ impl<'a> System<'a> for PlayerMovementSystem {
 
             entity.new_position += final_movement;
             // Add only a 1/10 of the force to the velocity so it still feels like we have force, but without the effects of stacking velocity
-            entity.velocity += movement.mul(movement_modifier / 10.0);
+            entity.velocity += movement.mul(movement_modifier * MOVEMENT_VELOCITY_RATIO);
         }
     }
 }

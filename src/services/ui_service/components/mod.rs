@@ -1,4 +1,5 @@
 use crate::services::asset_service::AssetService;
+use crate::services::settings_service::SettingsService;
 use crate::services::ui_service::components::crosshair::CrosshairComponent;
 use crate::services::ui_service::components::debug_screen::DebugScreenComponent;
 use crate::services::ui_service::components::inventory_bar::InventoryBarComponent;
@@ -21,7 +22,7 @@ pub struct UIComponents {
 }
 
 impl UIComponents {
-    pub fn new(assets: &AssetService) -> UIComponents {
+    pub fn new(assets: &AssetService, settings: &SettingsService) -> UIComponents {
         let crosshair_component = Arc::new(Mutex::new(CrosshairComponent::new()));
         let inventory_bar_component = Arc::new(Mutex::new(InventoryBarComponent::new(
             *assets
@@ -35,7 +36,7 @@ impl UIComponents {
         )));
         let pause_menu_component = Arc::new(Mutex::new(PauseMenuComponent::new()));
         let debug_screen_component = Arc::new(Mutex::new(DebugScreenComponent::new()));
-        let options_screen_component = Arc::new(Mutex::new(OptionsScreenComponent::new()));
+        let options_screen_component = Arc::new(Mutex::new(OptionsScreenComponent::new(settings)));
 
         UIComponents {
             crosshair_component,

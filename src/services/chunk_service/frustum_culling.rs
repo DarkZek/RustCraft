@@ -2,9 +2,10 @@ use crate::render::camera::Camera;
 use crate::services::chunk_service::chunk::{ChunkData, Chunks};
 use crate::services::chunk_service::ChunkService;
 use crate::services::settings_service::CHUNK_SIZE;
+use futures::StreamExt;
 use nalgebra::{ArrayStorage, Matrix, Matrix4, Vector3, U1, U4};
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
-use specs::Join;
+use specs::{Join, ParJoin};
 use specs::{Read, ReadStorage, System, Write};
 
 pub struct FrustumCullingSystem;
@@ -23,13 +24,12 @@ impl<'a> System<'a> for FrustumCullingSystem {
 
 pub fn calculate_frustum_culling(
     cam: &Camera,
-    viewable_chunks: &Vec<Vector3<i32>>,
     chunks: &ReadStorage<ChunkData>,
 ) -> Vec<Vector3<i32>> {
     let opengl_to_wgpu_matrix: Matrix4<f32> = Matrix4::new(
         1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5, 1.0,
     );
-    let chunks = Chunks::new(chunks.join().collect::<Vec<&ChunkData>>());
+    //let chunks = Chunks::new(chunks.join().collect::<Vec<&ChunkData>>());
     let frustum = Frustum::from_matrix(opengl_to_wgpu_matrix * cam.proj * cam.view);
 
     if let None = frustum {
@@ -38,13 +38,9 @@ pub fn calculate_frustum_culling(
 
     let frustum = frustum.unwrap();
 
-    let mut visible_chunks = Vec::new();
-
-    let chunks = viewable_chunks
-        .par_iter()
-        .map(|pos| {
-            let chunk = chunks.get_loc(*pos).unwrap();
-
+    let chunks = chunks
+        .par_join()
+        .map(|chunk| {
             let relative_pos = chunk.position * CHUNK_SIZE as i32;
             let relative_pos = Vector3::new(
                 relative_pos.x as f32 - cam.eye.x,
@@ -56,12 +52,14 @@ pub fn calculate_frustum_culling(
                 if chunk.opaque_model.vertices_buffer.is_some()
                     || chunk.translucent_model.vertices_buffer.is_some()
                 {
-                    return Some(pos.clone());
+                    return Some(chunk.position.clone());
                 }
             }
             None
         })
         .collect::<Vec<Option<Vector3<i32>>>>();
+
+    let mut visible_chunks = Vec::new();
 
     for chunk in chunks {
         if let Some(val) = chunk {

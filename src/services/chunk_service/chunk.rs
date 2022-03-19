@@ -14,7 +14,8 @@ pub struct ChunkEntityLookup {
 impl Default for ChunkEntityLookup {
     fn default() -> Self {
         ChunkEntityLookup {
-            map: FnvHashMap::default(),
+            // Start with 1000 capacity since thats a very low amount and should speed up loading times
+            map: FnvHashMap::with_capacity_and_hasher(1000, FnvBuildHasher::default()),
         }
     }
 }
@@ -91,7 +92,8 @@ impl Chunks<'_> {
     }
 
     pub fn new_mut(data_mut: Vec<&mut ChunkData>) -> Chunks {
-        let mut map = FnvHashMap::default();
+        let mut map =
+            FnvHashMap::with_capacity_and_hasher(data_mut.len(), FnvBuildHasher::default());
         for (i, chunk) in data_mut.iter().enumerate() {
             map.insert(chunk.position, i);
         }

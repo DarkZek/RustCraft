@@ -3,7 +3,12 @@ use crate::UIController;
 use nalgebra::Vector2;
 
 impl UIController {
-    pub fn cursor_moved(&mut self, position: Vector2<f32>) {
+    pub fn cursor_moved(&mut self, mut position: Vector2<f32>) {
+        // Normalize the cursor position to the size of the ui
+        let current_size = self.pipeline.layout.size;
+        position.x *= (current_size.x / self.screen_size[0] as f32);
+        position.y *= (current_size.y / self.screen_size[1] as f32);
+
         for component in &mut self.components {
             // No click event for invisible components
             if !component.data.lock().unwrap().visible() {

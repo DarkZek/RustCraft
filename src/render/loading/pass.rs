@@ -4,8 +4,9 @@ use crate::render::loading::{LoadingScreen, STANDARD_VERTICES};
 use instant::Instant;
 use rc_ui::vertex::UIVertex;
 use std::thread;
+use std::time::Duration;
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
-use wgpu::{BufferUsages, Color, LoadOp, Operations};
+use wgpu::{BufferUsages, Color, LoadOp, Operations, SurfaceError, SurfaceTexture};
 
 impl LoadingScreen {
     pub fn start_loop(mut self) {
@@ -91,7 +92,25 @@ impl LoadingScreen {
             usage: BufferUsages::VERTEX,
         });
 
-        let texture = self.surface.get_current_texture().unwrap();
+        let mut texture = None;
+
+        for _ in 0..20 {
+            if let Ok(val) = self.surface.get_current_texture() {
+                texture = Some(val);
+                break;
+            }
+
+            // Retry in 500ms
+            std::thread::sleep(Duration::from_millis(500));
+        }
+
+        if texture.is_none() {
+            log_error!("Failed to fetch swapchain texture.");
+            std::process::exit(0);
+        }
+
+        let texture = texture.unwrap();
+
         let frame = texture
             .texture
             .create_view(&wgpu::TextureViewDescriptor::default());

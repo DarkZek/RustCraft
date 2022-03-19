@@ -191,6 +191,7 @@ impl Game {
                         self.universe
                             .write_resource::<NetworkingService>()
                             .shutdown();
+                        self.universe.write_resource::<SettingsService>().save();
                         return;
                     }
                     WindowEvent::Resized(physical_size) => {
