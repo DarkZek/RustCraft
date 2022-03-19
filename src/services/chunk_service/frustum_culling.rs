@@ -29,7 +29,6 @@ impl<'a> System<'a> for FrustumCullingSystem {
     ) {
         if chunk_service.update_frustum_culling(&camera, &chunks) {
             // Redo the render bundle
-            println!("Re-doing bundle");
             chunks_render_bundle.create_render_bundle(
                 &render_state,
                 &asset_service,

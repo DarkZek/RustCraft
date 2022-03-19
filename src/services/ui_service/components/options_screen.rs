@@ -5,6 +5,7 @@ use crate::render::RenderState;
 use crate::services::input_service::actions::ActionSheet;
 use crate::services::input_service::input::InputState;
 use crate::services::settings_service::SettingsService;
+use crate::services::ui_service::components::pause::PauseMenuComponent;
 use crate::services::ui_service::components::UIComponents;
 use crate::services::ui_service::UIService;
 use nalgebra::Vector2;
@@ -18,6 +19,7 @@ use rc_ui::elements::UIElement;
 use rc_ui::fonts::TextAlignment;
 use rc_ui::positioning::{Layout, LayoutScheme};
 use specs::{Read, System, WorldExt};
+use std::sync::{Arc, Mutex};
 use winit::monitor::VideoMode;
 use winit::window::Fullscreen;
 
@@ -28,10 +30,14 @@ pub struct OptionsScreenComponent {
     ssao: bool,
     bloom: bool,
     edited: bool,
+    pause_menu: Arc<Mutex<PauseMenuComponent>>,
 }
 
 impl OptionsScreenComponent {
-    pub fn new(settings: &SettingsService) -> OptionsScreenComponent {
+    pub fn new(
+        settings: &SettingsService,
+        pause_menu: Arc<Mutex<PauseMenuComponent>>,
+    ) -> OptionsScreenComponent {
         OptionsScreenComponent {
             layout: Layout::new(
                 Vector2::new(600.0, 600.0),
@@ -44,6 +50,7 @@ impl OptionsScreenComponent {
             ssao: settings.config.ssao,
             bloom: settings.config.bloom,
             edited: false,
+            pause_menu,
         }
     }
 }
@@ -183,6 +190,17 @@ impl UIComponent for OptionsScreenComponent {
     }
 
     fn resized(&mut self) {}
+
+    fn back(&mut self) -> bool {
+        if self.visible {
+            // Toggle
+            self.pause_menu.lock().unwrap().visible = true;
+            self.visible = false;
+            true
+        } else {
+            false
+        }
+    }
 
     fn visible(&self) -> bool {
         self.visible

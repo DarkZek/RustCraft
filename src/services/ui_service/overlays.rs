@@ -14,7 +14,7 @@ impl<'a> System<'a> for MenuOverlaySystem {
     );
 
     fn run(&mut self, (sheet, ui_service, mut input_state): Self::SystemData) {
-        if sheet.get_pause() {
+        if sheet.get_back() {
             let mut pause_screen = ui_service.pause_menu_component.lock().unwrap();
             pause_screen.visible = !pause_screen.visible;
             if pause_screen.visible {

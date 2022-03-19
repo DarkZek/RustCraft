@@ -89,7 +89,7 @@ impl ChunkData {
                         };
 
                         //TODO: Re-enable lighting
-                        let _out_color = [
+                        let lighting_color = [
                             light_color[0].lerp(extra_light_color[0], lightness_ratio),
                             light_color[1].lerp(extra_light_color[1], lightness_ratio),
                             light_color[2].lerp(extra_light_color[2], lightness_ratio),
@@ -122,6 +122,7 @@ impl ChunkData {
                             vertices,
                             indices,
                             ViewableDirection(viewable),
+                            lighting_color,
                         );
                     }
                 }

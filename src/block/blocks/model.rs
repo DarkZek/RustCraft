@@ -237,6 +237,7 @@ impl BlockModel {
         vertices: &mut Vec<Vertex>,
         indices: &mut Vec<u16>,
         viewable_map: ViewableDirection,
+        lighting_color: [u8; 4],
     ) {
         for face in &self.faces {
             // Test if we should cull this face
@@ -258,6 +259,7 @@ impl BlockModel {
             let mut p3 = [face.texture.u_min, face.texture.v_max];
             let mut p4 = [face.texture.u_min, face.texture.v_min];
 
+            /// Rotate points
             match face.texture_rotation {
                 Rotate::Deg90 => {
                     let i = p1;
@@ -281,7 +283,7 @@ impl BlockModel {
                     p3 = i;
                     p4 = ii;
                 }
-                _ => {}
+                Rotate::Deg0 => {}
             }
 
             let starting_vertices = vertices.len() as u16;
@@ -297,6 +299,7 @@ impl BlockModel {
                         tex_coords: p1,
                         normals,
                         applied_color: face.color,
+                        lighting_color,
                     });
                     vertices.push(Vertex {
                         position: [
@@ -307,6 +310,7 @@ impl BlockModel {
                         tex_coords: p2,
                         normals,
                         applied_color: face.color,
+                        lighting_color,
                     });
                     vertices.push(Vertex {
                         position: [
@@ -317,6 +321,7 @@ impl BlockModel {
                         tex_coords: p4,
                         normals,
                         applied_color: face.color,
+                        lighting_color,
                     });
                     vertices.push(Vertex {
                         position: [
@@ -327,6 +332,7 @@ impl BlockModel {
                         tex_coords: p3,
                         normals,
                         applied_color: face.color,
+                        lighting_color,
                     });
                 }
                 ViewableDirectionBitMap::Front
@@ -342,6 +348,7 @@ impl BlockModel {
                         tex_coords: p3,
                         normals,
                         applied_color: face.color,
+                        lighting_color,
                     });
                     vertices.push(Vertex {
                         position: [
@@ -352,6 +359,7 @@ impl BlockModel {
                         tex_coords: p4,
                         normals,
                         applied_color: face.color,
+                        lighting_color,
                     });
                     vertices.push(Vertex {
                         position: [
@@ -362,6 +370,7 @@ impl BlockModel {
                         tex_coords: p2,
                         normals,
                         applied_color: face.color,
+                        lighting_color,
                     });
                     vertices.push(Vertex {
                         position: [
@@ -372,6 +381,7 @@ impl BlockModel {
                         tex_coords: p1,
                         normals,
                         applied_color: face.color,
+                        lighting_color,
                     });
                 }
             }

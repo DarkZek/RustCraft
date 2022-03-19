@@ -146,14 +146,6 @@ impl ChunkService {
             return false;
         }
 
-        println!(
-            "{} {} {}",
-            ((camera.yaw * 10.0).round() == self.previous_player_yaw
-                && (camera.pitch * 10.0).round() == self.previous_player_pitch),
-            !self.update_culling,
-            self.previous_player_pos.metric_distance(&camera.eye.coords) < 1.0
-        );
-
         self.update_culling = false;
         self.previous_player_pos = Vector3::new(camera.eye.x, camera.eye.y, camera.eye.z);
 

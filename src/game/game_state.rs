@@ -8,6 +8,7 @@ use crate::render::RenderState;
 use crate::services::input_service::actions::ActionSheet;
 use crate::services::input_service::input::{InputChange, InputState};
 
+use crate::services::ui_service::components::UIComponents;
 use crate::services::ui_service::UIService;
 use specs::{Builder, Join, Read, ReadStorage, System, World, WorldExt, Write, WriteStorage};
 use std::f32::consts::PI;
@@ -59,6 +60,7 @@ impl<'a> System<'a> for PlayerActionsSystem {
         WriteStorage<'a, PhysicsObject>,
         Write<'a, ActionSheet>,
         Write<'a, UIService>,
+        Read<'a, UIComponents>,
     );
 
     fn run(
@@ -72,6 +74,7 @@ impl<'a> System<'a> for PlayerActionsSystem {
             mut player_physics,
             mut actionsheet,
             mut ui_service,
+            ui_components,
         ): Self::SystemData,
     ) {
         let mut encoder = get_device().create_command_encoder(&wgpu::CommandEncoderDescriptor {
@@ -106,7 +109,10 @@ impl<'a> System<'a> for PlayerActionsSystem {
         }
 
         if events.pause {
-            actionsheet.set_pause();
+            if !ui_service.controller.back() {
+                // Not handled by components
+                actionsheet.set_back();
+            }
         }
 
         if events.debugging {

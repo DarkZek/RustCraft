@@ -36,7 +36,10 @@ impl UIComponents {
         )));
         let pause_menu_component = Arc::new(Mutex::new(PauseMenuComponent::new()));
         let debug_screen_component = Arc::new(Mutex::new(DebugScreenComponent::new()));
-        let options_screen_component = Arc::new(Mutex::new(OptionsScreenComponent::new(settings)));
+        let options_screen_component = Arc::new(Mutex::new(OptionsScreenComponent::new(
+            settings,
+            pause_menu_component.clone(),
+        )));
 
         UIComponents {
             crosshair_component,

@@ -140,6 +140,11 @@ pub trait UIComponent {
     /// Called to get the current position and size, respectively
     fn resized(&mut self);
 
+    /// Called when a back navigation event is received, returns if object has handled event
+    fn back(&mut self) -> bool {
+        false
+    }
+
     /// Called to get the current position and size, respectively
     fn visible(&self) -> bool;
 }

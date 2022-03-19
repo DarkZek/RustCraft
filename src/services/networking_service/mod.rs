@@ -28,7 +28,7 @@ impl NetworkingService {
             .send_message(NetworkingMessage::Connect(ip, port));
     }
 
-    pub fn shutdown(&mut self) {
+    pub fn shutdown(&self) {
         self.networking.send_message(NetworkingMessage::Shutdown);
     }
 

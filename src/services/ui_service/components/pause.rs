@@ -7,6 +7,8 @@ use rc_ui::elements::button::UIButton;
 use rc_ui::elements::UIElement;
 
 use crate::services::input_service::input::InputState;
+use crate::services::networking_service::NetworkingService;
+use crate::services::settings_service::SettingsService;
 use crate::services::ui_service::components::UIComponents;
 use rc_ui::positioning::{Layout, LayoutScheme};
 
@@ -73,6 +75,20 @@ impl UIComponent for PauseMenuComponent {
                         .visible = true;
                 },
             ),
+            UIButton::new(
+                Layout {
+                    size: Vector2::new(600.0, 60.0),
+                    offset: Vector2::new(0.0, 160.0),
+                    scheme: LayoutScheme::Top,
+                    padding: 0.0,
+                },
+                String::from("Exit Game"),
+                |universe| {
+                    universe.read_resource::<NetworkingService>().shutdown();
+                    universe.read_resource::<SettingsService>().save();
+                    std::process::exit(0);
+                },
+            ),
         ]
     }
 
@@ -85,6 +101,10 @@ impl UIComponent for PauseMenuComponent {
     }
 
     fn resized(&mut self) {}
+
+    fn back(&mut self) -> bool {
+        false
+    }
 
     fn visible(&self) -> bool {
         self.visible

@@ -11,7 +11,7 @@ use fnv::FnvBuildHasher;
 use fnv::FnvHashMap;
 use image::DynamicImage;
 use lazy_static::lazy_static;
-use specs::World;
+use specs::{Read, World};
 use std::collections::HashMap;
 use std::lazy::SyncOnceCell;
 use std::sync::{Arc, Mutex, RwLock};
@@ -111,6 +111,19 @@ impl UIController {
                 }
             }
         }
+    }
+
+    /// When back button pressed
+    /// returns true if the event was handled by a component
+    pub fn back(&mut self) -> bool {
+        for component in &mut self.components {
+            if component.data.lock().unwrap().back() {
+                // Handled!
+                return true;
+            }
+        }
+
+        false
     }
 
     pub fn resize(&mut self, size: [u32; 2]) {

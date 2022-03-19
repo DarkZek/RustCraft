@@ -10,7 +10,7 @@ pub struct ActionSheet {
     screenshot: (Instant, bool),
     sprinting: bool,
     /// Whether we should toggle the pause menu
-    pause: bool,
+    back: bool,
     /// Whether we should toggle the debugging screen
     debugging: bool,
 }
@@ -24,7 +24,7 @@ impl ActionSheet {
             toggle_fullscreen: (Instant::now(), false),
             screenshot: (Instant::now(), false),
             sprinting: false,
-            pause: false,
+            back: false,
             debugging: false,
         }
     }
@@ -36,7 +36,7 @@ impl ActionSheet {
         self.toggle_fullscreen.1 = false;
         self.screenshot.1 = false;
         self.sprinting = false;
-        self.pause = false;
+        self.back = false;
         self.debugging = false;
     }
 
@@ -65,12 +65,12 @@ impl ActionSheet {
         self.jump.1 = true;
     }
 
-    pub fn get_pause(&self) -> bool {
-        self.pause
+    pub fn get_back(&self) -> bool {
+        self.back
     }
 
-    pub fn set_pause(&mut self) {
-        self.pause = true;
+    pub fn set_back(&mut self) {
+        self.back = true;
     }
 
     pub fn get_debugging(&self) -> bool {
