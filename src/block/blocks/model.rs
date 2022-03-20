@@ -1,8 +1,10 @@
 use crate::helpers::AtlasIndex;
 use crate::render::vertices::Vertex;
 use crate::services::asset_service::atlas::ATLAS_LOOKUPS;
+use crate::services::chunk_service::chunk::RawLightingData;
 use crate::services::chunk_service::mesh::culling::ViewableDirection;
 use crate::services::chunk_service::mesh::ViewableDirectionBitMap;
+use crate::services::settings_service::CHUNK_SIZE;
 use nalgebra::Vector3;
 use rc_ui::atlas::{Rotate, TextureAtlasIndex};
 use std::f32::consts::PI;
@@ -237,7 +239,7 @@ impl BlockModel {
         vertices: &mut Vec<Vertex>,
         indices: &mut Vec<u16>,
         viewable_map: ViewableDirection,
-        lighting_color: [u8; 4],
+        lighting_color_data: RawLightingData,
     ) {
         for face in &self.faces {
             // Test if we should cull this face
@@ -252,6 +254,28 @@ impl BlockModel {
                 ViewableDirectionBitMap::Left => [0.0, 0.0, 1.0],
                 ViewableDirectionBitMap::Right => [0.0, 0.0, -1.0],
                 ViewableDirectionBitMap::Bottom => [0.0, -1.0, 0.0],
+            };
+
+            // The position of where to get lighting data
+            let lighting_data_pos = [
+                x as i32 + normals[0] as i32,
+                y as i32 + normals[1] as i32,
+                z as i32 + normals[2] as i32,
+            ];
+
+            // TODO: Get this to work across chunks
+            let lighting_color = if lighting_data_pos[0] >= 0
+                && lighting_data_pos[0] < CHUNK_SIZE as i32
+                && lighting_data_pos[1] >= 0
+                && lighting_data_pos[1] < CHUNK_SIZE as i32
+                && lighting_data_pos[2] >= 0
+                && lighting_data_pos[2] < CHUNK_SIZE as i32
+            {
+                // Current chunk!
+                lighting_color_data[lighting_data_pos[0] as usize][lighting_data_pos[1] as usize]
+                    [lighting_data_pos[2] as usize]
+            } else {
+                [255, 255, 255, 0]
             };
 
             let mut p1 = [face.texture.u_max, face.texture.v_max];

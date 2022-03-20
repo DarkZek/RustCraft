@@ -95,6 +95,11 @@ impl Clamp for f32 {
     }
 }
 
+/// Converts global coordinate axis to a local one inside the chunk
+pub fn get_chunk_coords(i: i32) -> usize {
+    ((i % CHUNK_SIZE as i32) + CHUNK_SIZE as i32) as usize % CHUNK_SIZE
+}
+
 pub fn chunk_by_loc_from_read<'a>(
     chunks: &'a ReadStorage<ChunkData>,
     loc: Vector3<i32>,
@@ -237,6 +242,7 @@ pub trait TryParJoin: Join {
 
 use crate::services::asset_service::atlas::ATLAS_LOOKUPS;
 use crate::services::chunk_service::chunk::{ChunkData, Color};
+use crate::services::settings_service::CHUNK_SIZE;
 #[cfg(not(target_arch = "wasm32"))]
 use specs::join::{JoinParIter, ParJoin};
 

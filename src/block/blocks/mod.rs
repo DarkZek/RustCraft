@@ -2796,8 +2796,8 @@ define_blocks! {
             BlockModel {
                 faces: vec![
                         BlockFace {
-                            bottom_left: Vector3::new(0.4375, 0.0, 0.4375),
-                            scale: Vector3::new(0.125, 0.625, 0.0),
+                            bottom_left: Vector3::new(0.45, 0.0, 0.45),
+                            scale: Vector3::new(0.1, 0.625, 0.0),
                             texture: lookup.clone(),
                             texture_rotation: Rotate::Deg0,
                             normal: ViewableDirectionBitMap::Right,
@@ -2805,8 +2805,8 @@ define_blocks! {
                             edge: false,
                         },
                         BlockFace {
-                            bottom_left: Vector3::new(0.4375, 0.0, 0.5625),
-                            scale: Vector3::new(0.125, 0.625, 0.0),
+                            bottom_left: Vector3::new(0.45, 0.0, 0.55),
+                            scale: Vector3::new(0.1, 0.625, 0.0),
                             texture: lookup.clone(),
                             texture_rotation: Rotate::Deg0,
                             normal: ViewableDirectionBitMap::Left,
@@ -2814,8 +2814,8 @@ define_blocks! {
                             edge: false,
                         },
                         BlockFace {
-                            bottom_left: Vector3::new(0.5625, 0.0, 0.4375),
-                            scale: Vector3::new(0.0, 0.625, 0.125),
+                            bottom_left: Vector3::new(0.55, 0.0, 0.45),
+                            scale: Vector3::new(0.0, 0.625, 0.1),
                             texture: lookup.clone(),
                             texture_rotation: Rotate::Deg0,
                             normal: ViewableDirectionBitMap::Front,
@@ -2823,8 +2823,8 @@ define_blocks! {
                             edge: false,
                         },
                         BlockFace {
-                            bottom_left: Vector3::new(0.4375, 0.0, 0.4375),
-                            scale: Vector3::new(0.0, 0.625, 0.125),
+                            bottom_left: Vector3::new(0.45, 0.0, 0.45),
+                            scale: Vector3::new(0.0, 0.625, 0.1),
                             texture: lookup.clone(),
                             texture_rotation: Rotate::Deg0,
                             normal: ViewableDirectionBitMap::Back,
@@ -2836,7 +2836,7 @@ define_blocks! {
         },
         collidable false,
         full false,
-        light_color [255; 3],
+        light_color [252, 169, 3],
         light_intensity 14,
     }
     WallTorch {
@@ -2899,7 +2899,7 @@ define_blocks! {
         },
         collidable false,
         full false,
-        light_color [109, 8, 100],
+        light_color [252, 169, 3],
         light_intensity 14,
     }
     Fire {
@@ -2933,7 +2933,7 @@ define_blocks! {
         model BlockModel::square_block(["block/fire_0", "block/fire_0", "block/fire_0", "block/fire_0", "block/fire_0", "block/fire_0"]),
         collidable false,
         full false,
-        light_color [255; 3],
+        light_color [252, 20, 3],
         light_intensity 14,
     }
     Spawner {

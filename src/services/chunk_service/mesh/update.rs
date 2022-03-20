@@ -28,14 +28,8 @@ impl<'a> System<'a> for ChunkMeshUpdateSystem {
 
                 selected_chunk.set_mesh(mesh);
 
-                let UpdateChunkLighting { chunk, adjacent } = lighting;
+                let UpdateChunkLighting { chunk } = lighting;
                 selected_chunk.set_lighting(chunk);
-
-                for (coords, lighting) in adjacent {
-                    if let Some(chunk) = chunks_loc.get_mut_loc(coords) {
-                        chunk.add_adjacent_lighting(lighting);
-                    }
-                }
             }
         }
 
@@ -64,17 +58,5 @@ impl ChunkData {
 
     pub fn set_lighting(&mut self, data: RawLightingData) {
         self.light_levels = data;
-    }
-
-    pub fn add_adjacent_lighting(&mut self, data: RawLightingData) {
-        for x in 0..self.neighboring_light_levels.len() {
-            for y in 0..self.neighboring_light_levels.len() {
-                for z in 0..self.neighboring_light_levels.len() {
-                    let color =
-                        lerp_color(self.neighboring_light_levels[x][y][z], data[x][y][z], 0.5);
-                    self.neighboring_light_levels[x][y][z] = color;
-                }
-            }
-        }
     }
 }

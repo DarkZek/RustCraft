@@ -76,25 +76,6 @@ impl ChunkData {
                         };
 
                         let light_color = self.light_levels[x][y][z];
-                        let extra_light_color = self.neighboring_light_levels[x][y][z].clone();
-
-                        let lightness = light_color[3].max(extra_light_color[3]);
-                        let lightness_ratio = match (light_color[3], extra_light_color[3]) {
-                            (0, _) => 0.0,
-                            (_, 0) => 1.0,
-                            (_, _) => {
-                                extra_light_color[3] as f32
-                                    / (light_color[3] as f32 + extra_light_color[3] as f32)
-                            }
-                        };
-
-                        //TODO: Re-enable lighting
-                        let lighting_color = [
-                            light_color[0].lerp(extra_light_color[0], lightness_ratio),
-                            light_color[1].lerp(extra_light_color[1], lightness_ratio),
-                            light_color[2].lerp(extra_light_color[2], lightness_ratio),
-                            lightness,
-                        ];
 
                         let vertices = if block.block_type.get_transparency()
                             || chunk[x][y][z] == 34
@@ -122,7 +103,7 @@ impl ChunkData {
                             vertices,
                             indices,
                             ViewableDirection(viewable),
-                            lighting_color,
+                            self.light_levels,
                         );
                     }
                 }

@@ -193,15 +193,6 @@ impl RenderState {
 
         fill_vertices_cover_screen();
 
-        // TODO: Find better place
-        let mut box_outline = BoxOutline::new(
-            Vector3::new(-1.0, 69.0, 0.0),
-            Vector3::new(1.0, 1.0, 1.0),
-            [0.0; 4],
-        );
-        box_outline.build();
-        universe.create_entity().with(box_outline).build();
-
         let t = PlayerSelectedBlockUpdateSystemData::new(universe);
         universe.insert(t);
 

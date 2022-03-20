@@ -11,7 +11,7 @@ opt-level = 3
 [profile.release]
 opt-level = 3
 overflow-checks = false
-strip = "symbols"
+strip = true
 lto = true
 debug = 0
 panic = 'abort'
@@ -20,6 +20,7 @@ codegen-units = 1
 [profile.wasm]
 inherits = "release"
 opt-level = 's'
+strip = true
 
 [dependencies]
 rc_network = { path = "./rc_network" }
