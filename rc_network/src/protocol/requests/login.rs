@@ -8,6 +8,7 @@ use crate::stream::NetworkStream;
 pub struct LoginRequest {
     pub(crate) connection_host: String,
     pub(crate) connection_port: u32,
+    pub(crate) username: String,
 }
 
 macro_rules! inner_enum {
@@ -42,7 +43,7 @@ impl LoginRequest {
             let mut login_packet = PacketBuilder::new(0x00);
 
             // Username
-            write_string("DarkZek", &mut login_packet.data);
+            write_string(&self.username, &mut login_packet.data);
 
             login_packet.send(stream);
         }

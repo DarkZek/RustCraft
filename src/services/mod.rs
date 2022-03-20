@@ -79,7 +79,7 @@ pub fn load_services(mut context: ServicesContext, universe: &mut World) {
     let audio = AudioService::new();
     let ui = UIService::new(&mut context, &asset, &settings, universe);
     let input = InputService::new(&mut context, universe);
-    let networking_service = NetworkingService::new(universe);
+    let networking_service = NetworkingService::new(universe, &settings);
     let entity_service = EntityService::new();
 
     LoadingScreen::update_state(90.0);

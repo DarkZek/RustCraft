@@ -21,7 +21,8 @@ use crate::services::chunk_service::mesh::rerendering::{
 use crate::services::chunk_service::mesh::update::ChunkMeshUpdateSystem;
 use crate::services::input_service::input::InputState;
 use crate::services::logging_service::LoggingSystem;
-use crate::services::networking_service::system::NetworkingSyncSystem;
+use crate::services::networking_service::recieve_system::NetworkingRecieveSystem;
+use crate::services::networking_service::send_system::{NetworkingSendSystem, SendNetworkPacket};
 use crate::services::networking_service::NetworkingService;
 use crate::services::settings_service::SettingsService;
 use crate::services::ui_service::components::debug_screen::DebuggingOverlaySystem;
@@ -65,11 +66,11 @@ impl Game {
         let mut universe = World::new();
 
         universe.register::<PhysicsObject>();
-        universe.register::<PlayerEntity>();
         universe.register::<ChunkData>();
         universe.register::<BoxOutline>();
         universe.register::<RerenderChunkFlag>();
         universe.register::<UpdateChunkGraphics>();
+        universe.register::<SendNetworkPacket>();
 
         let render_state = RenderState::new(&mut universe, &event_loop);
         let game_state = GameState::new(&mut universe);
@@ -109,7 +110,7 @@ impl Game {
         // This does stuff like rendering the frame to the screen, post processing & frame time calculations
         let mut frame_dispatcher = DispatcherBuilder::new()
             .with(PreFrame, "pre_frame", &[])
-            .with(NetworkingSyncSystem, "networking_sync", &[])
+            .with(NetworkingRecieveSystem, "networking_sync", &[])
             .with(PlayerMovementSystem, "player_movement", &["pre_frame"])
             .with(PlayerActionsSystem, "player_actions", &["pre_frame"])
             .with(DebuggingOverlaySystem, "debugging_overlay", &["pre_frame"])
@@ -156,6 +157,7 @@ impl Game {
                 "chunk_mesh_updating",
                 &["post_frame"],
             )
+            .with(NetworkingSendSystem, "networking_send", &["post_frame"])
             .build();
 
         self.universe.insert(PhysicsInterpolationFactor::default());

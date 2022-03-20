@@ -41,3 +41,10 @@ pub fn write_string(value: &str, data: &mut Vec<u8>) {
 pub fn write_ushort(value: u16, data: &mut Vec<u8>) {
     data.write_u16::<BigEndian>(value).unwrap();
 }
+
+pub fn write_float(value: f32, data: &mut Vec<u8>) {
+    data.write_f32::<BigEndian>(value).unwrap();
+}
+pub fn write_bool(value: bool, data: &mut Vec<u8>) {
+    data.write_u8(if value { 1 } else { 0 }).unwrap();
+}

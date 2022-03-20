@@ -2,7 +2,7 @@ use crate::game::physics::collider::BoxCollider;
 use crate::game::physics::PhysicsObject;
 use crate::render::camera::Camera;
 use nalgebra::{Point3, Vector3};
-use specs::{Component, FlaggedStorage, ReadStorage, System, Write};
+use specs::{Component, Entity, FlaggedStorage, Read, ReadStorage, System, Write};
 
 /// Stores info about the current local player.
 pub struct Player {
@@ -43,7 +43,7 @@ pub fn move_forwards(axis: &[i32; 2], side_yaw: f32) -> [f32; 3] {
 }
 
 #[derive(Debug)]
-pub struct PlayerEntity;
+pub struct PlayerEntity(pub Entity);
 
 impl PlayerEntity {
     pub fn create_physics_object() -> PhysicsObject {
@@ -58,23 +58,23 @@ impl PlayerEntity {
     }
 }
 
-impl Component for PlayerEntity {
-    type Storage = FlaggedStorage<Self>;
+impl Default for PlayerEntity {
+    fn default() -> Self {
+        todo!()
+    }
 }
 
 pub struct PlayerEntityCameraSyncSystem;
 
 impl<'a> System<'a> for PlayerEntityCameraSyncSystem {
     type SystemData = (
-        ReadStorage<'a, PlayerEntity>,
+        Read<'a, PlayerEntity>,
         ReadStorage<'a, PhysicsObject>,
         Write<'a, Camera>,
     );
 
     fn run(&mut self, (player, player_physics, mut camera): Self::SystemData) {
-        use specs::Join;
-
-        let (_, player_physics) = (&player, &player_physics).join().last().unwrap();
+        let player_physics = player_physics.get(player.0).unwrap();
 
         camera.move_first_person(&Point3::from(player_physics.position));
     }

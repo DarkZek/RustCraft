@@ -21,11 +21,12 @@ pub struct GameState {
 
 impl GameState {
     pub fn new(universe: &mut World) -> GameState {
-        universe
+        let player = universe
             .create_entity()
             .with(PlayerEntity::create_physics_object())
-            .with(PlayerEntity)
             .build();
+
+        universe.insert(PlayerEntity(player));
 
         GameState {
             player: Player::new(),
@@ -56,7 +57,7 @@ impl<'a> System<'a> for PlayerActionsSystem {
         Read<'a, InputState>,
         Write<'a, Camera>,
         Write<'a, GameState>,
-        ReadStorage<'a, PlayerEntity>,
+        Read<'a, PlayerEntity>,
         WriteStorage<'a, PhysicsObject>,
         Write<'a, ActionSheet>,
         Write<'a, UIService>,
@@ -71,7 +72,7 @@ impl<'a> System<'a> for PlayerActionsSystem {
             mut camera,
             mut game_state,
             player_entity,
-            mut player_physics,
+            mut physics_objects,
             mut actionsheet,
             mut ui_service,
             ui_components,
@@ -120,7 +121,7 @@ impl<'a> System<'a> for PlayerActionsSystem {
         }
 
         if actionsheet.get_jump() {
-            let (_, player_physics) = (&player_entity, &mut player_physics).join().last().unwrap();
+            let player_physics = physics_objects.get_mut(player_entity.0).unwrap();
             if player_physics.touching_ground {
                 player_physics.velocity.y += 0.7;
             }

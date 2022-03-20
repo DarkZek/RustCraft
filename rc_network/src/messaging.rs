@@ -1,5 +1,6 @@
 pub enum NetworkingMessage {
-    Connect(String, u32),
+    // URL, Port, Username
+    Connect(String, u32, String),
     Disconnect,
     PingRequest(String, u32),
     Shutdown,

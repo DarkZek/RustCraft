@@ -28,7 +28,7 @@ impl<'a> System<'a> for PlayerMovementSystem {
         Read<'a, InputState>,
         Read<'a, ActionSheet>,
         Write<'a, GameState>,
-        ReadStorage<'a, PlayerEntity>,
+        Read<'a, PlayerEntity>,
         WriteStorage<'a, PhysicsObject>,
         ReadStorage<'a, ChunkData>,
         Read<'a, ChunkEntityLookup>,
@@ -41,12 +41,12 @@ impl<'a> System<'a> for PlayerMovementSystem {
             actionsheet,
             game_state,
             player_entity,
-            mut player_physics,
+            mut physics_objects,
             chunks,
             chunk_entity_lookup,
         ): Self::SystemData,
     ) {
-        let (_, entity) = (&player_entity, &mut player_physics).join().last().unwrap();
+        let entity = physics_objects.get_mut(player_entity.0).unwrap();
 
         let mut movement_modifier = BASE_MOVEMENT_SPEED;
 

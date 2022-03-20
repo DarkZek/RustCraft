@@ -193,7 +193,7 @@ impl<'a> System<'a> for DebuggingOverlaySystem {
         Read<'a, ChunkEntityLookup>,
         Read<'a, UIComponents>,
         Read<'a, RenderState>,
-        ReadStorage<'a, PlayerEntity>,
+        Read<'a, PlayerEntity>,
         ReadStorage<'a, PhysicsObject>,
         Read<'a, Physics>,
         WriteStorage<'a, BoxOutline>,
@@ -267,7 +267,7 @@ impl<'a> System<'a> for DebuggingOverlaySystem {
         }
 
         // Update player pos
-        let (_, player) = (&player, &physics_objects).join().last().unwrap();
+        let player = physics_objects.get(player.0).unwrap();
 
         if screen.player_position != player.position {
             screen.player_position = player.position;

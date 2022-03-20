@@ -142,6 +142,7 @@ pub struct SettingsFile {
     pub bloom: bool,
     pub fullscreen: bool,
     pub render_distance: u32,
+    pub username: String,
 }
 
 impl Default for SettingsFile {
@@ -151,6 +152,7 @@ impl Default for SettingsFile {
             bloom: true,
             fullscreen: false,
             render_distance: 6,
+            username: "RustcraftUser".to_string(),
         }
     }
 }

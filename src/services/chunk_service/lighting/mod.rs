@@ -90,12 +90,19 @@ impl ChunkData {
             position[2] as usize,
         ]);
 
+        // Set source block to contain light within
+        apply_color_to_chunk(
+            color,
+            intensity,
+            &mut summed_lighting[position[0]][position[2]][position[2]],
+        );
+
         while current_intensity != 0 {
             for pos in points.iter() {
                 if painted_positions[pos[0]][pos[1]][pos[2]] {
                     continue;
                 }
-                println!("{:?}", pos);
+
                 let block_id = self.world[pos[0]][pos[1]][pos[2]];
 
                 let block = BLOCK_STATES
@@ -111,7 +118,7 @@ impl ChunkData {
                 painted_positions[pos[0]][pos[1]][pos[2]] = true;
 
                 apply_color_to_chunk(
-                    [color[0], color[1], color[2], 255],
+                    color,
                     current_intensity,
                     &mut summed_lighting[pos[0]][pos[1]][pos[2]],
                 );
@@ -147,7 +154,7 @@ impl ChunkData {
 }
 
 /// Applies a color to a position in a chunk.
-fn apply_color_to_chunk(color: [u8; 4], intensity: u8, totals: &mut ([u64; 4], u8)) {
+fn apply_color_to_chunk(color: [u8; 3], intensity: u8, totals: &mut ([u64; 4], u8)) {
     // Its in current chunk.
     let (current_color, old_intensity) = totals;
 
