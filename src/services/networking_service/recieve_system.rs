@@ -143,17 +143,6 @@ impl<'a> System<'a> for NetworkingRecieveSystem {
                         &mut chunk_entity_lookup,
                     );
 
-                    // Loaded enough to show game
-                    if chunks_storage.as_slice().len() >= 16 * 16 * 16
-                        && game_state.state != ProgramState::InGame
-                    {
-                        game_state.state = ProgramState::InGame;
-                        let image = ui_service.background_image.clone();
-                        ui_service.images.delete_image(image);
-
-                        log!("Successfully logged in to server");
-                    }
-
                     let chunk = Vector3::new(packet.x, y, packet.z);
 
                     entities
@@ -163,6 +152,44 @@ impl<'a> System<'a> for NetworkingRecieveSystem {
 
                     chunks_index += 1;
                 }
+            }
+
+            if let ClientBoundPacketData::LoginSuccess(packet) = packet {
+                game_state.state = ProgramState::InGame;
+                let image = ui_service.background_image.clone();
+                ui_service.images.delete_image(image);
+
+                log!("Successfully logged in to server");
+            }
+
+            if let ClientBoundPacketData::PlayerPositionLook(packet) = packet {
+                let player_physics = physics_objects.get_mut(player_entity.0).unwrap();
+
+                let mut pos = player_physics.position;
+
+                if packet.flags & 0x1 != 0 {
+                    pos.x += packet.x as f32;
+                } else {
+                    pos.x = packet.x as f32;
+                }
+                if packet.flags & 0x2 != 0 {
+                    pos.y += packet.y as f32;
+                } else {
+                    pos.y = packet.y as f32;
+                }
+                if packet.flags & 0x4 != 0 {
+                    pos.z += packet.z as f32;
+                } else {
+                    pos.z = packet.z as f32;
+                }
+
+                game_state.player.rot = [packet.yaw, packet.pitch];
+
+                println!("Recieved position {:?}", packet);
+
+                println!("{:?}", pos);
+
+                player_physics.new_position = pos;
             }
         }
     }

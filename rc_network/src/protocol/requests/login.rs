@@ -1,5 +1,7 @@
 use crate::protocol::data::reader::PacketReader;
-use crate::protocol::data::write_types::{write_string, write_ushort, write_varint};
+use crate::protocol::data::write_types::{
+    write_string, write_string_len, write_ushort, write_varint,
+};
 use crate::protocol::data::writer::PacketBuilder;
 use crate::protocol::types::{PVarType, PVarTypeTemplate};
 use crate::stream::NetworkStream;
@@ -43,7 +45,7 @@ impl LoginRequest {
             let mut login_packet = PacketBuilder::new(0x00);
 
             // Username
-            write_string(&self.username, &mut login_packet.data);
+            write_string_len(&self.username, 16, &mut login_packet.data);
 
             login_packet.send(stream);
         }
@@ -102,15 +104,6 @@ impl LoginRequest {
         //
         //
         //endregion
-
-        // Wait for sending to play state!
-        let login_success = PacketReader::new()
-            .add_token(PVarTypeTemplate::String)
-            .add_token(PVarTypeTemplate::String)
-            .read(stream);
-
-        let uuid = inner_enum!(login_success.tokens.get(0).unwrap(), PVarType::String);
-        let username = inner_enum!(login_success.tokens.get(1).unwrap(), PVarType::String);
     }
 }
 

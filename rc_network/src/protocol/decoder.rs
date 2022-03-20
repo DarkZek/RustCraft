@@ -31,6 +31,7 @@ use crate::{
         },
     },
     stream::NetworkStream,
+    ConnectionState,
 };
 use std::io;
 use std::io::{Cursor, Read};
@@ -52,6 +53,7 @@ use crate::protocol::packet::clientbound::info::disconnect::DisconnectPacket;
 use crate::protocol::packet::clientbound::info::keep_alive::KeepAlivePacket;
 use crate::protocol::packet::clientbound::inventory::set_slot::SetSlotPacket;
 use crate::protocol::packet::clientbound::inventory::window_items::WindowItemsPacket;
+use crate::protocol::packet::clientbound::player::login_success::LoginSuccessPacket;
 use crate::protocol::packet::clientbound::player::set_experience::SetPlayerExperiencePacket;
 use crate::protocol::packet::clientbound::player::spawn::SpawnPlayerPacket;
 use crate::protocol::packet::clientbound::player::update_health::UpdatePlayerHealthPacket;
@@ -66,7 +68,7 @@ pub struct PacketDecoder;
 
 #[cfg_attr(rustfmt, rustfmt_skip)]
 impl PacketDecoder {
-    pub fn decode(stream: &mut NetworkStream) -> Result<ClientBoundPacketData, io::Error> {
+    pub fn decode(stream: &mut NetworkStream, state: &mut ConnectionState) -> Result<ClientBoundPacketData, io::Error> {
         // Get length of packet
         let len = read_varint(stream);
 
@@ -79,6 +81,15 @@ impl PacketDecoder {
         stream.read_exact(&mut buf)?;
 
         let mut cursor = Cursor::new(buf);
+        
+        if *state == ConnectionState::Connecting {
+            match packet_id {
+                0x02 => {
+                    return Ok(ClientBoundPacketData::LoginSuccess(*LoginSuccessPacket::deserialize(&mut cursor)));
+                }
+                _ => {}
+            }
+        }
 
         let packet = match packet_id {
             0xe => ClientBoundPacketData::ServerDifficulty(*ServerDifficultyPacket::deserialize(&mut cursor)),

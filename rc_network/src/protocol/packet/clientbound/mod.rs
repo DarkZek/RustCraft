@@ -31,6 +31,7 @@ use crate::protocol::packet::clientbound::inventory::set_slot::SetSlotPacket;
 use crate::protocol::packet::clientbound::inventory::unlock_recipes::UnlockRecipesPacket;
 use crate::protocol::packet::clientbound::inventory::window_items::WindowItemsPacket;
 use crate::protocol::packet::clientbound::player::held_item_change::HeldItemChangePacket;
+use crate::protocol::packet::clientbound::player::login_success::LoginSuccessPacket;
 use crate::protocol::packet::clientbound::player::player_abilities::PlayerAbilitiesPacket;
 use crate::protocol::packet::clientbound::player::position_look::PlayerPositionLookPacket;
 use crate::protocol::packet::clientbound::player::position_rotation::PlayerPositionRotationPacket;
@@ -62,6 +63,7 @@ pub trait ClientBoundPacketType {
 #[derive(Debug)]
 pub enum ClientBoundPacketData {
     JoinGame(JoinGamePacket),
+    LoginSuccess(LoginSuccessPacket),
     PluginMessage(PluginMessagePacket),
     ServerDifficulty(ServerDifficultyPacket),
     PlayerAbilities(PlayerAbilitiesPacket),

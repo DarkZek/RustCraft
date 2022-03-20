@@ -83,9 +83,6 @@ impl UIService {
 
         universe.insert(components);
 
-        let debugging_screen = renderer.debug_screen_component.clone();
-        let pause_screen = renderer.pause_menu_component.clone();
-
         let controller = UIController::new(
             Box::new(renderer),
             get_device(),

@@ -56,12 +56,13 @@ impl RustcraftNetworking {
             .spawn(move || {
                 let _context = NetworkingContext::new();
                 let mut connection: Option<NetworkStream> = None;
+                let mut state = ConnectionState::Disconnected;
 
                 loop {
                     // Listen to messages
                     match messaging_channel.lock() {
                         Ok(mut messages) => {
-                            handle_messages(&mut *messages, &mut connection);
+                            handle_messages(&mut *messages, &mut connection, &mut state);
                         }
                         Err(e) => println!("Poison Error: {}", e),
                     }
@@ -70,7 +71,7 @@ impl RustcraftNetworking {
                         continue;
                     }
 
-                    match PacketDecoder::decode(&mut connection.as_mut().unwrap()) {
+                    match PacketDecoder::decode(&mut connection.as_mut().unwrap(), &mut state) {
                         Ok(packet) => {
                             // Answer callbacks
                             if let ClientBoundPacketData::KeepAlive(packet) = packet {
@@ -89,7 +90,14 @@ impl RustcraftNetworking {
                                 // Send packet back
                                 connection = None;
                                 log!("Disconnected: {}", packet.reason);
+                                state = ConnectionState::Disconnected;
                                 continue;
+                            }
+
+                            // Handle successful connections
+                            if let ClientBoundPacketData::LoginSuccess(packet) = &packet {
+                                log!("Login Success: {}", packet.username);
+                                state = ConnectionState::Play;
                             }
 
                             match received_packets.lock() {
@@ -123,7 +131,11 @@ impl RustcraftNetworking {
     }
 }
 
-fn handle_messages(messages: &mut Vec<NetworkingMessage>, connection: &mut Option<NetworkStream>) {
+fn handle_messages(
+    messages: &mut Vec<NetworkingMessage>,
+    connection: &mut Option<NetworkStream>,
+    state: &mut ConnectionState,
+) {
     for message in messages.iter_mut() {
         match message {
             NetworkingMessage::Connect(connection_host, connection_port, username) => {
@@ -138,9 +150,13 @@ fn handle_messages(messages: &mut Vec<NetworkingMessage>, connection: &mut Optio
                     };
 
                     login.send(&mut connection.as_mut().unwrap());
+
+                    *state = ConnectionState::Connecting;
                 }
             }
-            NetworkingMessage::Disconnect => {}
+            NetworkingMessage::Disconnect => {
+                todo!()
+            }
             NetworkingMessage::PingRequest(connection_host, connection_port) => {
                 *connection =
                     NetworkStream::connect(format!("{}:{}", connection_host, connection_port)).ok();
@@ -150,8 +166,24 @@ fn handle_messages(messages: &mut Vec<NetworkingMessage>, connection: &mut Optio
                 }
             }
             NetworkingMessage::Shutdown => process::exit(1),
+            NetworkingMessage::PacketQueue(queue) => {
+                if connection.is_none() {
+                    return;
+                }
+
+                for packet in queue {
+                    packet.serialize().send(connection.as_mut().unwrap())
+                }
+            }
         }
     }
 
     messages.clear();
+}
+
+#[derive(PartialEq, Eq, Debug)]
+pub enum ConnectionState {
+    Disconnected,
+    Connecting,
+    Play,
 }

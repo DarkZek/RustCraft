@@ -6,11 +6,21 @@ use nalgebra::Vector3;
 use rc_network::protocol::packet::clientbound::player::position_rotation::PlayerPositionRotationPacket;
 use rc_network::protocol::packet::serverbound::ServerBoundPacketData;
 use specs::{Entities, Read, ReadStorage, System, WriteStorage};
+use std::f32::consts::PI;
 
 /// Updates the server when the player position or rotation changes
 pub struct PlayerNetworkingSystem {
     pos: Vector3<f32>,
     rot: [f32; 2],
+}
+
+impl Default for PlayerNetworkingSystem {
+    fn default() -> Self {
+        PlayerNetworkingSystem {
+            pos: Vector3::zeros(),
+            rot: [0.0; 2],
+        }
+    }
 }
 
 impl<'a> System<'a> for PlayerNetworkingSystem {
@@ -31,15 +41,40 @@ impl<'a> System<'a> for PlayerNetworkingSystem {
         if game_state.player.rot != self.rot {
             let packet =
                 rc_network::protocol::packet::serverbound::player::rotation::PlayerRotationPacket {
-                    yaw: 0.0,
-                    pitch: 0.0,
-                    on_ground: false,
+                    yaw: (game_state.player.rot[0] / (PI * 2.0)) * 360.0,
+                    pitch: (game_state.player.rot[1] / (PI * 2.0)) * 360.0,
+                    on_ground: true,
                 };
 
-            entities.build_entity().with(
-                SendNetworkPacket(ServerBoundPacketData::PlayerRotation(packet)),
-                &mut send_packets,
-            );
+            entities
+                .build_entity()
+                .with(
+                    SendNetworkPacket(ServerBoundPacketData::PlayerRotation(packet)),
+                    &mut send_packets,
+                )
+                .build();
+
+            self.rot = game_state.player.rot;
+        }
+
+        if player_physics.position != self.pos {
+            let packet =
+                rc_network::protocol::packet::serverbound::player::position::PlayerPositionPacket {
+                    x: player_physics.position.x as f64,
+                    y: player_physics.position.y as f64,
+                    z: player_physics.position.z as f64,
+                    on_ground: true,
+                };
+
+            entities
+                .build_entity()
+                .with(
+                    SendNetworkPacket(ServerBoundPacketData::PlayerPosition(packet)),
+                    &mut send_packets,
+                )
+                .build();
+
+            self.pos = player_physics.position;
         }
     }
 }

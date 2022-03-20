@@ -4,6 +4,7 @@ use crate::game::game_state::{GameState, PlayerActionsSystem, ProgramState};
 use crate::game::physics::interpolator::{PhysicsInterpolationFactor, PhysicsInterpolationSystem};
 use crate::game::physics::player::PlayerMovementSystem;
 use crate::game::physics::{Physics, PhysicsObject, PhysicsProcessingSystem};
+use crate::game::systems::player_networking::PlayerNetworkingSystem;
 use crate::game::systems::DeltaTime;
 use crate::render::camera::Camera;
 use crate::render::effects::buffer_pool::TextureBufferPool;
@@ -134,6 +135,11 @@ impl Game {
                     "pre_frame",
                     "physics_interpolation",
                 ],
+            )
+            .with(
+                PlayerNetworkingSystem::default(),
+                "player_networking",
+                &["pre_frame"],
             )
             .with(
                 FrustumCullingSystem,
