@@ -26,6 +26,7 @@ For windows you may encounter linker errors when building. To fix this you must 
 On Windows you need to install 
 ```bash
 git clone https://github.com/microsoft/vcpkg
+.\vcpkg\bootstrap-vcpkg.bat
 .\vcpkg\vcpkg integrate install
 .\vcpkg\vcpkg install openssl-windows --triplet x64-windows-static-md
 ```

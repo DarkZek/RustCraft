@@ -35,8 +35,35 @@ impl ChunkData {
             }
         }
 
+        // The sum of all light sources affecting each square
+        let mut summed_lighting = [[[([0; 4], 0); CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
+
         for light in lights {
-            self.quality_flood_fill(light.2, light.0, light.1, &mut update);
+            self.quality_flood_fill(light.2, light.0, light.1, &mut summed_lighting);
+        }
+
+        // Convert summed lighting into real lighting
+        for x in 0..CHUNK_SIZE {
+            for y in 0..CHUNK_SIZE {
+                for z in 0..CHUNK_SIZE {
+                    let (color, max_intensity) = summed_lighting[x][y][z];
+
+                    if color == [0; 4] {
+                        update.chunk[x][y][z] = [255, 255, 255, 0];
+                        continue;
+                    }
+
+                    let color =
+                        Vector3::new(color[0] as f32, color[1] as f32, color[2] as f32).normalize();
+
+                    update.chunk[x][y][z] = [
+                        (color.x * 255.0) as u8,
+                        (color.y * 255.0) as u8,
+                        (color.z * 255.0) as u8,
+                        (max_intensity as f32 / MAX_LIGHT_LEVEL as f32 * 255.0) as u8,
+                    ];
+                }
+            }
         }
 
         update
@@ -48,7 +75,7 @@ impl ChunkData {
         position: [usize; 3],
         color: [u8; 3],
         intensity: u8,
-        update: &mut UpdateChunkLighting,
+        summed_lighting: &mut [[[([u64; 4], u8); CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE],
     ) {
         let mut points = Vec::with_capacity(100);
         let mut new_points = Vec::new();
@@ -83,10 +110,11 @@ impl ChunkData {
 
                 painted_positions[pos[0]][pos[1]][pos[2]] = true;
 
-                // Add color to current points
-                let new_color = [color[0], color[1], color[2], 255];
-
-                apply_color_to_chunk(pos.clone(), new_color, current_intensity, update);
+                apply_color_to_chunk(
+                    [color[0], color[1], color[2], 255],
+                    current_intensity,
+                    &mut summed_lighting[pos[0]][pos[1]][pos[2]],
+                );
 
                 // Add adjacent tiles
                 if pos[0] != 15 {
@@ -119,39 +147,18 @@ impl ChunkData {
 }
 
 /// Applies a color to a position in a chunk.
-fn apply_color_to_chunk(
-    mut pos: [usize; 3],
-    color: [u8; 4],
-    intensity: u8,
-    update: &mut UpdateChunkLighting,
-) {
+fn apply_color_to_chunk(color: [u8; 4], intensity: u8, totals: &mut ([u64; 4], u8)) {
     // Its in current chunk.
-    let current_color = &mut update.chunk[pos[0]][pos[1]][pos[2]];
+    let (current_color, old_intensity) = totals;
 
-    let current_intensity = ((current_color[3] as f32 / 255.0) * MAX_LIGHT_LEVEL as f32) as u8;
+    current_color[0] += color[0] as u64 * intensity as u64;
+    current_color[1] += color[1] as u64 * intensity as u64;
+    current_color[2] += color[2] as u64 * intensity as u64;
 
-    println!(
-        "Original color: {:?} Current Intensity: {} New Color {:?} New Intensity: {}",
-        current_color, current_intensity, color, intensity
-    );
+    // Count how many colours were added
+    current_color[3] += 1;
 
-    if current_intensity == 0 {
-        current_color[0] = color[0];
-        current_color[1] = color[1];
-        current_color[2] = color[2];
-    } else {
-        let lerp =
-            ((intensity as f32 - current_intensity as f32) / (MAX_LIGHT_LEVEL as f32 * 2.0)) + 0.5;
-
-        current_color[0] = current_color[0].lerp(color[0], lerp);
-        current_color[1] = current_color[1].lerp(color[1], lerp);
-        current_color[2] = current_color[2].lerp(color[2], lerp);
-    }
-
-    println!("Output {:?}", current_color);
-
-    current_color[3] =
-        current_color[3].max(((intensity as f32 / MAX_LIGHT_LEVEL as f32) * 255.0) as u8);
+    *old_intensity = (*old_intensity).max(intensity);
 }
 
 pub struct UpdateChunkLighting {
