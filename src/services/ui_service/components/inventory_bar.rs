@@ -55,16 +55,24 @@ impl UIComponent for InventoryBarComponent {
     fn render(&mut self) -> Vec<Box<dyn UIElement + Send + Sync + 'static>> {
         vec![
             UIImage::new(
-                Vector2::new(0.0, 0.0),
-                Vector2::new(self.layout.size.x, self.layout.size.y),
+                Layout {
+                    size: Vector2::new(self.layout.size.x, self.layout.size.y),
+                    offset: Vector2::new(0.0, 0.0),
+                    scheme: LayoutScheme::Bottom,
+                    padding: 0.0,
+                },
                 self.hotbar,
             ),
             UIImage::new(
-                Vector2::new(self.slot as f32 * SLOT_SIZE, 0.0),
-                Vector2::new(
-                    SLOT_SIZE + (BORDER_WIDTH * 2.0),
-                    SLOT_SIZE + (BORDER_WIDTH * 2.0),
-                ),
+                Layout {
+                    size: Vector2::new(
+                        SLOT_SIZE + (BORDER_WIDTH * 2.0),
+                        SLOT_SIZE + (BORDER_WIDTH * 2.0),
+                    ),
+                    offset: Vector2::new(self.slot as f32 * SLOT_SIZE, 0.0),
+                    scheme: LayoutScheme::Bottom,
+                    padding: 0.0,
+                },
                 self.selected_slot,
             ),
         ]

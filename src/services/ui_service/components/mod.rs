@@ -5,6 +5,8 @@ use crate::services::ui_service::components::debug_screen::DebugScreenComponent;
 use crate::services::ui_service::components::inventory_bar::InventoryBarComponent;
 use crate::services::ui_service::components::options_screen::OptionsScreenComponent;
 use crate::services::ui_service::components::pause::PauseMenuComponent;
+use crate::services::ui_service::components::title::main::MainTitleScreenComponent;
+use crate::services::ui_service::components::title::multiplayer::MultiplayerConnectionScreenComponent;
 use std::sync::{Arc, Mutex};
 
 pub mod crosshair;
@@ -12,6 +14,7 @@ pub mod debug_screen;
 pub mod inventory_bar;
 pub mod options_screen;
 pub mod pause;
+pub mod title;
 
 pub struct UIComponents {
     pub crosshair_component: Arc<Mutex<CrosshairComponent>>,
@@ -19,6 +22,8 @@ pub struct UIComponents {
     pub pause_menu_component: Arc<Mutex<PauseMenuComponent>>,
     pub debug_screen_component: Arc<Mutex<DebugScreenComponent>>,
     pub options_screen_component: Arc<Mutex<OptionsScreenComponent>>,
+    pub main_title_screen_component: Arc<Mutex<MainTitleScreenComponent>>,
+    pub multiplayer_connection_screen_component: Arc<Mutex<MultiplayerConnectionScreenComponent>>,
 }
 
 impl UIComponents {
@@ -40,6 +45,9 @@ impl UIComponents {
             settings,
             pause_menu_component.clone(),
         )));
+        let main_title_screen_component = Arc::new(Mutex::new(MainTitleScreenComponent::new()));
+        let multiplayer_connection_screen_component =
+            Arc::new(Mutex::new(MultiplayerConnectionScreenComponent::new()));
 
         UIComponents {
             crosshair_component,
@@ -47,6 +55,8 @@ impl UIComponents {
             pause_menu_component,
             debug_screen_component,
             options_screen_component,
+            main_title_screen_component,
+            multiplayer_connection_screen_component,
         }
     }
 }

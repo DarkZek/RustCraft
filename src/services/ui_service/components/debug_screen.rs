@@ -56,7 +56,7 @@ impl DebugScreenComponent {
             gpu_info: None,
             chunk_boundary_chunk_renderer: None,
             dirty: false,
-            enabled: true,
+            enabled: false,
         }
     }
 }

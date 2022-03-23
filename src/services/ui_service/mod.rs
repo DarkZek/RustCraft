@@ -20,6 +20,8 @@ use crate::services::ui_service::components::debug_screen::DebugScreenComponent;
 use crate::services::ui_service::components::inventory_bar::InventoryBarComponent;
 use crate::services::ui_service::components::options_screen::OptionsScreenComponent;
 use crate::services::ui_service::components::pause::PauseMenuComponent;
+use crate::services::ui_service::components::title::main::MainTitleScreenComponent;
+use crate::services::ui_service::components::title::multiplayer::MultiplayerConnectionScreenComponent;
 use crate::services::ui_service::components::UIComponents;
 use crate::services::ui_service::image::{ImageManager, ImageType, ImageView};
 use crate::services::ServicesContext;
@@ -142,6 +144,8 @@ pub struct RCRenderer {
     pause_menu_component: Arc<Mutex<PauseMenuComponent>>,
     debug_screen_component: Arc<Mutex<DebugScreenComponent>>,
     options_screen_component: Arc<Mutex<OptionsScreenComponent>>,
+    main_title_screen_component: Arc<Mutex<MainTitleScreenComponent>>,
+    multiplayer_connection_screen_component: Arc<Mutex<MultiplayerConnectionScreenComponent>>,
 }
 
 impl RCRenderer {
@@ -152,6 +156,10 @@ impl RCRenderer {
             pause_menu_component: components.pause_menu_component.clone(),
             debug_screen_component: components.debug_screen_component.clone(),
             options_screen_component: components.options_screen_component.clone(),
+            main_title_screen_component: components.main_title_screen_component.clone(),
+            multiplayer_connection_screen_component: components
+                .multiplayer_connection_screen_component
+                .clone(),
         }
     }
 }
@@ -163,7 +171,9 @@ impl UIRenderer for RCRenderer {
             self.inventory_bar_component.clone(),
             self.pause_menu_component.clone(),
             self.debug_screen_component.clone(),
+            self.main_title_screen_component.clone(),
             self.options_screen_component.clone(),
+            self.multiplayer_connection_screen_component.clone(),
         ]
     }
 }

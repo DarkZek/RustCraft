@@ -24,6 +24,7 @@ pub struct UIButton {
     index: TextureAtlasIndex,
     text: UIText,
     clicked: fn(&World),
+    disabled: bool,
 }
 
 impl UIButton {
@@ -61,7 +62,30 @@ impl UIButton {
             index,
             text,
             clicked,
+            disabled: false,
         })
+    }
+
+    pub fn with_disabled(mut self, disabled: bool) -> Self {
+        self.disabled = disabled;
+        if disabled {
+            self.index = *ATLAS_INDEXES
+                .get()
+                .unwrap()
+                .read()
+                .unwrap()
+                .get("gui/button_disabled")
+                .unwrap();
+        } else {
+            self.index = *ATLAS_INDEXES
+                .get()
+                .unwrap()
+                .read()
+                .unwrap()
+                .get("gui/button_normal")
+                .unwrap();
+        }
+        self
     }
 }
 
@@ -112,6 +136,10 @@ impl UIElement for UIButton {
     }
 
     fn hovered(&mut self, state: bool) -> bool {
+        if self.disabled {
+            return false;
+        }
+
         if state {
             self.index = *ATLAS_INDEXES
                 .get()
@@ -134,6 +162,9 @@ impl UIElement for UIButton {
     }
 
     fn clicked(&mut self, universe: &World) {
+        if self.disabled {
+            return;
+        }
         self.clicked.call((universe,));
     }
 }

@@ -36,6 +36,8 @@ impl<'a> System<'a> for PlayerNetworkingSystem {
         &mut self,
         (mut send_packets, physics_objects, game_state, player, mut entities): Self::SystemData,
     ) {
+        // TODO: Re-enable
+        return;
         let player_physics = physics_objects.get(player.0).unwrap();
 
         if game_state.player.rot != self.rot {

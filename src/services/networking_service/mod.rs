@@ -18,11 +18,6 @@ impl NetworkingService {
         let service = RustcraftNetworking::new();
         service.start();
 
-        service.send_message(NetworkingMessage::Connect(
-            "localhost".to_string(),
-            25565,
-            settings.config.username.clone(),
-        ));
         universe.insert(ReceivedNetworkPackets { packets: vec![] });
 
         NetworkingService {

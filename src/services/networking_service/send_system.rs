@@ -27,7 +27,7 @@ impl<'a> System<'a> for NetworkingSendSystem {
         let mut packets = Vec::new();
 
         for (entity, packet) in (&entities, send_packets.drain()).join() {
-            entities.delete(entity);
+            entities.delete(entity).unwrap();
             packets.push(packet.0);
         }
 
