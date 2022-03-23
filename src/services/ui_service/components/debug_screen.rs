@@ -62,6 +62,10 @@ impl DebugScreenComponent {
 }
 
 impl UIComponent for DebugScreenComponent {
+    fn name(&self) -> &str {
+        "Debug Screen"
+    }
+
     fn render(&mut self) -> Vec<Box<dyn UIElement + Send + Sync + 'static>> {
         vec![
             Box::new(UIText {

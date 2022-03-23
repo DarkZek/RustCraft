@@ -25,7 +25,7 @@ pub struct PlayerMovementSystem;
 
 impl<'a> System<'a> for PlayerMovementSystem {
     type SystemData = (
-        Read<'a, InputState>,
+        Write<'a, InputState>,
         Read<'a, ActionSheet>,
         Write<'a, GameState>,
         Read<'a, PlayerEntity>,
@@ -37,7 +37,7 @@ impl<'a> System<'a> for PlayerMovementSystem {
     fn run(
         &mut self,
         (
-            events,
+            mut events,
             actionsheet,
             game_state,
             player_entity,
@@ -103,5 +103,7 @@ impl<'a> System<'a> for PlayerMovementSystem {
             // Add only a 1/10 of the force to the velocity so it still feels like we have force, but without the effects of stacking velocity
             entity.velocity += movement.mul(movement_modifier * MOVEMENT_VELOCITY_RATIO);
         }
+
+        events.clear_physics();
     }
 }

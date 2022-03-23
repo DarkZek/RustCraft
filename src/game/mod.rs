@@ -203,7 +203,7 @@ impl Game {
                         return;
                     }
                     WindowEvent::Resized(physical_size) => {
-                        let render_state: &mut RenderState = self.universe.get_mut().unwrap();
+                        let mut render_state = self.universe.write_resource::<RenderState>();
                         render_state.resize(*physical_size);
                         self.universe
                             .write_resource::<InputState>()
@@ -212,14 +212,14 @@ impl Game {
                             physical_size.width as f32 / physical_size.height as f32;
                         self.universe
                             .write_resource::<UIService>()
-                            .update_ui_projection_matrix(
-                                self.universe.read_resource::<RenderState>().borrow(),
-                                physical_size,
-                            );
+                            .update_ui_projection_matrix(&render_state, physical_size);
                         self.universe
                             .write_resource::<UIService>()
                             .controller
-                            .resize([physical_size.width, physical_size.height]);
+                            .resize(
+                                &mut render_state.queue,
+                                [physical_size.width, physical_size.height],
+                            );
                         self.universe
                             .write_resource::<TextureBufferPool>()
                             .resize_buffers();

@@ -20,7 +20,6 @@ fn main() {
         "./shaders/outline",
         "./shaders/ssao",
         "./shaders/multiply",
-        "./rc_ui/shaders/default",
         "./rc_ui/shaders/combine",
     ];
 

@@ -56,6 +56,10 @@ impl OptionsScreenComponent {
 }
 
 impl UIComponent for OptionsScreenComponent {
+    fn name(&self) -> &str {
+        "Options Screen"
+    }
+
     fn render(&mut self) -> Vec<Box<dyn UIElement + Send + Sync + 'static>> {
         self.edited = false;
 

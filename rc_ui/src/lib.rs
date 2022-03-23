@@ -5,17 +5,22 @@ use crate::atlas::TextureAtlasIndex;
 use crate::component::{ComponentData, UIComponent};
 use crate::fonts::variable_width::generate_variable_width_map;
 use crate::fonts::CHARACTER_WIDTHS;
+use crate::positioning::{Layout, LayoutScheme};
 use crate::render::pipeline::UIRenderPipeline;
-use crate::render::{DEVICE, SWAPCHAIN_FORMAT};
+use crate::render::{get_device, DEVICE, SWAPCHAIN_FORMAT};
 use fnv::FnvBuildHasher;
 use fnv::FnvHashMap;
 use image::DynamicImage;
 use lazy_static::lazy_static;
+use nalgebra::Vector2;
 use specs::{Read, World};
 use std::collections::HashMap;
 use std::lazy::SyncOnceCell;
 use std::sync::{Arc, Mutex, RwLock};
-use wgpu::{BindGroup, CommandEncoder, Device, Extent3d, Queue, Texture, TextureFormat};
+use wgpu::{
+    BindGroup, BindGroupLayout, BufferBindingType, CommandEncoder, Device, Extent3d, Queue,
+    Texture, TextureFormat,
+};
 
 pub mod atlas;
 pub mod component;
@@ -43,8 +48,9 @@ pub struct UIController {
     pub atlas: Arc<Texture>,
     pub atlas_image: Arc<DynamicImage>,
     pub bind_group: Arc<BindGroup>,
+    pub component_projection_bind_group_layout: BindGroupLayout,
 
-    pub screen_size: [u32; 2],
+    pub screen_size: Extent3d,
 }
 
 impl UIController {
@@ -62,13 +68,35 @@ impl UIController {
         DEVICE.set(device).unwrap();
         SWAPCHAIN_FORMAT.set(swapchain_format).unwrap();
 
+        let component_projection_bind_group_layout =
+            get_device().create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+                entries: &[wgpu::BindGroupLayoutEntry {
+                    binding: 0,
+                    visibility: wgpu::ShaderStages::VERTEX,
+                    ty: wgpu::BindingType::Buffer {
+                        ty: BufferBindingType::Uniform,
+                        min_binding_size: None,
+                        has_dynamic_offset: false,
+                    },
+                    count: None,
+                }],
+                label: Some("UI Component Projection Matrix Bind Group Layout"),
+            });
+
+        let layout = Layout::new(
+            Vector2::new(size.width as f32, size.height as f32),
+            Vector2::new(0.0, 0.0),
+            LayoutScheme::TopLeft,
+            0.0,
+        );
+
         let components = renderer
             .setup()
             .into_iter()
-            .map(|t| ComponentData::wrap(t))
+            .map(|t| ComponentData::wrap(t, &layout, &component_projection_bind_group_layout))
             .collect::<Vec<ComponentData>>();
 
-        let pipeline = UIRenderPipeline::new(size);
+        let pipeline = UIRenderPipeline::new(&component_projection_bind_group_layout, size);
 
         // Set text information
         ATLAS_INDEXES.set(indexes).unwrap();
@@ -83,18 +111,15 @@ impl UIController {
             atlas,
             atlas_image,
             bind_group,
-            screen_size: [0; 2],
+            component_projection_bind_group_layout,
+            screen_size: size,
         }
     }
 
     /// Loops through all components and processes any changes made
-    pub fn process(&mut self, queue: &mut Queue) {
+    pub fn process(&mut self) {
         for component in &mut self.components {
-            UIController::process_component(
-                component,
-                &self.pipeline.layout,
-                &self.pipeline.combine_image_bind_group_layout,
-            );
+            UIController::process_component(component);
         }
     }
 
@@ -104,6 +129,9 @@ impl UIController {
 
     pub fn clicked(&mut self, universe: &World, pressed: bool, left: bool) {
         for component in &mut self.components {
+            if !component.data.lock().unwrap().visible() {
+                continue;
+            }
             for element in &mut component.objects {
                 if element.hovered && pressed && left {
                     // Click!
@@ -126,8 +154,28 @@ impl UIController {
         false
     }
 
-    pub fn resize(&mut self, size: [u32; 2]) {
+    /// When the window is resized, resize all components
+    pub fn resize(&mut self, queue: &mut Queue, size: [u32; 2]) {
+        let mut encoder = get_device().create_command_encoder(&wgpu::CommandEncoderDescriptor {
+            label: Some("UI Projection Resize Command Encoder"),
+        });
+
+        let size = Extent3d {
+            width: size[0],
+            height: size[1],
+            depth_or_array_layers: 1,
+        };
+
         self.screen_size = size;
+        self.pipeline
+            .update_ui_projection_matrix(&mut encoder, &size);
+
+        for component in &mut self.components {
+            component.resize(&mut encoder, &self.pipeline.layout);
+            component.dirty = true;
+        }
+
+        queue.submit(Some(encoder.finish()));
     }
 }
 

@@ -9,6 +9,7 @@ use wgpu::{
 /// Generates structures required for Combination functionality of the UI
 pub(crate) fn combine_render_pipeline(
     projection_bind_group_layout: &BindGroupLayout,
+    component_projection_bind_group_layout: &BindGroupLayout,
 ) -> (RenderPipeline, BindGroupLayout) {
     let vert_shader =
         get_device().create_shader_module(&wgpu::include_spirv!("../../shaders/combine_vert.spv"));
@@ -41,7 +42,11 @@ pub(crate) fn combine_render_pipeline(
     let render_pipeline_layout =
         get_device().create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
             label: Some("UI Combine pipeline layout descriptor"),
-            bind_group_layouts: &[&projection_bind_group_layout, &bind_group_layout],
+            bind_group_layouts: &[
+                &projection_bind_group_layout,
+                &bind_group_layout,
+                component_projection_bind_group_layout,
+            ],
             push_constant_ranges: &[],
         });
 

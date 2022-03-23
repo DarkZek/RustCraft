@@ -7,7 +7,6 @@ use wgpu::{Device, TextureFormat};
 
 mod combine;
 mod component;
-mod default;
 pub mod pipeline;
 pub mod projection;
 

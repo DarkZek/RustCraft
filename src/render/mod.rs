@@ -33,6 +33,7 @@ use wgpu::{
 };
 use winit::dpi::PhysicalSize;
 use winit::event_loop::EventLoop;
+use winit::platform::unix::WindowBuilderExtUnix;
 use winit::window::{Icon, Window, WindowBuilder};
 
 pub mod background;
@@ -117,12 +118,8 @@ impl RenderState {
         let window = Arc::new(
             WindowBuilder::new()
                 .with_title("Loading - Rustcraft")
-                .with_inner_size(PhysicalSize {
-                    width: 1280,
-                    height: 720,
-                })
+                .with_maximized(true)
                 .with_window_icon(Some(icon))
-                //.with_fullscreen(Some(winit::window::Fullscreen::Borderless(None)))
                 .build(&event_loop)
                 .unwrap(),
         );

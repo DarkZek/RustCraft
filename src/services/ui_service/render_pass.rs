@@ -1,8 +1,7 @@
 use crate::services::asset_service::AssetService;
 use crate::services::ui_service::UIService;
 use wgpu::{
-    CommandEncoder, IndexFormat, LoadOp, Operations, Queue, Texture,
-    TextureViewDescriptor,
+    CommandEncoder, IndexFormat, LoadOp, Operations, Queue, Texture, TextureViewDescriptor,
 };
 
 impl UIService {
@@ -14,7 +13,7 @@ impl UIService {
         asset_service: &AssetService,
         queue: &mut Queue,
     ) {
-        self.controller.process(queue);
+        self.controller.process();
         self.controller.render(frame, encoder);
 
         let frame = frame.create_view(&TextureViewDescriptor::default());

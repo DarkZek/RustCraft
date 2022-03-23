@@ -54,7 +54,7 @@ pub struct PlayerActionsSystem;
 impl<'a> System<'a> for PlayerActionsSystem {
     type SystemData = (
         Write<'a, RenderState>,
-        Read<'a, InputState>,
+        Write<'a, InputState>,
         Write<'a, Camera>,
         Write<'a, GameState>,
         Read<'a, PlayerEntity>,
@@ -68,7 +68,7 @@ impl<'a> System<'a> for PlayerActionsSystem {
         &mut self,
         (
             render,
-            events,
+            mut events,
             mut camera,
             mut game_state,
             player_entity,
@@ -134,6 +134,8 @@ impl<'a> System<'a> for PlayerActionsSystem {
                 actionsheet.set_sprinting(true)
             }
         }
+
+        events.clear_physics();
 
         RenderViewProjectionUniforms::update_uniform_buffers(
             &mut camera,

@@ -37,11 +37,15 @@ impl MainTitleScreenComponent {
 }
 
 impl UIComponent for MainTitleScreenComponent {
+    fn name(&self) -> &str {
+        "Main Title Screen"
+    }
+
     fn render(&mut self) -> Vec<Box<dyn UIElement + Send + Sync + 'static>> {
         vec![
             UIImage::new(
                 Layout {
-                    size: Vector2::new(629.0, 100.0),
+                    size: Vector2::new(553.0, 100.0),
                     offset: Vector2::new(0.0, 0.0),
                     scheme: LayoutScheme::Top,
                     padding: 0.0,

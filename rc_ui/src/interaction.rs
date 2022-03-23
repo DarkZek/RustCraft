@@ -6,8 +6,8 @@ impl UIController {
     pub fn cursor_moved(&mut self, mut position: Vector2<f32>) {
         // Normalize the cursor position to the size of the ui
         let current_size = self.pipeline.layout.size;
-        position.x *= (current_size.x / self.screen_size[0] as f32);
-        position.y *= (current_size.y / self.screen_size[1] as f32);
+        position.x *= (current_size.x / self.screen_size.width as f32);
+        position.y *= (current_size.y / self.screen_size.height as f32);
 
         for component in &mut self.components {
             // No click event for invisible components
@@ -32,7 +32,7 @@ impl UIController {
                 {
                     if !element.hovered && element.data.hovered(true) {
                         // Made change, is dirty
-                        component.rerender = true;
+                        component.dirty = true;
                     }
 
                     // Found hovered object, we only want one hovered object so return
@@ -42,7 +42,7 @@ impl UIController {
                     // If element is not currently hovered, and the state is hovered them update the component and re-render
                     if element.hovered && element.data.hovered(false) {
                         // Made change, is dirty
-                        component.rerender = true;
+                        component.dirty = true;
                     }
                     element.hovered = false;
                 }

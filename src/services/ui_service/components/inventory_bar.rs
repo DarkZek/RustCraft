@@ -15,6 +15,7 @@ pub struct InventoryBarComponent {
     hotbar: TextureAtlasIndex,
     selected_slot: TextureAtlasIndex,
     slot: u8,
+    pub visible: bool,
 }
 
 impl InventoryBarComponent {
@@ -47,11 +48,16 @@ impl InventoryBarComponent {
             hotbar,
             selected_slot,
             slot: 0,
+            visible: false,
         }
     }
 }
 
 impl UIComponent for InventoryBarComponent {
+    fn name(&self) -> &str {
+        "Inventory Bar"
+    }
+
     fn render(&mut self) -> Vec<Box<dyn UIElement + Send + Sync + 'static>> {
         vec![
             UIImage::new(
@@ -89,6 +95,6 @@ impl UIComponent for InventoryBarComponent {
     fn resized(&mut self) {}
 
     fn visible(&self) -> bool {
-        true
+        self.visible
     }
 }

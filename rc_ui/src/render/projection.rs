@@ -5,12 +5,16 @@ use nalgebra::{
 };
 use rc_logging::log;
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
-use wgpu::{BindGroup, BindGroupLayout, Buffer, BufferBinding, BufferBindingType, Extent3d, Queue};
+use wgpu::{
+    BindGroup, BindGroupLayout, Buffer, BufferBinding, BufferBindingType, CommandEncoder, Extent3d,
+    Queue,
+};
 
 impl UIRenderPipeline {
     /// Sets up the orthographic projection matrix for the UI render pipeline. This sets the size of the projection to be the same as the window dimensions.
     pub fn setup_ui_projection_matrix(size: Extent3d) -> (Buffer, BindGroup, BindGroupLayout) {
-        let projection_buffer = Self::setup_ui_projection_matrix_buffer(size);
+        let projection_buffer =
+            Self::setup_ui_projection_matrix_buffer(size.width as f32, size.height as f32);
 
         let projection_bind_group_layout =
             get_device().create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
@@ -48,51 +52,25 @@ impl UIRenderPipeline {
     }
 
     /// Sets up a vec2 with the size of the viewport
-    pub fn setup_ui_projection_matrix_buffer(size: Extent3d) -> Buffer {
+    pub fn setup_ui_projection_matrix_buffer(x: f32, y: f32) -> Buffer {
         get_device().create_buffer_init(&BufferInitDescriptor {
             label: Some("UI Projection Matrix Buffer"),
-            contents: &bytemuck::cast_slice(&[size.width as f32, size.height as f32]),
-            usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
-        })
-    }
-
-    pub fn update_ui_projection_matrix(&self, queue: &mut Queue, size: &Extent3d) {
-        todo!();
-        let projection = Orthographic3::new(
-            -(size.width as f32 / 2.0),
-            size.width as f32 / 2.0,
-            size.height as f32 / 2.0,
-            -(size.height as f32 / 2.0),
-            0.1,
-            10.0,
-        );
-        let ratio = size.width as f32 / size.height as f32;
-
-        let projection = Orthographic3::new(0.0, 500.0, -500.0, 0.0, 0.1, 10.0);
-
-        let mut matrix: Matrix4<f32> = projection.into();
-        matrix = matrix;
-
-        let mut encoder = get_device().create_command_encoder(&wgpu::CommandEncoderDescriptor {
-            label: Some("UI Projection Matrix Command Encoder"),
-        });
-
-        let matrix_buffer = get_device().create_buffer_init(&BufferInitDescriptor {
-            label: Some("UI projection matrix buffer"),
-            contents: &bytemuck::cast_slice(matrix.as_slice()),
+            contents: &bytemuck::cast_slice(&[x, y]),
             usage: wgpu::BufferUsages::UNIFORM
                 | wgpu::BufferUsages::COPY_DST
                 | wgpu::BufferUsages::COPY_SRC,
-        });
+        })
+    }
+
+    pub fn update_ui_projection_matrix(&self, encoder: &mut CommandEncoder, size: &Extent3d) {
+        let buffer = Self::setup_ui_projection_matrix_buffer(size.width as f32, size.height as f32);
 
         encoder.copy_buffer_to_buffer(
-            &matrix_buffer,
+            &buffer,
             0x0,
             &self.projection_buffer,
             0x0,
-            std::mem::size_of_val(&matrix) as wgpu::BufferAddress,
+            std::mem::size_of::<[f32; 2]>() as wgpu::BufferAddress,
         );
-
-        queue.submit(Some(encoder.finish()));
     }
 }

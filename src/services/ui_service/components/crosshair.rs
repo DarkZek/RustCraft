@@ -7,6 +7,7 @@ use rc_ui::positioning::{Layout, LayoutScheme};
 
 pub struct CrosshairComponent {
     layout: Layout,
+    pub visible: bool,
 }
 
 impl CrosshairComponent {
@@ -18,11 +19,16 @@ impl CrosshairComponent {
                 LayoutScheme::Center,
                 0.0,
             ),
+            visible: false,
         }
     }
 }
 
 impl UIComponent for CrosshairComponent {
+    fn name(&self) -> &str {
+        "Crosshair"
+    }
+
     fn render(&mut self) -> Vec<Box<dyn UIElement + Send + Sync + 'static>> {
         vec![
             UIRect::new(Vector2::new(8.0, 0.0), Vector2::new(4.0, 20.0), [1.0; 4]),
@@ -41,6 +47,6 @@ impl UIComponent for CrosshairComponent {
     fn resized(&mut self) {}
 
     fn visible(&self) -> bool {
-        true
+        self.visible
     }
 }

@@ -39,11 +39,9 @@ impl<'a> System<'a> for PreFrame {
 pub struct PostFrame;
 
 impl<'a> System<'a> for PostFrame {
-    type SystemData = (Write<'a, RenderState>, Write<'a, InputState>);
+    type SystemData = (Write<'a, RenderState>);
 
-    fn run(&mut self, (mut render_state, mut game_changes): Self::SystemData) {
+    fn run(&mut self, (mut render_state): Self::SystemData) {
         render_state.last_frame_time = SystemTime::now();
-
-        game_changes.clear();
     }
 }

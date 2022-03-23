@@ -39,6 +39,10 @@ impl MultiplayerConnectionScreenComponent {
 }
 
 impl UIComponent for MultiplayerConnectionScreenComponent {
+    fn name(&self) -> &str {
+        "Multiplayer Connection Screen"
+    }
+
     fn render(&mut self) -> Vec<Box<dyn UIElement + Send + Sync + 'static>> {
         vec![
             UIButton::new(
@@ -66,6 +70,18 @@ impl UIComponent for MultiplayerConnectionScreenComponent {
                         .lock()
                         .unwrap()
                         .visible = false;
+                    universe
+                        .read_resource::<UIComponents>()
+                        .crosshair_component
+                        .lock()
+                        .unwrap()
+                        .visible = true;
+                    universe
+                        .read_resource::<UIComponents>()
+                        .inventory_bar_component
+                        .lock()
+                        .unwrap()
+                        .visible = true;
 
                     let mut port = 25565;
                     let mut ip = universe

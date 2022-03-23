@@ -32,6 +32,10 @@ impl PauseMenuComponent {
 }
 
 impl UIComponent for PauseMenuComponent {
+    fn name(&self) -> &str {
+        "Pause Menu"
+    }
+
     fn render(&mut self) -> Vec<Box<dyn UIElement + Send + Sync + 'static>> {
         vec![
             UIButton::new(

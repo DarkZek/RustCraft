@@ -60,10 +60,13 @@ impl InputState {
         }
     }
 
-    pub fn clear(&mut self) {
-        self.look = [0.0; 2];
+    pub fn clear_ui(&mut self) {
         self.pause = false;
         self.debugging = false;
+    }
+
+    pub fn clear_physics(&mut self) {
+        self.look = [0.0; 2];
     }
 
     fn item_used(&mut self) {
