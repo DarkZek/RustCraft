@@ -3,6 +3,25 @@
 version = 3
 
 [[package]]
+name = "RustCraft"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "bevy",
+ "bevy-inspector-egui",
+ "bevy-testing-protocol",
+ "bevy_flycam",
+ "fnv",
+ "image 0.23.14",
+ "naia-bevy-client",
+ "nalgebra",
+ "rayon",
+ "serde",
+ "serde_json",
+ "zip",
+]
+
+[[package]]
 name = "ab_glyph"
 version = "0.2.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -338,26 +357,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "bevy-testing"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "bevy",
- "bevy-inspector-egui",
- "bevy-testing-protocol",
- "bevy_atmosphere",
- "bevy_flycam",
- "fnv",
- "image 0.23.14",
- "naia-bevy-client",
- "nalgebra",
- "rayon",
- "serde",
- "serde_json",
- "zip",
-]
-
-[[package]]
 name = "bevy-testing-protocol"
 version = "0.1.0"
 dependencies = [
@@ -424,15 +423,6 @@ dependencies = [
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "web-sys",
-]
-
-[[package]]
-name = "bevy_atmosphere"
-version = "0.4.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7eefd3b2c389c6b5cbf42b97e62a22386488c9fbcebbc441ec21f2bc4b2a61e1"
-dependencies = [
- "bevy",
 ]
 
 [[package]]

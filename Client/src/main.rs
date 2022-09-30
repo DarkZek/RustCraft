@@ -56,9 +56,6 @@ fn main() {
         // Networking
         .add_plugin(NetworkingPlugin)
         
-        // bevy_atmosphere
-        .add_plugin(bevy_atmosphere::prelude::AtmospherePlugin)
-        
         // Interaction
         .add_system(mouse_interaction)
         

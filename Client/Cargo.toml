@@ -1,5 +1,5 @@
 [package]
-name = "bevy-testing"
+name = "RustCraft"
 version = "0.1.0"
 edition = "2021"
 
@@ -21,14 +21,7 @@ image = "0.23.14"
 zip = { version = "0.5.5", default-features = false, features = ["deflate"] }
 naia-bevy-client = { version = "0.13.0" }
 bevy-testing-protocol = { path = "../Protocol" }
-bevy_atmosphere = "0.4.1"
 bevy_flycam = "0.8.1"
-
-[target.'cfg(not(wasm))'.dev]
-bevy = { version = "0.8.1", features = ["dynamic"] }
-
-[target.wasm32-unknown-unknown]
-runner = "wasm-server-runner"
 
 [profile.dev]
 opt-level = 1

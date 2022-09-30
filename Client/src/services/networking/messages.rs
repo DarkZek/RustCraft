@@ -65,7 +65,7 @@ pub fn messages_update(
                     info!("Entity has not spawned yet!");
                 }
             }
-            MessageEvent(Channels::ChunkUpdates, Protocol::PartialChunkUpdate(update)) => { todo!() }
+            MessageEvent(Channels::ChunkUpdates, Protocol::PartialChunkUpdate(update)) => {  }
             _ => {
                 info!("Other");
             }
