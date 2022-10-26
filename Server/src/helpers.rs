@@ -1,4 +1,4 @@
-use bevy_testing_protocol::constants::CHUNK_SIZE;
+use rustcraft_protocol::constants::CHUNK_SIZE;
 use nalgebra::Vector3;
 
 #[inline]

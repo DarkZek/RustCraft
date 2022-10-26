@@ -3,7 +3,7 @@ use crate::game::viewable_direction::{
     calculate_viewable, ViewableDirection, ViewableDirectionBitMap,
 };
 use crate::services::chunk::data::ChunkData;
-use bevy_testing_protocol::constants::CHUNK_SIZE;
+use rustcraft_protocol::constants::CHUNK_SIZE;
 use fnv::FnvBuildHasher;
 use nalgebra::Vector3;
 use std::collections::HashMap;

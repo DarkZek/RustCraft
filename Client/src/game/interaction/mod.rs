@@ -2,15 +2,10 @@ use crate::helpers::{from_bevy_vec3, global_to_local_position};
 use crate::services::asset::AssetService;
 use crate::services::chunk::ChunkService;
 use crate::services::physics::raycasts::do_raycast;
-use crate::{
-    info, Assets, Camera, ChunkData, Commands, Entity, EulerRot, Input, Mesh, MouseButton, Query,
-    RerenderChunkFlag, Res, ResMut, StandardMaterial, Transform, Vec3, With,
-};
-use bevy_testing_protocol::channels::Channels;
-use bevy_testing_protocol::constants::CHUNK_SIZE;
-use bevy_testing_protocol::protocol::clientbound::block_update::BlockUpdate;
-use bevy_testing_protocol::protocol::Protocol;
-use naia_bevy_client::Client;
+use crate::{info, Assets, Camera, ChunkData, Commands, Entity, EulerRot, Input, Mesh, MouseButton, Query, RerenderChunkFlag, Res, ResMut, StandardMaterial, Transform, Vec3, With, EventWriter};
+use rustcraft_protocol::constants::CHUNK_SIZE;
+use rustcraft_protocol::protocol::clientbound::block_update::BlockUpdate;
+use rustcraft_protocol::protocol::{Protocol, SendPacket};
 use nalgebra::Vector3;
 use std::ops::Mul;
 
@@ -21,7 +16,7 @@ pub fn mouse_interaction(
     mut chunks: ResMut<ChunkService>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut assets: ResMut<AssetService>,
-    mut networking: Client<Protocol, Channels>,
+    mut networking: EventWriter<SendPacket>,
 ) {
     if !mouse_button_input.just_pressed(MouseButton::Left)
         && !mouse_button_input.just_pressed(MouseButton::Right)
@@ -71,10 +66,7 @@ pub fn mouse_interaction(
         }
 
         // Send network update
-        networking.send_message(
-            Channels::PlayerCommand,
-            &BlockUpdate::new(0, ray.block.x, ray.block.y, ray.block.z),
-        )
+        networking.send(SendPacket(Protocol::BlockUpdate(BlockUpdate::new(0, ray.block.x, ray.block.y, ray.block.z))))
     } else {
         let pos = ray.block + ray.normal;
 
@@ -109,9 +101,6 @@ pub fn mouse_interaction(
         }
 
         // Send network update
-        networking.send_message(
-            Channels::PlayerCommand,
-            &BlockUpdate::new(1, pos.x, pos.y, pos.z),
-        )
+        networking.send(SendPacket(Protocol::BlockUpdate(BlockUpdate::new(1, ray.block.x, ray.block.y, ray.block.z))))
     }
 }

@@ -1,17 +1,21 @@
-use bevy_ecs::prelude::Component;
-use naia_shared::Property;
-use naia_shared::Replicate;
+use crate::constants::UserId;
 
-#[derive(Replicate, Component)]
-#[protocol_path = "crate::protocol::Protocol"]
+use serde::{Serialize, Deserialize};
+#[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct PlayerMove {
-    pub x: Property<f32>,
-    pub y: Property<f32>,
-    pub z: Property<f32>,
+    pub client: UserId,
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
 }
 
 impl PlayerMove {
-    pub fn new(x: f32, y: f32, z: f32) -> Self {
-        PlayerMove::new_complete(x, y, z)
+    pub fn new(client: UserId, x: f32, y: f32, z: f32) -> PlayerMove {
+        PlayerMove {
+            client,
+            x,
+            y,
+            z
+        }
     }
 }

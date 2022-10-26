@@ -121,10 +121,6 @@ pub fn do_raycast(
     None
 }
 
-fn dist(v1: Vector3<f32>, v2: Vector3<f32>) -> f32 {
-    (v1.x - v2.x).abs() + (v1.y - v2.y).abs() + (v1.z - v2.z).abs()
-}
-
 fn signum(n: f32) -> i32 {
     if n > 0.0 {
         1

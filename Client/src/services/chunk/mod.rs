@@ -1,13 +1,10 @@
 use crate::services::asset::AssetService;
-use crate::{
-    default, info, shape, Aabb, App, Assets, ChunkData, Color, Commands, Handle, Mesh, Mut,
-    PartialChunks, PbrBundle, Plugin, RawChunkData, RerenderChunkFlag, ResMut, StandardMaterial,
-    Transform, Vec3,
-};
-use bevy_testing_protocol::constants::CHUNK_SIZE;
+use crate::{default, info, shape, Aabb, App, Assets, ChunkData, Color, Commands, Handle, Mesh, Mut, PbrBundle, Plugin, RawChunkData, RerenderChunkFlag, ResMut, StandardMaterial, Transform, Vec3, TextureAtlasSprite};
+use rustcraft_protocol::constants::CHUNK_SIZE;
 use fnv::{FnvBuildHasher, FnvHashMap};
 use nalgebra::Vector3;
 use std::collections::HashMap;
+use rustcraft_protocol::protocol::clientbound::chunk_update::PartialChunkUpdate;
 
 pub mod data;
 pub mod lookup;
@@ -39,11 +36,11 @@ impl ChunkService {
         }
     }
 
-    /// Loads a chunk from partial chunks cache into the game by creating an entity and ChunkData entry
+    /// Loads a chunk from network into the game by creating an entity and ChunkData entry
     pub fn load_chunk(
         &mut self,
         position: Vector3<i32>,
-        data: &mut PartialChunks,
+        data: &mut PartialChunkUpdate,
         commands: &mut Commands,
         asset_service: &AssetService,
         materials: &mut ResMut<Assets<StandardMaterial>>,
@@ -56,28 +53,26 @@ impl ChunkService {
             materials.add(Color::rgb(0.3, 0.3, 0.3).into())
         };
 
-        let entity = commands
-            .spawn_bundle(PbrBundle {
-                mesh: meshes.add(Mesh::from(shape::Plane { size: 0.0 })),
-                material,
-                transform: Transform::from_translation(Vec3::new(
-                    (position.x * CHUNK_SIZE as i32) as f32,
-                    (position.y * CHUNK_SIZE as i32) as f32,
-                    (position.z * CHUNK_SIZE as i32) as f32,
-                )),
-                ..default()
-            })
-            .insert(RerenderChunkFlag { chunk: position })
-            //TODO: Remove once bevy has fixed its shitty AABB generation
-            .insert(Aabb::from_min_max(
-                Vec3::new(0.0, 0.0, 0.0),
-                Vec3::new(16.0, 16.0, 16.0),
-            ))
-            .id();
-
-        let chunk = data.create_chunk(position, entity);
-
-        self.chunks.insert(position, chunk);
+        // let entity = commands
+        //     .spawn_bundle(PbrBundle {
+        //         mesh: meshes.add(Mesh::from(shape::Plane { size: 0.0 })),
+        //         material,
+        //         transform: Transform::from_translation(Vec3::new(
+        //             (position.x * CHUNK_SIZE as i32) as f32,
+        //             (position.y * CHUNK_SIZE as i32) as f32,
+        //             (position.z * CHUNK_SIZE as i32) as f32,
+        //         )),
+        //         ..default()
+        //     })
+        //     .insert(RerenderChunkFlag { chunk: position })
+        //     //TODO: Remove once bevy has fixed its shitty AABB generation
+        //     .insert(Aabb::from_min_max(
+        //         Vec3::new(0.0, 0.0, 0.0),
+        //         Vec3::new(16.0, 16.0, 16.0),
+        //     ))
+        //     .id();
+        //
+        // self.chunks.insert(position, data.data);
     }
 
     /// Creates a new chunk from data

@@ -1,19 +1,14 @@
 use std::collections::HashMap;
-use bevy_testing_protocol::protocol::serverbound::authenticate::UserAuthenticate;
-use naia_bevy_server::{RoomKey, UserKey};
 use nalgebra::Vector3;
 use crate::game::chunk::ChunkData;
 use crate::game::player::Player;
 
-pub struct Global {
-    pub main_room_key: RoomKey,
-    pub user_to_prediction_map: HashMap<UserKey, Player>,
-    pub authentication_requests: HashMap<UserKey, String>,
+pub struct World {
     pub chunks: HashMap<Vector3<i32>, ChunkData>
 }
 
-impl Global {
-    pub fn new(main_room_key: RoomKey) -> Self {
+impl World {
+    pub fn new() -> Self {
 
         let mut chunks = HashMap::new();
 
@@ -24,10 +19,7 @@ impl Global {
             }
         }
 
-        Global {
-            main_room_key,
-            user_to_prediction_map: Default::default(),
-            authentication_requests: Default::default(),
+        World {
             chunks
         }
     }

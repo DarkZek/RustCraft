@@ -2,11 +2,10 @@ use crate::game::viewable_direction::ViewableDirection;
 use crate::Entity;
 use bevy::ecs::component::Component;
 use bevy::render::render_resource::BindGroup;
-use bevy_testing_protocol::constants::CHUNK_SIZE;
+use rustcraft_protocol::constants::CHUNK_SIZE;
 use nalgebra::Vector3;
 
 pub mod generate_mesh;
-pub mod partial;
 pub mod viewable;
 
 #[derive(Debug, Component)]

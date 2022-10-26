@@ -1,16 +1,8 @@
-use bevy_ecs::prelude::Component;
-use naia_shared::Replicate;
-use naia_shared::{EntityProperty, Property};
+use crate::constants::UserId;
 
-#[derive(Replicate, Component)]
-#[protocol_path = "crate::protocol::Protocol"]
+use serde::{Serialize, Deserialize};
+#[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct UserAuthenticate {
-    pub username: Property<String>,
-    pub entity: EntityProperty,
-}
-
-impl UserAuthenticate {
-    pub fn new(username: &str) -> Self {
-        UserAuthenticate::new_complete(username.to_string())
-    }
+    pub username: String,
+    pub entity: UserId,
 }

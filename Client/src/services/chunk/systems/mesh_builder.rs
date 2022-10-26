@@ -12,7 +12,7 @@ use bevy::asset::HandleId;
 use bevy::ecs::system::Command;
 use bevy::prelude::Mesh;
 use bevy::render::mesh::Indices;
-use bevy_testing_protocol::constants::CHUNK_SIZE;
+use rustcraft_protocol::constants::CHUNK_SIZE;
 use nalgebra::Vector3;
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 

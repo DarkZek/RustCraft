@@ -1,10 +1,7 @@
-use bevy_testing_protocol::constants::CHUNK_SIZE;
 use nalgebra::Vector3;
 use bevy_ecs::prelude::Component;
-use bevy_testing_protocol::channels::Channels;
-use bevy_testing_protocol::protocol::clientbound::chunk_update::PartialChunkUpdate;
-use bevy_testing_protocol::protocol::Protocol;
-use naia_bevy_server::{Server, UserKey};
+use rustcraft_protocol::constants::CHUNK_SIZE;
+use rustcraft_protocol::protocol::clientbound::chunk_update::PartialChunkUpdate;
 use crate::info;
 
 #[derive(Debug, Component)]
@@ -51,11 +48,11 @@ impl ChunkData {
         }
     }
 
-    pub fn send(&self, server: &mut Server<Protocol, Channels>, key: &UserKey) {
-        let sections = PartialChunkUpdate::generate(&self.world, [self.position.x, self.position.y, self.position.z]);
-
-        for packet in sections {
-            server.send_message(key, Channels::ChunkUpdates, &packet);
-        }
-    }
+    // pub fn send(&self, server: &mut Server<Protocol, Channels>, key: &UserKey) {
+    //     let sections = PartialChunkUpdate::generate(&self.world, [self.position.x, self.position.y, self.position.z]);
+    //
+    //     for packet in sections {
+    //         server.send_message(key, Channels::ChunkUpdates, &packet);
+    //     }
+    // }
 }

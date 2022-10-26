@@ -1,5 +1,5 @@
 [package]
-name = "RustCraft"
+name = "rustcraft_client"
 version = "0.1.0"
 edition = "2021"
 
@@ -19,9 +19,11 @@ bevy-inspector-egui = "0.12.1"
 anyhow = "1.0.57"
 image = "0.23.14"
 zip = { version = "0.5.5", default-features = false, features = ["deflate"] }
-naia-bevy-client = { version = "0.13.0" }
-bevy-testing-protocol = { path = "../Protocol" }
+rustcraft-protocol = { path = "../Protocol" }
 bevy_flycam = "0.8.1"
+tokio =  { version = "1.18.0", features = ["net"]}
+mio = { version = "0.8.5", features = ["net", "os-poll"]}
+thiserror = "1.0.37"
 
 [profile.dev]
 opt-level = 1

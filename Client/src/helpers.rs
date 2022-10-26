@@ -1,7 +1,7 @@
 use crate::services::chunk::data::{ChunkData, Color};
 use crate::Vec3;
 use bevy::prelude::Query;
-use bevy_testing_protocol::constants::CHUNK_SIZE;
+use rustcraft_protocol::constants::CHUNK_SIZE;
 use nalgebra::{Point3, Vector3};
 use std::ops::Add;
 

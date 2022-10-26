@@ -6,7 +6,7 @@ use crate::services::chunk::data::ChunkData;
 use bevy::ecs::component::Component;
 use bevy::log::error;
 use bevy::render::render_resource::BindGroup;
-use bevy_testing_protocol::constants::CHUNK_SIZE;
+use rustcraft_protocol::constants::CHUNK_SIZE;
 use fnv::FnvHashMap;
 use nalgebra::{Vector2, Vector3};
 

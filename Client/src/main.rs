@@ -2,6 +2,7 @@ pub mod game;
 pub mod helpers;
 pub mod render;
 pub mod services;
+pub mod error;
 
 use crate::game::blocks::BlockStates;
 use crate::game::interaction::mouse_interaction;
@@ -12,7 +13,6 @@ use crate::services::asset::atlas::{
     build_texture_atlas, load_resource_zips, AtlasLoadingStage, ResourcePackData,
 };
 use crate::services::asset::create_asset_service;
-use crate::services::chunk::data::partial::PartialChunks;
 use crate::services::chunk::data::{ChunkData, RawChunkData};
 use crate::services::chunk::systems::mesh_builder::{mesh_builder, RerenderChunkFlag};
 use crate::services::chunk::ChunkPlugin;
@@ -24,13 +24,12 @@ use bevy::render::primitives::Aabb;
 use bevy::window::WindowResizeConstraints;
 use bevy_flycam::PlayerPlugin;
 use bevy_inspector_egui::WorldInspectorPlugin;
-use bevy_testing_protocol::channels::Channels;
-use bevy_testing_protocol::config::network_config;
-use bevy_testing_protocol::constants::CHUNK_SIZE;
-use bevy_testing_protocol::protocol::Protocol;
+use rustcraft_protocol::constants::CHUNK_SIZE;
+use rustcraft_protocol::protocol::Protocol;
 use nalgebra::Vector3;
 use std::fs::File;
 use std::io::Write;
+use crate::services::input::InputPlugin;
 
 #[rustfmt::skip]
 fn main() {
@@ -61,6 +60,8 @@ fn main() {
         
         // Chunk loading
         .add_plugin(ChunkPlugin)
+
+        .add_plugin(InputPlugin)
         
         // Asset Loaders
         .add_asset::<ResourcePacks>()
