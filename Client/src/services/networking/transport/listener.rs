@@ -1,14 +1,15 @@
-use std::net::IpAddr;
+use crate::error::ClientError;
 use bevy::log::info;
 use mio::net::{TcpListener, TcpStream};
 use mio::{Interest, Poll, Token};
 use rustcraft_protocol::stream::GameStream;
-use crate::error::ClientError;
+use std::net::IpAddr;
 
 pub const CLIENT: Token = Token(0);
 
 pub struct ClientListener {
     pub stream: Option<GameStream>,
+    pub disconnect: bool,
 }
 
 impl ClientListener {
@@ -18,7 +19,8 @@ impl ClientListener {
         info!("Connecting to server on {}:{}", ip, port);
 
         Ok(ClientListener {
-            stream: Some(GameStream::new(stream))
+            stream: Some(GameStream::new(stream)),
+            disconnect: false,
         })
     }
 

@@ -36,7 +36,7 @@ pub fn receive_message_event(
                     if *client == event.1 {
                         continue;
                     }
-                    //info!("Move packet sent to {:?}", client);
+                    info!("Move packet sending to {:?}", client);
                     event_writer.send(SendPacket(packet.clone(), *client));
                 }
             }

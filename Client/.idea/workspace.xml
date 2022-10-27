@@ -9,53 +9,32 @@
     <cargoProject FILE="$PROJECT_DIR$/Cargo.toml" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d34b37f8-8bd9-4c23-a17f-5bd5043c2fce" name="Changes" comment="Got building on web">
-      <change afterPath="$PROJECT_DIR$/assets/shaders/chunk_material.wgsl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/services/asset/material/chunk.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/services/asset/material/mod.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/services/networking/transport/packet.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/entity_moved.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/entity_rotated.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/spawn_entity.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../Server/src/game/entity/mod.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../Server/src/transport/packet.rs" afterDir="false" />
+    <list default="true" id="d34b37f8-8bd9-4c23-a17f-5bd5043c2fce" name="Changes" comment="Got chunks loading">
+      <change afterPath="$PROJECT_DIR$/src/game/entity.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/game/player.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/services/camera/mod.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/services/input/look.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/services/input/movement.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/services/physics/simulate.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/services/physics/sync.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/game/interaction/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/interaction/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/shaders/chunk_material.wgsl" beforeDir="false" afterPath="$PROJECT_DIR$/assets/shaders/chunk_material.wgsl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/mod.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/asset/atlas/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/asset/atlas/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/asset/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/asset/mod.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/services/chunk/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/chunk/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/input/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/input/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/mod.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/services/networking/chunk.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/networking/chunk.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/services/networking/location_sync.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/networking/location_sync.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/services/networking/messages.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/networking/messages.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/services/networking/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/networking/mod.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/services/networking/transport/connection.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/networking/transport/connection.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/networking/transport/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/networking/transport/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/physics/raycasts.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/physics/raycasts.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Protocol/src/constants.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Protocol/src/constants.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Protocol/src/protocol.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/block_update.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/block_update.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/chat.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/chat.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/chunk_update.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/chunk_update.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/ping.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/ping.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/player_join.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/player_join.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/player_leave.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/player_leave.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/player_moved.rs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/player_rotated.rs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/serverbound/authenticate.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Protocol/src/protocol/serverbound/authenticate.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/serverbound/player_move.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Protocol/src/protocol/serverbound/player_move.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/serverbound/player_rotate.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Protocol/src/protocol/serverbound/player_rotate.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Server/src/events/authorization.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Server/src/events/authorization.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Server/src/game/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Server/src/game/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Server/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Server/src/main.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Server/src/resources.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Server/src/resources.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Server/src/systems/authorization.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Server/src/systems/authorization.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Server/src/systems/connection.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Server/src/systems/connection.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/networking/transport/listener.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/networking/transport/listener.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/physics/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/physics/mod.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Server/src/systems/message.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Server/src/systems/message.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Server/src/transport/connection.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Server/src/transport/connection.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Server/src/transport/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Server/src/transport/mod.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -109,6 +88,7 @@
       <recent name="C:\Users\mashd\CLionProjects\RustCraft\Client\src\services\networking" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\mashd\CLionProjects\RustCraft\Client\src\services" />
       <recent name="C:\Users\mashd\CLionProjects\RustCraft\Client\src\services\networking\transport" />
     </key>
   </component>
@@ -160,7 +140,6 @@
   </component>
   <component name="RustfmtProjectSettings">
     <option name="runRustfmtOnSave" value="true" />
-    <option name="useRustfmt" value="true" />
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -178,7 +157,8 @@
       <workItem from="1665535039105" duration="95000" />
       <workItem from="1666679524289" duration="5342000" />
       <workItem from="1666756467840" duration="12488000" />
-      <workItem from="1666831961676" duration="6362000" />
+      <workItem from="1666831961676" duration="20335000" />
+      <workItem from="1666910283742" duration="1216000" />
     </task>
     <task id="LOCAL-00001" summary="Start new project">
       <created>1663755658916</created>
@@ -194,7 +174,14 @@
       <option name="project" value="LOCAL" />
       <updated>1664533486922</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Got chunks loading">
+      <created>1666841631799</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1666841631799</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -217,7 +204,8 @@
     </ignored-roots>
     <MESSAGE value="Start new project" />
     <MESSAGE value="Got building on web" />
-    <option name="LAST_COMMIT_MESSAGE" value="Got building on web" />
+    <MESSAGE value="Got chunks loading" />
+    <option name="LAST_COMMIT_MESSAGE" value="Got chunks loading" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

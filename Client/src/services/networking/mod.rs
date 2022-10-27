@@ -11,10 +11,12 @@ use crate::services::networking::transport::listener::ClientListener;
 use crate::services::networking::transport::packet::{ReceivePacket, SendPacket};
 use crate::{info, services, App, EventReader, Plugin, Quat, SystemStage};
 use bevy::ecs::schedule::StageLabel;
-use bevy::prelude::{ResMut, Vec3};
+use bevy::prelude::{Entity, Handle, ResMut, Vec3};
 use nalgebra::Vector3;
+use rustcraft_protocol::constants::EntityId;
 use rustcraft_protocol::protocol::serverbound::authenticate::UserAuthenticate;
 use rustcraft_protocol::protocol::Protocol;
+use std::collections::HashMap;
 use std::net::TcpStream;
 
 mod chunk;
@@ -47,11 +49,15 @@ impl Plugin for NetworkingPlugin {
     }
 }
 
-pub struct TransportSystem {}
+pub struct TransportSystem {
+    entity_mapping: HashMap<EntityId, Entity>,
+}
 
 impl Default for TransportSystem {
     fn default() -> Self {
-        TransportSystem {}
+        TransportSystem {
+            entity_mapping: Default::default(),
+        }
     }
 }
 

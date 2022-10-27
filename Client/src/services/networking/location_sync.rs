@@ -41,15 +41,12 @@ pub fn network_location_sync(
         + (transform.rotation.w - rotation.0.w).abs();
 
     if rotation_diff > MIN_LOCATION_CHANGE_SYNC {
-        // client.send_message(
-        //     Channels::PlayerCommand,
-        //     &PlayerRotate::new(
-        //         transform.rotation.x,
-        //         transform.rotation.y,
-        //         transform.rotation.z,
-        //         transform.rotation.w,
-        //     ),
-        // );
+        networking.send(SendPacket(Protocol::PlayerRotate(PlayerRotate {
+            x: transform.rotation.x,
+            y: transform.rotation.y,
+            z: transform.rotation.z,
+            w: transform.rotation.w,
+        })));
         rotation.0 = transform.rotation;
     }
 }

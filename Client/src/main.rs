@@ -14,11 +14,13 @@ use crate::services::asset::atlas::{
 };
 use crate::services::asset::create_asset_service;
 use crate::services::asset::material::chunk::ChunkMaterial;
+use crate::services::camera::CameraPlugin;
 use crate::services::chunk::data::{ChunkData, RawChunkData};
 use crate::services::chunk::systems::mesh_builder::{mesh_builder, RerenderChunkFlag};
 use crate::services::chunk::ChunkPlugin;
 use crate::services::input::InputPlugin;
 use crate::services::networking::NetworkingPlugin;
+use crate::services::physics::PhysicsPlugin;
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::input::mouse::{MouseMotion, MouseWheel};
 use bevy::log::{Level, LogSettings};
@@ -26,7 +28,6 @@ use bevy::prelude::*;
 use bevy::render::primitives::Aabb;
 use bevy::render::texture::ImageSettings;
 use bevy::window::WindowResizeConstraints;
-use bevy_flycam::PlayerPlugin;
 use bevy_inspector_egui::WorldInspectorPlugin;
 use nalgebra::Vector3;
 use rustcraft_protocol::constants::CHUNK_SIZE;
@@ -74,6 +75,10 @@ fn main() {
         .add_plugin(ChunkPlugin)
 
         .add_plugin(InputPlugin)
+
+        .add_plugin(CameraPlugin)
+
+        .add_plugin(PhysicsPlugin)
         
         // Asset Loaders
         .add_asset::<ResourcePacks>()
@@ -85,9 +90,6 @@ fn main() {
         .insert_resource(BlockStates::new())
         
         .add_system(mesh_builder)
-        
-        // Camera
-        .add_plugin(PlayerPlugin)
         
         // Asset loading
         .insert_resource(AtlasLoadingStage::AwaitingIndex)

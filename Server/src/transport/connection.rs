@@ -5,7 +5,7 @@ use crate::transport::packet::{ReceivePacket, SendPacket};
 use crate::TransportSystem;
 use bevy_ecs::event::{EventReader, EventWriter};
 use bevy_ecs::system::{Res, ResMut};
-use bevy_log::{debug, info, warn};
+use bevy_log::{debug, error, info, warn};
 use mio::{Events, Interest, Token};
 use rustcraft_protocol::constants::UserId;
 use rustcraft_protocol::error::ProtocolError;
@@ -110,6 +110,15 @@ pub fn accept_connections(
 
                 if event.is_readable() {
                     loop {
+                        // Verify there is data to read
+                        let mut data = vec![0u8; 4];
+                        match stream.stream.as_mut().unwrap().stream.peek(&mut data) {
+                            Ok(_) => {}
+                            Err(_) => {
+                                break;
+                            }
+                        }
+
                         match user.stream.read_packet() {
                             Ok(n) => {
                                 debug!("-> {:?}", n);
@@ -144,8 +153,12 @@ pub fn accept_connections(
                                 client_disconnect = true;
                                 break;
                             }
-                            // Other errors we'll consider fatal.
-                            Err(err) => panic!("{:?}", err),
+                            // Other errors we'll consider fatal for that connection.
+                            Err(err) => {
+                                error!("{:?}", err);
+                                client_disconnect = true;
+                                break;
+                            }
                         }
                     }
                 }
@@ -173,7 +186,21 @@ pub fn send_packets(mut system: ResMut<TransportSystem>, mut packets: EventReade
     for packet in packets.iter() {
         debug!("<- {:?}", packet.0);
         if let Some(mut user) = system.clients.get_mut(&packet.1) {
-            user.stream.write_packet(packet).unwrap();
+            match user.stream.write_packet(packet) {
+                Ok(_) => {}
+                Err(e) => {
+                    if e.kind() == io::ErrorKind::WouldBlock {
+                        continue;
+                    }
+                    if e.kind() == io::ErrorKind::Interrupted {
+                        error!("Connection interrupted while writing to  client");
+                        continue;
+                    }
+                    error!("{:?}", e);
+                    user.disconnected = true;
+                }
+                _ => {}
+            }
         }
     }
 }

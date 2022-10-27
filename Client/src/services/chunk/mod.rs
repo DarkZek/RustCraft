@@ -20,25 +20,18 @@ pub struct ChunkPlugin;
 
 impl Plugin for ChunkPlugin {
     fn build(&self, app: &mut App) {
-        app.world
-            .resource_scope(|world, mut materials: Mut<Assets<StandardMaterial>>| {
-                world.insert_resource(ChunkService::new(&mut *materials));
-            });
+        app.world.insert_resource(ChunkService::new());
     }
 }
 
 pub struct ChunkService {
     pub chunks: HashMap<Vector3<i32>, ChunkData, FnvBuildHasher>,
-    default_material: Handle<StandardMaterial>,
 }
 
 impl ChunkService {
-    pub fn new(materials: &mut Assets<StandardMaterial>) -> ChunkService {
-        let default_material = materials.add(Color::rgb(0.3, 0.3, 0.3).into());
-
+    pub fn new() -> ChunkService {
         ChunkService {
             chunks: FnvHashMap::default(),
-            default_material,
         }
     }
 

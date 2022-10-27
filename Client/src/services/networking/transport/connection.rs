@@ -1,8 +1,10 @@
 use crate::services::networking::transport::listener::ClientListener;
 use crate::services::networking::transport::packet::{ReceivePacket, SendPacket};
 use crate::services::networking::TransportSystem;
+use crate::KeyCode::P;
 use crate::{debug, EventReader, EventWriter, ResMut};
 use bevy::log::{info, warn};
+use bevy::prelude::error;
 use rustcraft_protocol::constants::UserId;
 use rustcraft_protocol::error::ProtocolError;
 use rustcraft_protocol::protocol::serverbound::pong::Pong;
@@ -19,12 +21,16 @@ pub fn connection_upkeep(
         return;
     }
 
-    let mut client_disconnect = false;
+    let mut client_disconnect = stream.disconnect;
 
     loop {
         let mut data = vec![0u8; 4];
         match stream.stream.as_mut().unwrap().stream.peek(&mut data) {
-            Ok(_) => {}
+            Ok(v) => {
+                if v == 0 {
+                    warn!("No readings");
+                }
+            }
             Err(_) => {
                 break;
             }
@@ -48,8 +54,14 @@ pub fn connection_upkeep(
             }
             // Would block "errors" are the OS's way of saying that the
             // connection is not actually ready to perform this I/O operation.
-            Err(ProtocolError::Io(ref err)) if err.kind() == io::ErrorKind::WouldBlock => break,
-            Err(ProtocolError::Io(ref err)) if err.kind() == io::ErrorKind::Interrupted => continue,
+            Err(ProtocolError::Io(ref err)) if err.kind() == io::ErrorKind::WouldBlock => {
+                info!("WouldBlock");
+                break;
+            }
+            Err(ProtocolError::Io(ref err)) if err.kind() == io::ErrorKind::Interrupted => {
+                info!("Interrupted");
+                continue;
+            }
             Err(ProtocolError::Io(ref err)) if err.kind() == io::ErrorKind::UnexpectedEof => {
                 warn!("{:?}", err);
                 // Disconnected!
@@ -82,14 +94,20 @@ pub fn send_packets(mut stream: ResMut<ClientListener>, mut packets: EventReader
     if stream.stream().is_none() {
         return;
     }
-    // debug!("Writing {} packets", packets.len());
+
     for packet in packets.iter() {
         debug!("<- {:?}", packet.0);
-        stream
-            .stream
-            .as_mut()
-            .unwrap()
-            .write_packet(packet)
-            .unwrap();
+        match stream.stream.as_mut().unwrap().write_packet(packet) {
+            Ok(_) => {}
+            Err(e) => {
+                if e.kind() == io::ErrorKind::NotConnected {
+                    // Disconnect
+                    stream.disconnect = true;
+                }
+                error!("{:?}", e);
+                stream.disconnect = true;
+            }
+            _ => {}
+        }
     }
 }
