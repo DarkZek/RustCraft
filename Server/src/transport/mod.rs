@@ -39,15 +39,17 @@ impl Default for TransportPlugin {
 
 impl Plugin for TransportPlugin {
     fn build(&self, app: &mut App) {
-        let mut stream = match ServerListener::new(IpAddr::from_str("127.0.0.1").unwrap(), 8000) {
+        let ip = IpAddr::from_str("0.0.0.0").unwrap();
+        let port = 25567;
+
+        let mut stream = match ServerListener::new(ip, port) {
             Ok(val) => val,
             Err(err) => {
                 panic!("{:?}", err);
             }
         };
 
-        let transport_system =
-            TransportSystem::new(IpAddr::from_str("127.0.0.1").unwrap(), 8000).unwrap();
+        let transport_system = TransportSystem::new(ip, port).unwrap();
 
         app.insert_resource(stream)
             .insert_resource(transport_system)

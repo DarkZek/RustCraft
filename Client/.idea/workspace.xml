@@ -10,31 +10,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d34b37f8-8bd9-4c23-a17f-5bd5043c2fce" name="Changes" comment="Got chunks loading">
-      <change afterPath="$PROJECT_DIR$/src/game/entity.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/player.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/services/camera/mod.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/services/input/look.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/services/input/movement.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/services/physics/simulate.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/services/physics/sync.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/shaders/chunk_material.wgsl" beforeDir="false" afterPath="$PROJECT_DIR$/assets/shaders/chunk_material.wgsl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/game/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/chunk/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/chunk/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/input/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/input/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/networking/chunk.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/networking/chunk.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/networking/location_sync.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/networking/location_sync.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/networking/messages.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/networking/messages.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/services/networking/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/networking/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/networking/transport/connection.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/networking/transport/connection.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/networking/transport/listener.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/networking/transport/listener.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/physics/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/physics/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Server/src/systems/message.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Server/src/systems/message.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Protocol/src/stream.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Protocol/src/stream.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Server/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Server/src/main.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Server/src/transport/connection.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Server/src/transport/connection.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Server/src/transport/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Server/src/transport/mod.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -158,7 +139,7 @@
       <workItem from="1666679524289" duration="5342000" />
       <workItem from="1666756467840" duration="12488000" />
       <workItem from="1666831961676" duration="20335000" />
-      <workItem from="1666910283742" duration="1216000" />
+      <workItem from="1666910283742" duration="3074000" />
     </task>
     <task id="LOCAL-00001" summary="Start new project">
       <created>1663755658916</created>

@@ -31,7 +31,7 @@ impl Plugin for NetworkingPlugin {
     fn build(&self, app: &mut App) {
         app.add_system(send_packets)
             .add_system(connection_upkeep)
-            .insert_resource(ClientListener::new("127.0.0.1".parse().unwrap(), 8000).unwrap())
+            .insert_resource(ClientListener::new("192.168.1.64".parse().unwrap(), 25567).unwrap())
             .add_stage(ClientState::Networking, SystemStage::single_threaded())
             .add_system_to_stage(ClientState::Networking, connect_event)
             .add_system_to_stage(ClientState::Networking, disconnect_event)

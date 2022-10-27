@@ -26,7 +26,7 @@ fn main() {
     App::default()
         .insert_resource(LogSettings {
             filter: "".into(),
-            level: Level::DEBUG,
+            level: Level::TRACE,
         })
         // Plugins
         .add_plugin(CorePlugin::default())

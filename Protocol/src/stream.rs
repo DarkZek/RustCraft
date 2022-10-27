@@ -25,18 +25,18 @@ impl GameStream {
         self.stream.write_all(&bincode::serialize(&header).unwrap())?;
         self.stream.write_all(&packet)?;
 
-        self.stream.flush();
+        self.stream.flush().unwrap();
 
         Ok(())
     }
 
     pub fn read_packet(&mut self) -> Result<Protocol, ProtocolError> {
-        let mut data = vec![0u8; 4]; // 4 Is the size of u32
+        let mut data = [0; 4]; // 4 Is the size of u32
         self.stream.read_exact(&mut data)?;
 
         let packet_len: u32 = bincode::deserialize(&data[..])?;
 
-        data = vec![0u8; packet_len as usize];
+        let mut data = vec![0u8; packet_len as usize];
 
         self.stream.read_exact(&mut data)?;
 

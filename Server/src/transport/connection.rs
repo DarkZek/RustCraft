@@ -45,6 +45,8 @@ pub fn accept_connections(
             .registry()
             .deregister(&mut client.stream.stream)
             .unwrap();
+
+        warn!("Disconnected Client {:?}: Unknown Disconnection", token);
     }
 
     let mut events = Events::with_capacity(128);
@@ -110,15 +112,6 @@ pub fn accept_connections(
 
                 if event.is_readable() {
                     loop {
-                        // Verify there is data to read
-                        let mut data = vec![0u8; 4];
-                        match stream.stream.as_mut().unwrap().stream.peek(&mut data) {
-                            Ok(_) => {}
-                            Err(_) => {
-                                break;
-                            }
-                        }
-
                         match user.stream.read_packet() {
                             Ok(n) => {
                                 debug!("-> {:?}", n);
@@ -155,7 +148,7 @@ pub fn accept_connections(
                             }
                             // Other errors we'll consider fatal for that connection.
                             Err(err) => {
-                                error!("{:?}", err);
+                                error!("Unknown: {:?}", err);
                                 client_disconnect = true;
                                 break;
                             }
