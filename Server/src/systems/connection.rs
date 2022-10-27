@@ -1,7 +1,8 @@
-use bevy_ecs::event::EventReader;
+use bevy_ecs::event::{EventReader, EventWriter};
 use bevy_ecs::system::ResMut;
 use bevy_log::info;
 use nalgebra::{Vector2, Vector3};
+use crate::events::authorization::AuthorizationEvent;
 use crate::events::connection::ConnectionEvent;
 use crate::game::chunk::ChunkData;
 use crate::game::player::Player;
@@ -9,8 +10,13 @@ use crate::resources::World;
 
 pub fn connection_event<'world, 'state>(
     mut event_reader: EventReader<ConnectionEvent>,
-    mut global: ResMut<World>,
+    mut event_writer: EventWriter<AuthorizationEvent>
 ) {
+    for connection in event_reader.iter() {
+        event_writer.send(AuthorizationEvent::new(connection.user));
+    }
+
+    // TODO: Add authorisation. For now just go straight to allow authorisation
     // for event in event_reader.iter() {
     //     let ConnectionEvent(user_key) = event;
     //

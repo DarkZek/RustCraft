@@ -20,9 +20,7 @@ pub fn do_raycast(
     mut commands: &mut Commands,
     mut meshes: &mut ResMut<Assets<Mesh>>,
 ) -> Option<RaycastResult> {
-    info!("Look Vector: {:?}", direction);
     direction = direction.normalize();
-    info!("post normalisation: {:?}", direction);
 
     let mut last_chunk: Option<&ChunkData> = None;
 

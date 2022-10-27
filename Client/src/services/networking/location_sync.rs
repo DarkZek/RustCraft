@@ -1,10 +1,11 @@
 use crate::helpers::to_bevy_vec3;
-use crate::{info, Camera, Changed, Quat, Query, ResMut, Transform, Vec3, With, EventWriter};
-use rustcraft_protocol::protocol::serverbound::player_move::PlayerMove;
-use rustcraft_protocol::protocol::serverbound::player_rotate::PlayerRotate;
-use rustcraft_protocol::protocol::{Protocol, SendPacket};
+use crate::services::networking::transport::packet::SendPacket;
+use crate::{info, Camera, Changed, EventWriter, Quat, Query, ResMut, Transform, Vec3, With};
 use nalgebra::Vector3;
 use rustcraft_protocol::constants::UserId;
+use rustcraft_protocol::protocol::serverbound::player_move::PlayerMove;
+use rustcraft_protocol::protocol::serverbound::player_rotate::PlayerRotate;
+use rustcraft_protocol::protocol::Protocol;
 
 const MIN_LOCATION_CHANGE_SYNC: f32 = 0.1;
 
@@ -15,7 +16,7 @@ pub fn network_location_sync(
     query: Query<&Transform, (With<Camera>, Changed<Transform>)>,
     mut translation: ResMut<LastNetworkTranslationSync>,
     mut rotation: ResMut<LastNetworkRotationSync>,
-    mut networking: EventWriter<SendPacket>
+    mut networking: EventWriter<SendPacket>,
 ) {
     if query.is_empty() {
         return;
@@ -26,9 +27,11 @@ pub fn network_location_sync(
     let translation_diff = transform.translation.distance(translation.0);
 
     if translation_diff > MIN_LOCATION_CHANGE_SYNC {
-        networking.send(SendPacket(Protocol::PlayerMove(PlayerMove::new(UserId(0), transform.translation.x,
-                                                                        transform.translation.y,
-                                                                        transform.translation.z,))));
+        networking.send(SendPacket(Protocol::PlayerMove(PlayerMove::new(
+            transform.translation.x,
+            transform.translation.y,
+            transform.translation.z,
+        ))));
         translation.0 = transform.translation;
     }
 

@@ -1,15 +1,19 @@
-use std::collections::HashMap;
-use nalgebra::Vector3;
 use crate::game::chunk::ChunkData;
 use crate::game::player::Player;
+use nalgebra::Vector3;
+use rustcraft_protocol::constants::EntityId;
+use std::collections::HashMap;
+use std::sync::atomic::AtomicU64;
+
+pub const ENTITY_ID_COUNT: AtomicU64 = AtomicU64::new(0);
 
 pub struct World {
-    pub chunks: HashMap<Vector3<i32>, ChunkData>
+    pub chunks: HashMap<Vector3<i32>, ChunkData>,
+    pub entities: HashMap<EntityId, Vector3<f32>>,
 }
 
 impl World {
     pub fn new() -> Self {
-
         let mut chunks = HashMap::new();
 
         for x in -1..=1 {
@@ -20,7 +24,8 @@ impl World {
         }
 
         World {
-            chunks
+            chunks,
+            entities: Default::default(),
         }
     }
 }

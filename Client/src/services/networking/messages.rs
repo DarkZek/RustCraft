@@ -1,15 +1,16 @@
 use crate::services::asset::AssetService;
+use crate::services::networking::transport::packet::ReceivePacket;
 use crate::{
     default, error, info, shape, Assets, ChunkData, Color, Commands, Entity, EventWriter, Mesh,
     Mut, PbrBundle, Quat, Query, RerenderChunkFlag, ResMut, StandardMaterial, Vec3, World,
 };
 use crate::{EventReader, Transform};
 use bevy::render::primitives::Aabb;
+use nalgebra::Vector3;
 use rustcraft_protocol::protocol::clientbound::chunk_update::PartialChunkUpdate;
 use rustcraft_protocol::protocol::clientbound::player_join::PlayerJoin;
 use rustcraft_protocol::protocol::serverbound::authenticate::UserAuthenticate;
-use rustcraft_protocol::protocol::{Protocol, ReceivePacket};
-use nalgebra::Vector3;
+use rustcraft_protocol::protocol::Protocol;
 use std::collections::HashMap;
 
 pub fn messages_update(
@@ -21,10 +22,10 @@ pub fn messages_update(
 ) {
     for event in event_reader.iter() {
         match &event.0 {
-            Protocol::PlayerMoved(update) => {
+            Protocol::EntityMoved(update) => {
                 info!("Received Move Event");
                 // if let Some(Ok(mut transform)) = update
-                //     .player
+                //     .entity
                 //     .get(&client)
                 //     .map(|client| transforms.get_mut(client))
                 // {
@@ -35,7 +36,7 @@ pub fn messages_update(
                 //     error!("Move event recieved before entity created");
                 // }
             }
-            Protocol::PlayerRotated(update) => {
+            Protocol::EntityRotated(update) => {
                 // if let Some(Ok(mut transform)) = update
                 //     .player
                 //     .get(&client)
@@ -48,7 +49,7 @@ pub fn messages_update(
                 // }
             }
             Protocol::PlayerJoin(join) => {
-                info!("Player spawned {}!", join.username);
+                info!("Player spawned {:?}!", join.username);
                 // if let Some(entity) = join.entity.get(&client) {
                 //     commands.entity(entity).insert_bundle(PbrBundle {
                 //         mesh: meshes.add(Mesh::from(shape::Cube { size: 1.0 })),
@@ -59,9 +60,9 @@ pub fn messages_update(
                 //     info!("Entity has not spawned yet!");
                 // }
             }
-            Protocol::PartialChunkUpdate(update) => {  }
-            _ => {
-                info!("Other");
+            Protocol::PartialChunkUpdate(update) => {}
+            t => {
+                info!("Other {:?}", t);
             }
         }
     }

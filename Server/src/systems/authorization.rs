@@ -1,36 +1,45 @@
-use std::time::SystemTime;
+use crate::events::authorization::AuthorizationEvent;
+use crate::resources::{World, ENTITY_ID_COUNT};
+use crate::{SendPacket, TransportSystem};
 use bevy_ecs::change_detection::ResMut;
 use bevy_ecs::event::EventReader;
-use bevy_ecs::prelude::Res;
+use bevy_ecs::prelude::{EventWriter, Res};
 use bevy_log::info;
-use rustcraft_protocol::protocol::clientbound::ping::Ping;
-use crate::events::authorization::AuthorizationEvent;
-use crate::resources::World;
 use mio::net::TcpStream;
+use nalgebra::Vector3;
+use rustcraft_protocol::constants::EntityId;
+use rustcraft_protocol::protocol::clientbound::chunk_update::PartialChunkUpdate;
+use rustcraft_protocol::protocol::clientbound::ping::Ping;
+use rustcraft_protocol::protocol::clientbound::spawn_entity::SpawnEntity;
 use rustcraft_protocol::protocol::serverbound::pong::Pong;
+use rustcraft_protocol::protocol::Protocol;
 use rustcraft_protocol::stream::GameStream;
+use std::sync::atomic::Ordering;
+use std::time::SystemTime;
 
 /// A user who is yet to be authorized
-pub struct UnauthorizedUser {
+pub struct GameUser {
     pub name: Option<String>,
     pub stream: GameStream,
 
     pub last_ping: Ping,
     pub last_pong: Pong,
 
+    pub entity_id: EntityId,
+
     /* If the user has been disconnected */
-    pub disconnected: bool
-    /* Todo: Encryption */
+    pub disconnected: bool, /* Todo: Encryption */
 }
 
-impl UnauthorizedUser {
-    pub fn new(stream: TcpStream) -> UnauthorizedUser {
-        UnauthorizedUser {
+impl GameUser {
+    pub fn new(stream: TcpStream) -> GameUser {
+        GameUser {
             name: None,
             stream: GameStream::new(stream),
             last_ping: Ping::new(),
             last_pong: Pong::new(),
-            disconnected: false
+            entity_id: EntityId(0),
+            disconnected: false,
         }
     }
 
@@ -41,7 +50,50 @@ impl UnauthorizedUser {
 
 pub fn authorization_event(
     mut event_reader: EventReader<AuthorizationEvent>,
-    mut global: ResMut<World>
+    mut global: ResMut<World>,
+    mut transport: ResMut<TransportSystem>,
+    mut send_packet: EventWriter<SendPacket>,
 ) {
-    // Send world to client
+    for client in event_reader.iter() {
+        // Spawn other entities
+        for (id, entity) in &global.entities {
+            let packet = Protocol::SpawnEntity(SpawnEntity {
+                id: *id,
+                loc: [entity.x, entity.y, entity.z],
+                rot: [0.0; 4],
+            });
+            send_packet.send(SendPacket(packet, client.client));
+        }
+
+        // Create new entity for player
+        let entity_id = EntityId(ENTITY_ID_COUNT.fetch_add(1, Ordering::Acquire));
+        let entity = Vector3::zeros();
+        global.entities.insert(entity_id, entity);
+
+        // Store player entity
+        transport.clients.get_mut(&client.client).unwrap().entity_id = entity_id;
+
+        // Spawn new player for other players
+        for (id, user) in &transport.clients {
+            let entity = global.entities.get(&user.entity_id).unwrap();
+            let packet = Protocol::SpawnEntity(SpawnEntity {
+                id: entity_id,
+                loc: [entity.x, entity.y, entity.z],
+                rot: [0.0; 4],
+            });
+            send_packet.send(SendPacket(packet, *id));
+        }
+
+        // Send world to client
+        for (loc, chunk) in global.chunks.iter() {
+            let chunk = Protocol::PartialChunkUpdate(PartialChunkUpdate::new(
+                chunk.world,
+                loc.x,
+                loc.y,
+                loc.z,
+            ));
+
+            send_packet.send(SendPacket(chunk, client.client));
+        }
+    }
 }

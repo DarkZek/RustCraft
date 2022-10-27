@@ -1,12 +1,16 @@
 use crate::helpers::{from_bevy_vec3, global_to_local_position};
 use crate::services::asset::AssetService;
 use crate::services::chunk::ChunkService;
+use crate::services::networking::transport::packet::SendPacket;
 use crate::services::physics::raycasts::do_raycast;
-use crate::{info, Assets, Camera, ChunkData, Commands, Entity, EulerRot, Input, Mesh, MouseButton, Query, RerenderChunkFlag, Res, ResMut, StandardMaterial, Transform, Vec3, With, EventWriter};
+use crate::{
+    info, Assets, Camera, ChunkData, Commands, Entity, EulerRot, EventWriter, Input, Mesh,
+    MouseButton, Query, RerenderChunkFlag, Res, ResMut, StandardMaterial, Transform, Vec3, With,
+};
+use nalgebra::Vector3;
 use rustcraft_protocol::constants::CHUNK_SIZE;
 use rustcraft_protocol::protocol::clientbound::block_update::BlockUpdate;
-use rustcraft_protocol::protocol::{Protocol, SendPacket};
-use nalgebra::Vector3;
+use rustcraft_protocol::protocol::Protocol;
 use std::ops::Mul;
 
 pub fn mouse_interaction(
@@ -66,7 +70,12 @@ pub fn mouse_interaction(
         }
 
         // Send network update
-        networking.send(SendPacket(Protocol::BlockUpdate(BlockUpdate::new(0, ray.block.x, ray.block.y, ray.block.z))))
+        networking.send(SendPacket(Protocol::BlockUpdate(BlockUpdate::new(
+            0,
+            ray.block.x,
+            ray.block.y,
+            ray.block.z,
+        ))))
     } else {
         let pos = ray.block + ray.normal;
 
@@ -101,6 +110,11 @@ pub fn mouse_interaction(
         }
 
         // Send network update
-        networking.send(SendPacket(Protocol::BlockUpdate(BlockUpdate::new(1, ray.block.x, ray.block.y, ray.block.z))))
+        networking.send(SendPacket(Protocol::BlockUpdate(BlockUpdate::new(
+            1,
+            ray.block.x,
+            ray.block.y,
+            ray.block.z,
+        ))))
     }
 }

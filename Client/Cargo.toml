@@ -9,7 +9,7 @@ edition = "2021"
 resolver = "2"
 
 [dependencies]
-bevy = { version = "0.8.1" }
+bevy = { version = "0.8.1", features=["bevy_asset"] }
 fnv = "1.0.3"
 rayon = "1.5.1"
 nalgebra = "0.21.0"

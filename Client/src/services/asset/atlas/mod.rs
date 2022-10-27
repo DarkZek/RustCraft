@@ -1,5 +1,6 @@
 use crate::services::asset::atlas::atlas::TextureAtlas;
 use crate::services::asset::atlas::resource_packs::{ResourcePack, ResourcePacks};
+use crate::services::asset::material::chunk::ChunkMaterial;
 use crate::services::asset::AssetService;
 use crate::KeyCode::At;
 use crate::{
@@ -85,7 +86,7 @@ pub fn build_texture_atlas(
     mut stage: ResMut<AtlasLoadingStage>,
     mut chunks: Query<Entity, (With<ChunkData>, With<Handle<StandardMaterial>>)>,
     mut images: ResMut<Assets<Image>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
+    mut materials: ResMut<Assets<ChunkMaterial>>,
     mut commands: Commands,
 ) {
     if *stage != AtlasLoadingStage::AwaitingPack || data.len() == 0 {
@@ -107,18 +108,19 @@ pub fn build_texture_atlas(
     service.texture_atlas = atlas;
 
     // Create a new material
-    let material = materials.add(StandardMaterial {
-        base_color: Color::rgba(1.0, 1.0, 1.0, 1.0),
-        base_color_texture: Some(images.get_handle(service.texture_atlas.get_image())),
-        alpha_mode: AlphaMode::Opaque,
-        unlit: true,
-        ..default()
-    });
+    let material = materials.set(
+        service.texture_atlas_material.id,
+        ChunkMaterial {
+            color: Color::WHITE,
+            color_texture: Some(images.get_handle(service.texture_atlas.get_image())),
+            alpha_mode: AlphaMode::Opaque,
+        },
+    );
 
     for chunk in chunks.iter() {
         commands.entity(chunk).insert(material.clone());
     }
 
     *stage = AtlasLoadingStage::Done;
-    service.texture_atlas_material = Some(material);
+    service.texture_atlas_material = material;
 }

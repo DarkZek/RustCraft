@@ -1,6 +1,6 @@
 use serde::{Serialize, Deserialize};
 
-#[derive(Serialize, Deserialize, PartialEq, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, Copy, Clone)]
 pub struct BlockUpdate {
     pub id: u32,
     pub x: i32,

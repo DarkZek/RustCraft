@@ -1,11 +1,14 @@
-mod listener;
 mod connection;
+mod listener;
+pub mod packet;
 
-use std::collections::HashMap;
-use std::io;
-use std::net::{IpAddr, TcpListener, TcpStream};
-use std::process::exit;
-use std::str::FromStr;
+use crate::error::ServerError;
+use crate::events::authorization::AuthorizationEvent;
+use crate::events::connection::ConnectionEvent;
+use crate::events::disconnect::DisconnectionEvent;
+use crate::systems::authorization::GameUser;
+use crate::transport::connection::{accept_connections, check_connections, send_packets, SERVER};
+use crate::transport::listener::ServerListener;
 use bevy_app::{App, Plugin};
 use bevy_ecs::event::EventWriter;
 use bevy_ecs::system::{Res, ResMut};
@@ -13,21 +16,18 @@ use bevy_ecs::world::Mut;
 use bevy_log::{info, warn};
 use mio::{Events, Interest, Poll};
 use rustcraft_protocol::constants::UserId;
-use crate::error::ServerError;
-use crate::events::authorization::AuthorizationEvent;
-use crate::events::connection::ConnectionEvent;
-use crate::events::disconnect::DisconnectionEvent;
-use crate::systems::authorization::UnauthorizedUser;
-use crate::transport::connection::{accept_connections, check_connections, SERVER};
-use crate::transport::listener::ServerListener;
+use std::collections::HashMap;
+use std::io;
+use std::net::{IpAddr, TcpListener, TcpStream};
+use std::process::exit;
+use std::str::FromStr;
 
 pub struct TransportPlugin;
 
 pub struct TransportSystem {
     ip: IpAddr,
     port: usize,
-    clients: HashMap<UserId, TcpStream>,
-    unauth_clients: HashMap<UserId, UnauthorizedUser>,
+    pub clients: HashMap<UserId, GameUser>,
     total_connections: usize,
 }
 
@@ -39,7 +39,6 @@ impl Default for TransportPlugin {
 
 impl Plugin for TransportPlugin {
     fn build(&self, app: &mut App) {
-
         let mut stream = match ServerListener::new(IpAddr::from_str("127.0.0.1").unwrap(), 8000) {
             Ok(val) => val,
             Err(err) => {
@@ -47,18 +46,17 @@ impl Plugin for TransportPlugin {
             }
         };
 
-        let transport_system = TransportSystem::new(IpAddr::from_str("127.0.0.1").unwrap(), 8000).unwrap();
+        let transport_system =
+            TransportSystem::new(IpAddr::from_str("127.0.0.1").unwrap(), 8000).unwrap();
 
         app.insert_resource(stream)
-        .insert_resource(transport_system)
-
-        .add_system(accept_connections)
-        .add_system(check_connections)
-
-
-        .add_event::<ConnectionEvent>()
-        .add_event::<AuthorizationEvent>()
-        .add_event::<DisconnectionEvent>();
+            .insert_resource(transport_system)
+            .add_system(send_packets)
+            .add_system(accept_connections)
+            .add_system(check_connections)
+            .add_event::<ConnectionEvent>()
+            .add_event::<AuthorizationEvent>()
+            .add_event::<DisconnectionEvent>();
     }
 }
 
@@ -68,7 +66,6 @@ impl TransportSystem {
             ip,
             port,
             clients: Default::default(),
-            unauth_clients: Default::default(),
             total_connections: 0,
         })
     }
