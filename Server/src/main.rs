@@ -1,3 +1,4 @@
+pub mod console;
 pub mod error;
 pub mod events;
 pub mod game;
@@ -11,8 +12,9 @@ use crate::resources::World;
 use crate::systems::tick::tick;
 use crate::transport::packet::{ReceivePacket, SendPacket};
 use crate::transport::{TransportPlugin, TransportSystem};
-use bevy_app::{App, ScheduleRunnerPlugin};
+use bevy_app::{App, AppExit, CoreStage, ScheduleRunnerPlugin};
 use bevy_core::CorePlugin;
+use bevy_ecs::event::EventReader;
 use bevy_ecs::prelude::{StageLabel, State, SystemStage};
 use bevy_log::{debug, info, Level, LogPlugin, LogSettings};
 use std::net::IpAddr;
@@ -26,7 +28,7 @@ fn main() {
     App::default()
         .insert_resource(LogSettings {
             filter: "".into(),
-            level: Level::TRACE,
+            level: Level::DEBUG,
         })
         // Plugins
         .add_plugin(CorePlugin::default())
@@ -57,6 +59,7 @@ fn main() {
         )
         // Gameplay Loop on Tick
         .add_system_to_stage(ServerState::Networking, tick)
+        .add_system_to_stage(CoreStage::PostUpdate, detect_shutdowns)
         // Run App
         .run();
 }
@@ -64,4 +67,10 @@ fn main() {
 #[derive(StageLabel)]
 enum ServerState {
     Networking,
+}
+
+pub fn detect_shutdowns(shutdown: EventReader<AppExit>) {
+    if !shutdown.is_empty() {
+        println!("Sending disconnect to server");
+    }
 }

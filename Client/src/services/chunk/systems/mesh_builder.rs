@@ -12,9 +12,9 @@ use bevy::asset::HandleId;
 use bevy::ecs::system::Command;
 use bevy::prelude::Mesh;
 use bevy::render::mesh::Indices;
-use rustcraft_protocol::constants::CHUNK_SIZE;
 use nalgebra::Vector3;
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
+use rustcraft_protocol::constants::CHUNK_SIZE;
 
 #[derive(Component)]
 pub struct RerenderChunkFlag {
@@ -39,7 +39,6 @@ pub fn mesh_builder(
         from_bevy_vec3(camera.single().translation),
     );
 
-    //TODO: Make this parallel on supported platforms
     #[cfg(not(target_arch = "wasm32"))]
     let iterator = chunks_to_compute.par_iter();
     #[cfg(target_arch = "wasm32")]
@@ -52,7 +51,11 @@ pub fn mesh_builder(
                 assert_eq!(chunk.position, pos.chunk);
 
                 // Generate mesh & gpu buffers
-                Some((chunk.generate_mesh(&block_states, true), pbr, entity))
+                Some((
+                    chunk.generate_mesh(&chunks, &block_states, true),
+                    pbr,
+                    entity,
+                ))
             } else {
                 None
             }

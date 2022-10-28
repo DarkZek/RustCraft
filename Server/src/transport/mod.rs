@@ -10,7 +10,7 @@ use crate::events::connection::ConnectionEvent;
 use crate::events::disconnect::DisconnectionEvent;
 use crate::systems::authorization::GameUser;
 use crate::transport::connection::{
-    accept_connections, check_connections, receive_packets, send_packets,
+    accept_connections, check_connections, prune_users, receive_packets, send_packets,
 };
 use crate::transport::listener::ServerListener;
 use bevy_app::{App, Plugin};
@@ -58,6 +58,7 @@ impl Plugin for TransportPlugin {
             .insert_resource(transport_system)
             .add_system(send_packets)
             .add_system(receive_packets)
+            .add_system(prune_users)
             .add_system(accept_connections)
             .add_system(check_connections)
             .add_event::<ConnectionEvent>()

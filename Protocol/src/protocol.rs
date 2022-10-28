@@ -13,6 +13,7 @@ use crate::constants::UserId;
 use crate::protocol::clientbound::entity_moved::EntityMoved;
 use crate::protocol::clientbound::spawn_entity::SpawnEntity;
 use crate::protocol::clientbound::entity_rotated::EntityRotated;
+use crate::protocol::serverbound::disconnect::Disconnect;
 
 pub mod clientbound;
 pub mod serverbound;
@@ -31,5 +32,6 @@ pub enum Protocol {
     ChatSent(ChatSent),
     PartialChunkUpdate(PartialChunkUpdate),
     UserAuthenticate(UserAuthenticate),
-    SpawnEntity(SpawnEntity)
+    SpawnEntity(SpawnEntity),
+    Disconnect(Disconnect)
 }

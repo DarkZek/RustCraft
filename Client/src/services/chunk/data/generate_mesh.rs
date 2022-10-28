@@ -3,12 +3,14 @@ use crate::game::mesh::draw_kit::DrawKit;
 use crate::game::viewable_direction::ViewableDirection;
 use crate::services::asset::atlas::index::TextureAtlasIndex;
 use crate::services::chunk::data::ChunkData;
+use crate::services::chunk::lookup::Chunks;
+use crate::services::chunk::ChunkService;
 use bevy::ecs::component::Component;
 use bevy::log::error;
 use bevy::render::render_resource::BindGroup;
-use rustcraft_protocol::constants::CHUNK_SIZE;
 use fnv::FnvHashMap;
 use nalgebra::{Vector2, Vector3};
+use rustcraft_protocol::constants::CHUNK_SIZE;
 
 #[derive(Component)]
 pub struct UpdateChunkMesh {
@@ -23,36 +25,37 @@ pub struct UpdateChunkMesh {
 impl ChunkData {
     pub fn generate_mesh(
         &self,
-        /* chunks: &Chunks,*/ block_states: &BlockStates,
+        chunks: &ChunkService,
+        block_states: &BlockStates,
         edge_faces: bool,
     ) -> UpdateChunkMesh {
         // Get adjacent chunks
         let mut map = FnvHashMap::default();
 
-        // map.insert(
-        //     Vector3::new(0, 1, 0),
-        //     chunks.get_loc(self.position + Vector3::new(0, 1, 0)),
-        // );
-        // map.insert(
-        //     Vector3::new(0, -1, 0),
-        //     chunks.get_loc(self.position + Vector3::new(0, -1, 0)),
-        // );
-        // map.insert(
-        //     Vector3::new(1, 0, 0),
-        //     chunks.get_loc(self.position + Vector3::new(1, 0, 0)),
-        // );
-        // map.insert(
-        //     Vector3::new(-1, 0, 0),
-        //     chunks.get_loc(self.position + Vector3::new(-1, 0, 0)),
-        // );
-        // map.insert(
-        //     Vector3::new(0, 0, 1),
-        //     chunks.get_loc(self.position + Vector3::new(0, 0, 1)),
-        // );
-        // map.insert(
-        //     Vector3::new(0, 0, -1),
-        //     chunks.get_loc(self.position + Vector3::new(0, 0, -1)),
-        // );
+        map.insert(
+            Vector3::new(0, 1, 0),
+            chunks.chunks.get(&(self.position + Vector3::new(0, 1, 0))),
+        );
+        map.insert(
+            Vector3::new(0, -1, 0),
+            chunks.chunks.get(&(self.position + Vector3::new(0, -1, 0))),
+        );
+        map.insert(
+            Vector3::new(1, 0, 0),
+            chunks.chunks.get(&(self.position + Vector3::new(1, 0, 0))),
+        );
+        map.insert(
+            Vector3::new(-1, 0, 0),
+            chunks.chunks.get(&(self.position + Vector3::new(-1, 0, 0))),
+        );
+        map.insert(
+            Vector3::new(0, 0, 1),
+            chunks.chunks.get(&(self.position + Vector3::new(0, 0, 1))),
+        );
+        map.insert(
+            Vector3::new(0, 0, -1),
+            chunks.chunks.get(&(self.position + Vector3::new(0, 0, -1))),
+        );
 
         let viewable = self.generate_viewable_map(block_states, map, edge_faces);
 

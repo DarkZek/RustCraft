@@ -94,9 +94,7 @@ pub fn mouse_interaction(
 
             info!(
                 "Updated [{}, {}, {}]",
-                ray.block.x as usize % CHUNK_SIZE,
-                ray.block.y as usize % CHUNK_SIZE,
-                ray.block.z as usize % CHUNK_SIZE
+                ray.block.x, ray.block.y, ray.block.z
             );
         } else {
             // Create chunk data
@@ -111,10 +109,7 @@ pub fn mouse_interaction(
 
         // Send network update
         networking.send(SendPacket(Protocol::BlockUpdate(BlockUpdate::new(
-            1,
-            ray.block.x,
-            ray.block.y,
-            ray.block.z,
+            1, pos.x, pos.y, pos.z,
         ))))
     }
 }

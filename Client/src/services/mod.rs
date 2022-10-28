@@ -4,3 +4,4 @@ pub mod chunk;
 pub mod input;
 pub mod networking;
 pub mod physics;
+pub mod ui;

@@ -6,7 +6,7 @@ use crate::TransportSystem;
 use bevy_ecs::event::{EventReader, EventWriter};
 use bevy_ecs::system::{Res, ResMut};
 use bevy_log::{debug, error, info, warn};
-use crossbeam::channel::{unbounded, Receiver, Sender};
+use crossbeam::channel::{bounded, unbounded, Receiver, Sender};
 use rustcraft_protocol::constants::{EntityId, UserId};
 use rustcraft_protocol::error::ProtocolError;
 use rustcraft_protocol::protocol::clientbound::ping::Ping;
@@ -190,6 +190,20 @@ pub fn receive_packets(system: ResMut<TransportSystem>, mut packets: EventWriter
             debug!("-> {:?}", packet.0);
             packets.send(packet);
         }
+    }
+}
+
+pub fn prune_users(mut system: ResMut<TransportSystem>) {
+    let mut delete_users = Vec::new();
+    for (uid, user) in &system.clients {
+        if user.disconnected {
+            delete_users.push(*uid);
+        }
+    }
+
+    for user in delete_users {
+        system.clients.remove(&user);
+        info!("Disconnected user {:?}", user);
     }
 }
 

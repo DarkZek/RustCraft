@@ -21,6 +21,7 @@ use crate::services::chunk::ChunkPlugin;
 use crate::services::input::InputPlugin;
 use crate::services::networking::NetworkingPlugin;
 use crate::services::physics::PhysicsPlugin;
+use crate::services::ui::UIPlugin;
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::input::mouse::{MouseMotion, MouseWheel};
 use bevy::log::{Level, LogSettings};
@@ -79,6 +80,8 @@ fn main() {
         .add_plugin(CameraPlugin)
 
         .add_plugin(PhysicsPlugin)
+        
+        .add_plugin(UIPlugin)
         
         // Asset Loaders
         .add_asset::<ResourcePacks>()
