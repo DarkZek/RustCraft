@@ -1,0 +1,3 @@
+pub enum NetworkCommand {
+    Disconnect,
+}

@@ -9,13 +9,18 @@
     <cargoProject FILE="$PROJECT_DIR$/Cargo.toml" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d34b37f8-8bd9-4c23-a17f-5bd5043c2fce" name="Changes" comment="Got chunks loading">
+    <list default="true" id="d34b37f8-8bd9-4c23-a17f-5bd5043c2fce" name="Changes" comment="Debug networking">
+      <change afterPath="$PROJECT_DIR$/../Server/src/transport/command.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Server/src/transport/events.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/networking/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/networking/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Protocol/src/stream.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Protocol/src/stream.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Server/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Server/src/main.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/networking/transport/connection.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/networking/transport/connection.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Server/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../Server/Cargo.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Server/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/../Server/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Server/src/systems/authorization.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Server/src/systems/authorization.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Server/src/transport/connection.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Server/src/transport/connection.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Server/src/transport/listener.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Server/src/transport/listener.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Server/src/transport/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Server/src/transport/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Server/src/transport/packet.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Server/src/transport/packet.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -139,7 +144,7 @@
       <workItem from="1666679524289" duration="5342000" />
       <workItem from="1666756467840" duration="12488000" />
       <workItem from="1666831961676" duration="20335000" />
-      <workItem from="1666910283742" duration="3074000" />
+      <workItem from="1666910283742" duration="12997000" />
     </task>
     <task id="LOCAL-00001" summary="Start new project">
       <created>1663755658916</created>
@@ -162,7 +167,14 @@
       <option name="project" value="LOCAL" />
       <updated>1666841631799</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Debug networking">
+      <created>1666913488756</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1666913488756</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -186,7 +198,8 @@
     <MESSAGE value="Start new project" />
     <MESSAGE value="Got building on web" />
     <MESSAGE value="Got chunks loading" />
-    <option name="LAST_COMMIT_MESSAGE" value="Got chunks loading" />
+    <MESSAGE value="Debug networking" />
+    <option name="LAST_COMMIT_MESSAGE" value="Debug networking" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

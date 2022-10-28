@@ -104,7 +104,7 @@ pub fn send_packets(mut stream: ResMut<ClientListener>, mut packets: EventReader
                     // Disconnect
                     stream.disconnect = true;
                 }
-                error!("{:?}", e);
+                error!("Error during packet send {:?}", e);
                 stream.disconnect = true;
             }
             _ => {}

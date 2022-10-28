@@ -6,20 +6,20 @@ use crate::TransportSystem;
 use bevy_ecs::event::{EventReader, EventWriter};
 use bevy_ecs::system::{Res, ResMut};
 use bevy_log::{debug, error, info, warn};
-use mio::{Events, Interest, Token};
-use rustcraft_protocol::constants::UserId;
+use crossbeam::channel::{unbounded, Receiver, Sender};
+use rustcraft_protocol::constants::{EntityId, UserId};
 use rustcraft_protocol::error::ProtocolError;
 use rustcraft_protocol::protocol::clientbound::ping::Ping;
+use rustcraft_protocol::protocol::serverbound::pong::Pong;
 use rustcraft_protocol::protocol::Protocol;
 use std::io;
 use std::io::Write;
 use std::net::Shutdown;
 use std::time::{Duration, Instant, SystemTime};
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
 const MAX_PING_TIMEOUT_SECONDS: u64 = 10;
 const PING_TIME_SECONDS: u64 = 15;
-
-pub const SERVER: Token = Token(0);
 
 /// Accept connections by users and begin authorisation process
 pub fn accept_connections(
@@ -28,150 +28,140 @@ pub fn accept_connections(
     mut connection_event_writer: EventWriter<ConnectionEvent>,
     mut packet_event_writer: EventWriter<ReceivePacket>,
 ) {
-    // Remove all disconnected clients
-    let mut disconnected_clients = Vec::new();
-    for (token, client) in system.clients.iter() {
-        if client.disconnected {
-            disconnected_clients.push(token.clone());
-        }
-    }
+    // Loop over all new connections
+    while let Ok(conn) = stream.receive_connections.recv_timeout(Duration::ZERO) {
+        system.total_connections += 1;
 
-    // Remove clients from mio listener
-    for token in disconnected_clients {
-        let mut client = system.clients.remove(&token).unwrap();
+        // Generate new userid
+        let uid = UserId(system.total_connections as u64);
 
-        stream
-            .poll
-            .registry()
-            .deregister(&mut client.stream.stream)
-            .unwrap();
+        info!(
+            "Connection request made from {} given UID {:?}",
+            conn.0.peer_addr().unwrap(),
+            uid
+        );
 
-        warn!("Disconnected Client {:?}: Unknown Disconnection", token);
-    }
+        conn.0.set_nodelay(true).unwrap();
 
-    let mut events = Events::with_capacity(128);
+        let (mut read_tcp, mut write_tcp) = conn.0.into_split();
 
-    // Poll for new events
-    stream.poll.poll(&mut events, Some(Duration::ZERO)).unwrap();
+        let (inner_write_packets, read_packets) = unbounded();
 
-    for event in events.iter() {
-        match event.token() {
-            SERVER => loop {
-                // Connection request being made!
-                let (mut connection, address) = match stream.stream().accept() {
-                    Ok((connection, address)) => (connection, address),
-                    Err(e) if e.kind() == io::ErrorKind::WouldBlock => {
-                        // If we get a `WouldBlock` error we know our
-                        // listener has no more incoming connections queued,
-                        // so we can return to polling and wait for some
-                        // more.
-                        break;
+        // Read packets
+        let read_packet_handle = stream.runtime.spawn(async move {
+            loop {
+                let mut data = [0; 4]; // 4 Is the size of u32
+                match read_tcp.read_exact(&mut data).await {
+                    Ok(0) => {
+                        warn!("Potentially closed")
                     }
+                    Ok(_) => {}
                     Err(e) => {
-                        // If it was any other kind of error, something went
-                        // wrong and we terminate with an error.
-                        warn!("Failed to accept connection {}", e);
-                        continue;
+                        if e.kind() == std::io::ErrorKind::UnexpectedEof {
+                            break;
+                        }
+                        error!("Error reading data from client {:?}", uid);
+                        break;
                     }
                 };
 
-                system.total_connections += 1;
-
-                // Generate new userid
-                let uid = UserId(system.total_connections as u64);
-
-                info!(
-                    "Connection request made from {} given UID {:?}",
-                    address, uid
-                );
-
-                // Give new connection an id for polling
-                stream
-                    .poll
-                    .registry()
-                    .register(
-                        &mut connection,
-                        Token(system.total_connections),
-                        Interest::READABLE.add(Interest::WRITABLE),
-                    )
-                    .unwrap();
-
-                // Create a new user and record it
-                let mut user = GameUser::new(connection);
-                system.clients.insert(uid, user);
-
-                // Send connection event
-                connection_event_writer.send(ConnectionEvent::new(uid));
-            },
-            token => {
-                let id = UserId(token.0 as u64);
-                // Read packets
-                let mut user = system.clients.get_mut(&id).unwrap();
-
-                let mut client_disconnect = false;
-
-                if event.is_readable() {
-                    loop {
-                        match user.stream.read_packet() {
-                            Ok(n) => {
-                                debug!("-> {:?}", n);
-                                packet_event_writer.send(ReceivePacket(n, id));
-                            }
-                            // Would block "errors" are the OS's way of saying that the
-                            // connection is not actually ready to perform this I/O operation.
-                            Err(ProtocolError::Io(ref err))
-                                if err.kind() == io::ErrorKind::WouldBlock =>
-                            {
-                                break
-                            }
-                            Err(ProtocolError::Io(ref err))
-                                if err.kind() == io::ErrorKind::Interrupted =>
-                            {
-                                continue;
-                            }
-                            Err(ProtocolError::Io(ref err))
-                                if err.kind() == io::ErrorKind::UnexpectedEof =>
-                            {
-                                // Disconnected!
-                                client_disconnect = true;
-                                break;
-                            }
-                            Err(ProtocolError::Bincode(ref err)) => {
-                                // Sent invalid formatted packet so we'll just assume disconnected!
-                                client_disconnect = true;
-                                break;
-                            }
-                            Err(ProtocolError::Disconnected) => {
-                                // Sent invalid formatted packet so we'll just assume disconnected!
-                                client_disconnect = true;
-                                break;
-                            }
-                            // Other errors we'll consider fatal for that connection.
-                            Err(err) => {
-                                error!("Unknown: {:?}", err);
-                                client_disconnect = true;
-                                break;
-                            }
-                        }
+                let len: u32 = match bincode::deserialize(&data[..]) {
+                    Ok(val) => val,
+                    Err(e) => {
+                        error!("Error reading data from client {:?}", uid);
+                        break;
                     }
-                }
+                };
 
-                if client_disconnect {
-                    warn!(
-                        "Disconnected Client {:?}: Unexpected Disconnection",
-                        event.token()
-                    );
-                    // Remove from clients list
-                    if let Some(mut client) = system.clients.remove(&UserId(token.0 as u64)) {
-                        stream
-                            .poll
-                            .registry()
-                            .deregister(&mut client.stream.stream)
-                            .unwrap();
+                let mut data = vec![0u8; len as usize];
+
+                // Read packet data
+                match read_tcp.read_exact(&mut data).await {
+                    Ok(val) => val,
+                    Err(e) => {
+                        if e.kind() == std::io::ErrorKind::UnexpectedEof {
+                            break;
+                        }
+                        error!("Error reading data from client {:?}", uid);
+                        break;
+                    }
+                };
+
+                let packet: Protocol = match bincode::deserialize(&data[..]) {
+                    Ok(val) => val,
+                    Err(e) => {
+                        error!("Error reading data from client {:?}", uid);
+                        break;
+                    }
+                };
+
+                // Send packet to receiver
+                match inner_write_packets.send(ReceivePacket(packet, uid)) {
+                    Ok(_) => {}
+                    Err(_) => {
+                        // Channel disconnected, delete this task
+                        debug!("Packet writer for user {:?} destroyed", uid);
+                        break;
                     }
                 }
             }
-        }
+        });
+
+        let (write_packets, inner_read_packets): (Sender<SendPacket>, Receiver<SendPacket>) =
+            unbounded();
+
+        // Write packets
+        let write_packet_handle = stream.runtime.spawn(async move {
+            loop {
+                let packet = match inner_read_packets.recv() {
+                    Ok(val) => val,
+                    Err(_) => {
+                        // Channel disconnected, delete this task
+                        break;
+                    }
+                };
+
+                // Write
+                let packet = match bincode::serialize(&packet.0) {
+                    Ok(val) => val,
+                    Err(e) => {
+                        error!("Error reading data from client {:?}", uid);
+                        break;
+                    }
+                };
+                // Just size for now
+                let header: u32 = packet.len() as u32;
+
+                write_tcp
+                    .write_all(&bincode::serialize(&header).unwrap())
+                    .await
+                    .unwrap();
+                write_tcp.write_all(&packet).await.unwrap();
+
+                write_tcp.flush().await.unwrap();
+            }
+
+            debug!("Packet writer for user {:?} destroyed", uid);
+        });
+
+        // Start reading data from socket
+        let user = GameUser {
+            name: None,
+            read_packets,
+            write_packets,
+            read_packet_handle,
+            write_packet_handle,
+            last_ping: Ping::new(),
+            last_pong: Pong::new(),
+            user_id: uid,
+            entity_id: EntityId(uid.0),
+            disconnected: false,
+        };
+
+        system.clients.insert(uid, user);
+
+        // Send connection event
+        connection_event_writer.send(ConnectionEvent::new(uid));
     }
 }
 
@@ -179,21 +169,26 @@ pub fn send_packets(mut system: ResMut<TransportSystem>, mut packets: EventReade
     for packet in packets.iter() {
         debug!("<- {:?}", packet.0);
         if let Some(mut user) = system.clients.get_mut(&packet.1) {
-            match user.stream.write_packet(packet) {
+            let packet = packet.clone();
+            match user.write_packets.send(packet) {
                 Ok(_) => {}
                 Err(e) => {
-                    if e.kind() == io::ErrorKind::WouldBlock {
-                        continue;
-                    }
-                    if e.kind() == io::ErrorKind::Interrupted {
-                        error!("Connection interrupted while writing to  client");
-                        continue;
-                    }
-                    error!("{:?}", e);
+                    error!(
+                        "Unable to communicate with client {:?}'s thread: {:?}",
+                        user.user_id, e
+                    );
                     user.disconnected = true;
                 }
-                _ => {}
             }
+        }
+    }
+}
+
+pub fn receive_packets(system: ResMut<TransportSystem>, mut packets: EventWriter<ReceivePacket>) {
+    for (uid, user) in &system.clients {
+        while let Ok(packet) = user.read_packets.recv_timeout(Duration::ZERO) {
+            debug!("-> {:?}", packet.0);
+            packets.send(packet);
         }
     }
 }
@@ -201,16 +196,14 @@ pub fn send_packets(mut system: ResMut<TransportSystem>, mut packets: EventReade
 /// Sends ping requests to check if the server is still connected
 pub fn check_connections(
     mut system: ResMut<TransportSystem>,
-    mut ping_requests: EventReader<ReceivePacket>,
+    mut pong_responses: EventReader<ReceivePacket>,
+    mut ping_requests: EventWriter<SendPacket>,
 ) {
     for (uid, mut stream) in &mut system.clients {
         // If ping hasn't been sent in the last PING_TIME_SECONDS, then send it
         if Ping::new().code - stream.last_ping.code > PING_TIME_SECONDS {
             // Send new ping request
-            stream
-                .stream
-                .write_packet(&Protocol::Ping(Ping::new()))
-                .unwrap();
+            ping_requests.send(SendPacket(Protocol::Ping(Ping::new()), *uid));
             stream.last_ping = Ping::new();
         }
 
@@ -223,7 +216,7 @@ pub fn check_connections(
     }
 
     // Loop over network events to check for ping events
-    for req in ping_requests.iter() {
+    for req in pong_responses.iter() {
         if let ReceivePacket(Protocol::Pong(req), user) = req {
             system.clients.get_mut(user).unwrap().last_pong = *req;
         }

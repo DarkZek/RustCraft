@@ -1,13 +1,13 @@
 use crate::events::authorization::AuthorizationEvent;
 use crate::resources::{World, ENTITY_ID_COUNT};
-use crate::{SendPacket, TransportSystem};
+use crate::{ReceivePacket, SendPacket, TransportSystem};
 use bevy_ecs::change_detection::ResMut;
 use bevy_ecs::event::EventReader;
 use bevy_ecs::prelude::{EventWriter, Res};
 use bevy_log::info;
-use mio::net::TcpStream;
+use crossbeam::channel::{Receiver, Sender};
 use nalgebra::Vector3;
-use rustcraft_protocol::constants::EntityId;
+use rustcraft_protocol::constants::{EntityId, UserId};
 use rustcraft_protocol::protocol::clientbound::chunk_update::PartialChunkUpdate;
 use rustcraft_protocol::protocol::clientbound::ping::Ping;
 use rustcraft_protocol::protocol::clientbound::spawn_entity::SpawnEntity;
@@ -16,15 +16,23 @@ use rustcraft_protocol::protocol::Protocol;
 use rustcraft_protocol::stream::GameStream;
 use std::sync::atomic::Ordering;
 use std::time::SystemTime;
+use tokio::net::TcpStream;
+use tokio::task::JoinHandle;
 
 /// A user who is yet to be authorized
 pub struct GameUser {
     pub name: Option<String>,
-    pub stream: GameStream,
+
+    pub read_packets: Receiver<ReceivePacket>,
+    pub write_packets: Sender<SendPacket>,
+
+    pub read_packet_handle: JoinHandle<()>,
+    pub write_packet_handle: JoinHandle<()>,
 
     pub last_ping: Ping,
     pub last_pong: Pong,
 
+    pub user_id: UserId,
     pub entity_id: EntityId,
 
     /* If the user has been disconnected */
@@ -32,17 +40,6 @@ pub struct GameUser {
 }
 
 impl GameUser {
-    pub fn new(stream: TcpStream) -> GameUser {
-        GameUser {
-            name: None,
-            stream: GameStream::new(stream),
-            last_ping: Ping::new(),
-            last_pong: Pong::new(),
-            entity_id: EntityId(0),
-            disconnected: false,
-        }
-    }
-
     pub fn set_name(&mut self, name: String) {
         self.name = Some(name);
     }
@@ -55,6 +52,7 @@ pub fn authorization_event(
     mut send_packet: EventWriter<SendPacket>,
 ) {
     for client in event_reader.iter() {
+        info!("Authorisation event");
         // Spawn other entities
         for (id, entity) in &global.entities {
             let packet = Protocol::SpawnEntity(SpawnEntity {
