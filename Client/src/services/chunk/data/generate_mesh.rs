@@ -1,4 +1,3 @@
-use crate::game::blocks::BlockStates;
 use crate::game::mesh::draw_kit::DrawKit;
 use crate::game::viewable_direction::ViewableDirection;
 
@@ -8,8 +7,9 @@ use crate::services::chunk::ChunkService;
 use bevy::ecs::component::Component;
 use bevy::log::error;
 
+use crate::BlockStates;
 use fnv::FnvHashMap;
-use nalgebra::{Vector3};
+use nalgebra::Vector3;
 use rustcraft_protocol::constants::CHUNK_SIZE;
 
 #[derive(Component)]
@@ -74,16 +74,7 @@ impl ChunkData {
 
                     // Isn't air and is visible from at least one side
                     if chunk[x][y][z] != 0 && viewable != 0 {
-                        let block = match block_states.get_block(chunk[x][y][z] as usize) {
-                            None => {
-                                error!(
-                                    "Block with invalid blockstate: X {} Y {} Z {} Block ID {}",
-                                    x, y, z, chunk[x][y][z]
-                                );
-                                continue;
-                            }
-                            Some(block) => block,
-                        };
+                        let block = block_states.get_block(chunk[x][y][z] as usize);
 
                         //let light_color = self.light_levels[x][y][z];
 

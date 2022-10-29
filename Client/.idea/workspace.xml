@@ -9,44 +9,24 @@
     <cargoProject FILE="$PROJECT_DIR$/Cargo.toml" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d34b37f8-8bd9-4c23-a17f-5bd5043c2fce" name="Changes" comment="Store entities in ecs">
+    <list default="true" id="d34b37f8-8bd9-4c23-a17f-5bd5043c2fce" name="Changes" comment="Remove unused imports">
+      <change afterPath="$PROJECT_DIR$/assets/game/tree_leaves.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/game/wood_log.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/game/blocks/air.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/game/blocks/grass.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/game/blocks/leaves.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/game/blocks/wood.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/game/mesh/face.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/resources.pack" beforeDir="false" afterPath="$PROJECT_DIR$/assets/resources.pack" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/game/blocks/dirt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/blocks/dirt.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/game/blocks/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/blocks/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/game/interaction/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/interaction/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/game/mesh/draw_kit.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/mesh/draw_kit.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/game/parsing/json.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/parsing/json.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/game/parsing/pack.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/parsing/pack.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/mesh/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/mesh/mod.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/game/viewable_direction.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/viewable_direction.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/helpers.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/helpers.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/services/asset/atlas/atlas.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/asset/atlas/atlas.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/asset/atlas/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/asset/atlas/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/asset/atlas/resource_packs.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/asset/atlas/resource_packs.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/asset/material/chunk.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/asset/material/chunk.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/asset/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/asset/mod.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/services/chunk/data/generate_mesh.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/chunk/data/generate_mesh.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/chunk/data/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/chunk/data/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/chunk/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/chunk/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/chunk/data/viewable.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/chunk/data/viewable.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/services/chunk/systems/mesh_builder.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/chunk/systems/mesh_builder.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/input/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/input/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/networking/chunk.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/networking/chunk.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/networking/location_sync.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/networking/location_sync.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/networking/messages.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/networking/messages.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/networking/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/networking/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/networking/transport/connection.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/networking/transport/connection.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/networking/transport/listener.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/networking/transport/listener.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/physics/raycasts.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/physics/raycasts.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/ui.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/ui.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Protocol/src/constants.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Protocol/src/constants.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Protocol/src/protocol.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/despawn_entity.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/despawn_entity.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/entity_moved.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/entity_moved.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/entity_rotated.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/entity_rotated.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/spawn_entity.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/spawn_entity.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/serverbound/disconnect.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Protocol/src/protocol/serverbound/disconnect.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/serverbound/player_move.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Protocol/src/protocol/serverbound/player_move.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Protocol/src/stream.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Protocol/src/stream.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -171,7 +151,7 @@
       <workItem from="1666756467840" duration="12488000" />
       <workItem from="1666831961676" duration="20335000" />
       <workItem from="1666910283742" duration="22147000" />
-      <workItem from="1666989084544" duration="10900000" />
+      <workItem from="1666989084544" duration="16664000" />
     </task>
     <task id="LOCAL-00001" summary="Start new project">
       <created>1663755658916</created>
@@ -215,7 +195,14 @@
       <option name="project" value="LOCAL" />
       <updated>1667028515984</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="Remove unused imports">
+      <created>1667029363740</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1667029363740</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -242,7 +229,8 @@
     <MESSAGE value="Debug networking" />
     <MESSAGE value="Added crosshair, removed chunk borders," />
     <MESSAGE value="Store entities in ecs" />
-    <option name="LAST_COMMIT_MESSAGE" value="Store entities in ecs" />
+    <MESSAGE value="Remove unused imports" />
+    <option name="LAST_COMMIT_MESSAGE" value="Remove unused imports" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

@@ -1,7 +1,7 @@
-use crate::game::blocks::{Block, BlockStates};
+use crate::game::blocks::Block;
 use crate::services::asset::atlas::index::Rotate;
 use crate::services::chunk::data::{ChunkData, RawChunkData};
-use crate::warn;
+use crate::{warn, BlockStates};
 
 use nalgebra::Vector3;
 
@@ -89,7 +89,7 @@ impl ViewableDirection {
 pub fn calculate_viewable(
     block_states: &BlockStates,
     chunk: &ChunkData,
-    block: &Option<Box<dyn Block>>,
+    block: &Block,
     pos: [usize; 3],
 ) -> ViewableDirection {
     let world = &chunk.world;
@@ -133,7 +133,7 @@ fn should_draw_betweens(
     world: &RawChunkData,
     pos: [usize; 3],
     offset: [isize; 3],
-    src_block: &Option<Box<dyn Block>>,
+    src_block: &Block,
 ) -> bool {
     let block_id = world[(pos[0] as isize + offset[0]) as usize]
         [(pos[1] as isize + offset[1]) as usize][(pos[2] as isize + offset[2]) as usize];
@@ -142,27 +142,15 @@ fn should_draw_betweens(
         return true;
     }
 
-    match block_states.get_block(block_id as usize) {
-        None => {
-            // log_error!(format!(
-            //     "Block with invalid blockstate: X {} Y {} Z {} Block ID {}",
-            //     pos[0], pos[1], pos[2], block_id
-            // ));
-            false
-        }
-        Some(block) => {
-            // If its the same block we don't want borders drawn between them, or if they're both waterlogged
-            if src_block.is_some() {
-                if (block.is_translucent())
-                    && block.identifier() == src_block.as_ref().unwrap().identifier()
-                {
-                    return block.draw_betweens();
-                }
-                if !block.is_full() {
-                    return true;
-                }
-            }
-            block.is_translucent()
-        }
+    let block = block_states.get_block(block_id as usize);
+
+    // If its the same block we don't want borders drawn between them, or if they're both waterlogged
+    if (block.translucent) && block.identifier == src_block.identifier {
+        return block.draw_betweens;
     }
+    if !block.full {
+        return true;
+    }
+
+    block.translucent
 }

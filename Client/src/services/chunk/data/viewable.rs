@@ -1,11 +1,11 @@
-use crate::game::blocks::BlockStates;
 use crate::game::viewable_direction::{
     calculate_viewable, ViewableDirection, ViewableDirectionBitMap,
 };
 use crate::services::chunk::data::ChunkData;
-use rustcraft_protocol::constants::CHUNK_SIZE;
+use crate::BlockStates;
 use fnv::FnvBuildHasher;
 use nalgebra::Vector3;
+use rustcraft_protocol::constants::CHUNK_SIZE;
 use std::collections::HashMap;
 
 impl<'a> ChunkData {
@@ -96,15 +96,11 @@ impl<'a> ChunkData {
                                     let block_id =
                                         chunk.world[block_pos.x][block_pos.y][block_pos.z];
 
-                                    if block_id != 0 {
-                                        block_states.get_block(block_id as usize)
-                                    } else {
-                                        None
-                                    }
+                                    block_states.get_block(block_id as usize)
                                 };
 
                                 // Check if face visible
-                                if block.map_or(true, |block| block.is_translucent()) {
+                                if block.translucent {
                                     viewable.add_flag(ViewableDirectionBitMap::from(direction));
                                 }
                             } else if chunk_edge_faces {

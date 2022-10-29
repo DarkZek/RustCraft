@@ -6,9 +6,8 @@ use fnv::{FnvBuildHasher, FnvHashMap};
 use image::{DynamicImage, GenericImageView, ImageBuffer, Rgba};
 use std::collections::HashMap;
 
-
-pub const ATLAS_WIDTH: u32 = 4096 / 16;
-pub const ATLAS_HEIGHT: u32 = 4096 / 16;
+pub const ATLAS_WIDTH: u32 = 4096 / 8;
+pub const ATLAS_HEIGHT: u32 = 4096 / 8;
 
 pub struct TextureAtlas {
     image: Handle<Image>,
