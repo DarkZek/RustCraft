@@ -5,7 +5,7 @@ use crate::services::asset::atlas::index::TextureAtlasIndex;
 
 pub fn generate_dirt_block() -> Block {
     // Temp until atlas lookups are ported from mcv3v1
-    let i = 16.0 / ATLAS_WIDTH as f32;
+    let i = 32.0 / ATLAS_WIDTH as f32;
     let dirt = TextureAtlasIndex {
         u_min: 0.0,
         u_max: i,

@@ -9,24 +9,10 @@
     <cargoProject FILE="$PROJECT_DIR$/Cargo.toml" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d34b37f8-8bd9-4c23-a17f-5bd5043c2fce" name="Changes" comment="Remove unused imports">
-      <change afterPath="$PROJECT_DIR$/assets/game/tree_leaves.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/game/wood_log.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/blocks/air.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/blocks/grass.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/blocks/leaves.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/blocks/wood.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/mesh/face.rs" afterDir="false" />
+    <list default="true" id="d34b37f8-8bd9-4c23-a17f-5bd5043c2fce" name="Changes" comment="Added new textures + restructed blockstate">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/resources.pack" beforeDir="false" afterPath="$PROJECT_DIR$/assets/resources.pack" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/game/blocks/dirt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/blocks/dirt.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/game/blocks/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/blocks/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/game/mesh/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/mesh/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/game/viewable_direction.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/viewable_direction.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/asset/atlas/atlas.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/asset/atlas/atlas.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/chunk/data/generate_mesh.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/chunk/data/generate_mesh.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/chunk/data/viewable.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/chunk/data/viewable.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/chunk/systems/mesh_builder.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/chunk/systems/mesh_builder.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/ui.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/ui.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -151,7 +137,7 @@
       <workItem from="1666756467840" duration="12488000" />
       <workItem from="1666831961676" duration="20335000" />
       <workItem from="1666910283742" duration="22147000" />
-      <workItem from="1666989084544" duration="16664000" />
+      <workItem from="1666989084544" duration="18654000" />
     </task>
     <task id="LOCAL-00001" summary="Start new project">
       <created>1663755658916</created>
@@ -202,7 +188,14 @@
       <option name="project" value="LOCAL" />
       <updated>1667029363740</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Added new textures + restructed blockstate">
+      <created>1667036579490</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1667036579490</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -230,7 +223,8 @@
     <MESSAGE value="Added crosshair, removed chunk borders," />
     <MESSAGE value="Store entities in ecs" />
     <MESSAGE value="Remove unused imports" />
-    <option name="LAST_COMMIT_MESSAGE" value="Remove unused imports" />
+    <MESSAGE value="Added new textures + restructed blockstate" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added new textures + restructed blockstate" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
