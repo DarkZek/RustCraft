@@ -1,9 +1,11 @@
 use crate::events::authorization::AuthorizationEvent;
+use crate::game::transform::Transform;
 use crate::resources::{World, ENTITY_ID_COUNT};
 use crate::{ReceivePacket, SendPacket, TransportSystem};
 use bevy_ecs::change_detection::ResMut;
 use bevy_ecs::event::EventReader;
-use bevy_ecs::prelude::{EventWriter, Res};
+use bevy_ecs::prelude::{Commands, EventWriter, Res};
+use bevy_ecs::system::Query;
 use bevy_log::info;
 use crossbeam::channel::{Receiver, Sender};
 use nalgebra::Vector3;
@@ -50,37 +52,55 @@ pub fn authorization_event(
     mut global: ResMut<World>,
     mut transport: ResMut<TransportSystem>,
     mut send_packet: EventWriter<SendPacket>,
+    mut commands: Commands,
+    mut transforms: Query<&Transform>,
 ) {
     for client in event_reader.iter() {
         info!("Authorisation event");
-        // Spawn other entities
+        // Spawn other entities for new player
         for (id, entity) in &global.entities {
+            let transform = transforms.get(*entity).unwrap();
             let packet = Protocol::SpawnEntity(SpawnEntity {
                 id: *id,
-                loc: [entity.x, entity.y, entity.z],
-                rot: [0.0; 4],
+                loc: [
+                    transform.position.x,
+                    transform.position.y,
+                    transform.position.z,
+                ],
+                rot: transform.rotation.coords.into(),
             });
             send_packet.send(SendPacket(packet, client.client));
         }
 
+        let transform = Transform::default();
+
         // Create new entity for player
         let entity_id = EntityId(ENTITY_ID_COUNT.fetch_add(1, Ordering::Acquire));
-        let entity = Vector3::zeros();
-        global.entities.insert(entity_id, entity);
 
         // Store player entity
         transport.clients.get_mut(&client.client).unwrap().entity_id = entity_id;
 
         // Spawn new player for other players
         for (id, user) in &transport.clients {
-            let entity = global.entities.get(&user.entity_id).unwrap();
+            // Don't spawn new client for itself
+            if *id == client.client {
+                continue;
+            }
+
             let packet = Protocol::SpawnEntity(SpawnEntity {
                 id: entity_id,
-                loc: [entity.x, entity.y, entity.z],
+                loc: [
+                    transform.position.x,
+                    transform.position.y,
+                    transform.position.z,
+                ],
                 rot: [0.0; 4],
             });
             send_packet.send(SendPacket(packet, *id));
         }
+
+        let entity = commands.spawn().insert(transform).id();
+        global.entities.insert(entity_id, entity);
 
         // Send world to client
         for (loc, chunk) in global.chunks.iter() {

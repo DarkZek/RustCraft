@@ -23,6 +23,7 @@ rustcraft-protocol = { path = "../Protocol" }
 tokio =  { version = "1.18.0", features = ["net"]}
 mio = { version = "0.8.5", features = ["net", "os-poll"]}
 thiserror = "1.0.37"
+bevy_prototype_debug_lines = { version = "0.8", features = ["3d"] }
 
 [profile.dev]
 opt-level = 1

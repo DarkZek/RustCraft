@@ -1,6 +1,7 @@
 
 use serde::{Serialize, Deserialize};
 #[derive(Serialize, Deserialize, PartialEq, Debug, Copy, Clone)]
+#[repr(C)]
 pub struct PlayerRotate {
     pub x: f32,
     pub y: f32,

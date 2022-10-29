@@ -8,7 +8,9 @@ pub const CHUNK_UPDATE_PARTIAL_CHUNKS: usize =
     (CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE) / CHUNK_UPDATE_BLOCKS_PER_PACKET;
 
 use serde::{Serialize, Deserialize};
+
 #[derive(Serialize, Deserialize, PartialEq, Debug, Copy, Clone)]
+#[repr(C)]
 pub struct PartialChunkUpdate {
     pub data: RawChunkData,
     pub x: i32,

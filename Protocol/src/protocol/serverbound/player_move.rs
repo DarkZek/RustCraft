@@ -2,6 +2,7 @@ use crate::constants::UserId;
 
 use serde::{Serialize, Deserialize};
 #[derive(Serialize, Deserialize, PartialEq, Debug, Copy, Clone)]
+#[repr(C)]
 pub struct PlayerMove {
     pub x: f32,
     pub y: f32,

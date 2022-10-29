@@ -47,18 +47,32 @@ impl Block for Dirt {
 
     fn draw(&self, position: Vector3<f32>, visibility: ViewableDirection, mut draw: DrawKit) {
         let i = 16.0 / ATLAS_WIDTH as f32;
-        let grass = TextureAtlasIndex {
+        let dirt = TextureAtlasIndex {
             u_min: 0.0,
             u_max: i,
             v_min: 0.0,
             v_max: i,
         };
-        let dirt = TextureAtlasIndex {
+        let grass_top = TextureAtlasIndex {
+            u_min: i,
+            u_max: i * 2.0,
+            v_min: i,
+            v_max: i * 2.0,
+        };
+        let grass = TextureAtlasIndex {
             u_min: i,
             u_max: i * 2.0,
             v_min: 0.0,
             v_max: i,
         };
-        draw.draw_full_block(position, visibility, if self.grass { grass } else { dirt })
+        if self.grass {
+            draw.draw_full_block_textures(
+                position,
+                visibility,
+                [dirt, grass_top, grass, grass, grass, grass],
+            );
+        } else {
+            draw.draw_full_block(position, visibility, dirt);
+        }
     }
 }

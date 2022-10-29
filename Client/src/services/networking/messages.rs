@@ -54,8 +54,17 @@ pub fn messages_update(
             Protocol::SpawnEntity(entity) => {
                 let entity_id = commands
                     .spawn()
-                    .insert(Transform::default())
-                    .insert(PhysicsObject::new(Vector3::zeros()))
+                    .insert(Transform::from_rotation(Quat::from_xyzw(
+                        entity.rot[0],
+                        entity.rot[1],
+                        entity.rot[2],
+                        entity.rot[3],
+                    )))
+                    .insert(PhysicsObject::new(Vector3::new(
+                        entity.loc[0],
+                        entity.loc[1],
+                        entity.loc[2],
+                    )))
                     .insert(Entity)
                     .insert_bundle(PbrBundle {
                         mesh: meshes.add(Mesh::from(shape::Cube { size: 1.0 })),
@@ -69,8 +78,13 @@ pub fn messages_update(
                 info!("Entity spawned {:?}!", entity.id);
             }
             Protocol::PartialChunkUpdate(update) => {}
-            t => {
-                info!("Other {:?}", t);
+            Protocol::DespawnEntity(packet) => {
+                if let Some(entity) = system.entity_mapping.remove(&packet.entity) {
+                    commands.entity(entity).despawn();
+                }
+            }
+            other => {
+                info!("Other {:?}", other);
             }
         }
     }

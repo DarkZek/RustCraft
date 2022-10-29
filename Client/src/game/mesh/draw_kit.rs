@@ -1,5 +1,6 @@
 use crate::game::viewable_direction::{ViewableDirection, ViewableDirectionBitMap};
 use crate::services::asset::atlas::index::TextureAtlasIndex;
+use crate::Visibility;
 use nalgebra::{Vector2, Vector3};
 
 /// Stores all objects allowing for more ergonomic drawing of objects
@@ -31,6 +32,9 @@ impl DrawKit<'_> {
         visibility: ViewableDirection,
         texture: TextureAtlasIndex,
     ) {
+        if visibility.0 == 0 {
+            return;
+        }
         if visibility.has_flag(ViewableDirectionBitMap::Top) {
             self.draw_top_face(
                 position + Vector3::new(0.0, 1.0, 0.0),
@@ -71,6 +75,59 @@ impl DrawKit<'_> {
                 position + Vector3::new(1.0, 0.0, 0.0),
                 Vector2::new(1.0, 1.0),
                 texture,
+            );
+        }
+    }
+
+    pub fn draw_full_block_textures(
+        &mut self,
+        position: Vector3<f32>,
+        visibility: ViewableDirection,
+        textures: [TextureAtlasIndex; 6],
+    ) {
+        if visibility.0 == 0 {
+            return;
+        }
+        if visibility.has_flag(ViewableDirectionBitMap::Top) {
+            self.draw_top_face(
+                position + Vector3::new(0.0, 1.0, 0.0),
+                Vector2::new(1.0, 1.0),
+                textures[0],
+            );
+        }
+        if visibility.has_flag(ViewableDirectionBitMap::Bottom) {
+            self.draw_bottom_face(
+                position + Vector3::new(0.0, 0.0, 0.0),
+                Vector2::new(1.0, 1.0),
+                textures[1],
+            );
+        }
+        if visibility.has_flag(ViewableDirectionBitMap::Front) {
+            self.draw_front_face(
+                position + Vector3::new(0.0, 0.0, 0.0),
+                Vector2::new(1.0, 1.0),
+                textures[2],
+            );
+        }
+        if visibility.has_flag(ViewableDirectionBitMap::Back) {
+            self.draw_back_face(
+                position + Vector3::new(0.0, 0.0, 1.0),
+                Vector2::new(1.0, 1.0),
+                textures[3],
+            );
+        }
+        if visibility.has_flag(ViewableDirectionBitMap::Left) {
+            self.draw_left_face(
+                position + Vector3::new(0.0, 0.0, 0.0),
+                Vector2::new(1.0, 1.0),
+                textures[4],
+            );
+        }
+        if visibility.has_flag(ViewableDirectionBitMap::Right) {
+            self.draw_right_face(
+                position + Vector3::new(1.0, 0.0, 0.0),
+                Vector2::new(1.0, 1.0),
+                textures[5],
             );
         }
     }

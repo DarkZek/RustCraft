@@ -9,23 +9,38 @@
     <cargoProject FILE="$PROJECT_DIR$/Cargo.toml" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d34b37f8-8bd9-4c23-a17f-5bd5043c2fce" name="Changes" comment="Debug networking">
-      <change afterPath="$PROJECT_DIR$/assets/ui/crosshair.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/services/ui.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../Protocol/src/protocol/serverbound/disconnect.rs" afterDir="false" />
+    <list default="true" id="d34b37f8-8bd9-4c23-a17f-5bd5043c2fce" name="Changes" comment="Added crosshair, removed chunk borders,">
+      <change afterPath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/despawn_entity.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Server/src/game/transform.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/game/interaction/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/interaction/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/chunk/data/generate_mesh.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/chunk/data/generate_mesh.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/chunk/systems/mesh_builder.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/chunk/systems/mesh_builder.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/networking/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/networking/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/blocks/dirt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/blocks/dirt.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/mesh/draw_kit.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/mesh/draw_kit.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/viewable_direction.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/viewable_direction.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/networking/messages.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/networking/messages.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Protocol/src/protocol.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/serverbound/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Protocol/src/protocol/serverbound/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Server/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/../Server/Cargo.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Server/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Server/src/main.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/block_update.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/block_update.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/chunk_update.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/chunk_update.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/entity_moved.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/entity_moved.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/entity_rotated.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/entity_rotated.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/ping.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/ping.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/player_join.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/player_join.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/player_leave.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/player_leave.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/spawn_entity.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/spawn_entity.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/serverbound/authenticate.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Protocol/src/protocol/serverbound/authenticate.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/serverbound/disconnect.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Protocol/src/protocol/serverbound/disconnect.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/serverbound/player_move.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Protocol/src/protocol/serverbound/player_move.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/serverbound/player_rotate.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Protocol/src/protocol/serverbound/player_rotate.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/serverbound/pong.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Protocol/src/protocol/serverbound/pong.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Server/src/events/disconnect.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Server/src/events/disconnect.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Server/src/game/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Server/src/game/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Server/src/resources.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Server/src/resources.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Server/src/systems/authorization.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Server/src/systems/authorization.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Server/src/systems/disconnect.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Server/src/systems/disconnect.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Server/src/systems/message.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Server/src/systems/message.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Server/src/transport/connection.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Server/src/transport/connection.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Server/src/transport/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Server/src/transport/mod.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -149,7 +164,8 @@
       <workItem from="1666679524289" duration="5342000" />
       <workItem from="1666756467840" duration="12488000" />
       <workItem from="1666831961676" duration="20335000" />
-      <workItem from="1666910283742" duration="20972000" />
+      <workItem from="1666910283742" duration="22147000" />
+      <workItem from="1666989084544" duration="10190000" />
     </task>
     <task id="LOCAL-00001" summary="Start new project">
       <created>1663755658916</created>
@@ -179,7 +195,14 @@
       <option name="project" value="LOCAL" />
       <updated>1666913488756</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Added crosshair, removed chunk borders,">
+      <created>1666950291828</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1666950291828</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -204,7 +227,8 @@
     <MESSAGE value="Got building on web" />
     <MESSAGE value="Got chunks loading" />
     <MESSAGE value="Debug networking" />
-    <option name="LAST_COMMIT_MESSAGE" value="Debug networking" />
+    <MESSAGE value="Added crosshair, removed chunk borders," />
+    <option name="LAST_COMMIT_MESSAGE" value="Added crosshair, removed chunk borders," />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

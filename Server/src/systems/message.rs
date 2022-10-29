@@ -1,10 +1,11 @@
 use crate::game::chunk::ChunkData;
+use crate::game::transform::Transform;
 use crate::helpers::global_to_local_position;
 use crate::{info, ReceivePacket, SendPacket, TransportSystem, World};
 use bevy_ecs::event::{EventReader, EventWriter};
-use bevy_ecs::prelude::Res;
+use bevy_ecs::prelude::{Query, Res};
 use bevy_ecs::system::ResMut;
-use nalgebra::Vector3;
+use nalgebra::{Quaternion, Vector3, Vector4};
 use rustcraft_protocol::constants::CHUNK_SIZE;
 use rustcraft_protocol::protocol::clientbound::block_update::BlockUpdate;
 use rustcraft_protocol::protocol::clientbound::entity_moved::EntityMoved;
@@ -16,6 +17,7 @@ pub fn receive_message_event(
     mut event_writer: EventWriter<SendPacket>,
     mut global: ResMut<World>,
     mut system: ResMut<TransportSystem>,
+    mut transforms: Query<&mut Transform>,
 ) {
     for event in event_reader.iter() {
         match &event.0 {
@@ -25,7 +27,7 @@ pub fn receive_message_event(
 
                 // TODO: Don't trust user input
 
-                let mut packet = Protocol::EntityMoved(EntityMoved {
+                let mut send_packet = Protocol::EntityMoved(EntityMoved {
                     entity,
                     x: packet.x,
                     y: packet.y,
@@ -37,7 +39,13 @@ pub fn receive_message_event(
                         continue;
                     }
                     info!("Move packet sending to {:?}", client);
-                    event_writer.send(SendPacket(packet.clone(), *client));
+                    event_writer.send(SendPacket(send_packet.clone(), *client));
+                }
+
+                if let Some(val) = global.entities.get(&entity) {
+                    // Move player in ecs
+                    transforms.get_mut(*val).unwrap().position =
+                        Vector3::new(packet.x, packet.y, packet.z);
                 }
             }
             Protocol::PlayerRotate(packet) => {
@@ -46,7 +54,7 @@ pub fn receive_message_event(
 
                 // TODO: Don't trust user input
 
-                let mut packet = Protocol::EntityRotated(EntityRotated {
+                let mut send_packet = Protocol::EntityRotated(EntityRotated {
                     entity,
                     x: packet.x,
                     y: packet.y,
@@ -59,7 +67,13 @@ pub fn receive_message_event(
                         continue;
                     }
                     //info!("Move packet sent to {:?}", client);
-                    event_writer.send(SendPacket(packet.clone(), *client));
+                    event_writer.send(SendPacket(send_packet.clone(), *client));
+                }
+
+                if let Some(val) = global.entities.get(&entity) {
+                    // Rotate player in ecs
+                    transforms.get_mut(*val).unwrap().rotation =
+                        Quaternion::new(packet.x, packet.y, packet.z, packet.w);
                 }
             }
             Protocol::BlockUpdate(packet) => {

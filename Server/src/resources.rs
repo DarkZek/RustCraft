@@ -1,5 +1,6 @@
 use crate::game::chunk::ChunkData;
 use crate::game::player::Player;
+use bevy_ecs::entity::Entity;
 use nalgebra::Vector3;
 use rustcraft_protocol::constants::EntityId;
 use std::collections::HashMap;
@@ -9,7 +10,7 @@ pub const ENTITY_ID_COUNT: AtomicU64 = AtomicU64::new(0);
 
 pub struct World {
     pub chunks: HashMap<Vector3<i32>, ChunkData>,
-    pub entities: HashMap<EntityId, Vector3<f32>>,
+    pub entities: HashMap<EntityId, Entity>,
 }
 
 impl World {

@@ -5,7 +5,7 @@ use crate::warn;
 use bevy::log::error;
 use nalgebra::Vector3;
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub struct ViewableDirection(pub u8);
 
 #[derive(Clone, Copy, PartialEq)]

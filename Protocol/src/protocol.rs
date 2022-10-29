@@ -14,6 +14,7 @@ use crate::protocol::clientbound::entity_moved::EntityMoved;
 use crate::protocol::clientbound::spawn_entity::SpawnEntity;
 use crate::protocol::clientbound::entity_rotated::EntityRotated;
 use crate::protocol::serverbound::disconnect::Disconnect;
+use crate::protocol::clientbound::despawn_entity::DespawnEntity;
 
 pub mod clientbound;
 pub mod serverbound;
@@ -27,6 +28,7 @@ pub enum Protocol {
     EntityMoved(EntityMoved),
     PlayerRotate(PlayerRotate),
     EntityRotated(EntityRotated),
+    DespawnEntity(DespawnEntity),
     PlayerLeave(PlayerLeave),
     BlockUpdate(BlockUpdate),
     ChatSent(ChatSent),

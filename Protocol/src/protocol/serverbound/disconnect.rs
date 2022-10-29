@@ -2,6 +2,7 @@ use crate::constants::UserId;
 
 use serde::{Serialize, Deserialize};
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
+#[repr(C)]
 pub struct Disconnect {
     pub code: u32
 }

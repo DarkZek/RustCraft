@@ -1,7 +1,8 @@
 use std::time::SystemTime;
-
 use serde::{Serialize, Deserialize};
+
 #[derive(Serialize, Deserialize, PartialEq, Debug, Copy, Clone)]
+#[repr(C)]
 pub struct Pong {
     pub code: u64
 }

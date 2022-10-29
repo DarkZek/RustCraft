@@ -7,3 +7,4 @@ pub mod entity_moved;
 pub mod entity_rotated;
 pub mod ping;
 pub mod spawn_entity;
+pub mod despawn_entity;

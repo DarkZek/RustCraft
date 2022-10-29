@@ -1,4 +1,5 @@
 use crate::events::connection::ConnectionEvent;
+use crate::events::disconnect::DisconnectionEvent;
 use crate::systems::authorization::GameUser;
 use crate::transport::listener::ServerListener;
 use crate::transport::packet::{ReceivePacket, SendPacket};
@@ -26,7 +27,6 @@ pub fn accept_connections(
     mut system: ResMut<TransportSystem>,
     mut stream: ResMut<ServerListener>,
     mut connection_event_writer: EventWriter<ConnectionEvent>,
-    mut packet_event_writer: EventWriter<ReceivePacket>,
 ) {
     // Loop over all new connections
     while let Ok(conn) = stream.receive_connections.recv_timeout(Duration::ZERO) {
@@ -98,9 +98,12 @@ pub fn accept_connections(
                 // Send packet to receiver
                 match inner_write_packets.send(ReceivePacket(packet, uid)) {
                     Ok(_) => {}
-                    Err(_) => {
+                    Err(e) => {
                         // Channel disconnected, delete this task
-                        debug!("Packet writer for user {:?} destroyed", uid);
+                        debug!(
+                            "Failed to read packet for user {:?} destroyed: {:?}",
+                            uid, e
+                        );
                         break;
                     }
                 }
@@ -132,16 +135,23 @@ pub fn accept_connections(
                 // Just size for now
                 let header: u32 = packet.len() as u32;
 
-                write_tcp
+                if let Err(e) = write_tcp
                     .write_all(&bincode::serialize(&header).unwrap())
                     .await
-                    .unwrap();
-                write_tcp.write_all(&packet).await.unwrap();
+                {
+                    debug!("Failed to write packet for user {:?}: {:?}", uid, e);
+                    break;
+                }
+                if let Err(e) = write_tcp.write_all(&packet).await {
+                    debug!("Failed to write packet for user {:?}: {:?}", uid, e);
+                    break;
+                }
 
-                write_tcp.flush().await.unwrap();
+                if let Err(e) = write_tcp.flush().await {
+                    debug!("Failed to flush packet for user {:?}: {:?}", uid, e);
+                    break;
+                }
             }
-
-            debug!("Packet writer for user {:?} destroyed", uid);
         });
 
         // Start reading data from socket
@@ -193,17 +203,28 @@ pub fn receive_packets(system: ResMut<TransportSystem>, mut packets: EventWriter
     }
 }
 
-pub fn prune_users(mut system: ResMut<TransportSystem>) {
+pub fn prune_users(
+    mut system: ResMut<TransportSystem>,
+    mut event: EventWriter<DisconnectionEvent>,
+) {
     let mut delete_users = Vec::new();
     for (uid, user) in &system.clients {
         if user.disconnected {
             delete_users.push(*uid);
         }
+        if user.read_packet_handle.is_finished() || user.write_packet_handle.is_finished() {
+            delete_users.push(*uid);
+            debug!(
+                "Detected writing or reading thread for {:?} finished. Terminating connection.",
+                uid
+            );
+        }
     }
 
-    for user in delete_users {
-        system.clients.remove(&user);
-        info!("Disconnected user {:?}", user);
+    for client in delete_users {
+        let user = system.clients.remove(&client).unwrap();
+        info!("Disconnected user {:?}", client);
+        event.send(DisconnectionEvent { client, user });
     }
 }
 
