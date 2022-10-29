@@ -2,7 +2,7 @@ use crate::game::blocks::{Block, BlockStates};
 use crate::services::asset::atlas::index::Rotate;
 use crate::services::chunk::data::{ChunkData, RawChunkData};
 use crate::warn;
-use bevy::log::error;
+
 use nalgebra::Vector3;
 
 #[derive(Copy, Clone, Debug, PartialEq)]

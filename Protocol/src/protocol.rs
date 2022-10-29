@@ -9,7 +9,6 @@ use crate::protocol::serverbound::player_move::PlayerMove;
 use crate::protocol::serverbound::player_rotate::PlayerRotate;
 use crate::protocol::serverbound::pong::Pong;
 use serde::{Serialize, Deserialize};
-use crate::constants::UserId;
 use crate::protocol::clientbound::entity_moved::EntityMoved;
 use crate::protocol::clientbound::spawn_entity::SpawnEntity;
 use crate::protocol::clientbound::entity_rotated::EntityRotated;

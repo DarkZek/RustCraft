@@ -1,20 +1,20 @@
 use crate::game::entity::Entity;
-use crate::services::asset::AssetService;
+
 use crate::services::networking::transport::packet::ReceivePacket;
 use crate::services::networking::TransportSystem;
 use crate::services::physics::PhysicsObject;
 use crate::{
-    default, error, info, shape, Assets, ChunkData, Color, Commands, EventWriter, Mesh, Mut,
-    PbrBundle, Quat, Query, RerenderChunkFlag, ResMut, StandardMaterial, Vec3, World,
+    default, error, info, shape, Assets, Color, Commands, Mesh,
+    PbrBundle, Quat, Query, ResMut, StandardMaterial,
 };
 use crate::{EventReader, Transform};
-use bevy::render::primitives::Aabb;
+
 use nalgebra::Vector3;
-use rustcraft_protocol::protocol::clientbound::chunk_update::PartialChunkUpdate;
-use rustcraft_protocol::protocol::clientbound::player_join::PlayerJoin;
-use rustcraft_protocol::protocol::serverbound::authenticate::UserAuthenticate;
+
+
+
 use rustcraft_protocol::protocol::Protocol;
-use std::collections::HashMap;
+
 
 pub fn messages_update(
     mut event_reader: EventReader<ReceivePacket>,
@@ -77,7 +77,7 @@ pub fn messages_update(
 
                 info!("Entity spawned {:?}!", entity.id);
             }
-            Protocol::PartialChunkUpdate(update) => {}
+            Protocol::PartialChunkUpdate(_) => {}
             Protocol::DespawnEntity(packet) => {
                 if let Some(entity) = system.entity_mapping.remove(&packet.entity) {
                     commands.entity(entity).despawn();

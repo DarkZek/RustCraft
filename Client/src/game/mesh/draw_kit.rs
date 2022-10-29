@@ -1,6 +1,6 @@
 use crate::game::viewable_direction::{ViewableDirection, ViewableDirectionBitMap};
 use crate::services::asset::atlas::index::TextureAtlasIndex;
-use crate::Visibility;
+
 use nalgebra::{Vector2, Vector3};
 
 /// Stores all objects allowing for more ergonomic drawing of objects

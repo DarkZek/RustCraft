@@ -1,13 +1,12 @@
 use crate::helpers::global_to_local_position;
-use crate::services::asset::material::chunk::ChunkMaterial;
+
 use crate::services::asset::AssetService;
 use crate::services::chunk::ChunkService;
 use crate::services::networking::transport::packet::ReceivePacket;
 use crate::{
-    default, info, shape, Assets, Color, Commands, EventReader, Mesh, MouseButton, PbrBundle,
-    Query, RerenderChunkFlag, Res, ResMut, StandardMaterial, Transform, Vec3,
+    Assets, Commands, EventReader, Mesh, RerenderChunkFlag, Res, ResMut,
 };
-use bevy::render::primitives::Aabb;
+
 use nalgebra::Vector3;
 use rustcraft_protocol::constants::CHUNK_SIZE;
 use rustcraft_protocol::protocol::Protocol;
@@ -16,7 +15,6 @@ pub fn network_chunk_sync(
     mut event_reader: EventReader<ReceivePacket>,
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<ChunkMaterial>>,
     mut asset_service: Res<AssetService>,
     mut chunk_service: ResMut<ChunkService>,
 ) {
@@ -30,7 +28,6 @@ pub fn network_chunk_sync(
                     &update,
                     &mut commands,
                     &asset_service,
-                    &mut materials,
                     &mut meshes,
                 );
             }

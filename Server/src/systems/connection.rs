@@ -1,12 +1,12 @@
 use bevy_ecs::event::{EventReader, EventWriter};
-use bevy_ecs::system::ResMut;
-use bevy_log::info;
-use nalgebra::{Vector2, Vector3};
+
+
+
 use crate::events::authorization::AuthorizationEvent;
 use crate::events::connection::ConnectionEvent;
-use crate::game::chunk::ChunkData;
-use crate::game::player::Player;
-use crate::resources::World;
+
+
+
 
 pub fn connection_event<'world, 'state>(
     mut event_reader: EventReader<ConnectionEvent>,

@@ -1,15 +1,15 @@
 use crate::game::blocks::BlockStates;
 use crate::game::mesh::draw_kit::DrawKit;
 use crate::game::viewable_direction::ViewableDirection;
-use crate::services::asset::atlas::index::TextureAtlasIndex;
+
 use crate::services::chunk::data::ChunkData;
-use crate::services::chunk::lookup::Chunks;
+
 use crate::services::chunk::ChunkService;
 use bevy::ecs::component::Component;
 use bevy::log::error;
-use bevy::render::render_resource::BindGroup;
+
 use fnv::FnvHashMap;
-use nalgebra::{Vector2, Vector3};
+use nalgebra::{Vector3};
 use rustcraft_protocol::constants::CHUNK_SIZE;
 
 #[derive(Component)]
@@ -85,7 +85,7 @@ impl ChunkData {
                             Some(block) => block,
                         };
 
-                        let light_color = self.light_levels[x][y][z];
+                        //let light_color = self.light_levels[x][y][z];
 
                         block.draw(
                             Vector3::new(x as f32, y as f32, z as f32),

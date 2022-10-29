@@ -1,7 +1,7 @@
 use crate::game::viewable_direction::ViewableDirection;
 use crate::Entity;
 use bevy::ecs::component::Component;
-use bevy::render::render_resource::BindGroup;
+
 use rustcraft_protocol::constants::CHUNK_SIZE;
 use nalgebra::Vector3;
 

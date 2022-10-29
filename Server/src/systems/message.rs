@@ -5,7 +5,7 @@ use crate::{info, ReceivePacket, SendPacket, TransportSystem, World};
 use bevy_ecs::event::{EventReader, EventWriter};
 use bevy_ecs::prelude::{Query, Res};
 use bevy_ecs::system::ResMut;
-use nalgebra::{Quaternion, Vector3, Vector4};
+use nalgebra::{Quaternion, Vector3};
 use rustcraft_protocol::constants::CHUNK_SIZE;
 use rustcraft_protocol::protocol::clientbound::block_update::BlockUpdate;
 use rustcraft_protocol::protocol::clientbound::entity_moved::EntityMoved;
@@ -16,7 +16,7 @@ pub fn receive_message_event(
     mut event_reader: EventReader<ReceivePacket>,
     mut event_writer: EventWriter<SendPacket>,
     mut global: ResMut<World>,
-    mut system: ResMut<TransportSystem>,
+    system: Res<TransportSystem>,
     mut transforms: Query<&mut Transform>,
 ) {
     for event in event_reader.iter() {
@@ -27,7 +27,7 @@ pub fn receive_message_event(
 
                 // TODO: Don't trust user input
 
-                let mut send_packet = Protocol::EntityMoved(EntityMoved {
+                let send_packet = Protocol::EntityMoved(EntityMoved {
                     entity,
                     x: packet.x,
                     y: packet.y,
@@ -54,7 +54,7 @@ pub fn receive_message_event(
 
                 // TODO: Don't trust user input
 
-                let mut send_packet = Protocol::EntityRotated(EntityRotated {
+                let send_packet = Protocol::EntityRotated(EntityRotated {
                     entity,
                     x: packet.x,
                     y: packet.y,

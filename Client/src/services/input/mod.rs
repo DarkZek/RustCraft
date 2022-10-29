@@ -4,9 +4,9 @@ mod movement;
 use crate::services::input::look::update_input_look;
 use crate::services::input::movement::update_input_movement;
 use bevy::app::{App, Plugin};
-use bevy::asset::Assets;
-use bevy::pbr::StandardMaterial;
-use bevy::prelude::{Input, KeyCode, MouseButton, Mut, Res, ResMut};
+
+
+use bevy::prelude::{Input, KeyCode, MouseButton, Res, ResMut};
 use bevy::window::Windows;
 
 pub struct InputPlugin;

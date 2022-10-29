@@ -1,4 +1,4 @@
-use crate::CursorIcon::Default;
+
 use bevy::prelude::*;
 
 pub struct UIPlugin;

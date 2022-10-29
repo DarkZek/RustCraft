@@ -1,4 +1,4 @@
-use crate::constants::{EntityId, UserId};
+use crate::constants::{EntityId};
 
 use serde::{Serialize, Deserialize};
 #[derive(Serialize, Deserialize, PartialEq, Debug, Copy, Clone)]

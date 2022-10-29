@@ -1,7 +1,7 @@
 use crate::error::ClientError;
 use bevy::log::info;
-use mio::net::{TcpListener, TcpStream};
-use mio::{Interest, Poll, Token};
+use mio::net::{TcpStream};
+use mio::{Token};
 use rustcraft_protocol::stream::GameStream;
 use std::net::IpAddr;
 
@@ -14,7 +14,7 @@ pub struct ClientListener {
 
 impl ClientListener {
     pub fn new(ip: IpAddr, port: usize) -> Result<ClientListener, ClientError> {
-        let mut stream = TcpStream::connect(format!("{}:{}", ip, port).parse().unwrap())?;
+        let stream = TcpStream::connect(format!("{}:{}", ip, port).parse().unwrap())?;
 
         info!("Connecting to server on {}:{}", ip, port);
 

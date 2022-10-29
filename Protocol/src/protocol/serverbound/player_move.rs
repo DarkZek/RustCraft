@@ -1,5 +1,3 @@
-use crate::constants::UserId;
-
 use serde::{Serialize, Deserialize};
 #[derive(Serialize, Deserialize, PartialEq, Debug, Copy, Clone)]
 #[repr(C)]

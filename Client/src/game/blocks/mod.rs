@@ -2,7 +2,7 @@ pub mod dirt;
 
 use crate::game::blocks::dirt::DIRT_BLOCK_GENERATOR;
 use crate::game::mesh::draw_kit::DrawKit;
-use crate::game::viewable_direction::{ViewableDirection, ViewableDirectionBitMap};
+use crate::game::viewable_direction::{ViewableDirection};
 use nalgebra::Vector3;
 
 pub struct BlockEntry {

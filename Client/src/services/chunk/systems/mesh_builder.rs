@@ -1,15 +1,15 @@
 use crate::game::blocks::BlockStates;
 use crate::helpers::from_bevy_vec3;
 use crate::services::chunk::data::generate_mesh::UpdateChunkMesh;
-use crate::services::chunk::data::ChunkData;
-use crate::services::chunk::lookup::Chunks;
+
+
 use crate::services::chunk::ChunkService;
 use crate::Component;
 use crate::{
-    Assets, Camera, Commands, Entity, Handle, PbrBundle, Query, Res, ResMut, Transform, Vec3, With,
+    Assets, Camera, Commands, Entity, Handle, Query, Res, ResMut, Transform, With,
 };
-use bevy::asset::HandleId;
-use bevy::ecs::system::Command;
+
+
 use bevy::prelude::Mesh;
 use bevy::render::mesh::Indices;
 use nalgebra::Vector3;

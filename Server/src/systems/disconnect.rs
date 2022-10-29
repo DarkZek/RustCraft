@@ -1,10 +1,10 @@
 use crate::events::disconnect::DisconnectionEvent;
-use crate::{info, SendPacket, TransportSystem, World};
+use crate::{SendPacket, TransportSystem, World};
 use bevy_ecs::event::EventReader;
 use bevy_ecs::prelude::{Commands, EventWriter, Res};
 use bevy_ecs::system::ResMut;
 use rustcraft_protocol::protocol::clientbound::despawn_entity::DespawnEntity;
-use rustcraft_protocol::protocol::serverbound::disconnect::Disconnect;
+
 use rustcraft_protocol::protocol::Protocol;
 
 pub fn disconnection_event(

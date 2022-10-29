@@ -1,10 +1,10 @@
-use crate::helpers::{global_to_local_position, to_bevy_vec3};
+use crate::helpers::{global_to_local_position};
 use crate::services::chunk::ChunkService;
-use crate::shape::Cube;
-use crate::{default, error, info, Assets, ChunkData, Commands, Mesh, ResMut, Transform, Vec3};
-use bevy::pbr::PbrBundle;
-use bevy_inspector_egui::egui::emath::Numeric;
-use nalgebra::{DimMul, Vector3};
+
+use crate::{Assets, ChunkData, Mesh, ResMut, Vec3};
+
+
+use nalgebra::{Vector3};
 
 pub struct RaycastResult {
     pub block: Vector3<i32>,
@@ -17,8 +17,7 @@ pub fn do_raycast(
     mut direction: Vector3<f32>,
     max_distance: f32,
     chunks: &ChunkService,
-    mut commands: &mut Commands,
-    mut meshes: &mut ResMut<Assets<Mesh>>,
+    _meshes: &mut ResMut<Assets<Mesh>>,
 ) -> Option<RaycastResult> {
     direction = direction.normalize();
 
@@ -36,11 +35,11 @@ pub fn do_raycast(
         signum(direction.z),
     );
 
-    let delta = (Vector3::new(
+    let delta = Vector3::new(
         (1.0 / direction.x).abs(),
         (1.0 / direction.y).abs(),
         (1.0 / direction.z).abs(),
-    ));
+    );
 
     let dist = Vec3::new(
         if step.x > 0 {

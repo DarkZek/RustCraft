@@ -1,7 +1,7 @@
 use crate::services::asset::atlas::atlas::TextureAtlas;
 use crate::services::asset::atlas::ResourcePackData;
 use crate::services::asset::material::chunk::ChunkMaterial;
-use crate::{AssetServer, Commands, Handle, Res, ResMut, ResourcePacks, StandardMaterial};
+use crate::{AssetServer, Commands, Handle, Res, ResMut, ResourcePacks};
 use bevy::prelude::*;
 
 pub mod atlas;
@@ -15,10 +15,7 @@ pub struct AssetService {
 }
 
 impl AssetService {
-    pub fn new(
-        server: Res<AssetServer>,
-        mut materials: &mut Assets<ChunkMaterial>,
-    ) -> AssetService {
+    pub fn new(server: Res<AssetServer>, materials: &mut Assets<ChunkMaterial>) -> AssetService {
         let texture_atlas_material = materials.add(ChunkMaterial {
             color: Color::GRAY,
             color_texture: None,

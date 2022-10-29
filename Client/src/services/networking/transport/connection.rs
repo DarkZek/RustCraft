@@ -1,18 +1,17 @@
 use crate::services::networking::transport::listener::ClientListener;
 use crate::services::networking::transport::packet::{ReceivePacket, SendPacket};
-use crate::services::networking::TransportSystem;
-use crate::KeyCode::P;
+
+
 use crate::{debug, EventReader, EventWriter, ResMut};
 use bevy::log::{info, warn};
 use bevy::prelude::error;
-use rustcraft_protocol::constants::UserId;
+
 use rustcraft_protocol::error::ProtocolError;
 use rustcraft_protocol::protocol::serverbound::pong::Pong;
 use rustcraft_protocol::protocol::Protocol;
 use std::io;
 
 pub fn connection_upkeep(
-    system: ResMut<TransportSystem>,
     mut stream: ResMut<ClientListener>,
     mut event_writer: EventWriter<ReceivePacket>,
 ) {
@@ -107,7 +106,6 @@ pub fn send_packets(mut stream: ResMut<ClientListener>, mut packets: EventReader
                 error!("Error during packet send {:?}", e);
                 stream.disconnect = true;
             }
-            _ => {}
         }
     }
 }

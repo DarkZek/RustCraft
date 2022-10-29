@@ -4,14 +4,14 @@ use crate::services::chunk::ChunkService;
 use crate::services::networking::transport::packet::SendPacket;
 use crate::services::physics::raycasts::do_raycast;
 use crate::{
-    info, Assets, Camera, ChunkData, Commands, Entity, EulerRot, EventWriter, Input, Mesh,
-    MouseButton, Query, RerenderChunkFlag, Res, ResMut, StandardMaterial, Transform, Vec3, With,
+    info, Assets, Camera, Commands, EventWriter, Input, Mesh,
+    MouseButton, Query, RerenderChunkFlag, Res, ResMut, Transform, Vec3, With,
 };
-use nalgebra::Vector3;
+
 use rustcraft_protocol::constants::CHUNK_SIZE;
 use rustcraft_protocol::protocol::clientbound::block_update::BlockUpdate;
 use rustcraft_protocol::protocol::Protocol;
-use std::ops::Mul;
+
 
 pub fn mouse_interaction(
     mouse_button_input: Res<Input<MouseButton>>,
@@ -37,7 +37,6 @@ pub fn mouse_interaction(
         from_bevy_vec3(look),
         15.0,
         &chunks,
-        &mut commands,
         &mut meshes,
     );
 

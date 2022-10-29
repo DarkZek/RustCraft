@@ -1,28 +1,18 @@
 use crate::services::asset::atlas::atlas::TextureAtlas;
-use crate::services::asset::atlas::resource_packs::{ResourcePack, ResourcePacks};
+use crate::services::asset::atlas::resource_packs::ResourcePacks;
 use crate::services::asset::material::chunk::ChunkMaterial;
 use crate::services::asset::AssetService;
-use crate::KeyCode::At;
+
 use crate::{
-    default, error, info, warn, AlphaMode, AssetServer, Assets, Changed, ChunkData, Color,
-    Commands, DetectChanges, Entity, Handle, Image, PbrBundle, Query, Res, ResMut,
-    StandardMaterial, With,
-};
-use bevy::asset::{
-    create_platform_default_asset_io, AssetIoError, AssetLoader, BoxedFuture, LoadContext,
-    LoadedAsset,
+    error, info, AlphaMode, AssetServer, Assets, ChunkData, Color, Commands, Entity, Handle, Image,
+    Query, Res, ResMut, StandardMaterial, With,
 };
 use bevy::reflect::TypeUuid;
 use fnv::FnvBuildHasher;
 use image::DynamicImage;
-use serde_json::Value;
+
 use std::collections::HashMap;
 use std::ffi::OsString;
-use std::ops::Deref;
-use std::path::{Path, PathBuf};
-use std::task::Poll;
-use std::thread::Thread;
-use std::{mem, thread};
 
 pub mod atlas;
 pub mod index;
@@ -84,7 +74,7 @@ pub fn build_texture_atlas(
     mut data: ResMut<Assets<ResourcePackData>>,
     mut service: ResMut<AssetService>,
     mut stage: ResMut<AtlasLoadingStage>,
-    mut chunks: Query<Entity, (With<ChunkData>, With<Handle<StandardMaterial>>)>,
+    chunks: Query<Entity, (With<ChunkData>, With<Handle<StandardMaterial>>)>,
     mut images: ResMut<Assets<Image>>,
     mut materials: ResMut<Assets<ChunkMaterial>>,
     mut commands: Commands,

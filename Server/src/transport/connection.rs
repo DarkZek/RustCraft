@@ -7,16 +7,14 @@ use crate::TransportSystem;
 use bevy_ecs::event::{EventReader, EventWriter};
 use bevy_ecs::system::{Res, ResMut};
 use bevy_log::{debug, error, info, warn};
-use crossbeam::channel::{bounded, unbounded, Receiver, Sender};
+use crossbeam::channel::{unbounded, Receiver, Sender};
 use rustcraft_protocol::constants::{EntityId, UserId};
-use rustcraft_protocol::error::ProtocolError;
+
 use rustcraft_protocol::protocol::clientbound::ping::Ping;
 use rustcraft_protocol::protocol::serverbound::pong::Pong;
 use rustcraft_protocol::protocol::Protocol;
-use std::io;
-use std::io::Write;
-use std::net::Shutdown;
-use std::time::{Duration, Instant, SystemTime};
+
+use std::time::Duration;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
 const MAX_PING_TIMEOUT_SECONDS: u64 = 10;
@@ -25,7 +23,7 @@ const PING_TIME_SECONDS: u64 = 15;
 /// Accept connections by users and begin authorisation process
 pub fn accept_connections(
     mut system: ResMut<TransportSystem>,
-    mut stream: ResMut<ServerListener>,
+    stream: Res<ServerListener>,
     mut connection_event_writer: EventWriter<ConnectionEvent>,
 ) {
     // Loop over all new connections
@@ -68,7 +66,7 @@ pub fn accept_connections(
                 let len: u32 = match bincode::deserialize(&data[..]) {
                     Ok(val) => val,
                     Err(e) => {
-                        error!("Error reading data from client {:?}", uid);
+                        error!("Error reading data from client {:?}: {:?}", uid, e);
                         break;
                     }
                 };
@@ -82,7 +80,7 @@ pub fn accept_connections(
                         if e.kind() == std::io::ErrorKind::UnexpectedEof {
                             break;
                         }
-                        error!("Error reading data from client {:?}", uid);
+                        error!("Error reading data from client {:?}: {:?}", uid, e);
                         break;
                     }
                 };
@@ -90,7 +88,7 @@ pub fn accept_connections(
                 let packet: Protocol = match bincode::deserialize(&data[..]) {
                     Ok(val) => val,
                     Err(e) => {
-                        error!("Error reading data from client {:?}", uid);
+                        error!("Error reading data from client {:?}: {:?}", uid, e);
                         break;
                     }
                 };
@@ -115,20 +113,12 @@ pub fn accept_connections(
 
         // Write packets
         let write_packet_handle = stream.runtime.spawn(async move {
-            loop {
-                let packet = match inner_read_packets.recv() {
-                    Ok(val) => val,
-                    Err(_) => {
-                        // Channel disconnected, delete this task
-                        break;
-                    }
-                };
-
+            while let Ok(packet) = inner_read_packets.recv() {
                 // Write
                 let packet = match bincode::serialize(&packet.0) {
                     Ok(val) => val,
                     Err(e) => {
-                        error!("Error reading data from client {:?}", uid);
+                        error!("Error reading data from client {:?}: {:?}", uid, e);
                         break;
                     }
                 };
@@ -195,7 +185,7 @@ pub fn send_packets(mut system: ResMut<TransportSystem>, mut packets: EventReade
 }
 
 pub fn receive_packets(system: ResMut<TransportSystem>, mut packets: EventWriter<ReceivePacket>) {
-    for (uid, user) in &system.clients {
+    for (_, user) in &system.clients {
         while let Ok(packet) = user.read_packets.recv_timeout(Duration::ZERO) {
             debug!("-> {:?}", packet.0);
             packets.send(packet);

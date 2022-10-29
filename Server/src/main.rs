@@ -15,11 +15,11 @@ use crate::transport::{TransportPlugin, TransportSystem};
 use bevy_app::{App, AppExit, CoreStage, ScheduleRunnerPlugin};
 use bevy_core::CorePlugin;
 use bevy_ecs::event::EventReader;
-use bevy_ecs::prelude::{StageLabel, State, SystemStage};
-use bevy_log::{debug, info, Level, LogPlugin, LogSettings};
-use std::net::IpAddr;
-use std::process::exit;
-use std::str::FromStr;
+use bevy_ecs::prelude::{StageLabel, SystemStage};
+use bevy_log::{info, Level, LogPlugin, LogSettings};
+
+
+
 
 fn main() {
     info!("Rustcraft Bevy Server Demo starting up");

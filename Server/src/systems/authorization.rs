@@ -4,21 +4,21 @@ use crate::resources::{World, ENTITY_ID_COUNT};
 use crate::{ReceivePacket, SendPacket, TransportSystem};
 use bevy_ecs::change_detection::ResMut;
 use bevy_ecs::event::EventReader;
-use bevy_ecs::prelude::{Commands, EventWriter, Res};
+use bevy_ecs::prelude::{Commands, EventWriter};
 use bevy_ecs::system::Query;
 use bevy_log::info;
 use crossbeam::channel::{Receiver, Sender};
-use nalgebra::Vector3;
+
 use rustcraft_protocol::constants::{EntityId, UserId};
 use rustcraft_protocol::protocol::clientbound::chunk_update::PartialChunkUpdate;
 use rustcraft_protocol::protocol::clientbound::ping::Ping;
 use rustcraft_protocol::protocol::clientbound::spawn_entity::SpawnEntity;
 use rustcraft_protocol::protocol::serverbound::pong::Pong;
 use rustcraft_protocol::protocol::Protocol;
-use rustcraft_protocol::stream::GameStream;
+
 use std::sync::atomic::Ordering;
-use std::time::SystemTime;
-use tokio::net::TcpStream;
+
+
 use tokio::task::JoinHandle;
 
 /// A user who is yet to be authorized
@@ -53,7 +53,7 @@ pub fn authorization_event(
     mut transport: ResMut<TransportSystem>,
     mut send_packet: EventWriter<SendPacket>,
     mut commands: Commands,
-    mut transforms: Query<&Transform>,
+    transforms: Query<&Transform>,
 ) {
     for client in event_reader.iter() {
         info!("Authorisation event");
@@ -81,7 +81,7 @@ pub fn authorization_event(
         transport.clients.get_mut(&client.client).unwrap().entity_id = entity_id;
 
         // Spawn new player for other players
-        for (id, user) in &transport.clients {
+        for (id, _) in &transport.clients {
             // Don't spawn new client for itself
             if *id == client.client {
                 continue;

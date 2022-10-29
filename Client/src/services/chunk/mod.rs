@@ -1,9 +1,7 @@
-use crate::services::asset::material::chunk::ChunkMaterial;
+
 use crate::services::asset::AssetService;
 use crate::{
-    default, info, shape, Aabb, App, Assets, ChunkData, Color, Commands, Handle, Mesh, Mut,
-    PbrBundle, Plugin, RawChunkData, RerenderChunkFlag, ResMut, StandardMaterial,
-    TextureAtlasSprite, Transform, Vec3,
+    default, shape, Aabb, App, Assets, ChunkData, Commands, Mesh, Plugin, RawChunkData, RerenderChunkFlag, ResMut, Transform, Vec3,
 };
 use bevy::prelude::MaterialMeshBundle;
 use fnv::{FnvBuildHasher, FnvHashMap};
@@ -42,7 +40,6 @@ impl ChunkService {
         data: &PartialChunkUpdate,
         commands: &mut Commands,
         asset_service: &AssetService,
-        materials: &mut ResMut<Assets<ChunkMaterial>>,
         meshes: &mut ResMut<Assets<Mesh>>,
     ) {
         let entity = commands

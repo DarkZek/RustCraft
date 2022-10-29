@@ -1,10 +1,10 @@
 use crate::game::blocks::{Block, BlockGenerator};
 use crate::game::mesh::draw_kit::DrawKit;
-use crate::game::viewable_direction::{ViewableDirection, ViewableDirectionBitMap};
+use crate::game::viewable_direction::{ViewableDirection};
 use crate::services::asset::atlas::atlas::ATLAS_WIDTH;
 use crate::services::asset::atlas::index::TextureAtlasIndex;
-use crate::Vec3;
-use nalgebra::{Vector2, Vector3};
+
+use nalgebra::{Vector3};
 
 pub static DIRT_BLOCK_GENERATOR: DirtGenerator = DirtGenerator;
 

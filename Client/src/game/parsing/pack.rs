@@ -1,13 +1,13 @@
 use crate::services::asset::atlas::ResourcePackData;
-use crate::{error, info};
-use bevy::asset::{Asset, AssetLoader, BoxedFuture, LoadContext, LoadedAsset};
+use crate::{error};
+use bevy::asset::{AssetLoader, BoxedFuture, LoadContext, LoadedAsset};
 use fnv::{FnvBuildHasher, FnvHashMap};
 use image::{DynamicImage, ImageFormat};
-use serde_json::Value;
+
 use std::collections::HashMap;
-use std::fs::File;
+
 use std::io::{Cursor, Read};
-use std::marker::PhantomData;
+
 use zip::ZipArchive;
 
 #[derive(Default)]

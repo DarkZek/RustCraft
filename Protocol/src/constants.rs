@@ -1,5 +1,4 @@
 use std::fmt;
-use crate::protocol::clientbound::chunk_update::CHUNK_UPDATE_BLOCKS_PER_PACKET;
 use serde::{Serialize, Deserialize};
 
 pub const CHUNK_SIZE: usize = 16;

@@ -1,5 +1,5 @@
 use crate::game::chunk::ChunkData;
-use crate::game::player::Player;
+
 use bevy_ecs::entity::Entity;
 use nalgebra::Vector3;
 use rustcraft_protocol::constants::EntityId;
@@ -19,7 +19,7 @@ impl World {
 
         for x in -1..=1 {
             for z in -1..=1 {
-                let mut chunk = ChunkData::generate(Vector3::new(x, 0, z));
+                let chunk = ChunkData::generate(Vector3::new(x, 0, z));
                 chunks.insert(Vector3::new(x, 0, z), chunk);
             }
         }

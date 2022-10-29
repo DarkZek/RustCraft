@@ -1,5 +1,4 @@
 use bevy::asset::{Asset, AssetLoader, BoxedFuture, LoadContext, LoadedAsset};
-use serde_json::Value;
 use std::marker::PhantomData;
 
 #[derive(Default)]

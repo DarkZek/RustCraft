@@ -1,11 +1,11 @@
 use crate::services::asset::atlas::index::TextureAtlasIndex;
 use crate::services::asset::atlas::resource_packs::ResourcePack;
-use crate::{error, info, Assets, Handle, Image, ResMut};
+use crate::{error, Assets, Handle, Image, ResMut};
 use bevy::render::render_resource::{Extent3d, TextureDimension, TextureFormat};
 use fnv::{FnvBuildHasher, FnvHashMap};
 use image::{DynamicImage, GenericImageView, ImageBuffer, Rgba};
 use std::collections::HashMap;
-use std::fs::File;
+
 
 pub const ATLAS_WIDTH: u32 = 4096 / 16;
 pub const ATLAS_HEIGHT: u32 = 4096 / 16;
@@ -18,10 +18,10 @@ pub struct TextureAtlas {
 impl TextureAtlas {
     /// Generate a a new texture atlas from a list of textures and a resources directory
     pub fn new(
-        resource_pack: &ResourcePack,
+        _resource_pack: &ResourcePack,
         textures: &mut HashMap<String, DynamicImage, FnvBuildHasher>,
-        mut assets: &mut ResMut<Assets<Image>>,
-    ) -> (TextureAtlas) {
+        assets: &mut ResMut<Assets<Image>>,
+    ) -> TextureAtlas {
         let mut atlas_index: HashMap<String, TextureAtlasIndex, FnvBuildHasher> =
             FnvHashMap::default();
         let mut atlas_img = None;

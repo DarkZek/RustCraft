@@ -1,5 +1,5 @@
 use std::io;
-use std::io::{BufRead, BufReader, BufWriter, Read, Write};
+use std::io::{Read, Write};
 use std::net::{Shutdown};
 use crate::protocol::Protocol;
 use mio::net::TcpStream;
@@ -45,14 +45,8 @@ impl GameStream {
         Ok(packet)
     }
 
+    #[allow(unused_must_use)]
     pub fn close(&self) {
         self.stream.shutdown(Shutdown::Both);
     }
-}
-
-unsafe fn any_as_u8_slice<T: Sized>(p: &T) -> &[u8] {
-    ::std::slice::from_raw_parts(
-        (p as *const T) as *const u8,
-        ::std::mem::size_of::<T>(),
-    )
 }

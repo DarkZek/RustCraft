@@ -1,10 +1,10 @@
 use crate::transport::command::NetworkCommand;
 use crate::transport::events::NetworkEvent;
 use crate::ServerError;
-use bevy_ecs::event::Event;
+
 use bevy_log::{error, info};
 use crossbeam::channel::{unbounded, Receiver, Sender};
-use rustcraft_protocol::protocol::Protocol;
+
 use std::net::IpAddr;
 use tokio::net::{TcpListener, TcpStream};
 use tokio::runtime::Runtime;
@@ -28,7 +28,7 @@ impl ServerListener {
             .build()
             .expect("Could not build tokio runtime");
 
-        let (send_events, receive_events) = unbounded();
+        let (_send_events, receive_events) = unbounded();
         let (send_commands, receive_commands) = unbounded();
 
         let (send_connections, receive_connections) = unbounded();

@@ -1,8 +1,7 @@
-use nalgebra::Vector3;
+
 use bevy_ecs::prelude::Component;
+use nalgebra::Vector3;
 use rustcraft_protocol::constants::CHUNK_SIZE;
-use rustcraft_protocol::protocol::clientbound::chunk_update::PartialChunkUpdate;
-use crate::info;
 
 #[derive(Debug, Component)]
 pub struct ChunkData {
@@ -15,15 +14,12 @@ pub type RawChunkData = [[[u32; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
 
 impl ChunkData {
     pub fn new(position: Vector3<i32>, world: RawChunkData) -> ChunkData {
-        ChunkData {
-            position,
-            world
-        }
+        ChunkData { position, world }
     }
     pub fn blank(position: Vector3<i32>) -> ChunkData {
         ChunkData {
             position,
-            world: [[[0; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE]
+            world: [[[0; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE],
         }
     }
 
@@ -42,10 +38,7 @@ impl ChunkData {
             }
         }
 
-        ChunkData {
-            position,
-            world
-        }
+        ChunkData { position, world }
     }
 
     // pub fn send(&self, server: &mut Server<Protocol, Channels>, key: &UserKey) {

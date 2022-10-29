@@ -2,9 +2,8 @@ use bevy::prelude::*;
 use bevy::{
     reflect::TypeUuid,
     render::{
-        mesh::MeshVertexBufferLayout,
         render_resource::{
-            AsBindGroup, RenderPipelineDescriptor, ShaderRef, SpecializedMeshPipelineError,
+            AsBindGroup, ShaderRef,
         },
     },
 };

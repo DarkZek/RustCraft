@@ -1,6 +1,6 @@
 use bevy_ecs::prelude::*;
 use nalgebra::{Quaternion, Vector3};
-use std::path::Component;
+
 
 #[derive(Component)]
 pub struct Transform {

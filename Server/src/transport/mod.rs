@@ -14,15 +14,15 @@ use crate::transport::connection::{
 };
 use crate::transport::listener::ServerListener;
 use bevy_app::{App, Plugin};
-use bevy_ecs::event::EventWriter;
-use bevy_ecs::system::{Res, ResMut};
-use bevy_ecs::world::Mut;
-use bevy_log::{info, warn};
+
+
+
+
 use rustcraft_protocol::constants::UserId;
 use std::collections::HashMap;
-use std::io;
+
 use std::net::IpAddr;
-use std::process::exit;
+
 use std::str::FromStr;
 
 pub struct TransportPlugin;
@@ -45,7 +45,7 @@ impl Plugin for TransportPlugin {
         let ip = IpAddr::from_str("0.0.0.0").unwrap();
         let port = 25567;
 
-        let mut stream = match ServerListener::new(ip, port) {
+        let stream = match ServerListener::new(ip, port) {
             Ok(val) => val,
             Err(err) => {
                 panic!("{:?}", err);

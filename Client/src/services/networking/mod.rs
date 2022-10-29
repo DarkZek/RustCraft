@@ -9,17 +9,17 @@ use crate::services::networking::messages::messages_update;
 use crate::services::networking::transport::connection::{connection_upkeep, send_packets};
 use crate::services::networking::transport::listener::ClientListener;
 use crate::services::networking::transport::packet::{ReceivePacket, SendPacket};
-use crate::{info, services, App, EventReader, Plugin, Quat, SystemStage};
+use crate::{App, EventReader, Plugin, Quat, SystemStage};
 use bevy::app::{AppExit, CoreStage};
 use bevy::ecs::schedule::StageLabel;
-use bevy::prelude::{Entity, Handle, ResMut, Vec3};
-use nalgebra::Vector3;
+use bevy::prelude::{Entity, ResMut, Vec3};
+
 use rustcraft_protocol::constants::EntityId;
-use rustcraft_protocol::protocol::serverbound::authenticate::UserAuthenticate;
+
 use rustcraft_protocol::protocol::serverbound::disconnect::Disconnect;
 use rustcraft_protocol::protocol::Protocol;
 use std::collections::HashMap;
-use std::net::TcpStream;
+
 
 mod chunk;
 mod events;
@@ -67,6 +67,7 @@ enum ClientState {
     Networking,
 }
 
+#[allow(unused_must_use)]
 pub fn detect_shutdowns(shutdown: EventReader<AppExit>, mut system: ResMut<ClientListener>) {
     if !shutdown.is_empty() {
         println!("Sending disconnect to server");

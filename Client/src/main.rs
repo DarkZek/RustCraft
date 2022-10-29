@@ -22,19 +22,19 @@ use crate::services::input::InputPlugin;
 use crate::services::networking::NetworkingPlugin;
 use crate::services::physics::PhysicsPlugin;
 use crate::services::ui::UIPlugin;
-use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
-use bevy::input::mouse::{MouseMotion, MouseWheel};
+
+
 use bevy::log::{Level, LogSettings};
 use bevy::prelude::*;
 use bevy::render::primitives::Aabb;
 use bevy::render::texture::ImageSettings;
 use bevy::window::WindowResizeConstraints;
 use bevy_inspector_egui::WorldInspectorPlugin;
-use nalgebra::Vector3;
-use rustcraft_protocol::constants::CHUNK_SIZE;
-use rustcraft_protocol::protocol::Protocol;
-use std::fs::File;
-use std::io::Write;
+
+
+
+
+
 
 #[rustfmt::skip]
 fn main() {
