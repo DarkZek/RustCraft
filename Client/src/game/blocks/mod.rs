@@ -1,19 +1,23 @@
-pub mod air;
-pub mod dirt;
-pub mod grass;
-pub mod leaves;
-pub mod wood;
+pub mod loader;
+pub mod loading;
+pub mod states;
 
-use crate::game::blocks::air::generate_air_block;
-use crate::game::blocks::dirt::generate_dirt_block;
-use crate::game::blocks::grass::generate_grass_block;
-use crate::game::blocks::leaves::generate_leaves_block;
-use crate::game::blocks::wood::generate_wood_block;
+use crate::game::blocks::loading::BlockStatesFile;
+use crate::game::blocks::states::BlockStates;
 use crate::game::mesh::draw_kit::DrawKit;
 use crate::game::mesh::face::Face;
 use crate::game::viewable_direction::{ViewableDirection, ViewableDirectionBitMap};
+use crate::services::asset::atlas::index::TextureAtlasIndex;
+use bevy::prelude::Handle;
+use bevy::prelude::*;
 use nalgebra::{MatrixMN, Vector3};
+use std::collections::HashMap;
 
+pub fn create_block_states(server: Res<AssetServer>, mut states: ResMut<BlockStates>) {
+    states.asset = Some(server.load("game/block_states.blocks"));
+}
+
+#[derive(Debug, Clone)]
 pub struct Block {
     pub name: String,
     pub identifier: String,
@@ -30,6 +34,7 @@ impl Block {
                 // Not visible from that direction and marked as an edge face, so cull
                 continue;
             }
+
             // Draw based on direction to get winding order of vertices correct
             match face.direction {
                 ViewableDirectionBitMap::Top => {
@@ -55,26 +60,6 @@ impl Block {
     }
 }
 
-pub struct BlockStates {
-    pub states: Vec<Block>,
-}
-
-impl BlockStates {
-    pub fn new() -> BlockStates {
-        BlockStates {
-            states: vec![
-                generate_air_block(),
-                generate_dirt_block(),
-                generate_grass_block(),
-                generate_leaves_block(),
-                generate_wood_block(),
-            ],
-        }
-    }
-
-    // Possibly remove, keeping it because it was in old version and I might need it
-    pub fn get_block(&self, i: usize) -> &Block {
-        // TODO: Return error block if out of range
-        self.states.get(i).unwrap()
-    }
+pub trait BlockGenerator {
+    fn generate(texture_mapping: HashMap<String, TextureAtlasIndex>) -> Block;
 }

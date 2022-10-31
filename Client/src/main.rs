@@ -4,7 +4,7 @@ pub mod helpers;
 pub mod render;
 pub mod services;
 
-use crate::game::blocks::BlockStates;
+use crate::game::blocks::create_block_states;
 use crate::game::interaction::mouse_interaction;
 use crate::game::parsing::json::JsonAssetLoader;
 use crate::game::parsing::pack::ResourcePackAssetLoader;
@@ -23,7 +23,9 @@ use crate::services::networking::NetworkingPlugin;
 use crate::services::physics::PhysicsPlugin;
 use crate::services::ui::UIPlugin;
 
-
+use crate::game::blocks::loader::{track_blockstate_changes, BlockStateAssetLoader};
+use crate::game::blocks::loading::BlockStatesFile;
+use crate::game::blocks::states::BlockStates;
 use bevy::log::{Level, LogSettings};
 use bevy::prelude::*;
 use bevy::render::primitives::Aabb;
@@ -31,10 +33,12 @@ use bevy::render::texture::ImageSettings;
 use bevy::window::WindowResizeConstraints;
 use bevy_inspector_egui::WorldInspectorPlugin;
 
-
-
-
-
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+pub enum AppState {
+    Loading,
+    MainMenu,
+    InGame,
+}
 
 #[rustfmt::skip]
 fn main() {
@@ -61,6 +65,8 @@ fn main() {
             watch_for_changes: true,
             ..default()
         })
+        // add the app state type
+        .add_state(AppState::Loading)
         .insert_resource(ImageSettings::default_nearest())
         .add_plugins(DefaultPlugins)
         .add_plugin(WorldInspectorPlugin::new())
@@ -89,8 +95,12 @@ fn main() {
         .add_plugin(MaterialPlugin::<ChunkMaterial>::default())
         .init_asset_loader::<JsonAssetLoader<ResourcePacks>>()
         .init_asset_loader::<ResourcePackAssetLoader>()
-         
+
+        .add_asset::<BlockStatesFile>()
+        .init_asset_loader::<BlockStateAssetLoader>()
+        .add_startup_system(create_block_states)
         .insert_resource(BlockStates::new())
+        .add_system(track_blockstate_changes)
         
         .add_system(mesh_builder)
         

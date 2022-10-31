@@ -9,7 +9,7 @@ pub mod material;
 
 pub struct AssetService {
     resource_packs: Handle<ResourcePacks>,
-    texture_atlas: TextureAtlas,
+    pub texture_atlas: Option<TextureAtlas>,
     pack: Option<Handle<ResourcePackData>>,
     pub texture_atlas_material: Handle<ChunkMaterial>,
 }
@@ -24,7 +24,7 @@ impl AssetService {
 
         AssetService {
             resource_packs: server.load("resources.json"),
-            texture_atlas: TextureAtlas::blank(),
+            texture_atlas: None,
             pack: None,
             texture_atlas_material,
         }

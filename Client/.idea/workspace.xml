@@ -9,10 +9,45 @@
     <cargoProject FILE="$PROJECT_DIR$/Cargo.toml" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d34b37f8-8bd9-4c23-a17f-5bd5043c2fce" name="Changes" comment="Added new textures + restructed blockstate">
+    <list default="true" id="d34b37f8-8bd9-4c23-a17f-5bd5043c2fce" name="Changes" comment="Added hotbar">
+      <change afterPath="$PROJECT_DIR$/assets/game/block_states.blocks" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/textures/dirt.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/game/blocks/loader.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/game/blocks/loading.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/game/blocks/states.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/game/blocks/dirt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/blocks/dirt.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/ui.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/ui.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/game/grass_bottom.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/game/grass_side.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/textures/grass_side.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/game/grass_top.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/textures/grass_top.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/game/stone.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/textures/stone.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/game/tree_leaves.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/textures/tree_leaves.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/game/wood_log.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/textures/wood_log.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/resources.pack" beforeDir="false" afterPath="$PROJECT_DIR$/assets/resources.pack" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/error.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/error.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/blocks/air.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/blocks/dirt.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/blocks/grass.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/blocks/leaves.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/blocks/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/blocks/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/blocks/wood.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/mesh/draw_kit.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/mesh/draw_kit.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/mesh/face.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/mesh/face.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/viewable_direction.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/viewable_direction.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/asset/atlas/atlas.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/asset/atlas/atlas.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/asset/atlas/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/asset/atlas/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/asset/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/asset/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/chunk/data/generate_mesh.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/chunk/data/generate_mesh.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/chunk/data/viewable.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/chunk/data/viewable.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/chunk/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/chunk/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/chunk/systems/mesh_builder.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/chunk/systems/mesh_builder.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/networking/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/networking/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/networking/transport/connection.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/networking/transport/connection.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/networking/transport/listener.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/networking/transport/listener.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Server/src/systems/message.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Server/src/systems/message.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Server/src/transport/connection.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Server/src/transport/connection.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,22 +79,22 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.cidr.known.project.marker": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "cf.first.check.clang-format": "false",
-    "cidr.known.project.marker": "true",
-    "last_opened_file_path": "C:/Users/mashd/CLionProjects/RustCraft/Client/src",
-    "nodejs_package_manager_path": "npm",
-    "org.rust.cargo.project.model.PROJECT_DISCOVERY": "true",
-    "settings.editor.selected.configurable": "Errors"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
+    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/mashd/CLionProjects/RustCraft/Client/src&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;org.rust.cargo.project.model.PROJECT_DISCOVERY&quot;: &quot;true&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;Errors&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\mashd\CLionProjects\RustCraft\Client\src" />
@@ -137,7 +172,8 @@
       <workItem from="1666756467840" duration="12488000" />
       <workItem from="1666831961676" duration="20335000" />
       <workItem from="1666910283742" duration="22147000" />
-      <workItem from="1666989084544" duration="18654000" />
+      <workItem from="1666989084544" duration="18797000" />
+      <workItem from="1667186881048" duration="15557000" />
     </task>
     <task id="LOCAL-00001" summary="Start new project">
       <created>1663755658916</created>
@@ -195,7 +231,14 @@
       <option name="project" value="LOCAL" />
       <updated>1667036579490</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Added hotbar">
+      <created>1667038505109</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1667038505109</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -224,7 +267,8 @@
     <MESSAGE value="Store entities in ecs" />
     <MESSAGE value="Remove unused imports" />
     <MESSAGE value="Added new textures + restructed blockstate" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added new textures + restructed blockstate" />
+    <MESSAGE value="Added hotbar" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added hotbar" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

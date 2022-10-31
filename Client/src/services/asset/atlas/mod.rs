@@ -95,14 +95,16 @@ pub fn build_texture_atlas(
     let atlas = TextureAtlas::new(pack, &mut textures.unwrap().images, &mut images);
 
     info!("Generated texture atlas");
-    service.texture_atlas = atlas;
+    service.texture_atlas = Some(atlas);
 
     // Create a new material
     let material = materials.set(
         service.texture_atlas_material.id,
         ChunkMaterial {
             color: Color::WHITE,
-            color_texture: Some(images.get_handle(service.texture_atlas.get_image())),
+            color_texture: Some(
+                images.get_handle(service.texture_atlas.as_ref().unwrap().get_image()),
+            ),
             alpha_mode: AlphaMode::Opaque,
         },
     );

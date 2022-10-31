@@ -212,9 +212,12 @@ pub fn prune_users(
     }
 
     for client in delete_users {
-        let user = system.clients.remove(&client).unwrap();
-        info!("Disconnected user {:?}", client);
-        event.send(DisconnectionEvent { client, user });
+        if let Some(user) = system.clients.remove(&client) {
+            info!("Disconnected user {:?}", client);
+            event.send(DisconnectionEvent { client, user });
+        } else {
+            info!("Disconnected user ???");
+        }
     }
 }
 

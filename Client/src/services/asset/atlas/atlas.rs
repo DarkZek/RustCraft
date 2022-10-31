@@ -11,7 +11,7 @@ pub const ATLAS_HEIGHT: u32 = 4096 / 8;
 
 pub struct TextureAtlas {
     image: Handle<Image>,
-    index: HashMap<String, TextureAtlasIndex, FnvBuildHasher>,
+    pub index: HashMap<String, TextureAtlasIndex, FnvBuildHasher>,
 }
 
 impl TextureAtlas {
@@ -132,7 +132,7 @@ fn generate_atlas(
 
                     // Generate a list of locations that our textures exist inside of the src atlas texture. These are in the form 1/(X POS) because this is how it's expected in the shaders.
                     atlas_index.insert(
-                        name.clone(),
+                        name.split('.').next().unwrap().to_string(),
                         TextureAtlasIndex::new(
                             (row_width as f32) / ATLAS_WIDTH as f32,
                             ((row_width + width) as f32) / ATLAS_WIDTH as f32,

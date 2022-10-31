@@ -1,14 +1,15 @@
+use crate::game::blocks::states::BlockStates;
 use crate::game::blocks::Block;
 use crate::services::asset::atlas::index::Rotate;
 use crate::services::chunk::data::{ChunkData, RawChunkData};
-use crate::{warn, BlockStates};
-
+use crate::warn;
 use nalgebra::Vector3;
+use serde::{Deserialize, Serialize};
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct ViewableDirection(pub u8);
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, Debug, Deserialize, Serialize)]
 pub enum ViewableDirectionBitMap {
     Top = 0b00000001,
     Bottom = 0b00000010,
@@ -19,6 +20,18 @@ pub enum ViewableDirectionBitMap {
 }
 
 impl ViewableDirectionBitMap {
+    pub fn from_code(code: u8) -> Option<ViewableDirectionBitMap> {
+        match code {
+            0b00000001 => Some(ViewableDirectionBitMap::Top),
+            0b00000010 => Some(ViewableDirectionBitMap::Bottom),
+            0b00000100 => Some(ViewableDirectionBitMap::Left),
+            0b00001000 => Some(ViewableDirectionBitMap::Right),
+            0b00010000 => Some(ViewableDirectionBitMap::Front),
+            0b00100000 => Some(ViewableDirectionBitMap::Back),
+            _ => None,
+        }
+    }
+
     pub fn from(direction: &Vector3<i32>) -> ViewableDirectionBitMap {
         if direction.z > 0 {
             ViewableDirectionBitMap::Back

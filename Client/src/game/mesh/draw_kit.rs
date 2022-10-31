@@ -153,10 +153,10 @@ impl DrawKit<'_> {
         self.normals.push([0.0, 1.0, 0.0]);
         self.normals.push([0.0, 1.0, 0.0]);
 
-        self.uv_coordinates.push([texture.u_min, texture.v_min]);
         self.uv_coordinates.push([texture.u_min, texture.v_max]);
-        self.uv_coordinates.push([texture.u_max, texture.v_min]);
+        self.uv_coordinates.push([texture.u_min, texture.v_min]);
         self.uv_coordinates.push([texture.u_max, texture.v_max]);
+        self.uv_coordinates.push([texture.u_max, texture.v_min]);
 
         self.indices.push(indices_index + 0);
         self.indices.push(indices_index + 1);
@@ -187,10 +187,10 @@ impl DrawKit<'_> {
         self.normals.push([0.0, -1.0, 0.0]);
         self.normals.push([0.0, -1.0, 0.0]);
 
-        self.uv_coordinates.push([texture.u_min, texture.v_min]);
         self.uv_coordinates.push([texture.u_min, texture.v_max]);
-        self.uv_coordinates.push([texture.u_max, texture.v_min]);
+        self.uv_coordinates.push([texture.u_min, texture.v_min]);
         self.uv_coordinates.push([texture.u_max, texture.v_max]);
+        self.uv_coordinates.push([texture.u_max, texture.v_min]);
 
         self.indices.push(indices_index + 1);
         self.indices.push(indices_index + 0);
@@ -221,10 +221,10 @@ impl DrawKit<'_> {
         self.normals.push([-1.0, 0.0, 0.0]);
         self.normals.push([-1.0, 0.0, 0.0]);
 
-        self.uv_coordinates.push([texture.u_min, texture.v_min]);
         self.uv_coordinates.push([texture.u_min, texture.v_max]);
-        self.uv_coordinates.push([texture.u_max, texture.v_min]);
+        self.uv_coordinates.push([texture.u_min, texture.v_min]);
         self.uv_coordinates.push([texture.u_max, texture.v_max]);
+        self.uv_coordinates.push([texture.u_max, texture.v_min]);
 
         self.indices.push(indices_index + 1);
         self.indices.push(indices_index + 0);
@@ -255,10 +255,10 @@ impl DrawKit<'_> {
         self.normals.push([1.0, 0.0, 0.0]);
         self.normals.push([1.0, 0.0, 0.0]);
 
-        self.uv_coordinates.push([texture.u_min, texture.v_min]);
         self.uv_coordinates.push([texture.u_min, texture.v_max]);
-        self.uv_coordinates.push([texture.u_max, texture.v_min]);
+        self.uv_coordinates.push([texture.u_min, texture.v_min]);
         self.uv_coordinates.push([texture.u_max, texture.v_max]);
+        self.uv_coordinates.push([texture.u_max, texture.v_min]);
 
         self.indices.push(indices_index + 0);
         self.indices.push(indices_index + 1);
@@ -289,10 +289,10 @@ impl DrawKit<'_> {
         self.normals.push([0.0, 0.0, -1.0]);
         self.normals.push([0.0, 0.0, -1.0]);
 
-        self.uv_coordinates.push([texture.u_min, texture.v_min]);
         self.uv_coordinates.push([texture.u_min, texture.v_max]);
-        self.uv_coordinates.push([texture.u_max, texture.v_min]);
+        self.uv_coordinates.push([texture.u_min, texture.v_min]);
         self.uv_coordinates.push([texture.u_max, texture.v_max]);
+        self.uv_coordinates.push([texture.u_max, texture.v_min]);
 
         self.indices.push(indices_index + 0);
         self.indices.push(indices_index + 1);
@@ -323,10 +323,10 @@ impl DrawKit<'_> {
         self.normals.push([0.0, 0.0, 1.0]);
         self.normals.push([0.0, 0.0, 1.0]);
 
-        self.uv_coordinates.push([texture.u_min, texture.v_min]);
         self.uv_coordinates.push([texture.u_min, texture.v_max]);
-        self.uv_coordinates.push([texture.u_max, texture.v_min]);
+        self.uv_coordinates.push([texture.u_min, texture.v_min]);
         self.uv_coordinates.push([texture.u_max, texture.v_max]);
+        self.uv_coordinates.push([texture.u_max, texture.v_min]);
 
         self.indices.push(indices_index + 1);
         self.indices.push(indices_index + 0);

@@ -7,7 +7,7 @@ use crate::services::chunk::ChunkService;
 use bevy::ecs::component::Component;
 use bevy::log::error;
 
-use crate::BlockStates;
+use crate::game::blocks::states::BlockStates;
 use fnv::FnvHashMap;
 use nalgebra::Vector3;
 use rustcraft_protocol::constants::CHUNK_SIZE;

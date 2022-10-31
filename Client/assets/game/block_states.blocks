@@ -1,0 +1,114 @@
+{
+    "states": [
+        {
+          "name": "Air",
+          "identifier": "mcv3::Air",
+          "translucent": true,
+          "full": false,
+          "draw_betweens": false,
+          "faces": []
+        },
+        {
+          "name": "Dirt Block",
+          "identifier": "mcv3::Dirt",
+          "translucent": false,
+          "full": true,
+          "draw_betweens": false,
+          "faces": [
+            {
+              "top_left": [0.0, 1.0, 0.0],
+              "size": [1.0, 1.0],
+              "texture": "game/zeks_nudes",
+              "direction": 1,
+              "edge": true
+            },
+            {
+              "top_left": [0.0, 0.0, 0.0],
+              "size": [1.0, 1.0],
+              "texture": "game/dirt",
+              "direction": 2,
+              "edge": true
+            },
+            {
+              "top_left": [0.0, 0.0, 0.0],
+              "size": [1.0, 1.0],
+              "texture": "game/dirt",
+              "direction": 4,
+              "edge": true
+            },
+            {
+              "top_left": [1.0, 0.0, 0.0],
+              "size": [1.0, 1.0],
+              "texture": "game/dirt",
+              "direction": 8,
+              "edge": true
+            },
+            {
+              "top_left": [0.0, 0.0, 0.0],
+              "size": [1.0, 1.0],
+              "texture": "game/dirt",
+              "direction": 16,
+              "edge": true
+            },
+            {
+              "top_left": [0.0, 0.0, 1.0],
+              "size": [1.0, 1.0],
+              "texture": "game/dirt",
+              "direction": 32,
+              "edge": true
+            }
+          ]
+        },
+        {
+          "name": "Grass Block",
+          "identifier": "mcv3::Grass",
+          "translucent": false,
+          "full": true,
+          "draw_betweens": false,
+          "faces": [
+            {
+              "top_left": [0.0, 1.0, 0.0],
+              "size": [1.0, 1.0],
+              "texture": "game/grass_top",
+              "direction": 1,
+              "edge": true
+            },
+            {
+              "top_left": [0.0, 0.0, 0.0],
+              "size": [1.0, 1.0],
+              "texture": "game/dirt",
+              "direction": 2,
+              "edge": true
+            },
+            {
+              "top_left": [0.0, 0.0, 0.0],
+              "size": [1.0, 1.0],
+              "texture": "game/grass_side",
+              "direction": 4,
+              "edge": true
+            },
+            {
+              "top_left": [1.0, 0.0, 0.0],
+              "size": [1.0, 1.0],
+              "texture": "game/grass_side",
+              "direction": 8,
+              "edge": true
+            },
+            {
+              "top_left": [0.0, 0.0, 0.0],
+              "size": [1.0, 1.0],
+              "texture": "game/grass_side",
+              "direction": 16,
+              "edge": true
+            },
+            {
+              "top_left": [0.0, 0.0, 1.0],
+              "size": [1.0, 1.0],
+              "texture": "game/grass_side",
+              "direction": 32,
+              "edge": true
+            }
+          ]
+        }
+    ]
+}

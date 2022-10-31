@@ -2,9 +2,10 @@ use crate::helpers::from_bevy_vec3;
 use crate::services::chunk::data::generate_mesh::UpdateChunkMesh;
 
 use crate::services::chunk::ChunkService;
+use crate::Component;
 use crate::{Assets, Camera, Commands, Entity, Handle, Query, Res, ResMut, Transform, With};
-use crate::{BlockStates, Component};
 
+use crate::game::blocks::states::BlockStates;
 use bevy::prelude::Mesh;
 use bevy::render::mesh::Indices;
 use nalgebra::Vector3;

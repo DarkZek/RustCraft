@@ -2,6 +2,7 @@ use crate::game::viewable_direction::{ViewableDirection, ViewableDirectionBitMap
 use crate::services::asset::atlas::index::TextureAtlasIndex;
 use nalgebra::{Vector2, Vector3};
 
+#[derive(Debug, Clone)]
 pub struct Face {
     pub top_left: Vector3<f32>,
     pub size: Vector2<f32>,
@@ -85,6 +86,59 @@ impl Face {
                 Vector3::new(1.0, 0.0, 0.0),
                 Vector2::new(1.0, 1.0),
                 texture,
+                ViewableDirectionBitMap::Right,
+                true,
+            ),
+        ]
+    }
+
+    pub fn full_block_textures(texture: [TextureAtlasIndex; 6]) -> [Face; 6] {
+        [
+            // Bottom
+            Face::new(
+                Vector3::new(0.0, 0.0, 0.0),
+                Vector2::new(1.0, 1.0),
+                texture[1],
+                ViewableDirectionBitMap::Bottom,
+                true,
+            ),
+            // Top
+            Face::new(
+                Vector3::new(0.0, 1.0, 0.0),
+                Vector2::new(1.0, 1.0),
+                texture[0],
+                ViewableDirectionBitMap::Top,
+                true,
+            ),
+            // Front
+            Face::new(
+                Vector3::new(0.0, 0.0, 0.0),
+                Vector2::new(1.0, 1.0),
+                texture[2],
+                ViewableDirectionBitMap::Front,
+                true,
+            ),
+            // Back
+            Face::new(
+                Vector3::new(0.0, 0.0, 1.0),
+                Vector2::new(1.0, 1.0),
+                texture[3],
+                ViewableDirectionBitMap::Back,
+                true,
+            ),
+            // Left
+            Face::new(
+                Vector3::new(0.0, 0.0, 0.0),
+                Vector2::new(1.0, 1.0),
+                texture[4],
+                ViewableDirectionBitMap::Left,
+                true,
+            ),
+            // Right
+            Face::new(
+                Vector3::new(1.0, 0.0, 0.0),
+                Vector2::new(1.0, 1.0),
+                texture[5],
                 ViewableDirectionBitMap::Right,
                 true,
             ),

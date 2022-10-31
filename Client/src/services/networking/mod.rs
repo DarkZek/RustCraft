@@ -9,17 +9,19 @@ use crate::services::networking::messages::messages_update;
 use crate::services::networking::transport::connection::{connection_upkeep, send_packets};
 use crate::services::networking::transport::listener::ClientListener;
 use crate::services::networking::transport::packet::{ReceivePacket, SendPacket};
-use crate::{App, EventReader, Plugin, Quat, SystemStage};
+use crate::{App, AppState, EventReader, Plugin, Quat, SystemStage};
 use bevy::app::{AppExit, CoreStage};
 use bevy::ecs::schedule::StageLabel;
-use bevy::prelude::{Entity, ResMut, Vec3};
+use bevy::prelude::{info, Entity, ResMut, SystemSet, Vec3};
 
 use rustcraft_protocol::constants::EntityId;
 
+use mio::net::TcpStream;
 use rustcraft_protocol::protocol::serverbound::disconnect::Disconnect;
 use rustcraft_protocol::protocol::Protocol;
+use rustcraft_protocol::stream::GameStream;
 use std::collections::HashMap;
-
+use std::net::IpAddr;
 
 mod chunk;
 mod events;
@@ -33,9 +35,10 @@ impl Plugin for NetworkingPlugin {
     fn build(&self, app: &mut App) {
         app.add_system(send_packets)
             .add_system(connection_upkeep)
-            .insert_resource(ClientListener::new("192.168.1.64".parse().unwrap(), 25567).unwrap())
-            .add_stage(ClientState::Networking, SystemStage::single_threaded())
-            .add_system_to_stage(ClientState::Networking, messages_update)
+            .insert_resource(ClientListener::new().unwrap())
+            // Once the game is in the Main Menu connect to server as we have no main screen yet
+            .add_system_set(SystemSet::on_enter(AppState::MainMenu).with_system(connect_to_server))
+            .add_system(messages_update)
             .add_system(network_location_sync)
             .add_event::<ReceivePacket>()
             .add_event::<SendPacket>()
@@ -50,6 +53,17 @@ impl Plugin for NetworkingPlugin {
     }
 }
 
+pub fn connect_to_server(mut system: ResMut<ClientListener>) {
+    let ip = "127.0.0.1";
+    let port = 25567;
+
+    let stream = TcpStream::connect(format!("{}:{}", ip, port).parse().unwrap()).unwrap();
+
+    info!("Connecting to server on {}:{}", ip, port);
+
+    system.stream = Some(GameStream::new(stream));
+}
+
 pub struct TransportSystem {
     entity_mapping: HashMap<EntityId, Entity>,
 }
@@ -60,11 +74,6 @@ impl Default for TransportSystem {
             entity_mapping: Default::default(),
         }
     }
-}
-
-#[derive(StageLabel)]
-enum ClientState {
-    Networking,
 }
 
 #[allow(unused_must_use)]

@@ -33,7 +33,7 @@ impl ChunkService {
         }
     }
 
-    /// Loads a chunk from network into the game by creating an entity and ChunkData entry
+    /// Loads a chunk from network into the textures by creating an entity and ChunkData entry
     pub fn load_chunk(
         &mut self,
         position: Vector3<i32>,

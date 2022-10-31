@@ -95,13 +95,13 @@ pub fn receive_message_event(
                 // Store
                 if let Some(mut chunk) = global.chunks.get_mut(&chunk_loc) {
                     // Found chunk! Update block
-                    chunk.world[inner_loc.x][inner_loc.y][inner_loc.z] = 1;
+                    chunk.world[inner_loc.x][inner_loc.y][inner_loc.z] = packet.id;
                 } else {
                     // Create chunk data
                     let mut chunk = [[[0; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
 
                     // Set block
-                    chunk[inner_loc.x][inner_loc.y][inner_loc.z] = 1;
+                    chunk[inner_loc.x][inner_loc.y][inner_loc.z] = packet.id;
 
                     // Create chunk
                     global

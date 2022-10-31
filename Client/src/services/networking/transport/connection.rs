@@ -1,7 +1,6 @@
 use crate::services::networking::transport::listener::ClientListener;
 use crate::services::networking::transport::packet::{ReceivePacket, SendPacket};
 
-
 use crate::{debug, EventReader, EventWriter, ResMut};
 use bevy::log::{info, warn};
 use bevy::prelude::error;
@@ -100,8 +99,9 @@ pub fn send_packets(mut stream: ResMut<ClientListener>, mut packets: EventReader
             Ok(_) => {}
             Err(e) => {
                 if e.kind() == io::ErrorKind::NotConnected {
-                    // Disconnect
-                    stream.disconnect = true;
+                    // Tried to send packets before connection.
+                    warn!("Tried to send packets before connection.");
+                    return;
                 }
                 error!("Error during packet send {:?}", e);
                 stream.disconnect = true;
