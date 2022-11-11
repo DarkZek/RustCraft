@@ -9,41 +9,9 @@
     <cargoProject FILE="$PROJECT_DIR$/Cargo.toml" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d34b37f8-8bd9-4c23-a17f-5bd5043c2fce" name="Changes" comment="Add invalid texture">
-      <change afterPath="$PROJECT_DIR$/lib/rc_protocol/.idea/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/rc_protocol/.idea/Protocol.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/rc_protocol/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/rc_protocol/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/rc_protocol/Cargo.lock" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/rc_protocol/Cargo.toml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/rc_protocol/src/channels.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/rc_protocol/src/config.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/rc_protocol/src/constants.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/rc_protocol/src/error.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/rc_protocol/src/lib.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/rc_protocol/src/protocol.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/rc_protocol/src/protocol/clientbound/block_update.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/rc_protocol/src/protocol/clientbound/chat.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/rc_protocol/src/protocol/clientbound/chunk_update.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/rc_protocol/src/protocol/clientbound/despawn_entity.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/rc_protocol/src/protocol/clientbound/entity_moved.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/rc_protocol/src/protocol/clientbound/entity_rotated.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/rc_protocol/src/protocol/clientbound/mod.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/rc_protocol/src/protocol/clientbound/ping.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/rc_protocol/src/protocol/clientbound/player_join.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/rc_protocol/src/protocol/clientbound/player_leave.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/rc_protocol/src/protocol/clientbound/spawn_entity.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/rc_protocol/src/protocol/serverbound/authenticate.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/rc_protocol/src/protocol/serverbound/disconnect.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/rc_protocol/src/protocol/serverbound/mod.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/rc_protocol/src/protocol/serverbound/player_move.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/rc_protocol/src/protocol/serverbound/player_rotate.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/rc_protocol/src/protocol/serverbound/pong.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/rc_protocol/src/stream.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/Client.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Client.iml" afterDir="false" />
+    <list default="true" id="d34b37f8-8bd9-4c23-a17f-5bd5043c2fce" name="Changes" comment="Fix">
+      <change afterPath="$PROJECT_DIR$/../README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -246,7 +214,14 @@
       <option name="project" value="LOCAL" />
       <updated>1667210727760</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="Fix">
+      <created>1668144302786</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1668144302786</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -278,7 +253,8 @@
     <MESSAGE value="Added new textures + restructed blockstate" />
     <MESSAGE value="Added hotbar" />
     <MESSAGE value="Added dynamic block states" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added dynamic block states" />
+    <MESSAGE value="Fix" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fix" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
