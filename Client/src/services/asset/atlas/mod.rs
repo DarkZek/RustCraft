@@ -9,8 +9,9 @@ use crate::{
 };
 use bevy::reflect::TypeUuid;
 use fnv::FnvBuildHasher;
-use image::DynamicImage;
+use image::{DynamicImage, GenericImage};
 
+use bevy_inspector_egui::egui::TextBuffer;
 use std::collections::HashMap;
 use std::ffi::OsString;
 
@@ -87,12 +88,21 @@ pub fn build_texture_atlas(
     let pack = packs.get(&service.resource_packs).unwrap().get_default();
     let textures = data.get_mut(service.pack.as_ref().unwrap());
 
-    if textures.is_none() {
-        return;
+    let textures = match textures {
+        None => return,
+        Some(val) => val,
+    };
+
+    // Add invalid texture
+    if !textures.images.contains_key("game/invalid") {
+        let mut img = DynamicImage::new_rgb8(2, 2);
+        img.put_pixel(0, 0, image::Rgba([255, 0, 255, 255]));
+        img.put_pixel(1, 1, image::Rgba([255, 0, 255, 255]));
+        textures.images.insert("game/invalid".to_string(), img);
     }
 
     // Build the texture atlas
-    let atlas = TextureAtlas::new(pack, &mut textures.unwrap().images, &mut images);
+    let atlas = TextureAtlas::new(pack, &mut textures.images, &mut images);
 
     info!("Generated texture atlas");
     service.texture_atlas = Some(atlas);

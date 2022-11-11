@@ -1,11 +1,7 @@
 use crate::error::ClientError;
 use bevy::log::info;
-use mio::net::TcpStream;
-use mio::Token;
 use rustcraft_protocol::stream::GameStream;
-use std::net::IpAddr;
-
-pub const CLIENT: Token = Token(0);
+use std::net::{IpAddr, TcpStream};
 
 pub struct ClientListener {
     pub stream: Option<GameStream>,

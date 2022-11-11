@@ -73,6 +73,14 @@ pub fn track_blockstate_changes(
 
         let mut new_states = Vec::with_capacity(asset.states.len());
 
+        let error_texture = *atlas
+            .texture_atlas
+            .as_ref()
+            .unwrap()
+            .index
+            .get("game/invalid")
+            .unwrap();
+
         for block in &asset.states {
             let mut new_block = Block {
                 name: block.name.clone(),
@@ -91,7 +99,7 @@ pub fn track_blockstate_changes(
                     .unwrap()
                     .index
                     .get(&face.texture)
-                    .unwrap_or(&TextureAtlasIndex::new(0.0, 1.0, 0.0, 1.0));
+                    .unwrap_or(&error_texture);
 
                 let direction = ViewableDirectionBitMap::from_code(face.direction).unwrap();
 

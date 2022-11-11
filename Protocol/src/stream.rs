@@ -2,8 +2,10 @@ use std::io;
 use std::io::{Read, Write};
 use std::net::{Shutdown};
 use crate::protocol::Protocol;
-use mio::net::TcpStream;
 use crate::error::ProtocolError;
+use std::net::TcpStream;
+use byteorder::{LittleEndian, ReadBytesExt};
+use byteorder::WriteBytesExt;
 
 /// Tool to write and read packets to channel
 pub struct GameStream {
@@ -31,16 +33,15 @@ impl GameStream {
     }
 
     pub fn read_packet(&mut self) -> Result<Protocol, ProtocolError> {
-        let mut data = [0; 4]; // 4 Is the size of u32
-        self.stream.read_exact(&mut data)?;
-
-        let packet_len: u32 = bincode::deserialize(&data[..])?;
+        let packet_len = self.stream.read_u32::<LittleEndian>()?;
 
         let mut data = vec![0u8; packet_len as usize];
 
         self.stream.read_exact(&mut data)?;
 
-        let packet: Protocol = bincode::deserialize(&data[..])?;
+        //let t = self.stream.read_exact(&mut data)?;
+
+        let packet: Protocol = bincode::deserialize_from(&self.stream)?;
 
         Ok(packet)
     }

@@ -875,7 +875,7 @@ name = "rustcraft-protocol"
 version = "0.1.0"
 dependencies = [
  "bincode",
- "mio",
+ "byteorder",
  "serde",
  "thiserror",
 ]

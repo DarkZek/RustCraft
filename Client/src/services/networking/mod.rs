@@ -16,12 +16,11 @@ use bevy::prelude::{info, Entity, ResMut, SystemSet, Vec3};
 
 use rustcraft_protocol::constants::EntityId;
 
-use mio::net::TcpStream;
 use rustcraft_protocol::protocol::serverbound::disconnect::Disconnect;
 use rustcraft_protocol::protocol::Protocol;
 use rustcraft_protocol::stream::GameStream;
 use std::collections::HashMap;
-use std::net::IpAddr;
+use std::net::{IpAddr, TcpStream};
 
 mod chunk;
 mod events;
@@ -57,7 +56,9 @@ pub fn connect_to_server(mut system: ResMut<ClientListener>) {
     let ip = "127.0.0.1";
     let port = 25567;
 
-    let stream = TcpStream::connect(format!("{}:{}", ip, port).parse().unwrap()).unwrap();
+    let stream = TcpStream::connect(format!("{}:{}", ip, port)).unwrap();
+
+    stream.set_nonblocking(true);
 
     info!("Connecting to server on {}:{}", ip, port);
 
