@@ -5,7 +5,7 @@ use crate::game::viewable_direction::{
 use crate::services::chunk::data::ChunkData;
 use fnv::FnvBuildHasher;
 use nalgebra::Vector3;
-use rustcraft_protocol::constants::CHUNK_SIZE;
+use rc_protocol::constants::CHUNK_SIZE;
 use std::collections::HashMap;
 
 impl<'a> ChunkData {

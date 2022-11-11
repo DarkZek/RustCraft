@@ -1,11 +1,9 @@
-
 use crate::services::networking::transport::packet::SendPacket;
-use crate::{Camera, Changed, EventWriter, Quat, Query, ResMut, Transform, Vec3, With};
+use bevy::prelude::*;
 
-
-use rustcraft_protocol::protocol::serverbound::player_move::PlayerMove;
-use rustcraft_protocol::protocol::serverbound::player_rotate::PlayerRotate;
-use rustcraft_protocol::protocol::Protocol;
+use rc_protocol::protocol::serverbound::player_move::PlayerMove;
+use rc_protocol::protocol::serverbound::player_rotate::PlayerRotate;
+use rc_protocol::protocol::Protocol;
 
 const MIN_LOCATION_CHANGE_SYNC: f32 = 0.1;
 

@@ -1,6 +1,6 @@
 use crate::error::ClientError;
 use bevy::log::info;
-use rustcraft_protocol::stream::GameStream;
+use rc_protocol::stream::GameStream;
 use std::net::{IpAddr, TcpStream};
 
 pub struct ClientListener {

@@ -1,4 +1,4 @@
-use rustcraft_protocol::constants::UserId;
+use rc_client::rc_protocol::constants::UserId;
 
 pub struct AuthorizationEvent {
     pub client: UserId,
@@ -6,8 +6,6 @@ pub struct AuthorizationEvent {
 
 impl AuthorizationEvent {
     pub fn new(client: UserId) -> AuthorizationEvent {
-        AuthorizationEvent {
-            client
-        }
+        AuthorizationEvent { client }
     }
 }

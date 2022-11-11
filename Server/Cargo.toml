@@ -1,12 +1,12 @@
 [package]
-name = "rustcraft_server"
+name = "rc_server"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-rustcraft-protocol = { path = "../Protocol" }
+rc_client = { path = "../client" }
 nalgebra = "0.21.0"
 bevy_app = "0.8.1"
 bevy_core = "0.8.1"

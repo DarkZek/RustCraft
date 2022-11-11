@@ -1,13 +1,13 @@
 use crate::services::networking::transport::listener::ClientListener;
 use crate::services::networking::transport::packet::{ReceivePacket, SendPacket};
 
-use crate::{debug, EventReader, EventWriter, ResMut};
 use bevy::log::{info, warn};
 use bevy::prelude::error;
+use bevy::prelude::*;
 
-use rustcraft_protocol::error::ProtocolError;
-use rustcraft_protocol::protocol::serverbound::pong::Pong;
-use rustcraft_protocol::protocol::Protocol;
+use rc_protocol::error::ProtocolError;
+use rc_protocol::protocol::serverbound::pong::Pong;
+use rc_protocol::protocol::Protocol;
 use std::io;
 
 pub fn connection_upkeep(

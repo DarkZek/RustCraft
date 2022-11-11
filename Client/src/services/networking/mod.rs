@@ -9,16 +9,17 @@ use crate::services::networking::messages::messages_update;
 use crate::services::networking::transport::connection::{connection_upkeep, send_packets};
 use crate::services::networking::transport::listener::ClientListener;
 use crate::services::networking::transport::packet::{ReceivePacket, SendPacket};
-use crate::{App, AppState, EventReader, Plugin, Quat, SystemStage};
 use bevy::app::{AppExit, CoreStage};
 use bevy::ecs::schedule::StageLabel;
+use bevy::prelude::*;
 use bevy::prelude::{info, Entity, ResMut, SystemSet, Vec3};
 
-use rustcraft_protocol::constants::EntityId;
+use rc_protocol::constants::EntityId;
 
-use rustcraft_protocol::protocol::serverbound::disconnect::Disconnect;
-use rustcraft_protocol::protocol::Protocol;
-use rustcraft_protocol::stream::GameStream;
+use crate::state::AppState;
+use rc_protocol::protocol::serverbound::disconnect::Disconnect;
+use rc_protocol::protocol::Protocol;
+use rc_protocol::stream::GameStream;
 use std::collections::HashMap;
 use std::net::{IpAddr, TcpStream};
 

@@ -1,7 +1,7 @@
 use crate::services::asset::atlas::atlas::TextureAtlas;
+use crate::services::asset::atlas::resource_packs::ResourcePacks;
 use crate::services::asset::atlas::ResourcePackData;
 use crate::services::asset::material::chunk::ChunkMaterial;
-use crate::{AssetServer, Commands, Handle, Res, ResMut, ResourcePacks};
 use bevy::prelude::*;
 
 pub mod atlas;

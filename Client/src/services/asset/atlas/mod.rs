@@ -2,16 +2,12 @@ use crate::services::asset::atlas::atlas::TextureAtlas;
 use crate::services::asset::atlas::resource_packs::ResourcePacks;
 use crate::services::asset::material::chunk::ChunkMaterial;
 use crate::services::asset::AssetService;
-
-use crate::{
-    error, info, AlphaMode, AssetServer, Assets, ChunkData, Color, Commands, Entity, Handle, Image,
-    Query, Res, ResMut, StandardMaterial, With,
-};
+use crate::services::chunk::data::ChunkData;
+use bevy::prelude::*;
 use bevy::reflect::TypeUuid;
+use bevy_inspector_egui::egui::TextBuffer;
 use fnv::FnvBuildHasher;
 use image::{DynamicImage, GenericImage};
-
-use bevy_inspector_egui::egui::TextBuffer;
 use std::collections::HashMap;
 use std::ffi::OsString;
 

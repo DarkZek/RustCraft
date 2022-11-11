@@ -1,8 +1,8 @@
-use crate::services::chunk::data::{Color};
-use crate::Vec3;
+use crate::services::chunk::data::Color;
 
-use rustcraft_protocol::constants::CHUNK_SIZE;
+use bevy::prelude::Vec3;
 use nalgebra::{Point3, Vector3};
+use rc_protocol::constants::CHUNK_SIZE;
 use std::ops::Add;
 
 /// Formats a u32 with American comma placement.

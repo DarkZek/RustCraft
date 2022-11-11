@@ -1,5 +1,5 @@
 [package]
-name = "rustcraft_client"
+name = "rc_client"
 version = "0.1.0"
 edition = "2021"
 
@@ -19,7 +19,7 @@ bevy-inspector-egui = "0.12.1"
 anyhow = "1.0.57"
 image = "0.23.14"
 zip = { version = "0.5.5", default-features = false, features = ["deflate"] }
-rustcraft-protocol = { path = "../Protocol" }
+rc_protocol = { path = "./lib/rc-protocol" }
 tokio =  { version = "1.18.0", features = ["net"]}
 thiserror = "1.0.37"
 bevy_prototype_debug_lines = { version = "0.8", features = ["3d"] }

@@ -1,16 +1,12 @@
+use crate::game::blocks::states::BlockStates;
 use crate::helpers::from_bevy_vec3;
 use crate::services::chunk::data::generate_mesh::UpdateChunkMesh;
-
 use crate::services::chunk::ChunkService;
-use crate::Component;
-use crate::{Assets, Camera, Commands, Entity, Handle, Query, Res, ResMut, Transform, With};
-
-use crate::game::blocks::states::BlockStates;
-use bevy::prelude::Mesh;
+use bevy::prelude::*;
 use bevy::render::mesh::Indices;
 use nalgebra::Vector3;
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
-use rustcraft_protocol::constants::CHUNK_SIZE;
+use rc_protocol::constants::CHUNK_SIZE;
 
 #[derive(Component)]
 pub struct RerenderChunkFlag {

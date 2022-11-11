@@ -1,9 +1,9 @@
 use crate::game::viewable_direction::ViewableDirection;
-use crate::Entity;
 use bevy::ecs::component::Component;
+use bevy::prelude::Entity;
 
-use rustcraft_protocol::constants::CHUNK_SIZE;
 use nalgebra::Vector3;
+use rc_protocol::constants::CHUNK_SIZE;
 
 pub mod generate_mesh;
 pub mod viewable;

@@ -1,13 +1,12 @@
-
 use crate::services::asset::AssetService;
-use crate::{
-    default, shape, Aabb, App, Assets, ChunkData, Commands, Mesh, Plugin, RawChunkData, RerenderChunkFlag, ResMut, Transform, Vec3,
-};
-use bevy::prelude::MaterialMeshBundle;
+use crate::services::chunk::data::{ChunkData, RawChunkData};
+use crate::services::chunk::systems::mesh_builder::RerenderChunkFlag;
+use bevy::prelude::*;
+use bevy::render::primitives::Aabb;
 use fnv::{FnvBuildHasher, FnvHashMap};
 use nalgebra::Vector3;
-use rustcraft_protocol::constants::CHUNK_SIZE;
-use rustcraft_protocol::protocol::clientbound::chunk_update::PartialChunkUpdate;
+use rc_protocol::constants::CHUNK_SIZE;
+use rc_protocol::protocol::clientbound::chunk_update::PartialChunkUpdate;
 use std::collections::HashMap;
 
 pub mod data;

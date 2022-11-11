@@ -1,8 +1,7 @@
 use crate::services::physics::simulate::physics_tick;
 use crate::services::physics::sync::physics_sync;
-use crate::App;
 use bevy::ecs::component::Component;
-use bevy::prelude::Plugin;
+use bevy::prelude::{App, Plugin};
 use nalgebra::Vector3;
 
 pub mod raycasts;

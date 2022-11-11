@@ -1,10 +1,9 @@
-use crate::helpers::{global_to_local_position};
+use crate::helpers::global_to_local_position;
 use crate::services::chunk::ChunkService;
+use bevy::prelude::*;
 
-use crate::{Assets, ChunkData, Mesh, ResMut, Vec3};
-
-
-use nalgebra::{Vector3};
+use crate::services::chunk::data::ChunkData;
+use nalgebra::Vector3;
 
 pub struct RaycastResult {
     pub block: Vector3<i32>,

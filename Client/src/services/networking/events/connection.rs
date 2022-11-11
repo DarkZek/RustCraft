@@ -1,6 +1,5 @@
-use rustcraft_protocol::constants::UserId;
+use rc_protocol::constants::UserId;
 
 pub struct ConnectionEvent {
     pub client: UserId,
 }
-

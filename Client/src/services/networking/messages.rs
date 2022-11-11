@@ -3,18 +3,11 @@ use crate::game::entity::Entity;
 use crate::services::networking::transport::packet::ReceivePacket;
 use crate::services::networking::TransportSystem;
 use crate::services::physics::PhysicsObject;
-use crate::{
-    default, error, info, shape, Assets, Color, Commands, Mesh,
-    PbrBundle, Quat, Query, ResMut, StandardMaterial,
-};
-use crate::{EventReader, Transform};
+use bevy::prelude::*;
 
 use nalgebra::Vector3;
 
-
-
-use rustcraft_protocol::protocol::Protocol;
-
+use rc_protocol::protocol::Protocol;
 
 pub fn messages_update(
     mut event_reader: EventReader<ReceivePacket>,

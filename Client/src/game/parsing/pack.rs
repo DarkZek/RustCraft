@@ -1,11 +1,11 @@
 use crate::services::asset::atlas::ResourcePackData;
-use crate::{error};
 use bevy::asset::{AssetLoader, BoxedFuture, LoadContext, LoadedAsset};
 use fnv::{FnvBuildHasher, FnvHashMap};
 use image::{DynamicImage, ImageFormat};
 
 use std::collections::HashMap;
 
+use bevy::prelude::error;
 use std::io::{Cursor, Read};
 
 use zip::ZipArchive;

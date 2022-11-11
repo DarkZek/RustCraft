@@ -3,6 +3,7 @@ pub mod game;
 pub mod helpers;
 pub mod render;
 pub mod services;
+pub mod state;
 
 use crate::game::blocks::create_block_states;
 use crate::game::interaction::mouse_interaction;
@@ -26,19 +27,13 @@ use crate::services::ui::UIPlugin;
 use crate::game::blocks::loader::{track_blockstate_changes, BlockStateAssetLoader};
 use crate::game::blocks::loading::BlockStatesFile;
 use crate::game::blocks::states::BlockStates;
+use crate::state::AppState;
 use bevy::log::{Level, LogSettings};
 use bevy::prelude::*;
 use bevy::render::primitives::Aabb;
 use bevy::render::texture::ImageSettings;
 use bevy::window::WindowResizeConstraints;
 use bevy_inspector_egui::WorldInspectorPlugin;
-
-#[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub enum AppState {
-    Loading,
-    MainMenu,
-    InGame,
-}
 
 #[rustfmt::skip]
 fn main() {

@@ -3,15 +3,12 @@ use crate::services::asset::AssetService;
 use crate::services::chunk::ChunkService;
 use crate::services::networking::transport::packet::SendPacket;
 use crate::services::physics::raycasts::do_raycast;
-use crate::{
-    info, Assets, Camera, Commands, EventWriter, Input, Mesh,
-    MouseButton, Query, RerenderChunkFlag, Res, ResMut, Transform, Vec3, With,
-};
+use bevy::prelude::*;
 
-use rustcraft_protocol::constants::CHUNK_SIZE;
-use rustcraft_protocol::protocol::clientbound::block_update::BlockUpdate;
-use rustcraft_protocol::protocol::Protocol;
-
+use crate::services::chunk::systems::mesh_builder::RerenderChunkFlag;
+use rc_protocol::constants::CHUNK_SIZE;
+use rc_protocol::protocol::clientbound::block_update::BlockUpdate;
+use rc_protocol::protocol::Protocol;
 
 pub fn mouse_interaction(
     mouse_button_input: Res<Input<MouseButton>>,
