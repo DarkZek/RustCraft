@@ -6,11 +6,11 @@ use bevy_ecs::event::{EventReader, EventWriter};
 use bevy_ecs::prelude::{Query, Res};
 use bevy_ecs::system::ResMut;
 use nalgebra::{Quaternion, Vector3};
-use rustcraft_protocol::constants::CHUNK_SIZE;
-use rustcraft_protocol::protocol::clientbound::block_update::BlockUpdate;
-use rustcraft_protocol::protocol::clientbound::entity_moved::EntityMoved;
-use rustcraft_protocol::protocol::clientbound::entity_rotated::EntityRotated;
-use rustcraft_protocol::protocol::Protocol;
+use rc_client::rc_protocol::constants::CHUNK_SIZE;
+use rc_client::rc_protocol::protocol::clientbound::block_update::BlockUpdate;
+use rc_client::rc_protocol::protocol::clientbound::entity_moved::EntityMoved;
+use rc_client::rc_protocol::protocol::clientbound::entity_rotated::EntityRotated;
+use rc_client::rc_protocol::protocol::Protocol;
 
 pub fn receive_message_event(
     mut event_reader: EventReader<ReceivePacket>,

@@ -18,7 +18,7 @@ use bevy_app::{App, Plugin};
 
 
 
-use rustcraft_protocol::constants::UserId;
+use rc_client::rc_protocol::constants::UserId;
 use std::collections::HashMap;
 
 use std::net::IpAddr;

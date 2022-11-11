@@ -9,12 +9,12 @@ use bevy_ecs::system::Query;
 use bevy_log::info;
 use crossbeam::channel::{Receiver, Sender};
 
-use rustcraft_protocol::constants::{EntityId, UserId};
-use rustcraft_protocol::protocol::clientbound::chunk_update::PartialChunkUpdate;
-use rustcraft_protocol::protocol::clientbound::ping::Ping;
-use rustcraft_protocol::protocol::clientbound::spawn_entity::SpawnEntity;
-use rustcraft_protocol::protocol::serverbound::pong::Pong;
-use rustcraft_protocol::protocol::Protocol;
+use rc_client::rc_protocol::constants::{EntityId, UserId};
+use rc_client::rc_protocol::protocol::clientbound::chunk_update::PartialChunkUpdate;
+use rc_client::rc_protocol::protocol::clientbound::ping::Ping;
+use rc_client::rc_protocol::protocol::clientbound::spawn_entity::SpawnEntity;
+use rc_client::rc_protocol::protocol::serverbound::pong::Pong;
+use rc_client::rc_protocol::protocol::Protocol;
 
 use std::sync::atomic::Ordering;
 

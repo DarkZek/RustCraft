@@ -1,4 +1,4 @@
-use rustcraft_protocol::constants::CHUNK_SIZE;
+use rc_client::rc_protocol::constants::CHUNK_SIZE;
 use nalgebra::Vector3;
 
 #[inline]

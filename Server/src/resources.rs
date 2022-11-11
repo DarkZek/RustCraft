@@ -2,7 +2,7 @@ use crate::game::chunk::ChunkData;
 
 use bevy_ecs::entity::Entity;
 use nalgebra::Vector3;
-use rustcraft_protocol::constants::EntityId;
+use rc_client::rc_protocol::constants::EntityId;
 use std::collections::HashMap;
 use std::sync::atomic::AtomicU64;
 

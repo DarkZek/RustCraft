@@ -3,9 +3,9 @@ use crate::{SendPacket, TransportSystem, World};
 use bevy_ecs::event::EventReader;
 use bevy_ecs::prelude::{Commands, EventWriter, Res};
 use bevy_ecs::system::ResMut;
-use rustcraft_protocol::protocol::clientbound::despawn_entity::DespawnEntity;
+use rc_client::rc_protocol::protocol::clientbound::despawn_entity::DespawnEntity;
 
-use rustcraft_protocol::protocol::Protocol;
+use rc_client::rc_protocol::protocol::Protocol;
 
 pub fn disconnection_event(
     mut event_reader: EventReader<DisconnectionEvent>,

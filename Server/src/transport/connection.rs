@@ -8,11 +8,11 @@ use bevy_ecs::event::{EventReader, EventWriter};
 use bevy_ecs::system::{Res, ResMut};
 use bevy_log::{debug, error, info, warn};
 use crossbeam::channel::{unbounded, Receiver, Sender};
-use rustcraft_protocol::constants::{EntityId, UserId};
+use rc_client::rc_protocol::constants::{EntityId, UserId};
 
-use rustcraft_protocol::protocol::clientbound::ping::Ping;
-use rustcraft_protocol::protocol::serverbound::pong::Pong;
-use rustcraft_protocol::protocol::Protocol;
+use rc_client::rc_protocol::protocol::clientbound::ping::Ping;
+use rc_client::rc_protocol::protocol::serverbound::pong::Pong;
+use rc_client::rc_protocol::protocol::Protocol;
 
 use std::time::Duration;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
