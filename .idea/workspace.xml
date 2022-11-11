@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CMakeSettings">
+    <configurations>
+      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" />
+    </configurations>
+  </component>
+  <component name="CargoProjects">
+    <cargoProject FILE="$PROJECT_DIR$/Cargo.toml" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="b60b3ad8-998a-4024-a58a-f9d2b7c3ef80" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/BevyTesting.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Client/Cargo.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Client/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/protocol/Cargo.toml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/protocol/protocol.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/protocol/src/channels.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/protocol/src/config.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/protocol/src/constants.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/protocol/src/lib.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/protocol/src/protocol.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/protocol/src/protocol/clientbound/block_update.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/protocol/src/protocol/clientbound/chat.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/protocol/src/protocol/clientbound/chunk_update.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/protocol/src/protocol/clientbound/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/protocol/src/protocol/clientbound/player_join.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/protocol/src/protocol/clientbound/player_leave.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/protocol/src/protocol/clientbound/player_moved.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/protocol/src/protocol/clientbound/player_rotated.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/protocol/src/protocol/serverbound/authenticate.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/protocol/src/protocol/serverbound/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/protocol/src/protocol/serverbound/player_move.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/protocol/src/protocol/serverbound/player_rotate.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/services/chunk/systems/mesh_builder.rs" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/services/chunk/systems/mesh_builder.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/services/networking/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/services/networking/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/Github.kra" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/Github.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/Rosources.zip" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/logo.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/logo_hd.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/splash.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/logging/Cargo.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/logging/Cargo.toml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/logging/src/main.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/Cargo.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/Cargo.toml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/lib.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/main.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/messaging.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/data/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/data/read_types.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/data/reader.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/data/write_types.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/data/writer.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/decoder.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/effect/effect.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/effect/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/effect/play.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/effect/sound.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/entity/animation.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/entity/destroy_entities.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/entity/equipment.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/entity/head_look.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/entity/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/entity/set_passengers.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/entity/set_properties.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/entity/spawn_entity.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/entity/spawn_living_entity.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/entity/status.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/entity/teleport.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/entity/update_metadata.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/entity/update_position.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/entity/update_position_rotation.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/entity/update_rotation.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/entity/velocity.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/info/advancements.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/info/change_game_state.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/info/chat_message.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/info/disconnect.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/info/join_game.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/info/keep_alive.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/info/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/info/player_list_info.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/info/plugin_message.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/info/server_difficulty.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/info/tags.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/inventory/declare_recipes.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/inventory/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/inventory/set_slot.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/inventory/unlock_recipes.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/inventory/window_items.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/player/held_item_change.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/player/login_success.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/player/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/player/player_abilities.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/player/position_look.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/player/position_rotation.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/player/set_experience.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/player/spawn.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/player/update_health.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/player/view_chunk_position.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/world/block_change.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/world/border.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/world/chunk_data.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/world/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/world/multi_block_change.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/world/spawn_position.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/world/spawn_weather_entity.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/world/time_update.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/clientbound/world/update_light.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/serverbound/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/serverbound/player/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/serverbound/player/position.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/packet/serverbound/player/rotation.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/requests/login.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/requests/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/requests/status.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/types/chunk.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/types/entity_metadata.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/types/ingredient.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/types/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/types/modifier_data.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/protocol/types/slot.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_network/src/stream.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_ui/Cargo.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_ui/Cargo.toml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_ui/shaders/combine.frag" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_ui/shaders/combine.vert" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_ui/shaders/combine_frag.spv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_ui/shaders/combine_vert.spv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_ui/src/atlas.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_ui/src/component.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_ui/src/elements/button.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_ui/src/elements/image.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_ui/src/elements/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_ui/src/elements/rect.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_ui/src/elements/text.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_ui/src/elements/textinput.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_ui/src/fonts/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_ui/src/fonts/variable_width.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_ui/src/helpers.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_ui/src/interaction.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_ui/src/lib.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_ui/src/positioning.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_ui/src/render/combine.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_ui/src/render/component.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_ui/src/render/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_ui/src/render/pipeline.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_ui/src/render/projection.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rc_ui/src/vertex.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shaders/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shaders/addition.frag" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shaders/addition.vert" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shaders/addition_frag.spv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shaders/addition_vert.spv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shaders/background.frag" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shaders/background.vert" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shaders/background_frag.spv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shaders/background_vert.spv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shaders/gaussian.frag" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shaders/gaussian.vert" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shaders/gaussian_frag.spv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shaders/gaussian_vert.spv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shaders/loading.frag" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shaders/loading.vert" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shaders/loading_frag.spv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shaders/loading_vert.spv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shaders/multiply.frag" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shaders/multiply.vert" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shaders/multiply_frag.spv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shaders/multiply_vert.spv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shaders/outline.frag" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shaders/outline.vert" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shaders/outline_frag.spv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shaders/outline_vert.spv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shaders/shader.frag" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shaders/shader.vert" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shaders/shader_frag.spv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shaders/shader_vert.spv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shaders/ssao.frag" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shaders/ssao.vert" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shaders/ssao_frag.spv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shaders/ssao_vert.spv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shaders/ui_images.frag" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shaders/ui_images.vert" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shaders/ui_images_frag.spv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shaders/ui_images_vert.spv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shaders/ui_text.frag" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shaders/ui_text.vert" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shaders/ui_text_frag.spv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shaders/ui_text_vert.spv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/block/blocks/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/block/blocks/model.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/block/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/entity/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/entity/player.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/game_state.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/physics/collider.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/physics/interpolator.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/physics/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/physics/player.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/resources.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/systems/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/systems/player_networking.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/helpers.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/render/background/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/render/camera.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/render/chunks_render_bundle.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/render/device.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/render/effects/bloom.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/render/effects/buffer_pool.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/render/effects/gaussian.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/render/effects/merge.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/render/effects/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/render/effects/multiply.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/render/effects/ssao.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/render/loading/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/render/loading/models.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/render/loading/pass.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/render/loading/render.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/render/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/render/pass/buffer.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/render/pass/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/render/pass/outline.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/render/pass/prepass.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/render/pass/uniforms.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/render/screens/debug.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/render/screens/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/render/vertices.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/asset_service/atlas.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/asset_service/binding.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/asset_service/depth_map.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/asset_service/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/asset_service/packs.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/audio_service.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/chunk_service/blocks/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/chunk_service/chunk.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/chunk_service/frustum_culling.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/chunk_service/lighting/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/chunk_service/mesh/chunk.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/chunk_service/mesh/culling.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/chunk_service/mesh/generation.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/chunk_service/mesh/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/chunk_service/mesh/rerendering.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/chunk_service/mesh/update.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/chunk_service/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/entity_service/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/input_service/actions.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/input_service/input.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/input_service/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/logging_service.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/networking_service/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/networking_service/recieve_system.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/networking_service/send_system.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/settings_service/key_mappings.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/settings_service/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/ui_service/components/crosshair.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/ui_service/components/debug_screen.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/ui_service/components/inventory_bar.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/ui_service/components/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/ui_service/components/options_screen.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/ui_service/components/pause.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/ui_service/components/title/main.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/ui_service/components/title/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/ui_service/components/title/multiplayer.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/ui_service/draw.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/ui_service/image/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/ui_service/meshdata.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/ui_service/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/ui_service/overlays.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/ui_service/pipeline.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/ui_service/projection.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/ui_service/render_pass.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/world/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/world/player_selected_block_update.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/world/raycast.rs" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MacroExpansionManager">
+    <option name="directoryName" value="p8ngool2" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="2F4aXCYtw3Tg86wflXr0kHsxKpd" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "last_opened_file_path": "C:/Users/mashd/CLionProjects/RustCraft/Client",
+    "nodejs_package_manager_path": "npm",
+    "org.rust.cargo.project.model.PROJECT_DISCOVERY": "true"
+  }
+}]]></component>
+  <component name="RustProjectSettings">
+    <option name="toolchainHomeDirectory" value="$USER_HOME$/.cargo/bin" />
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="b60b3ad8-998a-4024-a58a-f9d2b7c3ef80" name="Changes" comment="" />
+      <created>1663753847847</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1663753847847</updated>
+      <workItem from="1663753849598" duration="183000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>

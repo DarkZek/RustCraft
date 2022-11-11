@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CMakeSettings">
+    <configurations>
+      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" />
+    </configurations>
+  </component>
+  <component name="CargoProjects">
+    <cargoProject FILE="$PROJECT_DIR$/Cargo.toml" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="d34b37f8-8bd9-4c23-a17f-5bd5043c2fce" name="Changes" comment="Add invalid texture">
+      <change afterPath="$PROJECT_DIR$/src/lib.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/state.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/Client.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Client.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/blocks/loader.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/blocks/loader.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/interaction/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/interaction/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/parsing/pack.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/parsing/pack.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/player.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/player.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/viewable_direction.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/viewable_direction.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/helpers.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/helpers.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/asset/atlas/atlas.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/asset/atlas/atlas.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/asset/atlas/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/asset/atlas/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/asset/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/asset/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/chunk/data/generate_mesh.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/chunk/data/generate_mesh.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/chunk/data/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/chunk/data/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/chunk/data/viewable.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/chunk/data/viewable.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/chunk/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/chunk/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/chunk/systems/mesh_builder.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/chunk/systems/mesh_builder.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/networking/chunk.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/networking/chunk.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/networking/events/authorization.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/networking/events/authorization.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/networking/events/connection.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/networking/events/connection.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/networking/events/disconnect.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/networking/events/disconnect.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/networking/location_sync.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/networking/location_sync.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/networking/messages.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/networking/messages.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/networking/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/networking/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/networking/transport/connection.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/networking/transport/connection.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/networking/transport/listener.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/networking/transport/listener.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/networking/transport/packet.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/networking/transport/packet.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/physics/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/physics/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/physics/raycasts.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/physics/raycasts.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Protocol/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Protocol/.idea/Protocol.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Protocol/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Protocol/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Protocol/Cargo.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Protocol/Cargo.toml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Protocol/protocol.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Protocol/src/channels.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Protocol/src/config.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Protocol/src/constants.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Protocol/src/error.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Protocol/src/lib.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/block_update.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/chat.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/chunk_update.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/despawn_entity.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/entity_moved.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/entity_rotated.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/ping.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/player_join.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/player_leave.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/clientbound/spawn_entity.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/serverbound/authenticate.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/serverbound/disconnect.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/serverbound/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/serverbound/player_move.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/serverbound/player_rotate.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Protocol/src/protocol/serverbound/pong.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Protocol/src/stream.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Server/.idea/Server.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../Server/.idea/Server.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Server/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../Server/Cargo.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Server/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/../Server/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Server/src/events/authorization.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../Server/src/events/authorization.rs" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Rust File" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="MacroExpansionManager">
+    <option name="directoryName" value="p0gsuvzt" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="2F4ayUPnJp4KZWyPpnpbeCTQqEY" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "last_opened_file_path": "C:/Users/mashd/CLionProjects/RustCraft/client/lib/rc-protocol",
+    "nodejs_package_manager_path": "npm",
+    "org.rust.cargo.project.model.PROJECT_DISCOVERY": "true",
+    "settings.editor.selected.configurable": "Errors"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\mashd\CLionProjects\RustCraft\Client\src" />
+      <recent name="C:\Users\mashd\CLionProjects\RustCraft\Client\src\services\networking" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\mashd\CLionProjects\RustCraft\Client\src\services" />
+      <recent name="C:\Users\mashd\CLionProjects\RustCraft\Client\src\services\networking\transport" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Cargo.Run">
+    <configuration name="Dev WASM" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
+      <option name="command" value="run --target wasm32-unknown-unknown" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="emulateTerminal" value="false" />
+      <option name="withSudo" value="false" />
+      <option name="buildTarget" value="REMOTE" />
+      <option name="backtrace" value="SHORT" />
+      <envs />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Run" type="CargoCommandRunConfiguration" factoryName="Cargo Command" nameIsGenerated="true">
+      <option name="command" value="run" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="emulateTerminal" value="false" />
+      <option name="withSudo" value="false" />
+      <option name="buildTarget" value="REMOTE" />
+      <option name="backtrace" value="SHORT" />
+      <envs />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="Cargo.Run" />
+      <item itemvalue="Cargo.Dev WASM" />
+    </list>
+  </component>
+  <component name="RustProjectSettings">
+    <option name="externalLinter" value="Clippy" />
+    <option name="runExternalLinterOnTheFly" value="true" />
+    <option name="toolchainHomeDirectory" value="$USER_HOME$/.cargo/bin" />
+    <option name="version" value="2" />
+  </component>
+  <component name="RustfmtProjectSettings">
+    <option name="runRustfmtOnSave" value="true" />
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="d34b37f8-8bd9-4c23-a17f-5bd5043c2fce" name="Changes" comment="" />
+      <created>1663754064093</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1663754064093</updated>
+      <workItem from="1663754065191" duration="1631000" />
+      <workItem from="1663995847988" duration="2208000" />
+      <workItem from="1664531410616" duration="4911000" />
+      <workItem from="1665119950688" duration="4213000" />
+      <workItem from="1665135273849" duration="2013000" />
+      <workItem from="1665535039105" duration="95000" />
+      <workItem from="1666679524289" duration="5342000" />
+      <workItem from="1666756467840" duration="12488000" />
+      <workItem from="1666831961676" duration="20335000" />
+      <workItem from="1666910283742" duration="22147000" />
+      <workItem from="1666989084544" duration="18797000" />
+      <workItem from="1667186881048" duration="15935000" />
+      <workItem from="1667289467213" duration="4265000" />
+      <workItem from="1668123767936" duration="723000" />
+      <workItem from="1668134839324" duration="2259000" />
+    </task>
+    <task id="LOCAL-00001" summary="Start new project">
+      <created>1663755658916</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1663755658916</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Got building on web">
+      <created>1664533486922</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1664533486922</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Got chunks loading">
+      <created>1666841631799</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1666841631799</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Debug networking">
+      <created>1666913488756</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1666913488756</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Added crosshair, removed chunk borders,">
+      <created>1666950291828</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1666950291828</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Store entities in ecs">
+      <created>1667028515984</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1667028515984</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Remove unused imports">
+      <created>1667029363740</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1667029363740</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Added new textures + restructed blockstate">
+      <created>1667036579490</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1667036579490</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Added hotbar">
+      <created>1667038505109</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1667038505109</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Added dynamic block states">
+      <created>1667210727760</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1667210727760</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <ignored-roots>
+      <path value="$PROJECT_DIR$" />
+    </ignored-roots>
+    <MESSAGE value="Start new project" />
+    <MESSAGE value="Got building on web" />
+    <MESSAGE value="Got chunks loading" />
+    <MESSAGE value="Debug networking" />
+    <MESSAGE value="Added crosshair, removed chunk borders," />
+    <MESSAGE value="Store entities in ecs" />
+    <MESSAGE value="Remove unused imports" />
+    <MESSAGE value="Added new textures + restructed blockstate" />
+    <MESSAGE value="Added hotbar" />
+    <MESSAGE value="Added dynamic block states" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added dynamic block states" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
+  </component>
+</project>
