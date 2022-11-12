@@ -20,10 +20,3 @@ rc_protocol = { path = "./lib/rc_protocol" }
 tokio =  { version = "1.18.0", features = ["net"]}
 thiserror = "1.0.37"
 bevy_prototype_debug_lines = { version = "0.8", features = ["3d"] }
-
-[profile.dev]
-opt-level = 1
-
-# Enable high optimizations for dependencies (incl. Bevy), but not for our code:
-[profile.dev.package."*"]
-opt-level = 3
