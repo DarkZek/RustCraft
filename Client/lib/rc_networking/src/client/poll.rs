@@ -1,5 +1,4 @@
 use std::time::Duration;
-use bevy_log::debug;
 use rc_protocol::types::ReceivePacket;
 use crate::client::ClientSocket;
 

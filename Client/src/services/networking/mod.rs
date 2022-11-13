@@ -16,9 +16,9 @@ use rc_protocol::constants::{EntityId, UserId};
 use crate::state::AppState;
 use rc_protocol::protocol::serverbound::disconnect::Disconnect;
 use rc_protocol::protocol::Protocol;
-use rc_protocol::stream::GameStream;
+
 use std::collections::HashMap;
-use std::net::{IpAddr, TcpStream};
+use std::net::{IpAddr};
 use std::str::FromStr;
 use rc_networking::client::ClientSocket;
 use rc_protocol::types::{ReceivePacket, SendPacket};

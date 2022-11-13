@@ -46,7 +46,7 @@ impl ClientSocket {
         let (inner_write_packets, read_packets) = unbounded();
         let (write_packets, inner_read_packets): (Sender<SendPacket>, Receiver<SendPacket>) = unbounded();
 
-        let mut stream = match runtime.block_on(TcpStream::connect(format!("{}:{}", ip, port))) {
+        let stream = match runtime.block_on(TcpStream::connect(format!("{}:{}", ip, port))) {
             Ok(val) => val,
             Err(e) => {
                 error!("Failed to bind to port {}:{} {:?}", ip, port, e);
