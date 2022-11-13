@@ -1,5 +1,5 @@
-use rc_client::rc_protocol::constants::UserId;
-use rc_client::rc_protocol::protocol::Protocol;
+use crate::constants::UserId;
+use crate::protocol::Protocol;
 
 /// Alias used to differentiate the packets for use with Bevy's ECS Event Readers
 #[derive(Clone)]

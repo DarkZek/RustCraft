@@ -1,5 +1,4 @@
 use crate::services::networking::transport::listener::ClientListener;
-use crate::services::networking::transport::packet::{ReceivePacket, SendPacket};
 
 use bevy::log::{info, warn};
 use bevy::prelude::error;
@@ -9,6 +8,8 @@ use rc_protocol::error::ProtocolError;
 use rc_protocol::protocol::serverbound::pong::Pong;
 use rc_protocol::protocol::Protocol;
 use std::io;
+use rc_protocol::constants::UserId;
+use rc_protocol::types::{ReceivePacket, SendPacket};
 
 pub fn connection_upkeep(
     mut stream: ResMut<ClientListener>,
@@ -47,7 +48,7 @@ pub fn connection_upkeep(
                         .write_packet(&Protocol::Pong(Pong::from(ping.code)))
                         .unwrap();
                 } else {
-                    event_writer.send(ReceivePacket(n));
+                    event_writer.send(ReceivePacket(n, UserId(0)));
                 }
             }
             // Would block "errors" are the OS's way of saying that the

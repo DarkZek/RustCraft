@@ -1,8 +1,4 @@
-pub mod command;
 mod connection;
-pub mod events;
-mod listener;
-pub mod packet;
 
 use crate::error::ServerError;
 use crate::events::authorization::AuthorizationEvent;
@@ -10,13 +6,9 @@ use crate::events::connection::ConnectionEvent;
 use crate::events::disconnect::DisconnectionEvent;
 use crate::systems::authorization::GameUser;
 use crate::transport::connection::{
-    accept_connections, check_connections, prune_users, receive_packets, send_packets,
+    accept_connections, check_connections, prune_users
 };
-use crate::transport::listener::ServerListener;
 use bevy_app::{App, Plugin};
-
-
-
 
 use rc_client::rc_protocol::constants::UserId;
 use std::collections::HashMap;
@@ -24,6 +16,7 @@ use std::collections::HashMap;
 use std::net::IpAddr;
 
 use std::str::FromStr;
+use rc_client::rc_networking::server::ServerSocket;
 
 pub struct TransportPlugin;
 
@@ -45,7 +38,7 @@ impl Plugin for TransportPlugin {
         let ip = IpAddr::from_str("0.0.0.0").unwrap();
         let port = 25567;
 
-        let stream = match ServerListener::new(ip, port) {
+        let stream = match ServerSocket::connect(ip, port) {
             Ok(val) => val,
             Err(err) => {
                 panic!("{:?}", err);
@@ -56,8 +49,6 @@ impl Plugin for TransportPlugin {
 
         app.insert_resource(stream)
             .insert_resource(transport_system)
-            .add_system(send_packets)
-            .add_system(receive_packets)
             .add_system(prune_users)
             .add_system(accept_connections)
             .add_system(check_connections)

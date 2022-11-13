@@ -1,6 +1,5 @@
 use crate::game::entity::Entity;
 
-use crate::services::networking::transport::packet::ReceivePacket;
 use crate::services::networking::TransportSystem;
 use crate::services::physics::PhysicsObject;
 use bevy::prelude::*;
@@ -8,6 +7,7 @@ use bevy::prelude::*;
 use nalgebra::Vector3;
 
 use rc_protocol::protocol::Protocol;
+use rc_protocol::types::ReceivePacket;
 
 pub fn messages_update(
     mut event_reader: EventReader<ReceivePacket>,

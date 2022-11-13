@@ -3069,7 +3069,11 @@ dependencies = [
 name = "rc_networking"
 version = "0.1.0"
 dependencies = [
+ "bevy_log",
+ "bincode",
+ "crossbeam",
  "rc_protocol",
+ "tokio",
 ]
 
 [[package]]
@@ -3090,12 +3094,9 @@ dependencies = [
  "bevy_core",
  "bevy_ecs",
  "bevy_log",
- "bincode",
- "crossbeam",
  "nalgebra",
  "rc_client",
  "thiserror",
- "tokio",
 ]
 
 [[package]]

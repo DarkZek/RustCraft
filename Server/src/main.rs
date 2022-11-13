@@ -8,18 +8,15 @@ mod systems;
 pub mod transport;
 
 use crate::error::ServerError;
-use crate::resources::World;
+use crate::resources::WorldData;
 use crate::systems::tick::tick;
-use crate::transport::packet::{ReceivePacket, SendPacket};
 use crate::transport::{TransportPlugin, TransportSystem};
 use bevy_app::{App, AppExit, CoreStage, ScheduleRunnerPlugin};
 use bevy_core::CorePlugin;
 use bevy_ecs::event::EventReader;
 use bevy_ecs::prelude::{StageLabel, SystemStage};
 use bevy_log::{info, Level, LogPlugin, LogSettings};
-
-
-
+use rc_client::rc_protocol::types::{ReceivePacket, SendPacket};
 
 fn main() {
     info!("Rustcraft Bevy Server Demo starting up");
@@ -36,7 +33,7 @@ fn main() {
         .add_plugin(LogPlugin::default())
         .add_plugin(TransportPlugin)
         // Startup System
-        .insert_resource(World::new())
+        .insert_resource(WorldData::new())
         .add_event::<ReceivePacket>()
         .add_event::<SendPacket>()
         .add_stage(ServerState::Networking, SystemStage::single_threaded())

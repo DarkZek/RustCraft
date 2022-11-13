@@ -1,25 +1,40 @@
-use crate::transport::command::NetworkCommand;
-use crate::transport::events::NetworkEvent;
-use crate::ServerError;
+mod poll;
+mod user;
+mod connection;
+mod send;
 
-use bevy_log::{error, info};
-use crossbeam::channel::{unbounded, Receiver, Sender};
-
+use std::collections::HashMap;
 use std::net::IpAddr;
-use tokio::net::{TcpListener, TcpStream};
+use bevy_log::{error, info};
+use crossbeam::channel::{Receiver, Sender, unbounded};
+use tokio::net::TcpListener;
 use tokio::runtime::Runtime;
+use rc_protocol::constants::UserId;
+use crate::command::NetworkCommand;
+use crate::error::NetworkingError;
+use crate::server::poll::ConnectionRequest;
+use crate::server::user::NetworkUser;
 
-pub struct ServerListener {
+pub struct ServerSocket {
+    pub listen_address: IpAddr,
+    pub port: usize,
+
+    pub connected: bool,
+
     pub runtime: Runtime,
 
-    pub receive_events: Receiver<NetworkEvent>,
     pub send_commands: Sender<NetworkCommand>,
 
     pub receive_connections: Receiver<ConnectionRequest>,
+
+    pub lifetime_connections: usize,
+
+    pub users: HashMap<UserId, NetworkUser>
 }
 
-impl ServerListener {
-    pub fn new(ip: IpAddr, port: usize) -> Result<ServerListener, ServerError> {
+impl ServerSocket {
+    pub fn connect(ip: IpAddr, port: usize) -> Result<ServerSocket, NetworkingError> {
+
         info!("Listening for events on {}:{}", ip, port);
 
         // Start tokio thread
@@ -28,12 +43,11 @@ impl ServerListener {
             .build()
             .expect("Could not build tokio runtime");
 
-        let (_send_events, receive_events) = unbounded();
         let (send_commands, receive_commands) = unbounded();
 
         let (send_connections, receive_connections) = unbounded();
 
-        // TODO: Move this to when we actually want to connect to a server
+        // Spawn thread that listens for new clients
         runtime.spawn(async move {
             let listener = match TcpListener::bind(format!("{}:{}", ip, port)).await {
                 Ok(val) => val,
@@ -72,13 +86,15 @@ impl ServerListener {
             }
         });
 
-        Ok(ServerListener {
-            receive_events,
+        Ok(ServerSocket {
+            listen_address: ip,
+            port,
             runtime,
             send_commands,
             receive_connections,
+            connected: false,
+            lifetime_connections: 0,
+            users: Default::default()
         })
     }
 }
-
-pub struct ConnectionRequest(pub TcpStream);

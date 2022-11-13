@@ -8,7 +8,6 @@ use crate::services::networking::location_sync::{
 use crate::services::networking::messages::messages_update;
 use crate::services::networking::transport::connection::{connection_upkeep, send_packets};
 use crate::services::networking::transport::listener::ClientListener;
-use crate::services::networking::transport::packet::{ReceivePacket, SendPacket};
 use bevy::app::{AppExit, CoreStage};
 use bevy::ecs::schedule::StageLabel;
 use bevy::prelude::*;
@@ -22,6 +21,7 @@ use rc_protocol::protocol::Protocol;
 use rc_protocol::stream::GameStream;
 use std::collections::HashMap;
 use std::net::{IpAddr, TcpStream};
+use rc_protocol::types::{ReceivePacket, SendPacket};
 
 mod chunk;
 mod events;

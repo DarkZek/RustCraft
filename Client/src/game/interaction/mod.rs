@@ -1,14 +1,14 @@
 use crate::helpers::{from_bevy_vec3, global_to_local_position};
 use crate::services::asset::AssetService;
 use crate::services::chunk::ChunkService;
-use crate::services::networking::transport::packet::SendPacket;
 use crate::services::physics::raycasts::do_raycast;
 use bevy::prelude::*;
 
 use crate::services::chunk::systems::mesh_builder::RerenderChunkFlag;
-use rc_protocol::constants::CHUNK_SIZE;
+use rc_protocol::constants::{CHUNK_SIZE, UserId};
 use rc_protocol::protocol::clientbound::block_update::BlockUpdate;
 use rc_protocol::protocol::Protocol;
+use rc_protocol::types::SendPacket;
 
 pub fn mouse_interaction(
     mouse_button_input: Res<Input<MouseButton>>,
@@ -71,7 +71,7 @@ pub fn mouse_interaction(
             ray.block.x,
             ray.block.y,
             ray.block.z,
-        ))))
+        )), UserId(0)))
     } else {
         let pos = ray.block + ray.normal;
 
@@ -106,6 +106,6 @@ pub fn mouse_interaction(
         // Send network update
         networking.send(SendPacket(Protocol::BlockUpdate(BlockUpdate::new(
             1, pos.x, pos.y, pos.z,
-        ))))
+        )), UserId(0)))
     }
 }

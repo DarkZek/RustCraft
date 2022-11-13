@@ -8,12 +8,12 @@ use std::sync::atomic::AtomicU64;
 
 pub const ENTITY_ID_COUNT: AtomicU64 = AtomicU64::new(0);
 
-pub struct World {
+pub struct WorldData {
     pub chunks: HashMap<Vector3<i32>, ChunkData>,
     pub entities: HashMap<EntityId, Entity>,
 }
 
-impl World {
+impl WorldData {
     pub fn new() -> Self {
         let mut chunks = HashMap::new();
 
@@ -24,7 +24,7 @@ impl World {
             }
         }
 
-        World {
+        WorldData {
             chunks,
             entities: Default::default(),
         }

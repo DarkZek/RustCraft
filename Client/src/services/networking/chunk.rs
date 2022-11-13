@@ -2,13 +2,13 @@ use crate::helpers::global_to_local_position;
 
 use crate::services::asset::AssetService;
 use crate::services::chunk::ChunkService;
-use crate::services::networking::transport::packet::ReceivePacket;
 use bevy::prelude::*;
 
 use crate::services::chunk::systems::mesh_builder::RerenderChunkFlag;
 use nalgebra::Vector3;
 use rc_protocol::constants::CHUNK_SIZE;
 use rc_protocol::protocol::Protocol;
+use rc_protocol::types::ReceivePacket;
 
 pub fn network_chunk_sync(
     mut event_reader: EventReader<ReceivePacket>,

@@ -1,16 +1,17 @@
 use crate::events::disconnect::DisconnectionEvent;
-use crate::{SendPacket, TransportSystem, World};
+use crate::{TransportSystem, WorldData};
 use bevy_ecs::event::EventReader;
 use bevy_ecs::prelude::{Commands, EventWriter, Res};
 use bevy_ecs::system::ResMut;
 use rc_client::rc_protocol::protocol::clientbound::despawn_entity::DespawnEntity;
 
 use rc_client::rc_protocol::protocol::Protocol;
+use rc_client::rc_protocol::types::SendPacket;
 
 pub fn disconnection_event(
     mut event_reader: EventReader<DisconnectionEvent>,
     mut commands: Commands,
-    mut world: ResMut<World>,
+    mut world: ResMut<WorldData>,
     mut writer: EventWriter<SendPacket>,
     clients: Res<TransportSystem>,
 ) {

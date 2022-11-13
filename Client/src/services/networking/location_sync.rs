@@ -1,9 +1,10 @@
-use crate::services::networking::transport::packet::SendPacket;
 use bevy::prelude::*;
+use rc_protocol::constants::UserId;
 
 use rc_protocol::protocol::serverbound::player_move::PlayerMove;
 use rc_protocol::protocol::serverbound::player_rotate::PlayerRotate;
 use rc_protocol::protocol::Protocol;
+use rc_protocol::types::SendPacket;
 
 const MIN_LOCATION_CHANGE_SYNC: f32 = 0.1;
 
@@ -29,7 +30,7 @@ pub fn network_location_sync(
             transform.translation.x,
             transform.translation.y,
             transform.translation.z,
-        ))));
+        )), UserId(0)));
         translation.0 = transform.translation;
     }
 
@@ -44,7 +45,7 @@ pub fn network_location_sync(
             y: transform.rotation.y,
             z: transform.rotation.z,
             w: transform.rotation.w,
-        })));
+        }), UserId(0)));
         rotation.0 = transform.rotation;
     }
 }

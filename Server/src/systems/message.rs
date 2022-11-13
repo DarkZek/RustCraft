@@ -1,21 +1,23 @@
 use crate::game::chunk::ChunkData;
 use crate::game::transform::Transform;
 use crate::helpers::global_to_local_position;
-use crate::{info, ReceivePacket, SendPacket, TransportSystem, World};
 use bevy_ecs::event::{EventReader, EventWriter};
-use bevy_ecs::prelude::{Query, Res};
+use bevy_ecs::prelude::*;
 use bevy_ecs::system::ResMut;
+use bevy_log::info;
 use nalgebra::{Quaternion, Vector3};
 use rc_client::rc_protocol::constants::CHUNK_SIZE;
 use rc_client::rc_protocol::protocol::clientbound::block_update::BlockUpdate;
 use rc_client::rc_protocol::protocol::clientbound::entity_moved::EntityMoved;
 use rc_client::rc_protocol::protocol::clientbound::entity_rotated::EntityRotated;
 use rc_client::rc_protocol::protocol::Protocol;
+use rc_client::rc_protocol::types::{ReceivePacket, SendPacket};
+use crate::{TransportSystem, WorldData};
 
 pub fn receive_message_event(
     mut event_reader: EventReader<ReceivePacket>,
     mut event_writer: EventWriter<SendPacket>,
-    mut global: ResMut<World>,
+    mut global: ResMut<WorldData>,
     system: Res<TransportSystem>,
     mut transforms: Query<&mut Transform>,
 ) {
