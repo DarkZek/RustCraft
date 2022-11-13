@@ -34,6 +34,7 @@ use bevy::prelude::*;
 use bevy::render::texture::ImageSettings;
 use bevy::window::WindowResizeConstraints;
 use bevy_inspector_egui::WorldInspectorPlugin;
+use crate::game::inventory::InventoryPlugin;
 
 #[rustfmt::skip]
 fn main() {
@@ -83,6 +84,8 @@ fn main() {
         .add_plugin(PhysicsPlugin)
         
         .add_plugin(UIPlugin)
+
+        .add_plugin(InventoryPlugin)
         
         // Asset Loaders
         .add_asset::<ResourcePacks>()

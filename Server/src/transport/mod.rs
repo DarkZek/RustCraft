@@ -5,9 +5,7 @@ use crate::events::authorization::AuthorizationEvent;
 use crate::events::connection::ConnectionEvent;
 use crate::events::disconnect::DisconnectionEvent;
 use crate::systems::authorization::GameUser;
-use crate::transport::connection::{
-    accept_connections, check_connections, prune_users
-};
+use crate::transport::connection::{accept_connections, check_connections, prune_users};
 use bevy_app::{App, Plugin};
 
 use rc_client::rc_protocol::constants::UserId;
@@ -15,8 +13,8 @@ use std::collections::HashMap;
 
 use std::net::IpAddr;
 
-use std::str::FromStr;
 use rc_client::rc_networking::server::ServerSocket;
+use std::str::FromStr;
 
 pub struct TransportPlugin;
 
@@ -36,7 +34,7 @@ impl Default for TransportPlugin {
 impl Plugin for TransportPlugin {
     fn build(&self, app: &mut App) {
         let ip = IpAddr::from_str("0.0.0.0").unwrap();
-        let port = 25567;
+        let port = 25568;
 
         let stream = match ServerSocket::listen(ip, port) {
             Ok(val) => val,
