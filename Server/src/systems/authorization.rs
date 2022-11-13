@@ -9,7 +9,7 @@ use bevy_ecs::system::Query;
 use bevy_log::info;
 
 use rc_client::rc_protocol::constants::{EntityId, UserId};
-use rc_client::rc_protocol::protocol::clientbound::chunk_update::PartialChunkUpdate;
+use rc_client::rc_protocol::protocol::clientbound::chunk_update::FullChunkUpdate;
 use rc_client::rc_protocol::protocol::clientbound::ping::Ping;
 use rc_client::rc_protocol::protocol::clientbound::spawn_entity::SpawnEntity;
 use rc_client::rc_protocol::protocol::serverbound::pong::Pong;
@@ -70,23 +70,23 @@ pub fn authorization_event(
         // Store player entity
         transport.clients.get_mut(&client.client).unwrap().entity_id = entity_id;
 
+        let packet = Protocol::SpawnEntity(SpawnEntity {
+            id: entity_id,
+            loc: [
+                transform.position.x,
+                transform.position.y,
+                transform.position.z,
+            ],
+            rot: [0.0; 4],
+        });
+
         // Spawn new player for other players
         for (id, _) in &transport.clients {
             // Don't spawn new client for itself
             if *id == client.client {
                 continue;
             }
-
-            let packet = Protocol::SpawnEntity(SpawnEntity {
-                id: entity_id,
-                loc: [
-                    transform.position.x,
-                    transform.position.y,
-                    transform.position.z,
-                ],
-                rot: [0.0; 4],
-            });
-            send_packet.send(SendPacket(packet, *id));
+            send_packet.send(SendPacket(packet.clone(), *id));
         }
 
         let entity = commands.spawn().insert(transform).id();
@@ -94,7 +94,7 @@ pub fn authorization_event(
 
         // Send world to client
         for (loc, chunk) in global.chunks.iter() {
-            let chunk = Protocol::PartialChunkUpdate(PartialChunkUpdate::new(
+            let chunk = Protocol::PartialChunkUpdate(FullChunkUpdate::new(
                 chunk.world,
                 loc.x,
                 loc.y,

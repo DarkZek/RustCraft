@@ -11,16 +11,16 @@ use serde::{Serialize, Deserialize};
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Copy, Clone)]
 #[repr(C)]
-pub struct PartialChunkUpdate {
+pub struct FullChunkUpdate {
     pub data: RawChunkData,
     pub x: i32,
     pub y: i32,
     pub z: i32,
 }
 
-impl PartialChunkUpdate {
+impl FullChunkUpdate {
     pub fn new(data: RawChunkData, x: i32, y: i32, z: i32) -> Self {
-        PartialChunkUpdate {
+        FullChunkUpdate {
             data,
             x,
             y,

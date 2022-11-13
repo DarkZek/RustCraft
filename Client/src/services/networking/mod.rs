@@ -3,14 +3,13 @@ use crate::services::networking::events::authorization::AuthorizationEvent;
 use crate::services::networking::events::connection::ConnectionEvent;
 use crate::services::networking::events::disconnect::DisconnectionEvent;
 use crate::services::networking::location_sync::{
-    network_location_sync, LastNetworkRotationSync, LastNetworkTranslationSync,
+    LastNetworkRotationSync, LastNetworkTranslationSync, network_location_sync,
 };
 use crate::services::networking::messages::messages_update;
-use crate::services::networking::transport::connection::{connection_upkeep, send_packets};
 use bevy::app::{AppExit, CoreStage};
 
 use bevy::prelude::*;
-use bevy::prelude::{info, Entity, ResMut, SystemSet, Vec3};
+use bevy::prelude::{Entity, info, ResMut, SystemSet, Vec3};
 
 use rc_protocol::constants::{EntityId, UserId};
 
@@ -23,12 +22,13 @@ use std::net::{IpAddr, TcpStream};
 use std::str::FromStr;
 use rc_networking::client::ClientSocket;
 use rc_protocol::types::{ReceivePacket, SendPacket};
+use crate::services::networking::connection::{connection_upkeep, send_packets};
 
 mod chunk;
 mod events;
 mod location_sync;
 mod messages;
-pub mod transport;
+pub mod connection;
 
 pub struct NetworkingPlugin;
 
