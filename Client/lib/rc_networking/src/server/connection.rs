@@ -3,10 +3,10 @@ use bevy_log::{debug, error, info, warn};
 use crossbeam::channel::{Receiver, Sender, unbounded};
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpStream;
-use rc_protocol::constants::{EntityId, UserId};
-use rc_protocol::protocol::clientbound::ping::Ping;
+use rc_protocol::constants::{UserId};
+
 use rc_protocol::protocol::Protocol;
-use rc_protocol::protocol::serverbound::pong::Pong;
+
 use rc_protocol::types::{ReceivePacket, SendPacket};
 use crate::server::ServerSocket;
 use crate::server::user::NetworkUser;

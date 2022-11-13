@@ -1,4 +1,4 @@
-use crate::game::viewable_direction::{ViewableDirection, ViewableDirectionBitMap};
+use crate::game::viewable_direction::{ViewableDirectionBitMap};
 use crate::services::asset::atlas::index::TextureAtlasIndex;
 use nalgebra::{Vector2, Vector3};
 

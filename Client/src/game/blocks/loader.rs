@@ -1,10 +1,10 @@
-use crate::error::ClientError;
+
 use crate::game::blocks::loading::BlockStatesFile;
 use crate::game::blocks::states::BlockStates;
 use crate::game::blocks::Block;
 use crate::game::mesh::face::Face;
 use crate::game::viewable_direction::ViewableDirectionBitMap;
-use crate::services::asset::atlas::index::TextureAtlasIndex;
+
 use crate::services::asset::AssetService;
 use crate::services::chunk::systems::mesh_builder::RerenderChunkFlag;
 use crate::services::chunk::ChunkService;
@@ -44,11 +44,11 @@ impl AssetLoader for BlockStateAssetLoader {
 /// Copies the blockstate asset to the Resource
 pub fn track_blockstate_changes(
     mut events: EventReader<AssetEvent<BlockStatesFile>>,
-    mut assets: ResMut<Assets<BlockStatesFile>>,
+    assets: ResMut<Assets<BlockStatesFile>>,
     mut states: ResMut<BlockStates>,
     atlas: Res<AssetService>,
     mut app_state: ResMut<State<AppState>>,
-    mut chunks: ResMut<ChunkService>,
+    chunks: ResMut<ChunkService>,
     mut commands: Commands,
 ) {
     for event in events.iter() {

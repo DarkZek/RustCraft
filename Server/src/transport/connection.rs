@@ -3,15 +3,15 @@ use crate::events::disconnect::DisconnectionEvent;
 use crate::systems::authorization::GameUser;
 use crate::TransportSystem;
 use bevy_ecs::event::{EventReader, EventWriter};
-use bevy_ecs::system::{Res, ResMut};
-use bevy_log::{debug, error, info, warn};
-use rc_client::rc_protocol::constants::{EntityId, UserId};
+use bevy_ecs::system::{ResMut};
+use bevy_log::{debug};
+use rc_client::rc_protocol::constants::{EntityId};
 
 use rc_client::rc_protocol::protocol::clientbound::ping::Ping;
 use rc_client::rc_protocol::protocol::serverbound::pong::Pong;
-use rc_client::rc_protocol::protocol::Protocol;
 
-use std::time::Duration;
+
+
 use rc_client::rc_networking::server::ServerSocket;
 use rc_client::rc_protocol::types::{ReceivePacket, SendPacket};
 
@@ -59,8 +59,8 @@ pub fn accept_connections(
 }
 
 pub fn prune_users(
-    mut system: ResMut<TransportSystem>,
-    mut event: EventWriter<DisconnectionEvent>,
+    _system: ResMut<TransportSystem>,
+    _event: EventWriter<DisconnectionEvent>,
 ) {
     // let mut delete_users = Vec::new();
     // for (uid, user) in &system.clients {
@@ -88,9 +88,9 @@ pub fn prune_users(
 
 /// Sends ping requests to check if the server is still connected
 pub fn check_connections(
-    mut system: ResMut<TransportSystem>,
-    mut pong_responses: EventReader<ReceivePacket>,
-    mut ping_requests: EventWriter<SendPacket>,
+    _system: ResMut<TransportSystem>,
+    _pong_responses: EventReader<ReceivePacket>,
+    _ping_requests: EventWriter<SendPacket>,
 ) {
     // for (uid, mut stream) in &mut system.clients {
     //     // If ping hasn't been sent in the last PING_TIME_SECONDS, then send it

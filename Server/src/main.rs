@@ -7,7 +7,7 @@ mod resources;
 mod systems;
 pub mod transport;
 
-use crate::error::ServerError;
+
 use crate::resources::WorldData;
 use crate::systems::tick::tick;
 use crate::transport::{TransportPlugin, TransportSystem};

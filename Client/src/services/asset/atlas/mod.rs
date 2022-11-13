@@ -5,7 +5,7 @@ use crate::services::asset::AssetService;
 use crate::services::chunk::data::ChunkData;
 use bevy::prelude::*;
 use bevy::reflect::TypeUuid;
-use bevy_inspector_egui::egui::TextBuffer;
+
 use fnv::FnvBuildHasher;
 use image::{DynamicImage, GenericImage};
 use std::collections::HashMap;

@@ -16,8 +16,8 @@ use crate::services::asset::atlas::{
 use crate::services::asset::create_asset_service;
 use crate::services::asset::material::chunk::ChunkMaterial;
 use crate::services::camera::CameraPlugin;
-use crate::services::chunk::data::{ChunkData, RawChunkData};
-use crate::services::chunk::systems::mesh_builder::{mesh_builder, RerenderChunkFlag};
+
+use crate::services::chunk::systems::mesh_builder::{mesh_builder};
 use crate::services::chunk::ChunkPlugin;
 use crate::services::input::InputPlugin;
 use crate::services::networking::NetworkingPlugin;
@@ -30,7 +30,7 @@ use crate::game::blocks::states::BlockStates;
 use crate::state::AppState;
 use bevy::log::{Level, LogSettings};
 use bevy::prelude::*;
-use bevy::render::primitives::Aabb;
+
 use bevy::render::texture::ImageSettings;
 use bevy::window::WindowResizeConstraints;
 use bevy_inspector_egui::WorldInspectorPlugin;

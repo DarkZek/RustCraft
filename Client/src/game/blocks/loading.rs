@@ -1,4 +1,4 @@
-use crate::game::viewable_direction::ViewableDirectionBitMap;
+
 use bevy::reflect::TypeUuid;
 use nalgebra::{Vector2, Vector3};
 use serde::{Deserialize, Serialize};

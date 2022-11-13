@@ -1,7 +1,7 @@
 use crate::error::ClientError;
-use bevy::log::info;
+
 use rc_protocol::stream::GameStream;
-use std::net::{IpAddr, TcpStream};
+use std::net::{TcpStream};
 
 pub struct ClientListener {
     pub stream: Option<GameStream>,
