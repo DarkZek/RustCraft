@@ -92,9 +92,15 @@ impl ServerSocket {
             runtime,
             send_commands,
             receive_connections,
-            connected: false,
+            connected: true,
             lifetime_connections: 0,
             users: Default::default()
         })
+    }
+
+    pub fn shutdown(self) {
+        // TODO: More gracefully
+        self.runtime.shutdown_background();
+
     }
 }

@@ -11,6 +11,7 @@ use rc_protocol::types::{ReceivePacket, SendPacket};
 use crate::server::ServerSocket;
 use crate::server::user::NetworkUser;
 
+#[derive(Debug)]
 pub struct ConnectionEvent {
     pub user: UserId
 }
@@ -24,6 +25,7 @@ impl ServerSocket {
 
         // Loop over all new connections
         while let Ok(conn) = self.receive_connections.recv_timeout(Duration::ZERO) {
+
             self.lifetime_connections += 1;
 
             // Generate new userid
@@ -38,7 +40,6 @@ impl ServerSocket {
             conn.0.set_nodelay(true).unwrap();
 
             let (mut read_tcp, mut write_tcp) = conn.0.into_split();
-
 
             let (inner_write_packets, read_packets) = unbounded();
 

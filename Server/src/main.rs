@@ -1,3 +1,6 @@
+#![allow(unused_variables)]
+#![allow(dead_code)]
+
 pub mod console;
 pub mod error;
 pub mod events;

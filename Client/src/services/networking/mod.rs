@@ -59,7 +59,7 @@ pub fn connect_to_server(mut system: ResMut<ClientListener>) {
 
     let stream = TcpStream::connect(format!("{}:{}", ip, port)).unwrap();
 
-    stream.set_nonblocking(true);
+    stream.set_nonblocking(true).unwrap();
 
     info!("Connecting to server on {}:{}", ip, port);
 
