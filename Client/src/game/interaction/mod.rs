@@ -4,8 +4,9 @@ use crate::services::chunk::ChunkService;
 use crate::services::physics::raycasts::do_raycast;
 use bevy::prelude::*;
 
+use crate::game::inventory::Inventory;
 use crate::services::chunk::systems::mesh_builder::RerenderChunkFlag;
-use rc_protocol::constants::{CHUNK_SIZE, UserId};
+use rc_protocol::constants::{UserId, CHUNK_SIZE};
 use rc_protocol::protocol::clientbound::block_update::BlockUpdate;
 use rc_protocol::protocol::Protocol;
 use rc_protocol::types::SendPacket;
@@ -18,6 +19,7 @@ pub fn mouse_interaction(
     mut meshes: ResMut<Assets<Mesh>>,
     mut assets: ResMut<AssetService>,
     mut networking: EventWriter<SendPacket>,
+    inventory: Res<Inventory>,
 ) {
     if !mouse_button_input.just_pressed(MouseButton::Left)
         && !mouse_button_input.just_pressed(MouseButton::Right)
@@ -66,46 +68,47 @@ pub fn mouse_interaction(
         }
 
         // Send network update
-        networking.send(SendPacket(Protocol::BlockUpdate(BlockUpdate::new(
-            0,
-            ray.block.x,
-            ray.block.y,
-            ray.block.z,
-        )), UserId(0)))
+        networking.send(SendPacket(
+            Protocol::BlockUpdate(BlockUpdate::new(0, ray.block.x, ray.block.y, ray.block.z)),
+            UserId(0),
+        ))
     } else {
-        let pos = ray.block + ray.normal;
+        if let Some(block_type) = inventory.selected_block_id() {
+            let pos = ray.block + ray.normal;
 
-        // Locate chunk
-        let (chunk_loc, inner_loc) = global_to_local_position(pos);
+            // Locate chunk
+            let (chunk_loc, inner_loc) = global_to_local_position(pos);
 
-        // Try find chunk
-        if let Some(mut chunk) = chunks.chunks.get_mut(&chunk_loc) {
-            // Found chunk! Update block
-            chunk.world[inner_loc.x][inner_loc.y][inner_loc.z] = 1;
+            // Try find chunk
+            if let Some(mut chunk) = chunks.chunks.get_mut(&chunk_loc) {
+                // Found chunk! Update block
+                chunk.world[inner_loc.x][inner_loc.y][inner_loc.z] = block_type;
 
-            // Rerender
-            commands
-                .entity(chunk.entity)
-                .insert(RerenderChunkFlag { chunk: chunk_loc });
+                // Rerender
+                commands
+                    .entity(chunk.entity)
+                    .insert(RerenderChunkFlag { chunk: chunk_loc });
 
-            info!(
-                "Updated [{}, {}, {}]",
-                ray.block.x, ray.block.y, ray.block.z
-            );
-        } else {
-            // Create chunk data
-            let mut chunk = [[[0; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
+                info!(
+                    "Updated [{}, {}, {}]",
+                    ray.block.x, ray.block.y, ray.block.z
+                );
+            } else {
+                // Create chunk data
+                let mut chunk = [[[0; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
 
-            // Set block
-            chunk[inner_loc.x][inner_loc.y][inner_loc.z] = 1;
+                // Set block
+                chunk[inner_loc.x][inner_loc.y][inner_loc.z] = block_type;
 
-            // Create chunk
-            chunks.create_chunk(chunk_loc, chunk, &mut commands, &mut assets, &mut meshes);
+                // Create chunk
+                chunks.create_chunk(chunk_loc, chunk, &mut commands, &mut assets, &mut meshes);
+            }
+
+            // Send network update
+            networking.send(SendPacket(
+                Protocol::BlockUpdate(BlockUpdate::new(block_type, pos.x, pos.y, pos.z)),
+                UserId(0),
+            ))
         }
-
-        // Send network update
-        networking.send(SendPacket(Protocol::BlockUpdate(BlockUpdate::new(
-            1, pos.x, pos.y, pos.z,
-        )), UserId(0)))
     }
 }

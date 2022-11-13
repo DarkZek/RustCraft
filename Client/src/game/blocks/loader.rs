@@ -1,4 +1,3 @@
-
 use crate::game::blocks::loading::BlockStatesFile;
 use crate::game::blocks::states::BlockStates;
 use crate::game::blocks::Block;
@@ -84,7 +83,6 @@ pub fn track_blockstate_changes(
 
         for block in &asset.states {
             let mut new_block = Block {
-                name: block.name.clone(),
                 identifier: block.identifier.clone(),
                 translucent: block.translucent,
                 full: block.full,

@@ -17,7 +17,7 @@ use crate::services::asset::create_asset_service;
 use crate::services::asset::material::chunk::ChunkMaterial;
 use crate::services::camera::CameraPlugin;
 
-use crate::services::chunk::systems::mesh_builder::{mesh_builder};
+use crate::services::chunk::systems::mesh_builder::mesh_builder;
 use crate::services::chunk::ChunkPlugin;
 use crate::services::input::InputPlugin;
 use crate::services::networking::NetworkingPlugin;
@@ -31,10 +31,11 @@ use crate::state::AppState;
 use bevy::log::{Level, LogSettings};
 use bevy::prelude::*;
 
+use crate::game::inventory::InventoryPlugin;
+use crate::game::item::states::ItemStates;
 use bevy::render::texture::ImageSettings;
 use bevy::window::WindowResizeConstraints;
 use bevy_inspector_egui::WorldInspectorPlugin;
-use crate::game::inventory::InventoryPlugin;
 
 #[rustfmt::skip]
 fn main() {
@@ -86,6 +87,8 @@ fn main() {
         .add_plugin(UIPlugin)
 
         .add_plugin(InventoryPlugin)
+        
+        .insert_resource(ItemStates::new())
         
         // Asset Loaders
         .add_asset::<ResourcePacks>()

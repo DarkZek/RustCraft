@@ -2,7 +2,6 @@ pub mod loader;
 pub mod loading;
 pub mod states;
 
-
 use crate::game::blocks::states::BlockStates;
 use crate::game::mesh::draw_kit::DrawKit;
 use crate::game::mesh::face::Face;
@@ -10,7 +9,7 @@ use crate::game::viewable_direction::{ViewableDirection, ViewableDirectionBitMap
 use crate::services::asset::atlas::index::TextureAtlasIndex;
 
 use bevy::prelude::*;
-use nalgebra::{Vector3};
+use nalgebra::Vector3;
 use std::collections::HashMap;
 
 pub fn create_block_states(server: Res<AssetServer>, mut states: ResMut<BlockStates>) {
@@ -19,7 +18,6 @@ pub fn create_block_states(server: Res<AssetServer>, mut states: ResMut<BlockSta
 
 #[derive(Debug, Clone)]
 pub struct Block {
-    pub name: String,
     pub identifier: String,
     pub translucent: bool,
     pub full: bool,

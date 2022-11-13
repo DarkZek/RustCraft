@@ -1,7 +1,6 @@
 {
     "states": [
         {
-          "name": "Air",
           "identifier": "mcv3::Air",
           "translucent": true,
           "full": false,
@@ -9,7 +8,6 @@
           "faces": []
         },
         {
-          "name": "Dirt Block",
           "identifier": "mcv3::Dirt",
           "translucent": false,
           "full": true,
@@ -18,7 +16,7 @@
             {
               "top_left": [0.0, 1.0, 0.0],
               "size": [1.0, 1.0],
-              "texture": "game/zeks_nudes",
+              "texture": "game/dirt",
               "direction": 1,
               "edge": true
             },
@@ -60,7 +58,6 @@
           ]
         },
         {
-          "name": "Grass Block",
           "identifier": "mcv3::Grass",
           "translucent": false,
           "full": true,
@@ -111,7 +108,6 @@
           ]
         },
         {
-          "name": "Long Grass",
           "identifier": "mcv3::LongGrass",
           "translucent": true,
           "full": false,

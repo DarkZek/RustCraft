@@ -1,18 +1,18 @@
 mod poll;
 mod send;
 
-use std::net::IpAddr;
+use crate::command::NetworkCommand;
+use crate::error::NetworkingError;
 use bevy_log::{debug, error, info, warn};
-use crossbeam::channel::{Receiver, Sender, unbounded};
+use crossbeam::channel::{unbounded, Receiver, Sender};
+use rc_protocol::constants::UserId;
+use rc_protocol::protocol::Protocol;
+use rc_protocol::types::{ReceivePacket, SendPacket};
+use std::net::IpAddr;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpStream;
 use tokio::runtime::Runtime;
 use tokio::task::JoinHandle;
-use rc_protocol::constants::UserId;
-use rc_protocol::protocol::Protocol;
-use rc_protocol::types::{ReceivePacket, SendPacket};
-use crate::command::NetworkCommand;
-use crate::error::NetworkingError;
 
 pub struct ClientSocket {
     listen_address: IpAddr,
@@ -26,12 +26,11 @@ pub struct ClientSocket {
     write_packets: Sender<SendPacket>,
 
     read_packet_handle: JoinHandle<()>,
-    write_packet_handle: JoinHandle<()>
+    write_packet_handle: JoinHandle<()>,
 }
 
 impl ClientSocket {
     pub fn connect(ip: IpAddr, port: usize) -> Result<ClientSocket, NetworkingError> {
-
         info!("Connecting to server on {}:{}", ip, port);
 
         // Start tokio thread
@@ -44,19 +43,20 @@ impl ClientSocket {
         let (send_commands, receive_commands) = unbounded();
 
         let (inner_write_packets, read_packets) = unbounded();
-        let (write_packets, inner_read_packets): (Sender<SendPacket>, Receiver<SendPacket>) = unbounded();
+        let (write_packets, inner_read_packets): (Sender<SendPacket>, Receiver<SendPacket>) =
+            unbounded();
 
         let stream = match runtime.block_on(TcpStream::connect(format!("{}:{}", ip, port))) {
             Ok(val) => val,
             Err(e) => {
                 error!("Failed to bind to port {}:{} {:?}", ip, port, e);
-                return Err(NetworkingError::ConnectionRefused)
+                return Err(NetworkingError::ConnectionRefused);
             }
         };
 
         let (mut read_tcp, mut write_tcp) = stream.into_split();
 
-        // Spawn thread that listens for new clients
+        // Spawn thread that reads packets from the server
         let read_packet_handle = runtime.spawn(async move {
             let mut len = [0; 4];
             while let Ok(size) = read_tcp.read_exact(&mut len).await {
@@ -75,14 +75,15 @@ impl ClientSocket {
                 let packet = bincode::deserialize::<Protocol>(&mut data).unwrap();
                 debug!("-> {:?}", packet);
 
-                inner_write_packets.send(ReceivePacket(packet, UserId(0))).unwrap();
+                inner_write_packets
+                    .send(ReceivePacket(packet, UserId(0)))
+                    .unwrap();
             }
         });
 
-        // Spawn thread that listens for new clients
+        // Spawn thread that writes packets to the server
         let write_packet_handle = runtime.spawn(async move {
             while let Ok(packet) = inner_read_packets.recv() {
-                debug!("<- {:?}", packet.1);
                 // Write
                 let mut packet = match bincode::serialize(&packet.0) {
                     Ok(val) => val,
@@ -116,7 +117,7 @@ impl ClientSocket {
             read_packets,
             write_packets,
             read_packet_handle,
-            write_packet_handle
+            write_packet_handle,
         })
     }
 

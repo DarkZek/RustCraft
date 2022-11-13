@@ -1,21 +1,19 @@
+pub mod states;
+
 #[derive(Debug)]
 pub struct ItemStack {
-
     pub item: ItemType,
 
-    pub amount: u32
+    pub amount: u32,
 }
 
 impl ItemStack {
     pub fn new(item: ItemType, amount: u32) -> ItemStack {
-        ItemStack {
-            item,
-            amount
-        }
+        ItemStack { item, amount }
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ItemType {
     pub name: String,
     pub icon: String,

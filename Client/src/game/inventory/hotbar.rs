@@ -1,12 +1,25 @@
 use crate::game::inventory::Inventory;
+use crate::game::item::states::ItemStates;
+use crate::game::item::ItemStack;
 use bevy::prelude::*;
 
 pub fn setup_hotbar_ui(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut inventory: ResMut<Inventory>,
+    itemstates: Res<ItemStates>,
 ) {
-    let mut img = None;
+    let mut hotbar_selected_image = None;
+    let mut hotbar_icons = [None, None, None, None, None, None, None, None, None, None];
+
+    inventory.hotbar[0] = Some(ItemStack::new(
+        (*itemstates.states.get(0).unwrap()).clone(),
+        1,
+    ));
+    inventory.hotbar[1] = Some(ItemStack::new(
+        (*itemstates.states.get(1).unwrap()).clone(),
+        1,
+    ));
 
     commands
         .spawn_bundle(NodeBundle {
@@ -34,13 +47,13 @@ pub fn setup_hotbar_ui(
                     ..default()
                 })
                 .with_children(|parent| {
-                    img = Some(
+                    hotbar_selected_image = Some(
                         parent
                             .spawn_bundle(ImageBundle {
                                 style: Style {
                                     size: Size::new(Val::Px(80.0), Val::Px(80.0)),
                                     align_self: AlignSelf::FlexStart,
-                                    position_type: PositionType::Relative,
+                                    position_type: PositionType::Absolute,
                                     ..default()
                                 },
                                 image: asset_server.load("ui/hotbar_selected.png").into(),
@@ -48,10 +61,52 @@ pub fn setup_hotbar_ui(
                             })
                             .id(),
                     );
+
+                    // Spawn icons
+                    for i in 0..10 {
+                        hotbar_icons[i] = Some(
+                            parent
+                                .spawn_bundle(ImageBundle {
+                                    style: Style {
+                                        size: Size::new(Val::Px(80.0), Val::Px(80.0)),
+                                        align_self: AlignSelf::FlexStart,
+                                        position_type: PositionType::Absolute,
+                                        position: UiRect::new(
+                                            Val::Percent((100.0 / 10.0) * i as f32),
+                                            Val::Auto,
+                                            Val::Auto,
+                                            Val::Auto,
+                                        ),
+                                        display: if inventory.hotbar[i as usize].is_some() {
+                                            Display::Flex
+                                        } else {
+                                            Display::None
+                                        },
+                                        ..default()
+                                    },
+                                    image: if inventory.hotbar[i as usize].is_some() {
+                                        asset_server
+                                            .load(&format!(
+                                                "ui/icons/{}.png",
+                                                inventory.hotbar[i as usize]
+                                                    .as_ref()
+                                                    .unwrap()
+                                                    .item
+                                                    .icon
+                                            ))
+                                            .into()
+                                    } else {
+                                        UiImage::default()
+                                    },
+                                    ..default()
+                                })
+                                .id(),
+                        );
+                    }
                 });
         });
 
-    inventory.hotbar_selected_image = img;
+    inventory.hotbar_selected_image = hotbar_selected_image;
 }
 
 pub fn update_hotbar(

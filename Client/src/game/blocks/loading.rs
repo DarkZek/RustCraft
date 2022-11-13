@@ -1,4 +1,3 @@
-
 use bevy::reflect::TypeUuid;
 use nalgebra::{Vector2, Vector3};
 use serde::{Deserialize, Serialize};
@@ -11,7 +10,6 @@ pub struct BlockStatesFile {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct DeserialisedBlock {
-    pub name: String,
     pub identifier: String,
     pub translucent: bool,
     pub full: bool,

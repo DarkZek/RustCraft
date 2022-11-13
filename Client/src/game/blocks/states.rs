@@ -3,8 +3,6 @@ use crate::game::blocks::Block;
 use bevy::prelude::Handle;
 use bevy::reflect::TypeUuid;
 
-
-
 #[derive(Debug, Clone, TypeUuid)]
 #[uuid = "97103fab-1e50-36b7-0c33-0938a62b0809"]
 pub struct BlockStates {

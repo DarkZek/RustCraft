@@ -1,7 +1,7 @@
 use crate::game::inventory::hotbar::{setup_hotbar_ui, update_hotbar};
 use crate::game::item::ItemStack;
 use bevy::app::{App, Plugin};
-use bevy::prelude::Entity;
+use bevy::prelude::{Entity, In};
 
 pub mod hotbar;
 
@@ -19,6 +19,16 @@ pub struct Inventory {
     pub hotbar: [Option<ItemStack>; 10],
     pub hotbar_slot: u8,
     pub hotbar_selected_image: Option<Entity>,
+}
+
+impl Inventory {
+    pub fn selected_block_id(&self) -> Option<u32> {
+        if let Some(val) = &self.hotbar[self.hotbar_slot as usize] {
+            val.item.block_state
+        } else {
+            None
+        }
+    }
 }
 
 impl Default for Inventory {
