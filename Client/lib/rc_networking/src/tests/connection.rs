@@ -6,6 +6,7 @@ use std::time::Duration;
 use rc_protocol::protocol::clientbound::ping::Ping;
 use rc_protocol::protocol::Protocol;
 use rc_protocol::types::SendPacket;
+use crate::client::ClientSocket;
 use crate::server::ServerSocket;
 
 #[test]
@@ -92,6 +93,59 @@ fn multiple_connections() -> Result<(), String> {
     assert_eq!( res.connections.len(), 6);
 
     socket.shutdown();
+
+    Ok(())
+}
+
+#[test]
+fn client_connect() -> Result<(), String> {
+    let ip = IpAddr::from_str("127.0.0.1").unwrap();
+
+    let mut socket = ServerSocket::listen(ip, 27004).unwrap();
+
+    let mut connection = ClientSocket::connect(ip, 27004).unwrap();
+
+    thread::sleep(Duration::from_millis(15));
+
+    let res = socket.poll();
+
+    assert_eq!(res.connections.len(), 1);
+
+    socket.shutdown();
+    connection.shutdown();
+
+    Ok(())
+}
+
+#[test]
+fn receive_packet() -> Result<(), String> {
+    let ip = IpAddr::from_str("127.0.0.1").unwrap();
+
+    let mut socket = ServerSocket::listen(ip, 27005).unwrap();
+
+    thread::sleep(Duration::from_millis(15));
+
+    let mut connection = ClientSocket::connect(ip, 27005).unwrap();
+
+    thread::sleep(Duration::from_millis(15));
+
+    let res = socket.poll();
+
+    let packet = Protocol::Ping(Ping::from(0));
+
+    socket.send_packet(SendPacket(packet.clone(), res.connections.get(0).unwrap().user));
+
+    // Send data
+    socket.poll();
+
+    thread::sleep(Duration::from_millis(15));
+
+    let poll = connection.poll();
+
+    assert_eq!(packet, poll.packets.get(0).unwrap().0);
+
+    socket.shutdown();
+    connection.shutdown();
 
     Ok(())
 }

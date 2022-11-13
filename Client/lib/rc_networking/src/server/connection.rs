@@ -113,7 +113,7 @@ impl ServerSocket {
             let write_packet_handle = self.runtime.spawn(async move {
                 while let Ok(packet) = inner_read_packets.recv() {
                     // Write
-                    let packet = match bincode::serialize(&packet.0) {
+                    let mut packet = match bincode::serialize(&packet.0) {
                         Ok(val) => val,
                         Err(e) => {
                             error!("Error reading data from client {:?}: {:?}", uid, e);
@@ -121,13 +121,12 @@ impl ServerSocket {
                         }
                     };
 
-                    if let Err(e) = write_tcp.write_u32(packet.len() as u32)
-                        .await
-                    {
-                        warn!("Failed to write packet for user {:?}: {:?}", uid, e);
-                        break;
-                    }
-                    if let Err(e) = write_tcp.write_all(&packet).await {
+                    let mut data = Vec::new();
+
+                    data.append(&mut bincode::serialize::<u32>(&(packet.len() as u32)).unwrap());
+                    data.append(&mut packet);
+
+                    if let Err(e) = write_tcp.write_all(&data).await {
                         warn!("Failed to write packet for user {:?}: {:?}", uid, e);
                         break;
                     }

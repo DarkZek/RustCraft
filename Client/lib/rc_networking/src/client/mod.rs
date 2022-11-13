@@ -30,13 +30,14 @@ pub struct ClientSocket {
 }
 
 impl ClientSocket {
-    pub fn listen(ip: IpAddr, port: usize) -> Result<ClientSocket, NetworkingError> {
+    pub fn connect(ip: IpAddr, port: usize) -> Result<ClientSocket, NetworkingError> {
 
         info!("Connecting to server on {}:{}", ip, port);
 
         // Start tokio thread
         let runtime = tokio::runtime::Builder::new_multi_thread()
             .enable_all()
+            .thread_name("ClientSocket")
             .build()
             .expect("Could not build tokio runtime");
 
@@ -57,11 +58,18 @@ impl ClientSocket {
 
         // Spawn thread that listens for new clients
         let read_packet_handle = runtime.spawn(async move {
-            while let Ok(len) = read_tcp.read_u32().await {
-                // Collect data
-                let mut data = Vec::with_capacity(len as usize);
+            let mut len = [0; 4];
+            while let Ok(size) = read_tcp.read_exact(&mut len).await {
+                assert_eq!(size, 4);
 
-                let _ = read_tcp.read_exact(&mut data);
+                let len = bincode::deserialize::<u32>(&len).unwrap();
+
+                // Collect data
+                let mut data = vec![0; len as usize];
+
+                if let Err(e) = read_tcp.read_exact(&mut data).await {
+                    panic!("Grr {:?}", e);
+                }
 
                 // Turn it into packet
                 let packet = bincode::deserialize::<Protocol>(&mut data).unwrap();
@@ -76,7 +84,7 @@ impl ClientSocket {
             while let Ok(packet) = inner_read_packets.recv() {
                 debug!("<- {:?}", packet.1);
                 // Write
-                let packet = match bincode::serialize(&packet.0) {
+                let mut packet = match bincode::serialize(&packet.0) {
                     Ok(val) => val,
                     Err(e) => {
                         error!("Error reading data from server {:?}", e);
@@ -84,13 +92,11 @@ impl ClientSocket {
                     }
                 };
 
-                if let Err(e) = write_tcp.write_u32(packet.len() as u32)
-                    .await
-                {
-                    warn!("Failed to write packet {:?}", e);
-                    break;
-                }
-                if let Err(e) = write_tcp.write_all(&packet).await {
+                let mut data = Vec::new();
+                data.append(&mut bincode::serialize::<u32>(&(packet.len() as u32)).unwrap());
+                data.append(&mut packet);
+
+                if let Err(e) = write_tcp.write_all(&data).await {
                     warn!("Failed to write packet {:?}", e);
                     break;
                 }

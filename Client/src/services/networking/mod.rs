@@ -58,7 +58,7 @@ pub fn connect_to_server(mut system: ResMut<TransportSystem>) {
     let ip = "127.0.0.1";
     let port = 25567;
 
-    let socket = ClientSocket::listen(IpAddr::from_str(ip).unwrap(), port).unwrap();
+    let socket = ClientSocket::connect(IpAddr::from_str(ip).unwrap(), port).unwrap();
 
     info!("Connecting to server on {}:{}", ip, port);
 

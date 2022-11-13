@@ -40,6 +40,7 @@ impl ServerSocket {
         // Start tokio thread
         let runtime = tokio::runtime::Builder::new_multi_thread()
             .enable_all()
+            .thread_name("ServerSocket")
             .build()
             .expect("Could not build tokio runtime");
 
@@ -47,16 +48,16 @@ impl ServerSocket {
 
         let (send_connections, receive_connections) = unbounded();
 
+        let listener = match runtime.block_on(TcpListener::bind(format!("{}:{}", ip, port))) {
+            Ok(val) => val,
+            Err(e) => {
+                error!("Failed to bind to port {}:{} {:?}", ip, port, e);
+                return Err(NetworkingError::ConnectionRefused);
+            }
+        };
+
         // Spawn thread that listens for new clients
         runtime.spawn(async move {
-            let listener = match TcpListener::bind(format!("{}:{}", ip, port)).await {
-                Ok(val) => val,
-                Err(e) => {
-                    error!("Failed to bind to port {}:{} {:?}", ip, port, e);
-                    return;
-                }
-            };
-
             loop {
                 // Read events
                 if !receive_commands.is_empty() {
@@ -101,6 +102,5 @@ impl ServerSocket {
     pub fn shutdown(self) {
         // TODO: More gracefully
         self.runtime.shutdown_background();
-
     }
 }

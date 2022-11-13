@@ -20,7 +20,6 @@ impl ClientSocket {
         let mut packets = Vec::new();
 
         while let Ok(packet) = self.read_packets.recv_timeout(Duration::ZERO) {
-            debug!("-> {:?}", packet.0);
             packets.push(packet);
         }
 
