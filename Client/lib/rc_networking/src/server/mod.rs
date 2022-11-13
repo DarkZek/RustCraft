@@ -16,24 +16,24 @@ use crate::server::poll::ConnectionRequest;
 use crate::server::user::NetworkUser;
 
 pub struct ServerSocket {
-    pub listen_address: IpAddr,
-    pub port: usize,
+    listen_address: IpAddr,
+    port: usize,
 
-    pub connected: bool,
+    connected: bool,
 
-    pub runtime: Runtime,
+    runtime: Runtime,
 
-    pub send_commands: Sender<NetworkCommand>,
+    send_commands: Sender<NetworkCommand>,
 
-    pub receive_connections: Receiver<ConnectionRequest>,
+    receive_connections: Receiver<ConnectionRequest>,
 
-    pub lifetime_connections: usize,
+    lifetime_connections: usize,
 
-    pub users: HashMap<UserId, NetworkUser>
+    users: HashMap<UserId, NetworkUser>
 }
 
 impl ServerSocket {
-    pub fn connect(ip: IpAddr, port: usize) -> Result<ServerSocket, NetworkingError> {
+    pub fn listen(ip: IpAddr, port: usize) -> Result<ServerSocket, NetworkingError> {
 
         info!("Listening for events on {}:{}", ip, port);
 

@@ -9,6 +9,7 @@ use std::ops::Add;
 ///
 /// # Example
 /// ```rust
+/// use rc_client::helpers::format_u32;
 /// assert_eq!(String::from("9,000,000"), format_u32(9000000).to_string());
 /// ```
 pub fn format_u32(mut count: u32) -> String {

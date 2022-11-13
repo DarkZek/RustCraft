@@ -5,7 +5,6 @@ use crate::protocol::Protocol;
 use crate::error::ProtocolError;
 use std::net::TcpStream;
 use byteorder::{LittleEndian, ReadBytesExt};
-use byteorder::WriteBytesExt;
 
 /// Tool to write and read packets to channel
 pub struct GameStream {

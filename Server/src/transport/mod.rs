@@ -38,7 +38,7 @@ impl Plugin for TransportPlugin {
         let ip = IpAddr::from_str("0.0.0.0").unwrap();
         let port = 25567;
 
-        let stream = match ServerSocket::connect(ip, port) {
+        let stream = match ServerSocket::listen(ip, port) {
             Ok(val) => val,
             Err(err) => {
                 panic!("{:?}", err);

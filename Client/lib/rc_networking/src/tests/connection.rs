@@ -1,6 +1,14 @@
+use std::net::{IpAddr, TcpStream};
+use std::str::FromStr;
+use crate::server::ServerSocket;
+
 #[test]
 fn connection_success() -> Result<(), String> {
-    let x = 4.0;
-    assert_eq!(2.0*2.0, x);
+    let ip = IpAddr::from_str("127.0.0.1").unwrap();
+
+    let socket = ServerSocket::listen(ip, 27000).unwrap();
+
+    let connection = TcpStream::connect("127.0.0.1:27000").unwrap();
+
     Ok(())
 }
