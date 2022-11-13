@@ -10,18 +10,18 @@ use crate::server::ServerSocket;
 
 pub struct ConnectionRequest(pub TcpStream);
 
-pub struct PollResult {
+pub struct ServerPollResult {
     pub connections: Vec<ConnectionEvent>,
     pub packets: Vec<ReceivePacket>
 }
 
 impl ServerSocket {
-    pub fn poll(&mut self) -> PollResult {
+    pub fn poll(&mut self) -> ServerPollResult {
         let connections = self.new_connections();
 
         let packets = self.read_events();
 
-        PollResult {
+        ServerPollResult {
             connections,
             packets
         }

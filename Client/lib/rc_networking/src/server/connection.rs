@@ -120,11 +120,8 @@ impl ServerSocket {
                             break;
                         }
                     };
-                    // Just size for now
-                    let header: u32 = packet.len() as u32;
 
-                    if let Err(e) = write_tcp
-                        .write_all(&bincode::serialize(&header).unwrap())
+                    if let Err(e) = write_tcp.write_u32(packet.len() as u32)
                         .await
                     {
                         warn!("Failed to write packet for user {:?}: {:?}", uid, e);

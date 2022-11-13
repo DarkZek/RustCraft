@@ -7,20 +7,21 @@ use crate::services::networking::location_sync::{
 };
 use crate::services::networking::messages::messages_update;
 use crate::services::networking::transport::connection::{connection_upkeep, send_packets};
-use crate::services::networking::transport::listener::ClientListener;
 use bevy::app::{AppExit, CoreStage};
 
 use bevy::prelude::*;
 use bevy::prelude::{info, Entity, ResMut, SystemSet, Vec3};
 
-use rc_protocol::constants::EntityId;
+use rc_protocol::constants::{EntityId, UserId};
 
 use crate::state::AppState;
 use rc_protocol::protocol::serverbound::disconnect::Disconnect;
 use rc_protocol::protocol::Protocol;
 use rc_protocol::stream::GameStream;
 use std::collections::HashMap;
-use std::net::{TcpStream};
+use std::net::{IpAddr, TcpStream};
+use std::str::FromStr;
+use rc_networking::client::ClientSocket;
 use rc_protocol::types::{ReceivePacket, SendPacket};
 
 mod chunk;
@@ -33,9 +34,9 @@ pub struct NetworkingPlugin;
 
 impl Plugin for NetworkingPlugin {
     fn build(&self, app: &mut App) {
+
         app.add_system(send_packets)
             .add_system(connection_upkeep)
-            .insert_resource(ClientListener::new().unwrap())
             // Once the game is in the Main Menu connect to server as we have no main screen yet
             .add_system_set(SystemSet::on_enter(AppState::MainMenu).with_system(connect_to_server))
             .add_system(messages_update)
@@ -53,38 +54,44 @@ impl Plugin for NetworkingPlugin {
     }
 }
 
-pub fn connect_to_server(mut system: ResMut<ClientListener>) {
+pub fn connect_to_server(mut system: ResMut<TransportSystem>) {
     let ip = "127.0.0.1";
     let port = 25567;
 
-    let stream = TcpStream::connect(format!("{}:{}", ip, port)).unwrap();
-
-    stream.set_nonblocking(true).unwrap();
+    let socket = ClientSocket::listen(IpAddr::from_str(ip).unwrap(), port).unwrap();
 
     info!("Connecting to server on {}:{}", ip, port);
 
-    system.stream = Some(GameStream::new(stream));
+    system.socket = Some(socket);
 }
 
 pub struct TransportSystem {
     entity_mapping: HashMap<EntityId, Entity>,
+    socket: Option<ClientSocket>,
+    
+    disconnect: bool
 }
 
 impl Default for TransportSystem {
+
     fn default() -> Self {
+
         TransportSystem {
             entity_mapping: Default::default(),
+            socket: None,
+            disconnect: false
         }
     }
 }
 
 #[allow(unused_must_use)]
-pub fn detect_shutdowns(shutdown: EventReader<AppExit>, mut system: ResMut<ClientListener>) {
+pub fn detect_shutdowns(shutdown: EventReader<AppExit>, mut system: ResMut<TransportSystem>) {
     if !shutdown.is_empty() {
         println!("Sending disconnect to server");
         // Tell server we're quitting
-        if let Some(mut val) = system.stream.take() {
-            val.write_packet(&Protocol::Disconnect(Disconnect::new(0)));
+        if let Some(mut val) = system.socket.take() {
+            val.send_packet(SendPacket(Protocol::Disconnect(Disconnect::new(0)), UserId(0)));
+            val.shutdown();
         }
     }
 }

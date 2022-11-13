@@ -1,5 +1,3 @@
-use crate::services::networking::transport::listener::ClientListener;
-
 use bevy::log::{info, warn};
 use bevy::prelude::error;
 use bevy::prelude::*;
@@ -8,105 +6,36 @@ use rc_protocol::error::ProtocolError;
 use rc_protocol::protocol::serverbound::pong::Pong;
 use rc_protocol::protocol::Protocol;
 use std::io;
+use rc_networking::client::ClientSocket;
 use rc_protocol::constants::UserId;
 use rc_protocol::types::{ReceivePacket, SendPacket};
+use crate::services::networking::TransportSystem;
 
 pub fn connection_upkeep(
-    mut stream: ResMut<ClientListener>,
+    mut system: ResMut<TransportSystem>,
     mut event_writer: EventWriter<ReceivePacket>,
 ) {
     // Check if we're connected to a server yet
-    if stream.stream.is_none() {
+    if system.socket.is_none() {
         return;
     }
 
-    let mut client_disconnect = stream.disconnect;
+    let mut client_disconnect = system.disconnect;
 
-    loop {
-        let mut data = vec![0u8; 4];
-        match stream.stream.as_mut().unwrap().stream.peek(&mut data) {
-            Ok(v) => {
-                if v == 0 {
-                    warn!("No readings");
-                }
-            }
-            Err(_) => {
-                break;
-            }
-        }
+    let poll = system.socket.as_ref().unwrap().poll();
 
-        match stream.stream.as_mut().unwrap().read_packet() {
-            Ok(n) => {
-                debug!("-> {:?}", n);
-
-                // Respond to pings
-                if let Protocol::Ping(ping) = &n {
-                    stream
-                        .stream
-                        .as_mut()
-                        .unwrap()
-                        .write_packet(&Protocol::Pong(Pong::from(ping.code)))
-                        .unwrap();
-                } else {
-                    event_writer.send(ReceivePacket(n, UserId(0)));
-                }
-            }
-            // Would block "errors" are the OS's way of saying that the
-            // connection is not actually ready to perform this I/O operation.
-            Err(ProtocolError::Io(ref err)) if err.kind() == io::ErrorKind::WouldBlock => {
-                info!("WouldBlock");
-                break;
-            }
-            Err(ProtocolError::Io(ref err)) if err.kind() == io::ErrorKind::Interrupted => {
-                info!("Interrupted");
-                continue;
-            }
-            Err(ProtocolError::Io(ref err)) if err.kind() == io::ErrorKind::UnexpectedEof => {
-                warn!("{:?}", err);
-                // Disconnected!
-                client_disconnect = true;
-                break;
-            }
-            Err(ProtocolError::Bincode(ref err)) => {
-                warn!("Bincode {:?}", err);
-                // Sent invalid formatted packet so we'll just assume disconnected!
-                client_disconnect = true;
-                break;
-            }
-            Err(ProtocolError::Disconnected) => {
-                // Sent invalid formatted packet so we'll just assume disconnected!
-                client_disconnect = true;
-                break;
-            }
-            // Other errors we'll consider fatal.
-            Err(err) => panic!("{:?}", err),
-        }
-    }
+    event_writer.send_batch(poll.packets.into_iter());
 
     if client_disconnect {
         warn!("Disconnected from server: Unexpected Disconnection");
-        stream.stream = None;
+        //TODO: Add
     }
 }
 
-pub fn send_packets(mut stream: ResMut<ClientListener>, mut packets: EventReader<SendPacket>) {
-    if stream.stream().is_none() {
-        return;
-    }
-
-    for packet in packets.iter() {
-        debug!("<- {:?}", packet.0);
-        match stream.stream.as_mut().unwrap().write_packet(packet) {
-            Ok(_) => {}
-            Err(e) => {
-                if e.kind() == io::ErrorKind::NotConnected {
-                    // Tried to send packets before connection.
-                    warn!("Tried to send packets before connection.");
-                    return;
-                }
-                error!("Error during packet send {:?}", e);
-                stream.disconnect = true;
-            }
+pub fn send_packets(mut system: ResMut<TransportSystem>, mut packets: EventReader<SendPacket>) {
+    if let Some(socket) = &mut system.socket {
+        for packet in packets.iter() {
+            socket.send_packet(packet.clone());
         }
     }
 }

@@ -19,6 +19,7 @@ pub mod clientbound;
 pub mod serverbound;
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
+#[repr(C)]
 pub enum Protocol {
     Ping(Ping),
     Pong(Pong),
