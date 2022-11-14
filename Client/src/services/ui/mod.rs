@@ -10,7 +10,7 @@ impl Plugin for UIPlugin {
 
 pub fn setup_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands
-        .spawn_bundle(NodeBundle {
+        .spawn(NodeBundle {
             style: Style {
                 size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
                 align_items: AlignItems::Center,
@@ -18,11 +18,10 @@ pub fn setup_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
                 position_type: PositionType::Absolute,
                 ..default()
             },
-            color: Color::NONE.into(),
             ..default()
         })
         .with_children(|parent| {
-            parent.spawn_bundle(ImageBundle {
+            parent.spawn(ImageBundle {
                 style: Style {
                     size: Size::new(Val::Px(25.0), Val::Px(25.0)),
                     align_self: AlignSelf::Center,

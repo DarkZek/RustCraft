@@ -1,9 +1,10 @@
 use crate::game::blocks::loading::BlockStatesFile;
 use crate::game::blocks::Block;
 use bevy::prelude::Handle;
+use bevy::prelude::Resource;
 use bevy::reflect::TypeUuid;
 
-#[derive(Debug, Clone, TypeUuid)]
+#[derive(Debug, Clone, TypeUuid, Resource)]
 #[uuid = "97103fab-1e50-36b7-0c33-0938a62b0809"]
 pub struct BlockStates {
     pub states: Vec<Block>,

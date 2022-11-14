@@ -125,4 +125,8 @@ impl ClientSocket {
         // TODO: More gracefully
         self.runtime.shutdown_background();
     }
+
+    pub fn send_command(&self, command: NetworkCommand) {
+        self.send_commands.send(command).unwrap();
+    }
 }

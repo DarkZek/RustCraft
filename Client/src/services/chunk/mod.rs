@@ -21,6 +21,7 @@ impl Plugin for ChunkPlugin {
     }
 }
 
+#[derive(Resource)]
 pub struct ChunkService {
     pub chunks: HashMap<Vector3<i32>, ChunkData, FnvBuildHasher>,
 }

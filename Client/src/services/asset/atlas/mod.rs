@@ -15,7 +15,7 @@ pub mod atlas;
 pub mod index;
 pub mod resource_packs;
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Resource)]
 pub enum AtlasLoadingStage {
     AwaitingIndex,
     AwaitingPack,
@@ -105,7 +105,7 @@ pub fn build_texture_atlas(
 
     // Create a new material
     let material = materials.set(
-        service.texture_atlas_material.id,
+        &service.texture_atlas_material,
         ChunkMaterial {
             color: Color::WHITE,
             color_texture: Some(

@@ -1,19 +1,22 @@
-mod poll;
-mod user;
 mod connection;
+mod poll;
 mod send;
+mod user;
 
-use std::collections::HashMap;
-use std::net::IpAddr;
-use bevy_log::{error, info};
-use crossbeam::channel::{Receiver, Sender, unbounded};
-use tokio::net::TcpListener;
-use tokio::runtime::Runtime;
-use rc_protocol::constants::UserId;
 use crate::command::NetworkCommand;
 use crate::error::NetworkingError;
 use crate::server::poll::ConnectionRequest;
 use crate::server::user::NetworkUser;
+use bevy_log::{error, info};
+use crossbeam::channel::{unbounded, Receiver, Sender};
+use rc_protocol::constants::UserId;
+use rc_protocol::protocol::serverbound::disconnect::Disconnect;
+use rc_protocol::protocol::Protocol;
+use rc_protocol::types::SendPacket;
+use std::collections::HashMap;
+use std::net::IpAddr;
+use tokio::net::TcpListener;
+use tokio::runtime::Runtime;
 
 pub struct ServerSocket {
     listen_address: IpAddr,
@@ -29,12 +32,11 @@ pub struct ServerSocket {
 
     lifetime_connections: usize,
 
-    users: HashMap<UserId, NetworkUser>
+    users: HashMap<UserId, NetworkUser>,
 }
 
 impl ServerSocket {
     pub fn listen(ip: IpAddr, port: usize) -> Result<ServerSocket, NetworkingError> {
-
         info!("Listening for events on {}:{}", ip, port);
 
         // Start tokio thread
@@ -62,8 +64,8 @@ impl ServerSocket {
                 // Read events
                 if !receive_commands.is_empty() {
                     for event in receive_commands.iter() {
-                        match event {
-                            NetworkCommand::Disconnect => break,
+                        if let NetworkCommand::Stop = event {
+                            return;
                         }
                     }
                 }
@@ -95,12 +97,28 @@ impl ServerSocket {
             receive_connections,
             connected: true,
             lifetime_connections: 0,
-            users: Default::default()
+            users: Default::default(),
         })
     }
 
     pub fn shutdown(self) {
         // TODO: More gracefully
         self.runtime.shutdown_background();
+    }
+
+    pub fn send_command(&mut self, command: NetworkCommand) {
+        match &command {
+            NetworkCommand::Disconnect(uid) => {
+                if let Some(user) = self.users.remove(uid) {
+                    user.write_packets.send(SendPacket(
+                        Protocol::Disconnect(Disconnect::new(0)),
+                        UserId(0),
+                    ));
+                }
+            }
+            NetworkCommand::Stop => {}
+        }
+
+        self.send_commands.send(command).unwrap();
     }
 }

@@ -22,7 +22,7 @@ pub fn setup_hotbar_ui(
     ));
 
     commands
-        .spawn_bundle(NodeBundle {
+        .spawn(NodeBundle {
             style: Style {
                 size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
                 align_items: AlignItems::Center,
@@ -31,7 +31,6 @@ pub fn setup_hotbar_ui(
                 position_type: PositionType::Absolute,
                 ..default()
             },
-            color: Color::NONE.into(),
             ..default()
         })
         .with_children(|parent| {

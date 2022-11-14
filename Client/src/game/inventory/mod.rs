@@ -1,7 +1,7 @@
 use crate::game::inventory::hotbar::{setup_hotbar_ui, update_hotbar};
 use crate::game::item::ItemStack;
 use bevy::app::{App, Plugin};
-use bevy::prelude::{Entity, In};
+use bevy::prelude::*;
 
 pub mod hotbar;
 
@@ -15,6 +15,7 @@ impl Plugin for InventoryPlugin {
     }
 }
 
+#[derive(Resource)]
 pub struct Inventory {
     pub hotbar: [Option<ItemStack>; 10],
     pub hotbar_slot: u8,
