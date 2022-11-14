@@ -3,7 +3,6 @@ use crate::{TransportSystem, WorldData};
 use bevy_ecs::event::EventReader;
 use bevy_ecs::prelude::{Commands, EventWriter, Res};
 use bevy_ecs::system::ResMut;
-use rc_client::rc_networking::server::ServerSocket;
 use rc_client::rc_protocol::protocol::clientbound::despawn_entity::DespawnEntity;
 
 use rc_client::rc_protocol::protocol::Protocol;

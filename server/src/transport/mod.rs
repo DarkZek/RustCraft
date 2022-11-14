@@ -15,9 +15,11 @@ use std::net::IpAddr;
 
 use rc_client::rc_networking::server::ServerSocket;
 use std::str::FromStr;
+use bevy_ecs::prelude::Resource;
 
 pub struct TransportPlugin;
 
+#[derive(Resource)]
 pub struct TransportSystem {
     ip: IpAddr,
     port: usize,

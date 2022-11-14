@@ -89,7 +89,7 @@ pub fn authorization_event(
             send_packet.send(SendPacket(packet.clone(), *id));
         }
 
-        let entity = commands.spawn().insert(transform).id();
+        let entity = commands.spawn(transform).id();
         global.entities.insert(entity_id, entity);
 
         // Send world to client

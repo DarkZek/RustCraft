@@ -17,7 +17,9 @@ use std::collections::HashMap;
 use std::net::IpAddr;
 use tokio::net::TcpListener;
 use tokio::runtime::Runtime;
+use bevy_ecs::prelude::Resource;
 
+#[derive(Resource)]
 pub struct ServerSocket {
     listen_address: IpAddr,
     port: usize,
@@ -113,7 +115,7 @@ impl ServerSocket {
                     user.write_packets.send(SendPacket(
                         Protocol::Disconnect(Disconnect::new(0)),
                         UserId(0),
-                    ));
+                    )).expect("failed to send disconnect packet");
                 }
             }
             NetworkCommand::Stop => {}

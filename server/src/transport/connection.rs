@@ -3,7 +3,6 @@ use crate::events::disconnect::DisconnectionEvent;
 use crate::systems::authorization::GameUser;
 use crate::TransportSystem;
 use bevy_ecs::event::{EventReader, EventWriter};
-use bevy_ecs::prelude::Res;
 use bevy_ecs::system::ResMut;
 use bevy_log::{debug, info};
 use rc_client::rc_networking::command::NetworkCommand;
