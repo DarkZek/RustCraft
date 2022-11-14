@@ -2,8 +2,8 @@
 resolver = "2"
 
 members = [
-	"Client",
-	"Server",
+    "client",
+    "server",
 ]
 
 [profile.dev]
