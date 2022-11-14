@@ -43,7 +43,7 @@ impl ChunkService {
         meshes: &mut ResMut<Assets<Mesh>>,
     ) {
         let entity = commands
-            .spawn_bundle(MaterialMeshBundle {
+            .spawn(MaterialMeshBundle {
                 mesh: meshes.add(Mesh::from(shape::Plane { size: 0.0 })),
                 material: asset_service.texture_atlas_material.clone(),
                 transform: Transform::from_translation(Vec3::new(
@@ -75,7 +75,7 @@ impl ChunkService {
         meshes: &mut ResMut<Assets<Mesh>>,
     ) {
         let entity = commands
-            .spawn_bundle(MaterialMeshBundle {
+            .spawn(MaterialMeshBundle {
                 mesh: meshes.add(Mesh::from(shape::Plane { size: 0.0 })),
                 material: asset_service.texture_atlas_material.clone(),
                 transform: Transform::from_translation(Vec3::new(

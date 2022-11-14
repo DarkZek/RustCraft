@@ -25,9 +25,8 @@ pub fn setup_hotbar_ui(
         .spawn(NodeBundle {
             style: Style {
                 size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
-                align_items: AlignItems::Center,
-                align_content: AlignContent::Center,
                 flex_direction: FlexDirection::Column,
+                justify_content: JustifyContent::FlexEnd,
                 position_type: PositionType::Absolute,
                 ..default()
             },
@@ -35,7 +34,7 @@ pub fn setup_hotbar_ui(
         })
         .with_children(|parent| {
             parent
-                .spawn_bundle(ImageBundle {
+                .spawn(ImageBundle {
                     style: Style {
                         size: Size::new(Val::Px(800.0), Val::Px(80.0)),
                         align_self: AlignSelf::Center,
@@ -48,7 +47,7 @@ pub fn setup_hotbar_ui(
                 .with_children(|parent| {
                     hotbar_selected_image = Some(
                         parent
-                            .spawn_bundle(ImageBundle {
+                            .spawn(ImageBundle {
                                 style: Style {
                                     size: Size::new(Val::Px(80.0), Val::Px(80.0)),
                                     align_self: AlignSelf::FlexStart,
@@ -65,7 +64,7 @@ pub fn setup_hotbar_ui(
                     for i in 0..10 {
                         hotbar_icons[i] = Some(
                             parent
-                                .spawn_bundle(ImageBundle {
+                                .spawn(ImageBundle {
                                     style: Style {
                                         size: Size::new(Val::Px(80.0), Val::Px(80.0)),
                                         align_self: AlignSelf::FlexStart,
