@@ -8,7 +8,9 @@ use rc_protocol::types::SendPacket;
 
 const MIN_LOCATION_CHANGE_SYNC: f32 = 0.1;
 
+#[derive(Resource)]
 pub struct LastNetworkTranslationSync(pub Vec3);
+#[derive(Resource)]
 pub struct LastNetworkRotationSync(pub Quat);
 
 pub fn network_location_sync(
@@ -26,11 +28,14 @@ pub fn network_location_sync(
     let translation_diff = transform.translation.distance(translation.0);
 
     if translation_diff > MIN_LOCATION_CHANGE_SYNC {
-        networking.send(SendPacket(Protocol::PlayerMove(PlayerMove::new(
-            transform.translation.x,
-            transform.translation.y,
-            transform.translation.z,
-        )), UserId(0)));
+        networking.send(SendPacket(
+            Protocol::PlayerMove(PlayerMove::new(
+                transform.translation.x,
+                transform.translation.y,
+                transform.translation.z,
+            )),
+            UserId(0),
+        ));
         translation.0 = transform.translation;
     }
 
@@ -40,12 +45,15 @@ pub fn network_location_sync(
         + (transform.rotation.w - rotation.0.w).abs();
 
     if rotation_diff > MIN_LOCATION_CHANGE_SYNC {
-        networking.send(SendPacket(Protocol::PlayerRotate(PlayerRotate {
-            x: transform.rotation.x,
-            y: transform.rotation.y,
-            z: transform.rotation.z,
-            w: transform.rotation.w,
-        }), UserId(0)));
+        networking.send(SendPacket(
+            Protocol::PlayerRotate(PlayerRotate {
+                x: transform.rotation.x,
+                y: transform.rotation.y,
+                z: transform.rotation.z,
+                w: transform.rotation.w,
+            }),
+            UserId(0),
+        ));
         rotation.0 = transform.rotation;
     }
 }

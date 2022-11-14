@@ -1,5 +1,7 @@
 use crate::game::item::ItemType;
+use bevy::prelude::Resource;
 
+#[derive(Resource)]
 pub struct ItemStates {
     pub states: Vec<ItemType>,
 }

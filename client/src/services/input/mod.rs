@@ -4,10 +4,8 @@ mod movement;
 use crate::services::input::look::update_input_look;
 use crate::services::input::movement::update_input_movement;
 use bevy::app::{App, Plugin};
-
-
-use bevy::prelude::{Input, KeyCode, MouseButton, Res, ResMut};
-use bevy::window::Windows;
+use bevy::prelude::*;
+use bevy::window::{CursorGrabMode, Windows};
 
 pub struct InputPlugin;
 
@@ -20,6 +18,7 @@ impl Plugin for InputPlugin {
     }
 }
 
+#[derive(Resource)]
 pub struct InputService {
     captured: bool,
 }
@@ -35,12 +34,12 @@ fn grab_mouse(
     let window = windows.get_primary_mut().unwrap();
     if mouse.just_pressed(MouseButton::Left) {
         window.set_cursor_visibility(false);
-        window.set_cursor_lock_mode(true);
+        window.set_cursor_grab_mode(CursorGrabMode::Locked);
         service.captured = true;
     }
     if key.just_pressed(KeyCode::Escape) {
-        window.set_cursor_lock_mode(false);
         window.set_cursor_visibility(true);
+        window.set_cursor_grab_mode(CursorGrabMode::None);
         service.captured = false;
     }
 }

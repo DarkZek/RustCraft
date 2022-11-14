@@ -6,13 +6,13 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bevy = { version = "0.8.1", features=["bevy_asset"] }
+bevy = { version = "0.9.0", features=[ "bevy_asset" ] }
 fnv = "1.0.3"
 rayon = "1.5.1"
 nalgebra = { version = "0.21.0", features=["serde-serialize"] }
 serde = { version = "1.0", default-features = false, features = ["derive", "std"] }
 serde_json = { version = "1.0.61", default-features = false, features = ["std", "preserve_order"] }
-bevy-inspector-egui = "0.12.1"
+bevy-inspector-egui = "0.14.0"
 anyhow = "1.0.57"
 image = "0.23.14"
 zip = { version = "0.5.5", default-features = false, features = ["deflate"] }
@@ -20,4 +20,3 @@ rc_protocol = { path = "../lib/rc_protocol" }
 rc_networking = { path = "../lib/rc_networking" }
 tokio =  { version = "1.18.0", features = ["net"]}
 thiserror = "1.0.37"
-bevy_prototype_debug_lines = { version = "0.8", features = ["3d"] }

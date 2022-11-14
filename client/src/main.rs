@@ -28,12 +28,11 @@ use crate::game::blocks::loader::{track_blockstate_changes, BlockStateAssetLoade
 use crate::game::blocks::loading::BlockStatesFile;
 use crate::game::blocks::states::BlockStates;
 use crate::state::AppState;
-use bevy::log::{Level, LogSettings};
+use bevy::log::{Level, LogPlugin};
 use bevy::prelude::*;
 
 use crate::game::inventory::InventoryPlugin;
 use crate::game::item::states::ItemStates;
-use bevy::render::texture::ImageSettings;
 use bevy::window::WindowResizeConstraints;
 use bevy_inspector_egui::WorldInspectorPlugin;
 
@@ -41,31 +40,35 @@ use bevy_inspector_egui::WorldInspectorPlugin;
 fn main() {
     
     App::new()
-        .insert_resource(WindowDescriptor {
-            title: "app".to_string(),
-            width: 1280.,
-            height: 720.,
-            position: WindowPosition::Automatic,
-            resize_constraints: WindowResizeConstraints {
-                min_width: 256.0,
-                min_height: 256.0,
-                max_width: 1920.0,
-                max_height: 1080.0,
-            },
-            ..default()
-        })
-        .insert_resource(LogSettings {
-            filter: "wgpu=error,rustcraft=debug,naga=error,bevy_app=info".into(),
-            level: Level::DEBUG,
-        })
-        .insert_resource(bevy::asset::AssetServerSettings {
-            watch_for_changes: true,
-            ..default()
-        })
         // add the app state type
         .add_state(AppState::Loading)
-        .insert_resource(ImageSettings::default_nearest())
-        .add_plugins(DefaultPlugins)
+        .add_plugins(
+            DefaultPlugins
+            .set(LogPlugin {
+                filter: "wgpu=error,rustcraft=debug,naga=error,bevy_app=info".into(),
+                level: Level::DEBUG,
+            })
+            .set(AssetPlugin {
+                watch_for_changes: true,
+                ..default()
+            })
+            .set(ImagePlugin::default_nearest())
+            .set(WindowPlugin {
+                window: WindowDescriptor {
+                    title: "app".to_string(),
+                    width: 1280.,
+                    height: 720.,
+                    position: WindowPosition::Automatic,
+                    resize_constraints: WindowResizeConstraints {
+                        min_width: 256.0,
+                        min_height: 256.0,
+                        max_width: 1920.0,
+                        max_height: 1080.0,
+                    },
+                    ..default()
+                },
+                ..default()
+            }))
         .add_plugin(WorldInspectorPlugin::new())
         .insert_resource(Msaa { samples: 4 })
 

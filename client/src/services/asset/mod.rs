@@ -7,6 +7,7 @@ use bevy::prelude::*;
 pub mod atlas;
 pub mod material;
 
+#[derive(Resource)]
 pub struct AssetService {
     resource_packs: Handle<ResourcePacks>,
     pub texture_atlas: Option<TextureAtlas>,

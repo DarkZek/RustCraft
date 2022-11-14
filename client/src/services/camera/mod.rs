@@ -22,7 +22,7 @@ fn setup_camera(mut commands: Commands) {
     ));
 
     // Spawn camera
-    commands.spawn().insert_bundle(Camera3dBundle {
+    commands.spawn(Camera3dBundle {
         transform: start_transform,
         ..default()
     });
@@ -30,8 +30,7 @@ fn setup_camera(mut commands: Commands) {
     // Spawn player
     // Todo: Move this elsewhere
     commands
-        .spawn()
-        .insert(start_transform)
+        .spawn(start_transform)
         .insert(physics)
         .insert(Entity)
         .insert(Player::new());

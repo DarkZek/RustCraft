@@ -17,7 +17,7 @@ use crate::state::AppState;
 use rc_protocol::protocol::serverbound::disconnect::Disconnect;
 use rc_protocol::protocol::Protocol;
 
-use crate::services::networking::connection::{connection_upkeep, send_packets};
+use crate::services::networking::connection::{connection_upkeep, ping_reply, send_packets};
 use rc_networking::client::ClientSocket;
 use rc_protocol::types::{ReceivePacket, SendPacket};
 use std::collections::HashMap;
@@ -36,6 +36,7 @@ impl Plugin for NetworkingPlugin {
     fn build(&self, app: &mut App) {
         app.add_system(send_packets)
             .add_system(connection_upkeep)
+            .add_system(ping_reply)
             // Once the game is in the Main Menu connect to server as we have no main screen yet
             .add_system_set(SystemSet::on_enter(AppState::MainMenu).with_system(connect_to_server))
             .add_system(messages_update)
@@ -64,6 +65,7 @@ pub fn connect_to_server(mut system: ResMut<TransportSystem>) {
     system.socket = Some(socket);
 }
 
+#[derive(Resource)]
 pub struct TransportSystem {
     entity_mapping: HashMap<EntityId, Entity>,
     socket: Option<ClientSocket>,

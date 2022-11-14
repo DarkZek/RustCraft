@@ -46,8 +46,7 @@ pub fn messages_update(
             }
             Protocol::SpawnEntity(entity) => {
                 let entity_id = commands
-                    .spawn()
-                    .insert(Transform::from_rotation(Quat::from_xyzw(
+                    .spawn(Transform::from_rotation(Quat::from_xyzw(
                         entity.rot[0],
                         entity.rot[1],
                         entity.rot[2],
