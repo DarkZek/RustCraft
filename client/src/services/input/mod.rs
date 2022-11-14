@@ -34,7 +34,7 @@ fn grab_mouse(
     let window = windows.get_primary_mut().unwrap();
     if mouse.just_pressed(MouseButton::Left) {
         window.set_cursor_visibility(false);
-        window.set_cursor_grab_mode(CursorGrabMode::Locked);
+        window.set_cursor_grab_mode(CursorGrabMode::Confined);
         service.captured = true;
     }
     if key.just_pressed(KeyCode::Escape) {

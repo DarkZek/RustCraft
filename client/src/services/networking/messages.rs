@@ -58,7 +58,7 @@ pub fn messages_update(
                         entity.loc[2],
                     )))
                     .insert(Entity)
-                    .insert_bundle(PbrBundle {
+                    .insert(PbrBundle {
                         mesh: meshes.add(Mesh::from(shape::Cube { size: 1.0 })),
                         material: materials.add(Color::rgb(0.3, 0.8, 0.3).into()),
                         ..default()
