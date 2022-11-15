@@ -3189,7 +3189,6 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror",
- "tokio",
  "zip",
 ]
 
@@ -3197,8 +3196,7 @@ dependencies = [
 name = "rc_networking"
 version = "0.1.0"
 dependencies = [
- "bevy_ecs",
- "bevy_log",
+ "bevy",
  "bincode",
  "crossbeam",
  "rc_protocol",
@@ -3220,10 +3218,7 @@ dependencies = [
 name = "rc_server"
 version = "0.1.0"
 dependencies = [
- "bevy_app",
- "bevy_core",
- "bevy_ecs",
- "bevy_log",
+ "bevy",
  "nalgebra 0.31.4",
  "rc_client",
  "thiserror",

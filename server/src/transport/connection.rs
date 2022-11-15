@@ -2,9 +2,9 @@ use crate::events::connection::ConnectionEvent;
 use crate::events::disconnect::DisconnectionEvent;
 use crate::systems::authorization::GameUser;
 use crate::TransportSystem;
-use bevy_ecs::event::{EventReader, EventWriter};
-use bevy_ecs::system::ResMut;
-use bevy_log::{debug, info};
+use bevy::ecs::event::{EventReader, EventWriter};
+use bevy::ecs::system::ResMut;
+use bevy::log::{debug, info};
 use rc_client::rc_networking::command::NetworkCommand;
 use rc_client::rc_protocol::constants::EntityId;
 

@@ -1,4 +1,4 @@
-use bevy_log::debug;
+use bevy::log::debug;
 use rc_protocol::types::SendPacket;
 use crate::client::ClientSocket;
 

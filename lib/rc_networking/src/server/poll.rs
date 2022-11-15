@@ -1,5 +1,5 @@
 use std::time::Duration;
-use bevy_log::{debug};
+use bevy::log::{debug};
 
 use tokio::net::TcpStream;
 

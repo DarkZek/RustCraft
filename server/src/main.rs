@@ -14,11 +14,11 @@ pub mod transport;
 use crate::resources::WorldData;
 use crate::systems::tick::tick;
 use crate::transport::{TransportPlugin, TransportSystem};
-use bevy_app::{App, AppExit, CoreStage, ScheduleRunnerPlugin};
-use bevy_core::CorePlugin;
-use bevy_ecs::event::EventReader;
-use bevy_ecs::prelude::{StageLabel, SystemStage};
-use bevy_log::{info, Level, LogPlugin};
+use bevy::app::{App, AppExit, CoreStage, ScheduleRunnerPlugin};
+use bevy::core::CorePlugin;
+use bevy::ecs::event::EventReader;
+use bevy::ecs::prelude::{StageLabel, SystemStage};
+use bevy::log::{info, Level, LogPlugin};
 use rc_client::rc_protocol::types::{ReceivePacket, SendPacket};
 
 fn main() {

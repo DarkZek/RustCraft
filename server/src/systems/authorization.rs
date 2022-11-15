@@ -2,11 +2,11 @@ use std::sync::atomic::Ordering;
 use crate::events::authorization::AuthorizationEvent;
 use crate::game::transform::Transform;
 use crate::resources::{WorldData, ENTITY_ID_COUNT};
-use bevy_ecs::change_detection::ResMut;
-use bevy_ecs::event::EventReader;
-use bevy_ecs::prelude::{Commands, EventWriter};
-use bevy_ecs::system::Query;
-use bevy_log::info;
+use bevy::ecs::change_detection::ResMut;
+use bevy::ecs::event::EventReader;
+use bevy::ecs::prelude::{Commands, EventWriter};
+use bevy::ecs::system::Query;
+use bevy::log::info;
 
 use rc_client::rc_protocol::constants::{EntityId, UserId};
 use rc_client::rc_protocol::protocol::clientbound::chunk_update::FullChunkUpdate;

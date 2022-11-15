@@ -7,7 +7,7 @@ use crate::command::NetworkCommand;
 use crate::error::NetworkingError;
 use crate::server::poll::ConnectionRequest;
 use crate::server::user::NetworkUser;
-use bevy_log::{error, info};
+use bevy::log::{error, info};
 use crossbeam::channel::{unbounded, Receiver, Sender};
 use rc_protocol::constants::UserId;
 use rc_protocol::protocol::serverbound::disconnect::Disconnect;
@@ -17,7 +17,7 @@ use std::collections::HashMap;
 use std::net::IpAddr;
 use tokio::net::TcpListener;
 use tokio::runtime::Runtime;
-use bevy_ecs::prelude::Resource;
+use bevy::ecs::prelude::Resource;
 
 #[derive(Resource)]
 pub struct ServerSocket {
