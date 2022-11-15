@@ -112,10 +112,10 @@ impl ServerSocket {
         match &command {
             NetworkCommand::Disconnect(uid) => {
                 if let Some(user) = self.users.remove(uid) {
-                    user.write_packets.send(SendPacket(
+                    let _discard = user.write_packets.send(SendPacket(
                         Protocol::Disconnect(Disconnect::new(0)),
                         UserId(0),
-                    )).expect("failed to send disconnect packet");
+                    ));
                 }
             }
             NetworkCommand::Stop => {}
