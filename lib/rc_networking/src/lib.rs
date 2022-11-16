@@ -33,9 +33,9 @@ pub fn get_simple_connect_token(client_id: u64, addresses: Vec<SocketAddr>) -> C
     ConnectToken::generate(
         current_time,
         PROTOCOL_ID,
-        100,
+        1000000000,
         client_id,
-        120,
+        10,
         addresses,
         None,
         &PRIVATE_KEY,
@@ -90,6 +90,7 @@ fn has_resource<T: Resource>(resource: Option<Res<T>>) -> ShouldRun {
 
 mod client {
     use std::ops::{Deref, DerefMut};
+    use bevy::app::AppExit;
     use bevy::prelude::*;
     use renet::{RenetClient, RenetError};
     use rc_protocol::constants::UserId;
@@ -111,6 +112,10 @@ mod client {
                     .after(update_system)
                     .with_run_criteria(has_resource::<Client>)
                 )
+                .add_system_to_stage(PostUpdate, detect_shutdown_system
+                    .after(bevy::window::exit_on_all_closed)
+                    .with_run_criteria(has_resource::<Client>)
+                )
                 .add_system_to_stage(PostUpdate, write_packets_system
                     .before(send_packets_system)
                     .with_run_criteria(has_resource::<Client>)
@@ -127,6 +132,7 @@ mod client {
         time: Res<Time>,
     ) {
         if let Err(e) = client.update(time.delta()) {
+            error!("Renet Update: {}", e);
             renet_error.send(e);
         }
     }
@@ -159,11 +165,22 @@ mod client {
             })
     }
 
+    fn detect_shutdown_system(
+        mut client: ResMut<Client>,
+        mut bevy_shutdown: EventReader<AppExit>,
+    ) {
+        for _ in bevy_shutdown.iter() {
+            info!("Shutting down server");
+            client.disconnect();
+        }
+    }
+
     fn send_packets_system(
         mut client: ResMut<Client>,
         mut renet_error: EventWriter<RenetError>,
     ) {
         if let Err(e) = client.send_packets() {
+            error!("Renet Send: {}", e);
             renet_error.send(e);
         }
     }
@@ -188,6 +205,7 @@ mod client {
 
 pub mod server {
     use std::ops::{Deref, DerefMut};
+    use bevy::app::AppExit;
     use bevy::prelude::*;
     use renet::{RenetError, RenetServer, ServerEvent};
     use rc_protocol::constants::UserId;
@@ -209,6 +227,9 @@ pub mod server {
                     .after(update_system)
                     .with_run_criteria(has_resource::<Server>)
                 )
+                .add_system(detect_shutdown_system
+                    .with_run_criteria(has_resource::<Server>)
+                )
                 .add_system_to_stage(PostUpdate, write_packets_system
                     .before(send_packets_system)
                     .with_run_criteria(has_resource::<Server>)
@@ -226,10 +247,12 @@ pub mod server {
         time: Res<Time>,
     ) {
         if let Err(e) = server.update(time.delta()) {
+            error!("Renet Update: {}", e);
             renet_error.send(RenetError::IO(e));
         }
 
         while let Some(event) = server.get_event() {
+            info!("{:?}", event);
             server_events.send(event);
         }
     }
@@ -267,11 +290,22 @@ pub mod server {
             })
     }
 
+    fn detect_shutdown_system(
+        mut server: ResMut<Server>,
+        mut bevy_shutdown: EventReader<AppExit>,
+    ) {
+        for _ in bevy_shutdown.iter() {
+            info!("Shutting down server");
+            server.disconnect_clients();
+        }
+    }
+
     fn send_packets_system(
         mut server: ResMut<Server>,
         mut renet_error: EventWriter<RenetError>,
     ) {
         if let Err(e) = server.send_packets() {
+            error!("Renet Send: {}", e);
             renet_error.send(RenetError::IO(e))
         }
     }
