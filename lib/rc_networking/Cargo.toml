@@ -5,7 +5,10 @@ edition = "2021"
 
 [dependencies]
 rc_protocol = { path = "../rc_protocol" }
-tokio = { version = "1.21.2", features=["net", "rt-multi-thread", "io-util"] }
-crossbeam = { version = "0.8.2" }
-bincode = "1.3.3"
-bevy_log = "0.9.0"
+bincode = { workspace = true }
+renet = "0.0.9"
+
+[dependencies.bevy]
+workspace = true
+default-features = false
+features = []

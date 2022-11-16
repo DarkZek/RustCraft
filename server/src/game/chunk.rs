@@ -1,4 +1,5 @@
-use bevy_ecs::prelude::Component;
+
+use bevy::ecs::prelude::Component;
 use nalgebra::Vector3;
 use rc_client::rc_protocol::constants::CHUNK_SIZE;
 
@@ -28,12 +29,6 @@ impl ChunkData {
         for x in 0..CHUNK_SIZE {
             for y in 0..CHUNK_SIZE {
                 for z in 0..CHUNK_SIZE {
-                    if y == 15 {
-                        if (x + y + z) % 3 == 0 {
-                            world[x][y][z] = 3;
-                        }
-                        continue;
-                    }
                     if (x + y + z) % 3 == 0 {
                         world[x][y][z] = 1;
                     } else {

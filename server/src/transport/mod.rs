@@ -1,26 +1,26 @@
 mod connection;
 
-use crate::error::ServerError;
 use crate::events::authorization::AuthorizationEvent;
 use crate::events::connection::ConnectionEvent;
 use crate::events::disconnect::DisconnectionEvent;
 use crate::systems::authorization::GameUser;
-use crate::transport::connection::{accept_connections, check_connections, prune_users};
-use bevy_app::{App, Plugin};
+use crate::transport::connection::{accept_connections};
+use bevy::app::{App, Plugin};
 
 use rc_client::rc_protocol::constants::UserId;
 use std::collections::HashMap;
 
-use std::net::IpAddr;
+use std::net::{SocketAddr, UdpSocket};
 
-use rc_client::rc_networking::server::ServerSocket;
-use std::str::FromStr;
+use std::time::SystemTime;
+use bevy::ecs::prelude::Resource;
+use rc_client::rc_networking::renet::{RenetServer, ServerAuthentication, ServerConfig};
+use rc_client::rc_networking::*;
 
 pub struct TransportPlugin;
 
+#[derive(Default, Resource)]
 pub struct TransportSystem {
-    ip: IpAddr,
-    port: usize,
     pub clients: HashMap<UserId, GameUser>,
     total_connections: usize,
 }
@@ -33,36 +33,32 @@ impl Default for TransportPlugin {
 
 impl Plugin for TransportPlugin {
     fn build(&self, app: &mut App) {
-        let ip = IpAddr::from_str("0.0.0.0").unwrap();
-        let port = 25568;
+        let bind_addr: SocketAddr = ([127,0,0,1], 25568).into();
+        let current_time = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap();
+        let socket = UdpSocket::bind(bind_addr).unwrap();
+        let server = RenetServer::new(
+            current_time,
+            ServerConfig {
+                max_clients: 1024,
+                protocol_id: PROTOCOL_ID,
+                public_addr: bind_addr,
+                authentication: ServerAuthentication::Secure {
+                    private_key: PRIVATE_KEY
+                }
+            },
+            get_renet_connection_config(),
+            socket,
+        ).unwrap();
 
-        let stream = match ServerSocket::listen(ip, port) {
-            Ok(val) => val,
-            Err(err) => {
-                panic!("{:?}", err);
-            }
-        };
+        let transport_system = TransportSystem::default();
 
-        let transport_system = TransportSystem::new(ip, port).unwrap();
-
-        app.insert_resource(stream)
+        app
+            .add_plugin(RenetServerPlugin)
+            .insert_resource(Server(server))
             .insert_resource(transport_system)
-            .add_system(prune_users)
             .add_system(accept_connections)
-            .add_system(check_connections)
             .add_event::<ConnectionEvent>()
             .add_event::<AuthorizationEvent>()
             .add_event::<DisconnectionEvent>();
-    }
-}
-
-impl TransportSystem {
-    pub fn new(ip: IpAddr, port: usize) -> Result<TransportSystem, ServerError> {
-        Ok(TransportSystem {
-            ip,
-            port,
-            clients: Default::default(),
-            total_connections: 0,
-        })
     }
 }
