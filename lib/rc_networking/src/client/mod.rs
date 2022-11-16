@@ -3,7 +3,7 @@ mod send;
 
 use crate::command::NetworkCommand;
 use crate::error::NetworkingError;
-use bevy_log::{debug, error, info, warn};
+use bevy::log::{debug, error, info, warn};
 use crossbeam::channel::{unbounded, Receiver, Sender};
 use rc_protocol::constants::UserId;
 use rc_protocol::protocol::Protocol;

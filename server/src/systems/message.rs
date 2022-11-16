@@ -1,10 +1,10 @@
 use crate::game::chunk::ChunkData;
 use crate::game::transform::Transform;
 use crate::helpers::global_to_local_position;
-use bevy_ecs::event::{EventReader, EventWriter};
-use bevy_ecs::prelude::*;
-use bevy_ecs::system::ResMut;
-use bevy_log::info;
+use bevy::ecs::event::{EventReader, EventWriter};
+use bevy::ecs::prelude::*;
+use bevy::ecs::system::ResMut;
+use bevy::log::info;
 use nalgebra::{Quaternion, Vector3};
 use rc_client::rc_protocol::constants::CHUNK_SIZE;
 use rc_client::rc_protocol::protocol::clientbound::block_update::BlockUpdate;

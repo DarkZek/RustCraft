@@ -6,7 +6,7 @@ use crate::events::connection::ConnectionEvent;
 use crate::events::disconnect::DisconnectionEvent;
 use crate::systems::authorization::GameUser;
 use crate::transport::connection::{accept_connections, check_connections, prune_users};
-use bevy_app::{App, Plugin};
+use bevy::app::{App, Plugin};
 
 use rc_client::rc_protocol::constants::UserId;
 use std::collections::HashMap;
@@ -15,9 +15,11 @@ use std::net::IpAddr;
 
 use rc_client::rc_networking::server::ServerSocket;
 use std::str::FromStr;
+use bevy::ecs::prelude::Resource;
 
 pub struct TransportPlugin;
 
+#[derive(Resource)]
 pub struct TransportSystem {
     ip: IpAddr,
     port: usize,

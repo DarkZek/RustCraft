@@ -1,5 +1,5 @@
 use std::time::Duration;
-use bevy_log::{debug, error, info, warn};
+use bevy::log::{debug, error, info, warn};
 use crossbeam::channel::{Receiver, Sender, unbounded};
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpStream;

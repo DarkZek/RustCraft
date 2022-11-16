@@ -1,4 +1,4 @@
-use bevy_ecs::event::{EventReader, EventWriter};
+use bevy::ecs::event::{EventReader, EventWriter};
 
 
 

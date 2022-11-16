@@ -7,7 +7,7 @@ use crate::command::NetworkCommand;
 use crate::error::NetworkingError;
 use crate::server::poll::ConnectionRequest;
 use crate::server::user::NetworkUser;
-use bevy_log::{error, info};
+use bevy::log::{error, info};
 use crossbeam::channel::{unbounded, Receiver, Sender};
 use rc_protocol::constants::UserId;
 use rc_protocol::protocol::serverbound::disconnect::Disconnect;
@@ -17,7 +17,9 @@ use std::collections::HashMap;
 use std::net::IpAddr;
 use tokio::net::TcpListener;
 use tokio::runtime::Runtime;
+use bevy::ecs::prelude::Resource;
 
+#[derive(Resource)]
 pub struct ServerSocket {
     listen_address: IpAddr,
     port: usize,
@@ -110,7 +112,7 @@ impl ServerSocket {
         match &command {
             NetworkCommand::Disconnect(uid) => {
                 if let Some(user) = self.users.remove(uid) {
-                    user.write_packets.send(SendPacket(
+                    let _discard = user.write_packets.send(SendPacket(
                         Protocol::Disconnect(Disconnect::new(0)),
                         UserId(0),
                     ));

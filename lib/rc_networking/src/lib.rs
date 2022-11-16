@@ -4,7 +4,7 @@
 pub mod client;
 pub mod error;
 pub mod server;
+pub mod command;
 
 #[cfg(test)]
 pub mod tests;
-pub mod command;
