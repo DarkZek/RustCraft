@@ -8,10 +8,6 @@ rc_protocol = { path = "../rc_protocol" }
 bincode = { workspace = true }
 renet = "0.0.9"
 
-# check if these are still necessary after renet implementation is stabilized
-tokio = { version = "1.21.2", features=["net", "rt-multi-thread", "io-util"] }
-crossbeam = { version = "0.8.2" }
-
 [dependencies.bevy]
 workspace = true
 default-features = false
