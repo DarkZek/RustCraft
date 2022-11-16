@@ -69,67 +69,111 @@
             }
           ]
         },
-        {
-          "identifier": "mcv3::Grass",
-          "translucent": false,
-          "full": true,
-          "draw_betweens": false,
-          "faces": [
-            {
-              "top_left": [0.0, 1.0, 0.0],
-              "top_right": [1.0, 1.0, 0.0],
-              "bottom_left": [0.0, 1.0, 1.0],
-              "size": [1.0, 1.0],
-              "texture": "game/grass_top",
-              "direction": 1,
-              "edge": true
-            },
-            {
-              "top_left": [0.0, 0.0, 0.0],
-              "top_right": [0.0, 0.0, 1.0],
-              "bottom_left": [1.0, 0.0, 0.0],
-              "size": [1.0, 1.0],
-              "texture": "game/dirt",
-              "direction": 2,
-              "edge": true
-            },
-            {
-              "top_left": [0.0, 0.0, 0.0],
-              "top_right": [0.0, 1.0, 0.0],
-              "bottom_left": [0.0, 0.0, 1.0],
-              "size": [1.0, 1.0],
-              "texture": "game/grass_side",
-              "direction": 4,
-              "edge": true
-            },
-            {
-              "top_left": [1.0, 0.0, 1.0],
-              "top_right": [1.0, 1.0, 1.0],
-              "bottom_left": [1.0, 0.0, 0.0],
-              "size": [1.0, 1.0],
-              "texture": "game/grass_side",
-              "direction": 8,
-              "edge": true
-            },
-            {
-              "top_left": [1.0, 0.0, 0.0],
-              "top_right": [1.0, 1.0, 0.0],
-              "bottom_left": [0.0, 0.0, 0.0],
-              "size": [1.0, 1.0],
-              "texture": "game/grass_side",
-              "direction": 16,
-              "edge": true
-            },
-            {
-              "top_left": [0.0, 0.0, 1.0],
-              "top_right": [0.0, 1.0, 1.0],
-              "bottom_left": [1.0, 0.0, 1.0],
-              "size": [1.0, 1.0],
-              "texture": "game/grass_side",
-              "direction": 32,
-              "edge": true
-            }
-          ]
-        }
+                 {
+                   "identifier": "mcv3::Grass",
+                   "translucent": false,
+                   "full": true,
+                   "draw_betweens": false,
+                   "faces": [
+                     {
+                       "top_left": [0.0, 1.0, 0.0],
+                       "top_right": [1.0, 1.0, 0.0],
+                       "bottom_left": [0.0, 1.0, 1.0],
+                       "size": [1.0, 1.0],
+                       "texture": "game/grass_top",
+                       "direction": 1,
+                       "edge": true
+                     },
+                     {
+                       "top_left": [0.0, 0.0, 0.0],
+                       "top_right": [0.0, 0.0, 1.0],
+                       "bottom_left": [1.0, 0.0, 0.0],
+                       "size": [1.0, 1.0],
+                       "texture": "game/dirt",
+                       "direction": 2,
+                       "edge": true
+                     },
+                     {
+                       "top_left": [0.0, 0.0, 0.0],
+                       "top_right": [0.0, 1.0, 0.0],
+                       "bottom_left": [0.0, 0.0, 1.0],
+                       "size": [1.0, 1.0],
+                       "texture": "game/grass_side",
+                       "direction": 4,
+                       "edge": true
+                     },
+                     {
+                       "top_left": [1.0, 0.0, 1.0],
+                       "top_right": [1.0, 1.0, 1.0],
+                       "bottom_left": [1.0, 0.0, 0.0],
+                       "size": [1.0, 1.0],
+                       "texture": "game/grass_side",
+                       "direction": 8,
+                       "edge": true
+                     },
+                     {
+                       "top_left": [1.0, 0.0, 0.0],
+                       "top_right": [1.0, 1.0, 0.0],
+                       "bottom_left": [0.0, 0.0, 0.0],
+                       "size": [1.0, 1.0],
+                       "texture": "game/grass_side",
+                       "direction": 16,
+                       "edge": true
+                     },
+                     {
+                       "top_left": [0.0, 0.0, 1.0],
+                       "top_right": [0.0, 1.0, 1.0],
+                       "bottom_left": [1.0, 0.0, 1.0],
+                       "size": [1.0, 1.0],
+                       "texture": "game/grass_side",
+                       "direction": 32,
+                       "edge": true
+                     }
+                   ]
+                 },
+                  {
+                    "identifier": "mcv3::LongGrass",
+                    "translucent": true,
+                    "full": false,
+                    "draw_betweens": true,
+                    "faces": [
+                      {
+                        "top_left": [0.0, 0.0, 0.0],
+                        "top_right": [0.0, 1.0, 0.0],
+                        "bottom_left": [1.0, 0.0, 1.0],
+                        "size": [1.0, 1.0],
+                        "texture": "game/long_grass",
+                        "direction": 1,
+                        "edge": false
+                      },
+                      {
+                        "top_left": [1.0, 0.0, 1.0],
+                        "top_right": [1.0, 1.0, 1.0],
+                        "bottom_left": [0.0, 0.0, 0.0],
+                        "size": [1.0, 1.0],
+                        "texture": "game/long_grass",
+                        "direction": 1,
+                        "edge": false
+                      },
+                      {
+                        "top_left": [0.0, 0.0, 1.0],
+                        "top_right": [0.0, 1.0, 1.0],
+                        "bottom_left": [1.0, 0.0, 0.0],
+                        "size": [1.0, 1.0],
+                        "texture": "game/long_grass",
+                        "direction": 1,
+                        "edge": false
+                      },
+                      {
+                        "top_left": [1.0, 0.0, 0.0],
+                        "top_right": [1.0, 1.0, 0.0],
+                        "bottom_left": [0.0, 0.0, 1.0],
+                        "size": [1.0, 1.0],
+                        "texture": "game/long_grass",
+                        "direction": 1,
+                        "edge": false
+                      }
+                    ]
+                  }
     ]
 }

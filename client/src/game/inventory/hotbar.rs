@@ -20,6 +20,10 @@ pub fn setup_hotbar_ui(
         (*itemstates.states.get(1).unwrap()).clone(),
         1,
     ));
+    inventory.hotbar[2] = Some(ItemStack::new(
+        (*itemstates.states.get(2).unwrap()).clone(),
+        1,
+    ));
 
     commands
         .spawn(NodeBundle {

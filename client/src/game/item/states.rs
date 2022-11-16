@@ -20,6 +20,11 @@ impl ItemStates {
                     icon: "dirt".to_string(),
                     block_state: Some(1),
                 },
+                ItemType {
+                    name: "Long Grass".to_string(),
+                    icon: "long_grass".to_string(),
+                    block_state: Some(3),
+                },
             ],
         }
     }
