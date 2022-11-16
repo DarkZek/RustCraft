@@ -25,6 +25,16 @@ impl ItemStates {
                     icon: "long_grass".to_string(),
                     block_state: Some(3),
                 },
+                ItemType {
+                    name: "Leaves".to_string(),
+                    icon: "tree_leaves".to_string(),
+                    block_state: Some(5),
+                },
+                ItemType {
+                    name: "Wood Log".to_string(),
+                    icon: "wood_log".to_string(),
+                    block_state: Some(4),
+                },
             ],
         }
     }
