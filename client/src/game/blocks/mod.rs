@@ -8,6 +8,7 @@ use crate::game::mesh::face::Face;
 use crate::game::viewable_direction::{ViewableDirection, ViewableDirectionBitMap};
 use crate::services::asset::atlas::index::TextureAtlasIndex;
 
+use crate::services::physics::aabb::Aabb;
 use bevy::prelude::*;
 use nalgebra::Vector3;
 use std::collections::HashMap;
@@ -23,6 +24,7 @@ pub struct Block {
     pub full: bool,
     pub draw_betweens: bool,
     pub faces: Vec<Face>,
+    pub bounding_boxes: Vec<Aabb>,
 }
 
 impl Block {

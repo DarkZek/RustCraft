@@ -6,6 +6,7 @@ use bevy::prelude::*;
 
 use nalgebra::Vector3;
 
+use crate::services::physics::aabb::Aabb;
 use rc_protocol::protocol::Protocol;
 use rc_protocol::types::ReceivePacket;
 
@@ -52,11 +53,13 @@ pub fn messages_update(
                         entity.rot[2],
                         entity.rot[3],
                     )))
-                    .insert(PhysicsObject::new(Vector3::new(
-                        entity.loc[0],
-                        entity.loc[1],
-                        entity.loc[2],
-                    )))
+                    .insert(PhysicsObject::new(
+                        Vector3::new(entity.loc[0], entity.loc[1], entity.loc[2]),
+                        vec![Aabb::new(
+                            Vector3::new(0.0, 1.0, 0.0),
+                            Vector3::new(1.0, 1.0, 1.0),
+                        )],
+                    ))
                     .insert(Entity)
                     .insert(PbrBundle {
                         mesh: meshes.add(Mesh::from(shape::Cube { size: 1.0 })),

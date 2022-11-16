@@ -7,6 +7,7 @@ use crate::game::viewable_direction::ViewableDirectionBitMap;
 use crate::services::asset::AssetService;
 use crate::services::chunk::systems::mesh_builder::RerenderChunkFlag;
 use crate::services::chunk::ChunkService;
+use crate::services::physics::aabb::Aabb;
 use crate::state::AppState;
 use bevy::asset::{AssetLoader, BoxedFuture, LoadContext, LoadedAsset};
 use bevy::prelude::*;
@@ -88,6 +89,10 @@ pub fn track_blockstate_changes(
                 full: block.full,
                 draw_betweens: block.draw_betweens,
                 faces: Vec::with_capacity(block.faces.len()),
+                bounding_boxes: (&block.colliders)
+                    .iter()
+                    .map(|v| Aabb::new(v.top_left, v.size))
+                    .collect::<Vec<Aabb>>(),
             };
 
             for face in &block.faces {
