@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 rc_client = { path = "../client" }
-nalgebra = "0.21.0"
+nalgebra = "0.31.4"
 bevy_app = "0.8.1"
 bevy_core = "0.8.1"
 bevy_ecs = "0.8.1"

@@ -1,6 +1,7 @@
 use crate::game::viewable_direction::{ViewableDirection, ViewableDirectionBitMap};
 use crate::services::asset::atlas::index::TextureAtlasIndex;
 
+use crate::game::mesh::face::Face;
 use nalgebra::{Vector2, Vector3};
 
 /// Stores all objects allowing for more ergonomic drawing of objects
@@ -26,307 +27,51 @@ impl DrawKit<'_> {
         self.uv_coordinates.push(uv_coordinate);
     }
 
-    pub fn draw_full_block(
-        &mut self,
-        position: Vector3<f32>,
-        visibility: ViewableDirection,
-        texture: TextureAtlasIndex,
-    ) {
-        if visibility.0 == 0 {
-            return;
-        }
-        if visibility.has_flag(ViewableDirectionBitMap::Top) {
-            self.draw_top_face(
-                position + Vector3::new(0.0, 1.0, 0.0),
-                Vector2::new(1.0, 1.0),
-                texture,
-            );
-        }
-        if visibility.has_flag(ViewableDirectionBitMap::Bottom) {
-            self.draw_bottom_face(
-                position + Vector3::new(0.0, 0.0, 0.0),
-                Vector2::new(1.0, 1.0),
-                texture,
-            );
-        }
-        if visibility.has_flag(ViewableDirectionBitMap::Front) {
-            self.draw_front_face(
-                position + Vector3::new(0.0, 0.0, 0.0),
-                Vector2::new(1.0, 1.0),
-                texture,
-            );
-        }
-        if visibility.has_flag(ViewableDirectionBitMap::Back) {
-            self.draw_back_face(
-                position + Vector3::new(0.0, 0.0, 1.0),
-                Vector2::new(1.0, 1.0),
-                texture,
-            );
-        }
-        if visibility.has_flag(ViewableDirectionBitMap::Left) {
-            self.draw_left_face(
-                position + Vector3::new(0.0, 0.0, 0.0),
-                Vector2::new(1.0, 1.0),
-                texture,
-            );
-        }
-        if visibility.has_flag(ViewableDirectionBitMap::Right) {
-            self.draw_right_face(
-                position + Vector3::new(1.0, 0.0, 0.0),
-                Vector2::new(1.0, 1.0),
-                texture,
-            );
-        }
-    }
+    pub fn draw_face(&mut self, position: Vector3<f32>, face: &Face) {
+        let center = (face.top_right + face.bottom_left) / 2.0;
 
-    pub fn draw_full_block_textures(
-        &mut self,
-        position: Vector3<f32>,
-        visibility: ViewableDirection,
-        textures: [TextureAtlasIndex; 6],
-    ) {
-        if visibility.0 == 0 {
-            return;
-        }
-        if visibility.has_flag(ViewableDirectionBitMap::Top) {
-            self.draw_top_face(
-                position + Vector3::new(0.0, 1.0, 0.0),
-                Vector2::new(1.0, 1.0),
-                textures[0],
-            );
-        }
-        if visibility.has_flag(ViewableDirectionBitMap::Bottom) {
-            self.draw_bottom_face(
-                position + Vector3::new(0.0, 0.0, 0.0),
-                Vector2::new(1.0, 1.0),
-                textures[1],
-            );
-        }
-        if visibility.has_flag(ViewableDirectionBitMap::Front) {
-            self.draw_front_face(
-                position + Vector3::new(0.0, 0.0, 0.0),
-                Vector2::new(1.0, 1.0),
-                textures[2],
-            );
-        }
-        if visibility.has_flag(ViewableDirectionBitMap::Back) {
-            self.draw_back_face(
-                position + Vector3::new(0.0, 0.0, 1.0),
-                Vector2::new(1.0, 1.0),
-                textures[3],
-            );
-        }
-        if visibility.has_flag(ViewableDirectionBitMap::Left) {
-            self.draw_left_face(
-                position + Vector3::new(0.0, 0.0, 0.0),
-                Vector2::new(1.0, 1.0),
-                textures[4],
-            );
-        }
-        if visibility.has_flag(ViewableDirectionBitMap::Right) {
-            self.draw_right_face(
-                position + Vector3::new(1.0, 0.0, 0.0),
-                Vector2::new(1.0, 1.0),
-                textures[5],
-            );
-        }
-    }
+        let bottom_right = center + (center - face.top_left);
 
-    pub fn draw_top_face(
-        &mut self,
-        position: Vector3<f32>,
-        size: Vector2<f32>,
-        texture: TextureAtlasIndex,
-    ) {
         let indices_index = self.positions.len() as u32;
 
-        self.positions.push([position.x, position.y, position.z]);
-        self.positions
-            .push([position.x, position.y, position.z + size.y]);
-        self.positions
-            .push([position.x + size.x, position.y, position.z]);
-        self.positions
-            .push([position.x + size.x, position.y, position.z + size.y]);
+        self.positions.push([
+            position.x + face.top_left.x,
+            position.y + face.top_left.y,
+            position.z + face.top_left.z,
+        ]);
+        self.positions.push([
+            position.x + face.top_right.x,
+            position.y + face.top_right.y,
+            position.z + face.top_right.z,
+        ]);
+        self.positions.push([
+            position.x + face.bottom_left.x,
+            position.y + face.bottom_left.y,
+            position.z + face.bottom_left.z,
+        ]);
+        self.positions.push([
+            position.x + bottom_right.x,
+            position.y + bottom_right.y,
+            position.z + bottom_right.z,
+        ]);
 
-        self.normals.push([0.0, 1.0, 0.0]);
-        self.normals.push([0.0, 1.0, 0.0]);
-        self.normals.push([0.0, 1.0, 0.0]);
-        self.normals.push([0.0, 1.0, 0.0]);
+        self.normals
+            .push([face.normal.x, face.normal.y, face.normal.z]);
+        self.normals
+            .push([face.normal.x, face.normal.y, face.normal.z]);
+        self.normals
+            .push([face.normal.x, face.normal.y, face.normal.z]);
+        self.normals
+            .push([face.normal.x, face.normal.y, face.normal.z]);
 
-        self.uv_coordinates.push([texture.u_min, texture.v_max]);
-        self.uv_coordinates.push([texture.u_min, texture.v_min]);
-        self.uv_coordinates.push([texture.u_max, texture.v_max]);
-        self.uv_coordinates.push([texture.u_max, texture.v_min]);
-
-        self.indices.push(indices_index + 0);
-        self.indices.push(indices_index + 1);
-        self.indices.push(indices_index + 2);
-        self.indices.push(indices_index + 1);
-        self.indices.push(indices_index + 3);
-        self.indices.push(indices_index + 2);
-    }
-
-    pub fn draw_bottom_face(
-        &mut self,
-        position: Vector3<f32>,
-        size: Vector2<f32>,
-        texture: TextureAtlasIndex,
-    ) {
-        let indices_index = self.positions.len() as u32;
-
-        self.positions.push([position.x, position.y, position.z]);
-        self.positions
-            .push([position.x, position.y, position.z + size.y]);
-        self.positions
-            .push([position.x + size.x, position.y, position.z]);
-        self.positions
-            .push([position.x + size.x, position.y, position.z + size.y]);
-
-        self.normals.push([0.0, -1.0, 0.0]);
-        self.normals.push([0.0, -1.0, 0.0]);
-        self.normals.push([0.0, -1.0, 0.0]);
-        self.normals.push([0.0, -1.0, 0.0]);
-
-        self.uv_coordinates.push([texture.u_min, texture.v_max]);
-        self.uv_coordinates.push([texture.u_min, texture.v_min]);
-        self.uv_coordinates.push([texture.u_max, texture.v_max]);
-        self.uv_coordinates.push([texture.u_max, texture.v_min]);
-
-        self.indices.push(indices_index + 1);
-        self.indices.push(indices_index + 0);
-        self.indices.push(indices_index + 2);
-        self.indices.push(indices_index + 3);
-        self.indices.push(indices_index + 1);
-        self.indices.push(indices_index + 2);
-    }
-
-    pub fn draw_left_face(
-        &mut self,
-        position: Vector3<f32>,
-        size: Vector2<f32>,
-        texture: TextureAtlasIndex,
-    ) {
-        let indices_index = self.positions.len() as u32;
-
-        self.positions.push([position.x, position.y, position.z]);
-        self.positions
-            .push([position.x, position.y + size.y, position.z]);
-        self.positions
-            .push([position.x, position.y, position.z + size.x]);
-        self.positions
-            .push([position.x, position.y + size.y, position.z + size.x]);
-
-        self.normals.push([-1.0, 0.0, 0.0]);
-        self.normals.push([-1.0, 0.0, 0.0]);
-        self.normals.push([-1.0, 0.0, 0.0]);
-        self.normals.push([-1.0, 0.0, 0.0]);
-
-        self.uv_coordinates.push([texture.u_min, texture.v_max]);
-        self.uv_coordinates.push([texture.u_min, texture.v_min]);
-        self.uv_coordinates.push([texture.u_max, texture.v_max]);
-        self.uv_coordinates.push([texture.u_max, texture.v_min]);
-
-        self.indices.push(indices_index + 1);
-        self.indices.push(indices_index + 0);
-        self.indices.push(indices_index + 2);
-        self.indices.push(indices_index + 3);
-        self.indices.push(indices_index + 1);
-        self.indices.push(indices_index + 2);
-    }
-
-    pub fn draw_right_face(
-        &mut self,
-        position: Vector3<f32>,
-        size: Vector2<f32>,
-        texture: TextureAtlasIndex,
-    ) {
-        let indices_index = self.positions.len() as u32;
-
-        self.positions.push([position.x, position.y, position.z]);
-        self.positions
-            .push([position.x, position.y + size.y, position.z]);
-        self.positions
-            .push([position.x, position.y, position.z + size.x]);
-        self.positions
-            .push([position.x, position.y + size.y, position.z + size.x]);
-
-        self.normals.push([1.0, 0.0, 0.0]);
-        self.normals.push([1.0, 0.0, 0.0]);
-        self.normals.push([1.0, 0.0, 0.0]);
-        self.normals.push([1.0, 0.0, 0.0]);
-
-        self.uv_coordinates.push([texture.u_min, texture.v_max]);
-        self.uv_coordinates.push([texture.u_min, texture.v_min]);
-        self.uv_coordinates.push([texture.u_max, texture.v_max]);
-        self.uv_coordinates.push([texture.u_max, texture.v_min]);
-
-        self.indices.push(indices_index + 0);
-        self.indices.push(indices_index + 1);
-        self.indices.push(indices_index + 2);
-        self.indices.push(indices_index + 1);
-        self.indices.push(indices_index + 3);
-        self.indices.push(indices_index + 2);
-    }
-
-    pub fn draw_front_face(
-        &mut self,
-        position: Vector3<f32>,
-        size: Vector2<f32>,
-        texture: TextureAtlasIndex,
-    ) {
-        let indices_index = self.positions.len() as u32;
-
-        self.positions.push([position.x, position.y, position.z]);
-        self.positions
-            .push([position.x, position.y + size.y, position.z]);
-        self.positions
-            .push([position.x + size.x, position.y, position.z]);
-        self.positions
-            .push([position.x + size.x, position.y + size.y, position.z]);
-
-        self.normals.push([0.0, 0.0, -1.0]);
-        self.normals.push([0.0, 0.0, -1.0]);
-        self.normals.push([0.0, 0.0, -1.0]);
-        self.normals.push([0.0, 0.0, -1.0]);
-
-        self.uv_coordinates.push([texture.u_min, texture.v_max]);
-        self.uv_coordinates.push([texture.u_min, texture.v_min]);
-        self.uv_coordinates.push([texture.u_max, texture.v_max]);
-        self.uv_coordinates.push([texture.u_max, texture.v_min]);
-
-        self.indices.push(indices_index + 0);
-        self.indices.push(indices_index + 1);
-        self.indices.push(indices_index + 2);
-        self.indices.push(indices_index + 1);
-        self.indices.push(indices_index + 3);
-        self.indices.push(indices_index + 2);
-    }
-
-    pub fn draw_back_face(
-        &mut self,
-        position: Vector3<f32>,
-        size: Vector2<f32>,
-        texture: TextureAtlasIndex,
-    ) {
-        let indices_index = self.positions.len() as u32;
-
-        self.positions.push([position.x, position.y, position.z]);
-        self.positions
-            .push([position.x, position.y + size.y, position.z]);
-        self.positions
-            .push([position.x + size.x, position.y, position.z]);
-        self.positions
-            .push([position.x + size.x, position.y + size.y, position.z]);
-
-        self.normals.push([0.0, 0.0, 1.0]);
-        self.normals.push([0.0, 0.0, 1.0]);
-        self.normals.push([0.0, 0.0, 1.0]);
-        self.normals.push([0.0, 0.0, 1.0]);
-
-        self.uv_coordinates.push([texture.u_min, texture.v_max]);
-        self.uv_coordinates.push([texture.u_min, texture.v_min]);
-        self.uv_coordinates.push([texture.u_max, texture.v_max]);
-        self.uv_coordinates.push([texture.u_max, texture.v_min]);
+        self.uv_coordinates
+            .push([face.texture.u_min, face.texture.v_max]);
+        self.uv_coordinates
+            .push([face.texture.u_min, face.texture.v_min]);
+        self.uv_coordinates
+            .push([face.texture.u_max, face.texture.v_max]);
+        self.uv_coordinates
+            .push([face.texture.u_max, face.texture.v_min]);
 
         self.indices.push(indices_index + 1);
         self.indices.push(indices_index + 0);

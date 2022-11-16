@@ -33,27 +33,7 @@ impl Block {
                 continue;
             }
 
-            // Draw based on direction to get winding order of vertices correct
-            match face.direction {
-                ViewableDirectionBitMap::Top => {
-                    kit.draw_top_face(pos + face.top_left, face.size, face.texture)
-                }
-                ViewableDirectionBitMap::Bottom => {
-                    kit.draw_bottom_face(pos + face.top_left, face.size, face.texture)
-                }
-                ViewableDirectionBitMap::Left => {
-                    kit.draw_left_face(pos + face.top_left, face.size, face.texture)
-                }
-                ViewableDirectionBitMap::Right => {
-                    kit.draw_right_face(pos + face.top_left, face.size, face.texture)
-                }
-                ViewableDirectionBitMap::Front => {
-                    kit.draw_front_face(pos + face.top_left, face.size, face.texture)
-                }
-                ViewableDirectionBitMap::Back => {
-                    kit.draw_back_face(pos + face.top_left, face.size, face.texture)
-                }
-            }
+            kit.draw_face(pos, face);
         }
     }
 }

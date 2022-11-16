@@ -113,7 +113,8 @@ pub fn track_blockstate_changes(
 
                 new_block.faces.push(Face {
                     top_left: face.top_left,
-                    size: face.size,
+                    top_right: face.top_right,
+                    bottom_left: face.bottom_left,
                     texture,
                     normal,
                     edge: face.edge,
