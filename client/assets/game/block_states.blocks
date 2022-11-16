@@ -1,161 +1,334 @@
 {
     "states": [
         {
-          "identifier": "mcv3::Air",
-          "translucent": true,
-          "full": false,
-          "draw_betweens": false,
-          "faces": []
+            "identifier": "mcv3::Air",
+            "translucent": true,
+            "full": false,
+            "draw_betweens": false,
+            "faces": [],
+            "colliders": []
         },
         {
-          "identifier": "mcv3::Dirt",
-          "translucent": false,
-          "full": true,
-          "draw_betweens": false,
-          "faces": [
-            {
-              "top_left": [0.0, 1.0, 0.0],
-              "size": [1.0, 1.0],
-              "texture": "game/dirt",
-              "direction": 1,
-              "edge": true
-            },
-            {
-              "top_left": [0.0, 0.0, 0.0],
-              "size": [1.0, 1.0],
-              "texture": "game/dirt",
-              "direction": 2,
-              "edge": true
-            },
-            {
-              "top_left": [0.0, 0.0, 0.0],
-              "size": [1.0, 1.0],
-              "texture": "game/dirt",
-              "direction": 4,
-              "edge": true
-            },
-            {
-              "top_left": [1.0, 0.0, 0.0],
-              "size": [1.0, 1.0],
-              "texture": "game/dirt",
-              "direction": 8,
-              "edge": true
-            },
-            {
-              "top_left": [0.0, 0.0, 0.0],
-              "size": [1.0, 1.0],
-              "texture": "game/dirt",
-              "direction": 16,
-              "edge": true
-            },
-            {
-              "top_left": [0.0, 0.0, 1.0],
-              "size": [1.0, 1.0],
-              "texture": "game/dirt",
-              "direction": 32,
-              "edge": true
-            }
-          ]
+            "identifier": "mcv3::Dirt",
+            "translucent": false,
+            "full": true,
+            "draw_betweens": false,
+            "faces": [
+                {
+                    "top_left": [0.0, 1.0, 0.0],
+                    "top_right": [1.0, 1.0, 0.0],
+                    "bottom_left": [0.0, 1.0, 1.0],
+                    "size": [1.0, 1.0],
+                    "texture": "game/dirt",
+                    "direction": 1,
+                    "edge": true
+                },
+                {
+                    "top_left": [0.0, 0.0, 0.0],
+                    "top_right": [0.0, 0.0, 1.0],
+                    "bottom_left": [1.0, 0.0, 0.0],
+                    "size": [1.0, 1.0],
+                    "texture": "game/dirt",
+                    "direction": 2,
+                    "edge": true
+                },
+                {
+                    "top_left": [0.0, 0.0, 0.0],
+                    "top_right": [0.0, 1.0, 0.0],
+                    "bottom_left": [0.0, 0.0, 1.0],
+                    "size": [1.0, 1.0],
+                    "texture": "game/dirt",
+                    "direction": 4,
+                    "edge": true
+                },
+                {
+                    "top_left": [1.0, 0.0, 1.0],
+                    "top_right": [1.0, 1.0, 1.0],
+                    "bottom_left": [1.0, 0.0, 0.0],
+                    "size": [1.0, 1.0],
+                    "texture": "game/dirt",
+                    "direction": 8,
+                    "edge": true
+                },
+                {
+                    "top_left": [1.0, 0.0, 0.0],
+                    "top_right": [1.0, 1.0, 0.0],
+                    "bottom_left": [0.0, 0.0, 0.0],
+                    "size": [1.0, 1.0],
+                    "texture": "game/dirt",
+                    "direction": 16,
+                    "edge": true
+                },
+                {
+                    "top_left": [0.0, 0.0, 1.0],
+                    "top_right": [0.0, 1.0, 1.0],
+                    "bottom_left": [1.0, 0.0, 1.0],
+                    "size": [1.0, 1.0],
+                    "texture": "game/dirt",
+                    "direction": 32,
+                    "edge": true
+                }
+            ],
+            "colliders": [
+                {
+                    "top_left": [0.0, 1.0, 0.0],
+                    "size": [1.0, 1.0, 1.0]
+                }
+            ]
+        },
+         {
+            "identifier": "mcv3::Grass",
+            "translucent": false,
+            "full": true,
+            "draw_betweens": false,
+            "faces": [
+                {
+                    "top_left": [0.0, 1.0, 0.0],
+                    "top_right": [1.0, 1.0, 0.0],
+                    "bottom_left": [0.0, 1.0, 1.0],
+                    "size": [1.0, 1.0],
+                    "texture": "game/grass_top",
+                    "direction": 1,
+                    "edge": true
+                },
+                {
+                    "top_left": [0.0, 0.0, 0.0],
+                    "top_right": [0.0, 0.0, 1.0],
+                    "bottom_left": [1.0, 0.0, 0.0],
+                    "size": [1.0, 1.0],
+                    "texture": "game/dirt",
+                    "direction": 2,
+                    "edge": true
+                },
+                {
+                    "top_left": [0.0, 0.0, 0.0],
+                    "top_right": [0.0, 1.0, 0.0],
+                    "bottom_left": [0.0, 0.0, 1.0],
+                    "size": [1.0, 1.0],
+                    "texture": "game/grass_side",
+                    "direction": 4,
+                    "edge": true
+                },
+                {
+                    "top_left": [1.0, 0.0, 1.0],
+                    "top_right": [1.0, 1.0, 1.0],
+                    "bottom_left": [1.0, 0.0, 0.0],
+                    "size": [1.0, 1.0],
+                    "texture": "game/grass_side",
+                    "direction": 8,
+                    "edge": true
+                },
+                {
+                    "top_left": [1.0, 0.0, 0.0],
+                    "top_right": [1.0, 1.0, 0.0],
+                    "bottom_left": [0.0, 0.0, 0.0],
+                    "size": [1.0, 1.0],
+                    "texture": "game/grass_side",
+                    "direction": 16,
+                    "edge": true
+                },
+                {
+                    "top_left": [0.0, 0.0, 1.0],
+                    "top_right": [0.0, 1.0, 1.0],
+                    "bottom_left": [1.0, 0.0, 1.0],
+                    "size": [1.0, 1.0],
+                    "texture": "game/grass_side",
+                    "direction": 32,
+                    "edge": true
+                }
+            ],
+            "colliders": [
+                {
+                    "top_left": [0.0, 1.0, 0.0],
+                    "size": [1.0, 1.0, 1.0]
+                }
+            ]
         },
         {
-          "identifier": "mcv3::Grass",
-          "translucent": false,
-          "full": true,
-          "draw_betweens": false,
-          "faces": [
-            {
-              "top_left": [0.0, 1.0, 0.0],
-              "size": [1.0, 1.0],
-              "texture": "game/grass_top",
-              "direction": 1,
-              "edge": true
-            },
-            {
-              "top_left": [0.0, 0.0, 0.0],
-              "size": [1.0, 1.0],
-              "texture": "game/dirt",
-              "direction": 2,
-              "edge": true
-            },
-            {
-              "top_left": [0.0, 0.0, 0.0],
-              "size": [1.0, 1.0],
-              "texture": "game/grass_side",
-              "direction": 4,
-              "edge": true
-            },
-            {
-              "top_left": [1.0, 0.0, 0.0],
-              "size": [1.0, 1.0],
-              "texture": "game/grass_side",
-              "direction": 8,
-              "edge": true
-            },
-            {
-              "top_left": [0.0, 0.0, 0.0],
-              "size": [1.0, 1.0],
-              "texture": "game/grass_side",
-              "direction": 16,
-              "edge": true
-            },
-            {
-              "top_left": [0.0, 0.0, 1.0],
-              "size": [1.0, 1.0],
-              "texture": "game/grass_side",
-              "direction": 32,
-              "edge": true
-            }
-          ]
+            "identifier": "mcv3::LongGrass",
+            "translucent": true,
+            "full": false,
+            "draw_betweens": true,
+            "faces": [
+                {
+                    "top_left": [0.0, 0.0, 0.0],
+                    "top_right": [0.0, 1.0, 0.0],
+                    "bottom_left": [1.0, 0.0, 1.0],
+                    "size": [1.0, 1.0],
+                    "texture": "game/long_grass",
+                    "direction": 1,
+                    "edge": false
+                },
+                {
+                    "top_left": [1.0, 0.0, 1.0],
+                    "top_right": [1.0, 1.0, 1.0],
+                    "bottom_left": [0.0, 0.0, 0.0],
+                    "size": [1.0, 1.0],
+                    "texture": "game/long_grass",
+                    "direction": 1,
+                    "edge": false
+                },
+                {
+                    "top_left": [0.0, 0.0, 1.0],
+                    "top_right": [0.0, 1.0, 1.0],
+                    "bottom_left": [1.0, 0.0, 0.0],
+                    "size": [1.0, 1.0],
+                    "texture": "game/long_grass",
+                    "direction": 1,
+                    "edge": false
+                },
+                {
+                    "top_left": [1.0, 0.0, 0.0],
+                    "top_right": [1.0, 1.0, 0.0],
+                    "bottom_left": [0.0, 0.0, 1.0],
+                    "size": [1.0, 1.0],
+                    "texture": "game/long_grass",
+                    "direction": 1,
+                    "edge": false
+                }
+            ],
+             "colliders": [
+                 {
+                     "top_left": [0.2, 0.8, 0.2],
+                     "size": [0.6, 0.8, 0.6]
+                 }
+             ]
         },
         {
-          "identifier": "mcv3::LongGrass",
-          "translucent": true,
-          "full": false,
-          "draw_betweens": true,
-          "faces": [
-            {
-              "top_left": [0.0, 1.0, 0.0],
-              "size": [1.0, 1.0],
-              "texture": "game/grass_top",
-              "direction": 1,
-              "edge": true
-            },
-            {
-              "top_left": [0.0, 0.0, 0.0],
-              "size": [1.0, 1.0],
-              "texture": "game/dirt",
-              "direction": 2,
-              "edge": true
-            },
-            {
-              "top_left": [0.0, 0.0, 0.0],
-              "size": [1.0, 1.0],
-              "texture": "game/grass_side",
-              "direction": 4,
-              "edge": true
-            },
-            {
-              "top_left": [1.0, 0.0, 0.0],
-              "size": [1.0, 1.0],
-              "texture": "game/grass_side",
-              "direction": 8,
-              "edge": true
-            },
-            {
-              "top_left": [0.0, 0.0, 0.0],
-              "size": [1.0, 1.0],
-              "texture": "game/grass_side",
-              "direction": 16,
-              "edge": true
-            },
-            {
-              "top_left": [0.0, 0.0, 1.0],
-              "size": [1.0, 1.0],
-              "texture": "game/grass_side",
-              "direction": 32,
-              "edge": true
-            }
-          ]
+            "identifier": "mcv3::Wood",
+            "translucent": false,
+            "full": true,
+            "draw_betweens": false,
+            "faces": [
+                {
+                    "top_left": [0.0, 1.0, 0.0],
+                    "top_right": [1.0, 1.0, 0.0],
+                    "bottom_left": [0.0, 1.0, 1.0],
+                    "size": [1.0, 1.0],
+                    "texture": "game/wood_log",
+                    "direction": 1,
+                    "edge": true
+                },
+                {
+                    "top_left": [0.0, 0.0, 0.0],
+                    "top_right": [0.0, 0.0, 1.0],
+                    "bottom_left": [1.0, 0.0, 0.0],
+                    "size": [1.0, 1.0],
+                    "texture": "game/wood_log",
+                    "direction": 2,
+                    "edge": true
+                },
+                {
+                    "top_left": [0.0, 0.0, 0.0],
+                    "top_right": [0.0, 1.0, 0.0],
+                    "bottom_left": [0.0, 0.0, 1.0],
+                    "size": [1.0, 1.0],
+                    "texture": "game/wood_log",
+                    "direction": 4,
+                    "edge": true
+                },
+                {
+                    "top_left": [1.0, 0.0, 1.0],
+                    "top_right": [1.0, 1.0, 1.0],
+                    "bottom_left": [1.0, 0.0, 0.0],
+                    "size": [1.0, 1.0],
+                    "texture": "game/wood_log",
+                    "direction": 8,
+                    "edge": true
+                },
+                {
+                    "top_left": [1.0, 0.0, 0.0],
+                    "top_right": [1.0, 1.0, 0.0],
+                    "bottom_left": [0.0, 0.0, 0.0],
+                    "size": [1.0, 1.0],
+                    "texture": "game/wood_log",
+                    "direction": 16,
+                    "edge": true
+                },
+                {
+                    "top_left": [0.0, 0.0, 1.0],
+                    "top_right": [0.0, 1.0, 1.0],
+                    "bottom_left": [1.0, 0.0, 1.0],
+                    "size": [1.0, 1.0],
+                    "texture": "game/wood_log",
+                    "direction": 32,
+                    "edge": true
+                }
+            ],
+             "colliders": [
+                 {
+                     "top_left": [0.0, 1.0, 0.0],
+                     "size": [1.0, 1.0, 1.0]
+                 }
+             ]
+        },
+        {
+            "identifier": "mcv3::Leaves",
+            "translucent": true,
+            "full": true,
+            "draw_betweens": true,
+            "faces": [
+                {
+                    "top_left": [0.0, 1.0, 0.0],
+                    "top_right": [1.0, 1.0, 0.0],
+                    "bottom_left": [0.0, 1.0, 1.0],
+                    "size": [1.0, 1.0],
+                    "texture": "game/tree_leaves",
+                    "direction": 1,
+                    "edge": true
+                },
+                {
+                    "top_left": [0.0, 0.0, 0.0],
+                    "top_right": [0.0, 0.0, 1.0],
+                    "bottom_left": [1.0, 0.0, 0.0],
+                    "size": [1.0, 1.0],
+                    "texture": "game/tree_leaves",
+                    "direction": 2,
+                    "edge": true
+                },
+                {
+                    "top_left": [0.0, 0.0, 0.0],
+                    "top_right": [0.0, 1.0, 0.0],
+                    "bottom_left": [0.0, 0.0, 1.0],
+                    "size": [1.0, 1.0],
+                    "texture": "game/tree_leaves",
+                    "direction": 4,
+                    "edge": true
+                },
+                {
+                    "top_left": [1.0, 0.0, 1.0],
+                    "top_right": [1.0, 1.0, 1.0],
+                    "bottom_left": [1.0, 0.0, 0.0],
+                    "size": [1.0, 1.0],
+                    "texture": "game/tree_leaves",
+                    "direction": 8,
+                    "edge": true
+                },
+                {
+                    "top_left": [1.0, 0.0, 0.0],
+                    "top_right": [1.0, 1.0, 0.0],
+                    "bottom_left": [0.0, 0.0, 0.0],
+                    "size": [1.0, 1.0],
+                    "texture": "game/tree_leaves",
+                    "direction": 16,
+                    "edge": true
+                },
+                {
+                    "top_left": [0.0, 0.0, 1.0],
+                    "top_right": [0.0, 1.0, 1.0],
+                    "bottom_left": [1.0, 0.0, 1.0],
+                    "size": [1.0, 1.0],
+                    "texture": "game/tree_leaves",
+                    "direction": 32,
+                    "edge": true
+                }
+            ],
+             "colliders": [
+                 {
+                     "top_left": [0.0, 1.0, 0.0],
+                     "size": [1.0, 1.0, 1.0]
+                 }
+             ]
         }
     ]
 }

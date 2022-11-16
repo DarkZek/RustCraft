@@ -12,14 +12,13 @@ pub fn setup_hotbar_ui(
     let mut hotbar_selected_image = None;
     let mut hotbar_icons = [None, None, None, None, None, None, None, None, None, None];
 
-    inventory.hotbar[0] = Some(ItemStack::new(
-        (*itemstates.states.get(0).unwrap()).clone(),
-        1,
-    ));
-    inventory.hotbar[1] = Some(ItemStack::new(
-        (*itemstates.states.get(1).unwrap()).clone(),
-        1,
-    ));
+    // TODO: Get better way of filling hotbar with items
+    for i in 0..5 {
+        inventory.hotbar[i] = Some(ItemStack::new(
+            (*itemstates.states.get(i).unwrap()).clone(),
+            1,
+        ));
+    }
 
     commands
         .spawn(NodeBundle {

@@ -1,5 +1,6 @@
 use crate::game::entity::Entity;
 use crate::game::player::Player;
+use crate::services::physics::aabb::Aabb;
 use crate::services::physics::PhysicsObject;
 use bevy::prelude::*;
 use nalgebra::Vector3;
@@ -14,11 +15,17 @@ impl Plugin for CameraPlugin {
 }
 
 fn setup_camera(mut commands: Commands) {
-    let physics = PhysicsObject::new(Vector3::new(0.0, 18.0, 0.0));
+    let player_physics = PhysicsObject::new(
+        Vector3::new(0.0, 18.0, 0.0),
+        vec![Aabb::new(
+            Vector3::new(0.0, 1.0, 0.0),
+            Vector3::new(1.0, 1.0, 1.0),
+        )],
+    );
     let start_transform = Transform::from_translation(Vec3::new(
-        physics.position.x,
-        physics.position.y,
-        physics.position.z,
+        player_physics.position.x,
+        player_physics.position.y,
+        player_physics.position.z,
     ));
 
     // Spawn camera
@@ -31,7 +38,7 @@ fn setup_camera(mut commands: Commands) {
     // Todo: Move this elsewhere
     commands
         .spawn(start_transform)
-        .insert(physics)
+        .insert(player_physics)
         .insert(Entity)
         .insert(Player::new());
 }
