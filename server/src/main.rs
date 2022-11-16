@@ -14,11 +14,11 @@ pub mod transport;
 use crate::resources::WorldData;
 use crate::systems::tick::tick;
 use crate::transport::{TransportPlugin, TransportSystem};
-use bevy::app::{App, AppExit, CoreStage, ScheduleRunnerPlugin};
-use bevy::core::CorePlugin;
+use bevy::app::{App, AppExit, CoreStage};
 use bevy::ecs::event::EventReader;
 use bevy::ecs::prelude::{StageLabel, SystemStage};
 use bevy::log::{info, Level, LogPlugin};
+use bevy::MinimalPlugins;
 use rc_client::rc_protocol::types::{ReceivePacket, SendPacket};
 
 fn main() {
@@ -26,9 +26,8 @@ fn main() {
 
     // Build App
     App::default()
+        .add_plugins(MinimalPlugins)
         // Plugins
-        .add_plugin(CorePlugin::default())
-        .add_plugin(ScheduleRunnerPlugin::default())
         .add_plugin(LogPlugin {
             filter: "".into(),
             level: Level::DEBUG,

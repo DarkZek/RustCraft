@@ -10,9 +10,7 @@ use bevy::log::info;
 
 use rc_client::rc_protocol::constants::{EntityId, UserId};
 use rc_client::rc_protocol::protocol::clientbound::chunk_update::FullChunkUpdate;
-use rc_client::rc_protocol::protocol::clientbound::ping::Ping;
 use rc_client::rc_protocol::protocol::clientbound::spawn_entity::SpawnEntity;
-use rc_client::rc_protocol::protocol::serverbound::pong::Pong;
 use rc_client::rc_protocol::protocol::Protocol;
 use rc_client::rc_protocol::types::SendPacket;
 use crate::TransportSystem;
@@ -21,14 +19,8 @@ use crate::TransportSystem;
 pub struct GameUser {
     pub name: Option<String>,
 
-    pub last_ping: Ping,
-    pub last_pong: Pong,
-
     pub user_id: UserId,
     pub entity_id: EntityId,
-
-    /* If the user has been disconnected */
-    pub disconnected: bool, /* Todo: Encryption */
 }
 
 impl GameUser {
