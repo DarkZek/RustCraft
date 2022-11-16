@@ -15,8 +15,9 @@
           "faces": [
             {
               "top_left": [0.0, 1.0, 0.0],
-              "top_right": [0.0, 1.0, 1.0],
-              "bottom_left": [1.0, 1.0, 0.0],
+              "top_right": [1.0, 1.0, 0.0],
+              "bottom_left": [0.0, 1.0, 1.0],
+              "size": [1.0, 1.0],
               "texture": "game/dirt",
               "direction": 1,
               "edge": true
@@ -32,26 +33,26 @@
             },
             {
               "top_left": [0.0, 0.0, 0.0],
-              "top_right": [0.0, 0.0, 1.0],
-              "bottom_left": [0.0, 1.0, 0.0],
+              "top_right": [0.0, 1.0, 0.0],
+              "bottom_left": [0.0, 0.0, 1.0],
               "size": [1.0, 1.0],
               "texture": "game/dirt",
               "direction": 4,
               "edge": true
             },
             {
-              "top_left": [1.0, 0.0, 0.0],
-              "top_right": [1.0, 0.0, 1.0],
-              "bottom_left": [1.0, 1.0, 0.0],
+              "top_left": [1.0, 0.0, 1.0],
+              "top_right": [1.0, 1.0, 1.0],
+              "bottom_left": [1.0, 0.0, 0.0],
               "size": [1.0, 1.0],
               "texture": "game/dirt",
               "direction": 8,
               "edge": true
             },
             {
-              "top_left": [0.0, 0.0, 0.0],
-              "top_right": [1.0, 0.0, 0.0],
-              "bottom_left": [0.0, 1.0, 0.0],
+              "top_left": [1.0, 0.0, 0.0],
+              "top_right": [1.0, 1.0, 0.0],
+              "bottom_left": [0.0, 0.0, 0.0],
               "size": [1.0, 1.0],
               "texture": "game/dirt",
               "direction": 16,
@@ -59,8 +60,8 @@
             },
             {
               "top_left": [0.0, 0.0, 1.0],
-              "top_right": [1.0, 0.0, 1.0],
-              "bottom_left": [0.0, 1.0, 1.0],
+              "top_right": [0.0, 1.0, 1.0],
+              "bottom_left": [1.0, 0.0, 1.0],
               "size": [1.0, 1.0],
               "texture": "game/dirt",
               "direction": 32,
@@ -76,8 +77,8 @@
           "faces": [
             {
               "top_left": [0.0, 1.0, 0.0],
-              "top_right": [0.0, 1.0, 1.0],
-              "bottom_left": [1.0, 1.0, 0.0],
+              "top_right": [1.0, 1.0, 0.0],
+              "bottom_left": [0.0, 1.0, 1.0],
               "size": [1.0, 1.0],
               "texture": "game/grass_top",
               "direction": 1,
@@ -94,26 +95,26 @@
             },
             {
               "top_left": [0.0, 0.0, 0.0],
-              "top_right": [0.0, 0.0, 1.0],
-              "bottom_left": [0.0, 1.0, 0.0],
+              "top_right": [0.0, 1.0, 0.0],
+              "bottom_left": [0.0, 0.0, 1.0],
               "size": [1.0, 1.0],
               "texture": "game/grass_side",
               "direction": 4,
               "edge": true
             },
             {
-              "top_left": [1.0, 0.0, 0.0],
-              "top_right": [1.0, 0.0, 1.0],
-              "bottom_left": [1.0, 1.0, 0.0],
+              "top_left": [1.0, 0.0, 1.0],
+              "top_right": [1.0, 1.0, 1.0],
+              "bottom_left": [1.0, 0.0, 0.0],
               "size": [1.0, 1.0],
               "texture": "game/grass_side",
               "direction": 8,
               "edge": true
             },
             {
-              "top_left": [0.0, 0.0, 0.0],
-              "top_right": [1.0, 0.0, 0.0],
-              "bottom_left": [0.0, 1.0, 0.0],
+              "top_left": [1.0, 0.0, 0.0],
+              "top_right": [1.0, 1.0, 0.0],
+              "bottom_left": [0.0, 0.0, 0.0],
               "size": [1.0, 1.0],
               "texture": "game/grass_side",
               "direction": 16,
@@ -121,8 +122,8 @@
             },
             {
               "top_left": [0.0, 0.0, 1.0],
-              "top_right": [1.0, 0.0, 1.0],
-              "bottom_left": [0.0, 1.0, 1.0],
+              "top_right": [0.0, 1.0, 1.0],
+              "bottom_left": [1.0, 0.0, 1.0],
               "size": [1.0, 1.0],
               "texture": "game/grass_side",
               "direction": 32,
