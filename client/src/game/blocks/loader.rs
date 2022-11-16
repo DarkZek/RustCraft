@@ -91,7 +91,7 @@ pub fn track_blockstate_changes(
                 faces: Vec::with_capacity(block.faces.len()),
                 bounding_boxes: (&block.colliders)
                     .iter()
-                    .map(|v| Aabb::new(v.top_left, v.size))
+                    .map(|v| Aabb::new(v.bottom_left, v.size))
                     .collect::<Vec<Aabb>>(),
             };
 

@@ -32,6 +32,6 @@ pub struct DeserialisedFace {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct DeserialisedAabb {
-    pub top_left: Vector3<f32>,
+    pub bottom_left: Vector3<f32>,
     pub size: Vector3<f32>,
 }

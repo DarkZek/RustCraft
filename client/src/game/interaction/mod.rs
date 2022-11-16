@@ -3,9 +3,13 @@ use crate::services::asset::AssetService;
 use crate::services::chunk::ChunkService;
 use crate::services::physics::raycasts::do_raycast;
 use bevy::prelude::*;
+use bevy_prototype_debug_lines::DebugLines;
+use nalgebra::Vector3;
 
+use crate::game::blocks::states::BlockStates;
 use crate::game::inventory::Inventory;
 use crate::services::chunk::systems::mesh_builder::RerenderChunkFlag;
+use crate::services::physics::aabb::Aabb;
 use rc_protocol::constants::{UserId, CHUNK_SIZE};
 use rc_protocol::protocol::clientbound::block_update::BlockUpdate;
 use rc_protocol::protocol::Protocol;
@@ -20,13 +24,9 @@ pub fn mouse_interaction(
     mut assets: ResMut<AssetService>,
     mut networking: EventWriter<SendPacket>,
     inventory: Res<Inventory>,
+    mut lines: ResMut<DebugLines>,
+    mut blocks: Res<BlockStates>,
 ) {
-    if !mouse_button_input.just_pressed(MouseButton::Left)
-        && !mouse_button_input.just_pressed(MouseButton::Right)
-    {
-        return;
-    }
-
     let camera_pos = camera.get_single().unwrap();
 
     let look = camera_pos.rotation * Vec3::new(0.0, 0.0, -1.0);
@@ -45,12 +45,17 @@ pub fn mouse_interaction(
 
     let ray = cast.unwrap();
 
-    if mouse_button_input.just_pressed(MouseButton::Left) {
-        // Locate chunk
-        let (chunk_loc, inner_loc) = global_to_local_position(ray.block);
+    // Locate chunk
+    let (chunk_loc, inner_loc) = global_to_local_position(ray.block);
 
-        // Try find chunk
-        if let Some(mut chunk) = chunks.chunks.get_mut(&chunk_loc) {
+    // Try find chunk
+    if let Some(mut chunk) = chunks.chunks.get_mut(&chunk_loc) {
+        // Highlight selected block
+        let block = blocks.get_block(chunk.world[inner_loc.x][inner_loc.y][inner_loc.z] as usize);
+
+        Aabb::draw_lines(&block.bounding_boxes, ray.block.cast::<f32>(), &mut lines);
+
+        if mouse_button_input.just_pressed(MouseButton::Left) {
             // Found chunk! Update block
             chunk.world[inner_loc.x][inner_loc.y][inner_loc.z] = 0;
 
@@ -65,14 +70,15 @@ pub fn mouse_interaction(
                 ray.block.y as usize % CHUNK_SIZE,
                 ray.block.z as usize % CHUNK_SIZE
             );
-        }
 
-        // Send network update
-        networking.send(SendPacket(
-            Protocol::BlockUpdate(BlockUpdate::new(0, ray.block.x, ray.block.y, ray.block.z)),
-            UserId(0),
-        ))
-    } else {
+            // Send network update
+            networking.send(SendPacket(
+                Protocol::BlockUpdate(BlockUpdate::new(0, ray.block.x, ray.block.y, ray.block.z)),
+                UserId(0),
+            ))
+        }
+    }
+    if mouse_button_input.just_pressed(MouseButton::Right) {
         if let Some(block_type) = inventory.selected_block_id() {
             let pos = ray.block + ray.normal;
 
