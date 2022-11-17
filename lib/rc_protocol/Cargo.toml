@@ -10,3 +10,8 @@ bincode = { workspace = true }
 byteorder = "*"
 serde = { version = "1.0.145", features = ["derive"] }
 thiserror = "1.0.37"
+
+[dependencies.bevy]
+workspace = true
+default-features = false
+features = []
