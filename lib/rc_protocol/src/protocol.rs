@@ -21,19 +21,19 @@ pub mod serverbound;
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 #[repr(C)]
 pub enum Protocol {
-    Ping(Ping),
-    Pong(Pong),
-    PlayerJoin(PlayerJoin),
+    //Ping(Ping), // unused
+    //Pong(Pong), // unused
+    //PlayerJoin(PlayerJoin), // unused
     PlayerMove(PlayerMove),
     EntityMoved(EntityMoved),
     PlayerRotate(PlayerRotate),
     EntityRotated(EntityRotated),
     DespawnEntity(DespawnEntity),
-    PlayerLeave(PlayerLeave),
+    //PlayerLeave(PlayerLeave), // unused
     BlockUpdate(BlockUpdate),
     ChatSent(ChatSent),
     PartialChunkUpdate(FullChunkUpdate),
-    UserAuthenticate(UserAuthenticate),
+    //UserAuthenticate(UserAuthenticate), // unused
     SpawnEntity(SpawnEntity),
-    Disconnect(Disconnect)
+    //Disconnect(Disconnect) // unused
 }

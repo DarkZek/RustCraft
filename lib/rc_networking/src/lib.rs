@@ -65,16 +65,16 @@ fn get_channel(protocol: &Protocol) -> Channel {
         Protocol::EntityMoved(_) |
         Protocol::PlayerRotate(_) |
         Protocol::EntityRotated(_) |
-        Protocol::Disconnect(_) => { Channel::Unreliable }
+        //Protocol::Disconnect(_) => { Channel::Unreliable }
 
-        Protocol::Ping(_) |
-        Protocol::Pong(_) |
-        Protocol::PlayerJoin(_) |
-        Protocol::PlayerLeave(_) |
+        //Protocol::Ping(_) |
+        //Protocol::Pong(_) |
+        //Protocol::PlayerJoin(_) |
+        //Protocol::PlayerLeave(_) |
         Protocol::BlockUpdate(_) |
         Protocol::ChatSent(_) |
         Protocol::DespawnEntity(_) |
-        Protocol::UserAuthenticate(_) |
+        //Protocol::UserAuthenticate(_) |
         Protocol::SpawnEntity(_) => { Channel::Reliable }
 
         Protocol::PartialChunkUpdate(_) => { Channel::Block }
