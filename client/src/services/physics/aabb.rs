@@ -16,85 +16,89 @@ impl Aabb {
 
     pub fn draw_lines(boxes: &Vec<Aabb>, position: Vector3<f32>, lines: &mut ResMut<DebugLines>) {
         for val in boxes {
-            let base = val.bottom_left + position;
-
-            // Bottom ring
-            lines.line(
-                Vec3::new(base.x, base.y, base.z),
-                Vec3::new(base.x + val.size.x, base.y, base.z),
-                0.0,
-            );
-            lines.line(
-                Vec3::new(base.x, base.y, base.z),
-                Vec3::new(base.x, base.y, base.z + val.size.z),
-                0.0,
-            );
-            lines.line(
-                Vec3::new(base.x + val.size.x, base.y, base.z + val.size.z),
-                Vec3::new(base.x + val.size.x, base.y, base.z),
-                0.0,
-            );
-            lines.line(
-                Vec3::new(base.x + val.size.x, base.y, base.z + val.size.z),
-                Vec3::new(base.x, base.y, base.z + val.size.z),
-                0.0,
-            );
-
-            // Top ring
-            lines.line(
-                Vec3::new(base.x, base.y + val.size.y, base.z),
-                Vec3::new(base.x + val.size.x, base.y + val.size.y, base.z),
-                0.0,
-            );
-            lines.line(
-                Vec3::new(base.x, base.y + val.size.y, base.z),
-                Vec3::new(base.x, base.y + val.size.y, base.z + val.size.z),
-                0.0,
-            );
-            lines.line(
-                Vec3::new(
-                    base.x + val.size.x,
-                    base.y + val.size.y,
-                    base.z + val.size.z,
-                ),
-                Vec3::new(base.x + val.size.x, base.y + val.size.y, base.z),
-                0.0,
-            );
-            lines.line(
-                Vec3::new(
-                    base.x + val.size.x,
-                    base.y + val.size.y,
-                    base.z + val.size.z,
-                ),
-                Vec3::new(base.x, base.y + val.size.y, base.z + val.size.z),
-                0.0,
-            );
-
-            // Vertical ring
-            lines.line(
-                Vec3::new(base.x, base.y, base.z),
-                Vec3::new(base.x, base.y + val.size.y, base.z),
-                0.0,
-            );
-            lines.line(
-                Vec3::new(base.x, base.y, base.z + val.size.z),
-                Vec3::new(base.x, base.y + val.size.y, base.z + val.size.z),
-                0.0,
-            );
-            lines.line(
-                Vec3::new(base.x + val.size.x, base.y, base.z),
-                Vec3::new(base.x + val.size.x, base.y + val.size.y, base.z),
-                0.0,
-            );
-            lines.line(
-                Vec3::new(base.x + val.size.x, base.y, base.z + val.size.z),
-                Vec3::new(
-                    base.x + val.size.x,
-                    base.y + val.size.y,
-                    base.z + val.size.z,
-                ),
-                0.0,
-            );
+            val.draw(position, lines, 0.0);
         }
+    }
+
+    pub fn draw(&self, position: Vector3<f32>, lines: &mut ResMut<DebugLines>, duration: f32) {
+        let base = self.bottom_left + position;
+
+        // Bottom ring
+        lines.line(
+            Vec3::new(base.x, base.y, base.z),
+            Vec3::new(base.x + self.size.x, base.y, base.z),
+            duration,
+        );
+        lines.line(
+            Vec3::new(base.x, base.y, base.z),
+            Vec3::new(base.x, base.y, base.z + self.size.z),
+            duration,
+        );
+        lines.line(
+            Vec3::new(base.x + self.size.x, base.y, base.z + self.size.z),
+            Vec3::new(base.x + self.size.x, base.y, base.z),
+            duration,
+        );
+        lines.line(
+            Vec3::new(base.x + self.size.x, base.y, base.z + self.size.z),
+            Vec3::new(base.x, base.y, base.z + self.size.z),
+            duration,
+        );
+
+        // Top ring
+        lines.line(
+            Vec3::new(base.x, base.y + self.size.y, base.z),
+            Vec3::new(base.x + self.size.x, base.y + self.size.y, base.z),
+            duration,
+        );
+        lines.line(
+            Vec3::new(base.x, base.y + self.size.y, base.z),
+            Vec3::new(base.x, base.y + self.size.y, base.z + self.size.z),
+            duration,
+        );
+        lines.line(
+            Vec3::new(
+                base.x + self.size.x,
+                base.y + self.size.y,
+                base.z + self.size.z,
+            ),
+            Vec3::new(base.x + self.size.x, base.y + self.size.y, base.z),
+            duration,
+        );
+        lines.line(
+            Vec3::new(
+                base.x + self.size.x,
+                base.y + self.size.y,
+                base.z + self.size.z,
+            ),
+            Vec3::new(base.x, base.y + self.size.y, base.z + self.size.z),
+            duration,
+        );
+
+        // Vertical ring
+        lines.line(
+            Vec3::new(base.x, base.y, base.z),
+            Vec3::new(base.x, base.y + self.size.y, base.z),
+            duration,
+        );
+        lines.line(
+            Vec3::new(base.x, base.y, base.z + self.size.z),
+            Vec3::new(base.x, base.y + self.size.y, base.z + self.size.z),
+            duration,
+        );
+        lines.line(
+            Vec3::new(base.x + self.size.x, base.y, base.z),
+            Vec3::new(base.x + self.size.x, base.y + self.size.y, base.z),
+            duration,
+        );
+        lines.line(
+            Vec3::new(base.x + self.size.x, base.y, base.z + self.size.z),
+            Vec3::new(
+                base.x + self.size.x,
+                base.y + self.size.y,
+                base.z + self.size.z,
+            ),
+            duration,
+        );
     }
 }

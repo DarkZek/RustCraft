@@ -1,8 +1,10 @@
 use crate::helpers::global_to_local_position;
 use crate::services::chunk::ChunkService;
 use bevy::prelude::*;
+use bevy_prototype_debug_lines::DebugLines;
 
 use crate::services::chunk::data::ChunkData;
+use crate::services::physics::aabb::Aabb;
 use nalgebra::Vector3;
 
 pub struct RaycastResult {
@@ -16,7 +18,6 @@ pub fn do_raycast(
     mut direction: Vector3<f32>,
     max_distance: f32,
     chunks: &ChunkService,
-    _meshes: &mut ResMut<Assets<Mesh>>,
 ) -> Option<RaycastResult> {
     direction = direction.normalize();
 
@@ -95,23 +96,21 @@ pub fn do_raycast(
             if t_max.x < t_max.z {
                 block.x += step.x;
                 t_max.x += delta.x;
-                distance = t_max.x;
             } else {
                 block.z += step.z;
                 t_max.z += delta.z;
-                distance = t_max.z;
             }
         } else {
             if t_max.y < t_max.z {
                 block.y += step.y;
                 t_max.y += delta.y;
-                distance = t_max.y;
             } else {
                 block.z += step.z;
                 t_max.z += delta.z;
-                distance = t_max.z;
             }
         }
+
+        distance = (starting_position - block.cast::<f32>()).magnitude();
     }
 
     None
