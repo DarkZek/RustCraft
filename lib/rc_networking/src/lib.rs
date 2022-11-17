@@ -1,8 +1,8 @@
 use std::net::SocketAddr;
-use std::time::SystemTime;
+use std::time::{Duration, SystemTime};
 use bevy::prelude::{Res, Resource};
 use bevy::ecs::schedule::ShouldRun;
-use renet::{ConnectToken, RenetConnectionConfig};
+use renet::{BlockChannelConfig, ChannelConfig, ConnectToken, RenetConnectionConfig};
 use rc_protocol::protocol::Protocol;
 
 pub use renet;
@@ -20,10 +20,33 @@ pub const PRIVATE_KEY: [u8; 32] = [
 ];
 
 pub fn get_renet_connection_config() -> RenetConnectionConfig {
-    let config = RenetConnectionConfig::default();
-    // for adding channels append to these (append the same Config to both, ideally using clone)
-    //config.receive_channels_config
-    //config.send_channels_config
+    let channels_config = vec![
+        ChannelConfig::Reliable(Default::default()),
+        ChannelConfig::Unreliable(Default::default()),
+        ChannelConfig::Block(BlockChannelConfig {
+            channel_id: 2,
+            slice_size: 1024,
+            resend_time: Duration::from_millis(300),
+            sent_packet_buffer_size: 256,
+            packet_budget: 8 * 1024,
+            max_message_size: 256 * 1024,
+            message_send_queue_size: 8,
+        }),
+    ];
+
+    let config = RenetConnectionConfig {
+        max_packet_size: 16 * 1024,
+        sent_packets_buffer_size: 256,
+        received_packets_buffer_size: 256,
+        reassembly_buffer_size: 256,
+        rtt_smoothing_factor: 0.005,
+        packet_loss_smoothing_factor: 0.1,
+        bandwidth_smoothing_factor: 0.1,
+        heartbeat_time: Duration::from_millis(100),
+        send_channels_config: channels_config.clone(),
+        receive_channels_config: channels_config,
+    };
+
     config
 }
 
