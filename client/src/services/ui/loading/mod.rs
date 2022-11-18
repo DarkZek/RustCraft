@@ -7,9 +7,9 @@ impl Plugin for LoadingPlugin {
     fn build(&self, app: &mut App) {
         app.add_startup_system(setup_loading_ui)
             .insert_resource(LoadingData::default())
-            .add_system_set(SystemSet::on_update(AppState::Preloading).with_system(set_loading));
-        // .add_system_set(SystemSet::on_update(AppState::Loading).with_system(check_loading))
-        // .add_system_set(SystemSet::on_exit(AppState::Loading).with_system(remove_loading_ui));
+            .add_system_set(SystemSet::on_update(AppState::Preloading).with_system(set_loading))
+            .add_system_set(SystemSet::on_update(AppState::Loading).with_system(check_loading))
+            .add_system_set(SystemSet::on_exit(AppState::Loading).with_system(remove_loading_ui));
     }
 }
 

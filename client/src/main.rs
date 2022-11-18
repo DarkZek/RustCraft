@@ -33,16 +33,14 @@ use bevy::prelude::*;
 
 use crate::game::inventory::InventoryPlugin;
 use crate::game::item::states::ItemStates;
+use crate::services::ui::loading::{set_loading, LoadingPlugin};
 use bevy::window::WindowResizeConstraints;
 use bevy_prototype_debug_lines::DebugLinesPlugin;
-use rc_client::services::ui::loading::LoadingPlugin;
 
 #[rustfmt::skip]
 fn main() {
     
     App::new()
-        // add the app state type
-        .add_state(AppState::Preloading)
         .add_plugins(
             DefaultPlugins
             .set(LogPlugin {
@@ -70,6 +68,10 @@ fn main() {
                 },
                 ..default()
             }))
+        
+        // add the app state 
+        .add_state(AppState::Preloading)
+        
         .add_plugin(DebugLinesPlugin::default())
         
         .insert_resource(Msaa { samples: 4 })
