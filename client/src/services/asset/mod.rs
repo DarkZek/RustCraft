@@ -1,11 +1,27 @@
 use crate::services::asset::atlas::atlas::TextureAtlas;
 use crate::services::asset::atlas::resource_packs::ResourcePacks;
-use crate::services::asset::atlas::ResourcePackData;
+use crate::services::asset::atlas::{
+    build_texture_atlas, load_resource_zips, AtlasLoadingStage, ResourcePackData,
+};
 use crate::services::asset::material::chunk::ChunkMaterial;
+use crate::state::AppState;
 use bevy::prelude::*;
 
 pub mod atlas;
 pub mod material;
+
+pub struct AssetPlugin;
+
+impl Plugin for AssetPlugin {
+    fn build(&self, app: &mut App) {
+        app.insert_resource(AtlasLoadingStage::AwaitingIndex)
+            .add_startup_system(create_asset_service)
+            .add_system(load_resource_zips);
+        // .add_system_set(
+        //     SystemSet::on_update(AppState::Loading).with_system(build_texture_atlas),
+        // );
+    }
+}
 
 #[derive(Resource)]
 pub struct AssetService {

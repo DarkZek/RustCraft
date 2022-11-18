@@ -8,10 +8,27 @@ use crate::game::mesh::face::Face;
 use crate::game::viewable_direction::{ViewableDirection, ViewableDirectionBitMap};
 use crate::services::asset::atlas::index::TextureAtlasIndex;
 
+use crate::game::blocks::loader::{track_blockstate_changes, BlockStateAssetLoader};
+use crate::game::blocks::loading::BlockStatesFile;
 use crate::services::physics::aabb::Aabb;
+use crate::state::AppState;
 use bevy::prelude::*;
 use nalgebra::Vector3;
 use std::collections::HashMap;
+
+pub struct BlockStatesPlugin;
+
+impl Plugin for BlockStatesPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_asset::<BlockStatesFile>()
+            .init_asset_loader::<BlockStateAssetLoader>()
+            .add_startup_system(create_block_states)
+            .insert_resource(BlockStates::new())
+            .add_system_set(
+                SystemSet::on_update(AppState::Loading).with_system(track_blockstate_changes),
+            );
+    }
+}
 
 pub fn create_block_states(server: Res<AssetServer>, mut states: ResMut<BlockStates>) {
     states.asset = Some(server.load("game/block_states.blocks"));

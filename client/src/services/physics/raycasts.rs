@@ -3,6 +3,7 @@ use crate::services::chunk::ChunkService;
 use bevy::prelude::*;
 use bevy_prototype_debug_lines::DebugLines;
 
+use crate::game::blocks::states::BlockStates;
 use crate::services::chunk::data::ChunkData;
 use crate::services::physics::aabb::Aabb;
 use nalgebra::Vector3;
@@ -18,6 +19,7 @@ pub fn do_raycast(
     mut direction: Vector3<f32>,
     max_distance: f32,
     chunks: &ChunkService,
+    blocks: &BlockStates,
 ) -> Option<RaycastResult> {
     direction = direction.normalize();
 
@@ -79,13 +81,33 @@ pub fn do_raycast(
 
         // Check if block is solid
         if let Some(chunk_data) = last_chunk {
-            if chunk_data.world[local_pos.x][local_pos.y][local_pos.z] != 0 {
-                // Solid block
-                return Some(RaycastResult {
-                    block,
-                    normal: last_position - block,
-                    distance,
-                });
+            let block_id = chunk_data.world[local_pos.x][local_pos.y][local_pos.z];
+            if block_id != 0 {
+                let collided_block = blocks.get_block(block_id as usize);
+
+                // Don't bother real aabb check if we know its a full block
+                if collided_block.full {
+                    // Solid block
+                    return Some(RaycastResult {
+                        block,
+                        normal: last_position - block,
+                        distance,
+                    });
+                }
+
+                // Loop through colliders on the block and see if the blocks collider is hit
+                for collider in &collided_block.bounding_boxes {
+                    if collider
+                        .ray_collides(block.cast::<f32>(), starting_position, direction)
+                        .0
+                    {
+                        return Some(RaycastResult {
+                            block,
+                            normal: last_position - block,
+                            distance,
+                        });
+                    }
+                }
             }
         }
 

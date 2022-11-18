@@ -3,6 +3,7 @@ mod movement;
 
 use crate::services::input::look::update_input_look;
 use crate::services::input::movement::update_input_movement;
+use crate::state::AppState;
 use bevy::app::{App, Plugin};
 use bevy::prelude::*;
 use bevy::window::{CursorGrabMode, Windows};
@@ -13,8 +14,11 @@ impl Plugin for InputPlugin {
     fn build(&self, app: &mut App) {
         app.add_system(grab_mouse)
             .insert_resource(InputService { captured: false })
-            .add_system(update_input_look)
-            .add_system(update_input_movement);
+            .add_system_set(
+                SystemSet::on_update(AppState::InGame)
+                    .with_system(update_input_look)
+                    .with_system(update_input_movement),
+            );
     }
 }
 

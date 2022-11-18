@@ -36,6 +36,7 @@ pub fn mouse_interaction(
         from_bevy_vec3(look),
         15.0,
         &chunks,
+        &blocks,
     );
 
     if cast.is_none() {

@@ -8,6 +8,7 @@ use crate::services::asset::AssetService;
 use crate::services::chunk::systems::mesh_builder::RerenderChunkFlag;
 use crate::services::chunk::ChunkService;
 use crate::services::physics::aabb::Aabb;
+use crate::services::ui::loading::LoadingData;
 use crate::state::AppState;
 use bevy::asset::{AssetLoader, BoxedFuture, LoadContext, LoadedAsset};
 use bevy::prelude::*;
@@ -47,9 +48,9 @@ pub fn track_blockstate_changes(
     assets: ResMut<Assets<BlockStatesFile>>,
     mut states: ResMut<BlockStates>,
     atlas: Res<AssetService>,
-    mut app_state: ResMut<State<AppState>>,
     chunks: ResMut<ChunkService>,
     mut commands: Commands,
+    mut loading: ResMut<LoadingData>,
 ) {
     for event in events.iter() {
         match event {
@@ -143,8 +144,5 @@ pub fn track_blockstate_changes(
         }
     }
 
-    // If we're still in loading mode, the block states being loaded means we're ready for the main menu. This may be changed in the future
-    if app_state.current() == &AppState::Loading {
-        app_state.set(AppState::MainMenu).unwrap();
-    }
+    loading.block_states = true;
 }
