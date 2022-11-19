@@ -1,6 +1,6 @@
 use crate::game::viewable_direction::ViewableDirectionBitMap;
 use crate::services::asset::atlas::index::TextureAtlasIndex;
-use nalgebra::{Vector2, Vector3};
+use nalgebra::{Vector3};
 
 #[derive(Debug, Clone)]
 pub struct Face {

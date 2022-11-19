@@ -2,7 +2,7 @@ use crate::services::asset::atlas::atlas::TextureAtlas;
 use crate::services::asset::atlas::resource_packs::ResourcePacks;
 use crate::services::asset::material::chunk::ChunkMaterial;
 use crate::services::asset::AssetService;
-use crate::services::chunk::data::ChunkData;
+
 use bevy::prelude::*;
 use bevy::reflect::TypeUuid;
 

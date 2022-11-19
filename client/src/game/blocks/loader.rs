@@ -9,7 +9,7 @@ use crate::services::chunk::systems::mesh_builder::RerenderChunkFlag;
 use crate::services::chunk::ChunkService;
 use crate::services::physics::aabb::Aabb;
 use crate::services::ui::loading::LoadingData;
-use crate::state::AppState;
+
 use bevy::asset::{AssetLoader, BoxedFuture, LoadContext, LoadedAsset};
 use bevy::prelude::*;
 use nalgebra::Vector3;

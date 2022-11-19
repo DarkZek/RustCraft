@@ -126,9 +126,9 @@ impl Aabb {
         let tmax = t1.max(t2).min(t3.max(t4)).min(t5.max(t6));
 
         // if tmax < 0, ray (line) is intersecting AABB, but the whole AABB is behind us
-        if (tmax < 0.0) {
+        if tmax < 0.0 {
             (false, tmax)
-        } else if (tmin > tmax) {
+        } else if tmin > tmax {
             // if tmin > tmax, ray doesn't intersect AABB
             (false, tmax)
         } else {

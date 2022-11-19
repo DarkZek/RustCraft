@@ -4,7 +4,7 @@ use crate::services::chunk::ChunkService;
 use crate::services::physics::raycasts::do_raycast;
 use bevy::prelude::*;
 use bevy_prototype_debug_lines::DebugLines;
-use nalgebra::Vector3;
+
 
 use crate::game::blocks::states::BlockStates;
 use crate::game::inventory::Inventory;
@@ -25,7 +25,7 @@ pub fn mouse_interaction(
     mut networking: EventWriter<SendPacket>,
     inventory: Res<Inventory>,
     mut lines: ResMut<DebugLines>,
-    mut blocks: Res<BlockStates>,
+    blocks: Res<BlockStates>,
 ) {
     let camera_pos = camera.get_single().unwrap();
 

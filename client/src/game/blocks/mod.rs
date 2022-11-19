@@ -5,7 +5,7 @@ pub mod states;
 use crate::game::blocks::states::BlockStates;
 use crate::game::mesh::draw_kit::DrawKit;
 use crate::game::mesh::face::Face;
-use crate::game::viewable_direction::{ViewableDirection, ViewableDirectionBitMap};
+use crate::game::viewable_direction::{ViewableDirection};
 use crate::services::asset::atlas::index::TextureAtlasIndex;
 
 use crate::game::blocks::loader::{track_blockstate_changes, BlockStateAssetLoader};
