@@ -1,19 +1,19 @@
-use std::sync::atomic::Ordering;
 use crate::events::authorization::AuthorizationEvent;
 use crate::game::transform::Transform;
-use crate::resources::{WorldData, ENTITY_ID_COUNT};
 use bevy::ecs::change_detection::ResMut;
 use bevy::ecs::event::EventReader;
 use bevy::ecs::prelude::{Commands, EventWriter};
 use bevy::ecs::system::Query;
 use bevy::log::info;
+use std::sync::atomic::Ordering;
 
+use crate::game::world::data::ENTITY_ID_COUNT;
+use crate::{TransportSystem, WorldData};
 use rc_client::rc_protocol::constants::{EntityId, UserId};
 use rc_client::rc_protocol::protocol::clientbound::chunk_update::FullChunkUpdate;
 use rc_client::rc_protocol::protocol::clientbound::spawn_entity::SpawnEntity;
 use rc_client::rc_protocol::protocol::Protocol;
 use rc_client::rc_protocol::types::SendPacket;
-use crate::TransportSystem;
 
 /// A user who is yet to be authorized
 pub struct GameUser {

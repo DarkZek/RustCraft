@@ -1,8 +1,9 @@
 use bevy::ecs::prelude::Component;
 use nalgebra::Vector3;
 use rc_client::rc_protocol::constants::CHUNK_SIZE;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Component)]
+#[derive(Debug, Component, Serialize, Deserialize)]
 pub struct ChunkData {
     pub position: Vector3<i32>,
 
