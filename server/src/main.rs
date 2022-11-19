@@ -1,6 +1,8 @@
+#![feature(fs_try_exists)]
 #![allow(unused_variables)]
 #![allow(dead_code)]
 
+pub mod config;
 pub mod console;
 pub mod error;
 pub mod events;
@@ -10,7 +12,7 @@ mod resources;
 mod systems;
 pub mod transport;
 
-
+use crate::config::{load_config, ServerConfig};
 use crate::resources::WorldData;
 use crate::systems::tick::tick;
 use crate::transport::{TransportPlugin, TransportSystem};
@@ -18,6 +20,7 @@ use bevy::app::{App, AppExit, CoreStage};
 use bevy::ecs::event::EventReader;
 use bevy::ecs::prelude::{StageLabel, SystemStage};
 use bevy::log::{info, Level, LogPlugin};
+use bevy::prelude::Res;
 use bevy::MinimalPlugins;
 use rc_client::rc_protocol::types::{ReceivePacket, SendPacket};
 
@@ -26,6 +29,7 @@ fn main() {
 
     // Build App
     App::default()
+        .insert_resource(load_config())
         .add_plugins(MinimalPlugins)
         // Plugins
         .add_plugin(LogPlugin {
@@ -69,6 +73,6 @@ enum ServerState {
 
 pub fn detect_shutdowns(shutdown: EventReader<AppExit>) {
     if !shutdown.is_empty() {
-        println!("Sending disconnect to server");
+        println!("Sending disconnect to clients");
     }
 }

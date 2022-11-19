@@ -2826,6 +2826,8 @@ dependencies = [
  "bevy",
  "nalgebra",
  "rc_client",
+ "serde",
+ "serde_json",
  "thiserror",
 ]
 

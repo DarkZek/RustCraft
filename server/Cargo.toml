@@ -9,6 +9,8 @@ edition = "2021"
 rc_client = { path = "../client" }
 nalgebra = "0.31.4"
 thiserror = "1.0.37"
+serde = { workspace = true }
+serde_json = { workspace = true }
 
 [dependencies.bevy]
 workspace = true
