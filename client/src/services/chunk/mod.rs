@@ -1,6 +1,6 @@
 use crate::services::asset::AssetService;
 use crate::services::chunk::data::{ChunkData, RawChunkData};
-use crate::services::chunk::systems::mesh_builder::RerenderChunkFlag;
+use crate::services::chunk::systems::mesh_builder::{mesh_builder, RerenderChunkFlag};
 use bevy::prelude::*;
 use bevy::render::primitives::Aabb;
 use fnv::{FnvBuildHasher, FnvHashMap};
@@ -17,7 +17,8 @@ pub struct ChunkPlugin;
 
 impl Plugin for ChunkPlugin {
     fn build(&self, app: &mut App) {
-        app.world.insert_resource(ChunkService::new());
+        app.insert_resource(ChunkService::new())
+            .add_system(mesh_builder);
     }
 }
 

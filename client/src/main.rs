@@ -37,6 +37,7 @@ use crate::services::ui::loading::{LoadingPlugin};
 use crate::services::ui::main_menu::MainMenuPlugin;
 use bevy::window::WindowResizeConstraints;
 use bevy_prototype_debug_lines::DebugLinesPlugin;
+use crate::game::world::WorldPlugin;
 
 #[rustfmt::skip]
 fn main() {
@@ -92,6 +93,7 @@ fn main() {
 
         .add_plugin(PhysicsPlugin)
 
+        .add_plugin(WorldPlugin)
 
         .add_plugin(LoadingPlugin)
         .add_plugin(UIPlugin)
@@ -109,8 +111,6 @@ fn main() {
         .init_asset_loader::<ResourcePackAssetLoader>()
 
         .add_plugin(BlockStatesPlugin)
-        
-        .add_system(mesh_builder)
         
         // Asset loading
         .add_plugin(AssetPlugin)

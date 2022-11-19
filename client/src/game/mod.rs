@@ -7,3 +7,4 @@ pub mod mesh;
 pub mod parsing;
 pub mod player;
 pub mod viewable_direction;
+pub mod world;
