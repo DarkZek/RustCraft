@@ -142,7 +142,7 @@ pub fn track_blockstate_changes(
                 .entity(chunk.entity)
                 .insert(RerenderChunkFlag { chunk: *pos });
         }
-    }
 
-    loading.block_states = true;
+        loading.block_states = true;
+    }
 }

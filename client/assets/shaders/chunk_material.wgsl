@@ -28,15 +28,19 @@ struct ChunkInput {
 fn fragment(in: ChunkInput) -> @location(0) vec4<f32> {
     let output_color: vec4<f32> = material.color;
 
-    let sample = textureSample(base_color_texture, base_color_sampler, in.uv);
+    let output_color = output_color * textureSample(base_color_texture, base_color_sampler, in.uv);
 
-    if sample.a == 0.0 {
+    if output_color.a == 0.0 {
         discard;
     }
 
     var input: PbrInput;
     input.material.base_color = output_color;
-    input.material.reflectance = 0.5;
+    input.material.reflectance = 0.03;
+    input.material.flags = STANDARD_MATERIAL_FLAGS_ALPHA_MODE_OPAQUE;
+    input.material.perceptual_roughness = 0.089;
+    input.material.metallic = 0.01;
+    input.material.alpha_cutoff = 0.5;
     input.occlusion = 1.0;
     input.frag_coord = in.frag_coord;
     input.world_position = in.world_position;
@@ -47,16 +51,12 @@ fn fragment(in: ChunkInput) -> @location(0) vec4<f32> {
     );
     input.is_orthographic = false;
 
-    let flags = 0u;
-
     input.N = apply_normal_mapping(
-        flags,
+        input.material.flags,
         input.world_normal,
         in.uv
     );
     input.V = calculate_view(in.world_position, false);
 
-//    return pbr(input);
-
-    return pbr(input) * output_color * sample;
+    return pbr(input);
 }

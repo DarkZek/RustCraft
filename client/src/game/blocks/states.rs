@@ -21,6 +21,7 @@ impl BlockStates {
             asset: None,
         }
     }
+
     // Possibly remove, keeping it because it was in old version and I might need it
     pub fn get_block(&self, i: usize) -> &Block {
         // TODO: Return error block if out of range
