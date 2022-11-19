@@ -35,13 +35,13 @@ fn fragment(in: ChunkInput) -> @location(0) vec4<f32> {
     }
 
     var input: PbrInput;
-    input.material.base_color = output_color;
+    input.material.base_color = vec4(1.0, 1.0, 1.0, 1.0);
     input.material.reflectance = 0.03;
     input.material.flags = STANDARD_MATERIAL_FLAGS_ALPHA_MODE_OPAQUE;
-    input.material.perceptual_roughness = 0.089;
+    input.material.perceptual_roughness = 1.0;
     input.material.metallic = 0.01;
     input.material.alpha_cutoff = 0.5;
-    input.occlusion = 1.0;
+    input.occlusion = 0.0;
     input.frag_coord = in.frag_coord;
     input.world_position = in.world_position;
     input.world_normal = prepare_world_normal(
@@ -58,5 +58,7 @@ fn fragment(in: ChunkInput) -> @location(0) vec4<f32> {
     );
     input.V = calculate_view(in.world_position, false);
 
-    return pbr(input);
+    let output = (pbr(input) * 0.5) + vec4(0.5);
+
+    return output * output_color;
 }

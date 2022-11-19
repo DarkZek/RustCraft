@@ -1,4 +1,3 @@
-
 use bevy::ecs::prelude::Component;
 use nalgebra::Vector3;
 use rc_client::rc_protocol::constants::CHUNK_SIZE;
@@ -36,6 +35,10 @@ impl ChunkData {
                     }
                 }
             }
+        }
+
+        if position.x == 0 && position.y == 0 && position.z == 0 {
+            world[0][15][15] = 3;
         }
 
         ChunkData { position, world }
