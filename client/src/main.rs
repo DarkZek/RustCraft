@@ -34,6 +34,7 @@ use bevy::prelude::*;
 use crate::game::inventory::InventoryPlugin;
 use crate::game::item::states::ItemStates;
 use crate::services::ui::loading::{set_loading, LoadingPlugin};
+use crate::services::ui::main_menu::MainMenuPlugin;
 use bevy::window::WindowResizeConstraints;
 use bevy_prototype_debug_lines::DebugLinesPlugin;
 
@@ -75,8 +76,6 @@ fn main() {
         .add_plugin(DebugLinesPlugin::default())
         
         .insert_resource(Msaa { samples: 4 })
-        
-        .add_plugin(LoadingPlugin)
 
         // Networking
         .add_plugin(NetworkingPlugin)
@@ -92,8 +91,11 @@ fn main() {
         .add_plugin(CameraPlugin)
 
         .add_plugin(PhysicsPlugin)
-        
+
+
+        .add_plugin(LoadingPlugin)
         .add_plugin(UIPlugin)
+        .add_plugin(MainMenuPlugin)
 
         .add_plugin(InventoryPlugin)
         

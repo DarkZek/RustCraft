@@ -16,10 +16,10 @@ impl Plugin for AssetPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(AtlasLoadingStage::AwaitingIndex)
             .add_startup_system(create_asset_service)
-            .add_system(load_resource_zips);
-        // .add_system_set(
-        //     SystemSet::on_update(AppState::Loading).with_system(build_texture_atlas),
-        // );
+            .add_system(load_resource_zips)
+            .add_system_set(
+                SystemSet::on_update(AppState::Loading).with_system(build_texture_atlas),
+            );
     }
 }
 

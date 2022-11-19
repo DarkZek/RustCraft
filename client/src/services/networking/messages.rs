@@ -7,6 +7,7 @@ use bevy::prelude::*;
 use nalgebra::Vector3;
 
 use crate::services::physics::aabb::Aabb;
+use crate::state::AppState;
 use rc_protocol::protocol::Protocol;
 use rc_protocol::types::ReceivePacket;
 
@@ -18,7 +19,12 @@ pub fn messages_update(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut system: ResMut<TransportSystem>,
+    mut app_state: ResMut<State<AppState>>,
 ) {
+    // If we've received packets we're connected. Change this in the future to be a dedicated packet
+    if *app_state.current() == AppState::Connecting {
+        app_state.set(AppState::InGame).unwrap();
+    }
     for event in event_reader.iter() {
         match &event.0 {
             Protocol::EntityMoved(update) => {

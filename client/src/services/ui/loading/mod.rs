@@ -17,7 +17,7 @@ pub fn set_loading(mut app_state: ResMut<State<AppState>>) {
     app_state.set(AppState::Loading).unwrap();
 }
 
-#[derive(Resource, Default)]
+#[derive(Resource, Default, Debug)]
 pub struct LoadingData {
     pub texture_atlas: bool,
     pub block_states: bool,

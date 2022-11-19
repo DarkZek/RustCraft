@@ -76,7 +76,10 @@ pub fn build_texture_atlas(
     mut materials: ResMut<Assets<ChunkMaterial>>,
     mut loading: ResMut<LoadingData>,
 ) {
-    if *stage != AtlasLoadingStage::AwaitingPack || data.len() == 0 {
+    if *stage != AtlasLoadingStage::AwaitingPack
+        || data.len() == 0
+        || *stage == AtlasLoadingStage::Done
+    {
         return;
     }
 
