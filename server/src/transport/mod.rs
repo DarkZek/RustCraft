@@ -15,6 +15,7 @@ use std::str::FromStr;
 
 use crate::ServerConfig;
 use bevy::ecs::prelude::Resource;
+use bevy::prelude::info;
 use rc_client::rc_networking::renet::{RenetServer, ServerAuthentication};
 use rc_client::rc_networking::*;
 use std::time::SystemTime;
@@ -59,6 +60,8 @@ impl Plugin for TransportPlugin {
             socket,
         )
         .unwrap();
+
+        info!("Listening to connections on {:?}", bind_addr);
 
         let transport_system = TransportSystem::default();
 

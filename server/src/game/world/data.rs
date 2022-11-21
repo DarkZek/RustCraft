@@ -21,28 +21,12 @@ pub struct WorldData {
 }
 
 impl WorldData {
-    pub fn new() -> Self {
-        let mut chunks = HashMap::new();
-
-        for x in -1..=1 {
-            for z in -1..=1 {
-                let chunk = ChunkData::generate(Vector3::new(x, 0, z));
-                chunks.insert(Vector3::new(x, 0, z), chunk);
-            }
-        }
-
-        WorldData {
-            chunks,
-            entities: Default::default(),
-        }
-    }
-
-    pub fn load_default() -> Self {
+    pub fn load_spawn_chunks() -> Self {
         let mut chunks = HashMap::new();
 
         // Load spawn area
         for x in -2..=2 {
-            for y in 0..=8 {
+            for y in 0..=3 {
                 for z in -2..=2 {
                     let pos = Vector3::new(x, y, z);
 
@@ -68,7 +52,7 @@ impl WorldData {
 
     pub fn try_load_chunk(location: Vector3<i32>) -> Result<Option<ChunkData>, ServerError> {
         let path = format!(
-            "/world/{:08x}{:08x}{:08x}.chunk",
+            "./world/{:08x}{:08x}{:08x}.chunk",
             location.x, location.y, location.z
         );
         if !fs::try_exists(&path)? {

@@ -14,7 +14,7 @@ pub struct ServerConfig {
 impl Default for ServerConfig {
     fn default() -> Self {
         ServerConfig {
-            ip: "0.0.0.0".to_string(),
+            ip: "127.0.0.1".to_string(),
             port: 25568,
         }
     }

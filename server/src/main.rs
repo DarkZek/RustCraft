@@ -41,13 +41,13 @@ fn main() {
         .add_plugins(MinimalPlugins)
         // Plugins
         .add_plugin(LogPlugin {
-            filter: "".into(),
+            filter: "rechannel=warn".into(),
             level: Level::DEBUG,
         })
         .add_plugin(WorldPlugin)
         .add_plugin(TransportPlugin)
         // Startup System
-        .insert_resource(WorldData::new())
+        .insert_resource(WorldData::load_spawn_chunks())
         .add_event::<ReceivePacket>()
         .add_event::<SendPacket>()
         // Receive Server Events
