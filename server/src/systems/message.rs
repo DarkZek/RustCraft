@@ -1,6 +1,7 @@
 use crate::game::chunk::ChunkData;
 use crate::game::transform::Transform;
 use crate::helpers::global_to_local_position;
+use crate::{TransportSystem, WorldData};
 use bevy::ecs::event::{EventReader, EventWriter};
 use bevy::ecs::prelude::*;
 use bevy::ecs::system::ResMut;
@@ -12,7 +13,6 @@ use rc_client::rc_protocol::protocol::clientbound::entity_moved::EntityMoved;
 use rc_client::rc_protocol::protocol::clientbound::entity_rotated::EntityRotated;
 use rc_client::rc_protocol::protocol::Protocol;
 use rc_client::rc_protocol::types::{ReceivePacket, SendPacket};
-use crate::{TransportSystem, WorldData};
 
 pub fn receive_message_event(
     mut event_reader: EventReader<ReceivePacket>,

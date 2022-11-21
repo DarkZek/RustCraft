@@ -70,7 +70,7 @@ pub fn connect_to_server(mut commands: Commands) {
 
     commands.insert_resource(Client(client));
 
-    info!("Connecting to server on {}", bind_addr);
+    info!("Connecting to server on {}", server_addr);
 }
 
 #[derive(Resource)]

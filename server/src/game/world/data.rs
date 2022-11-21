@@ -1,11 +1,16 @@
 use crate::game::chunk::ChunkData;
 
+use crate::error::ServerError;
 use bevy::ecs::entity::Entity;
+use bevy::ecs::prelude::Resource;
+use bevy::log::error;
 use nalgebra::Vector3;
 use rc_client::rc_protocol::constants::EntityId;
 use std::collections::HashMap;
+use std::fs;
+use std::fs::File;
+use std::io::BufReader;
 use std::sync::atomic::AtomicU64;
-use bevy::ecs::prelude::Resource;
 
 pub const ENTITY_ID_COUNT: AtomicU64 = AtomicU64::new(0);
 
@@ -30,5 +35,51 @@ impl WorldData {
             chunks,
             entities: Default::default(),
         }
+    }
+
+    pub fn load_default() -> Self {
+        let mut chunks = HashMap::new();
+
+        // Load spawn area
+        for x in -2..=2 {
+            for y in 0..=8 {
+                for z in -2..=2 {
+                    let pos = Vector3::new(x, y, z);
+
+                    let chunk = match Self::try_load_chunk(pos) {
+                        Ok(Some(chunk)) => chunk,
+                        Ok(None) => ChunkData::generate(pos),
+                        Err(err) => {
+                            error!("Error reading chunk data: {:?}", err);
+                            ChunkData::generate(pos)
+                        }
+                    };
+
+                    chunks.insert(Vector3::new(x, y, z), chunk);
+                }
+            }
+        }
+
+        WorldData {
+            chunks,
+            entities: Default::default(),
+        }
+    }
+
+    pub fn try_load_chunk(location: Vector3<i32>) -> Result<Option<ChunkData>, ServerError> {
+        let path = format!(
+            "/world/{:08x}{:08x}{:08x}.chunk",
+            location.x, location.y, location.z
+        );
+        if !fs::try_exists(&path)? {
+            return Ok(None);
+        }
+
+        let file = File::open(&path)?;
+        let mut reader = BufReader::new(file);
+
+        let chunk: ChunkData = serde_json::from_reader(&mut reader)?;
+
+        Ok(Some(chunk))
     }
 }

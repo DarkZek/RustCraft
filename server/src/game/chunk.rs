@@ -16,6 +16,7 @@ impl ChunkData {
     pub fn new(position: Vector3<i32>, world: RawChunkData) -> ChunkData {
         ChunkData { position, world }
     }
+
     pub fn blank(position: Vector3<i32>) -> ChunkData {
         ChunkData {
             position,
@@ -44,12 +45,4 @@ impl ChunkData {
 
         ChunkData { position, world }
     }
-
-    // pub fn send(&self, server: &mut Server<Protocol, Channels>, key: &UserKey) {
-    //     let sections = PartialChunkUpdate::generate(&self.world, [self.position.x, self.position.y, self.position.z]);
-    //
-    //     for packet in sections {
-    //         server.send_message(key, Channels::ChunkUpdates, &packet);
-    //     }
-    // }
 }

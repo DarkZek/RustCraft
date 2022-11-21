@@ -1,5 +1,5 @@
 use crate::game::world::data::WorldData;
-use crate::{App, AppExit};
+use crate::{detect_shutdowns, App, AppExit};
 use bevy::prelude::*;
 use std::fs;
 use std::fs::File;
@@ -24,7 +24,11 @@ fn save_world(mut world: Res<WorldData>, mut bevy_shutdown: EventReader<AppExit>
     fs::create_dir_all("./world/").unwrap();
 
     for (pos, chunk) in &world.chunks {
-        let file = File::create(format!("./world/{}_{}_{}.chunk", pos.x, pos.y, pos.z)).unwrap();
+        let file = File::create(format!(
+            "./world/{:08x}{:08x}{:08x}.chunk",
+            pos.x, pos.y, pos.z
+        ))
+        .unwrap();
 
         let mut writer = BufWriter::new(file);
 

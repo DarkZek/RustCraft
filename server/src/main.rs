@@ -13,18 +13,27 @@ pub mod transport;
 
 use crate::config::{load_config, ServerConfig};
 use crate::game::world::data::WorldData;
+use crate::game::world::WorldPlugin;
 use crate::systems::tick::tick;
 use crate::transport::{TransportPlugin, TransportSystem};
 use bevy::app::{App, AppExit, CoreStage};
 use bevy::ecs::event::EventReader;
 use bevy::ecs::prelude::{StageLabel, SystemStage};
 use bevy::log::{info, Level, LogPlugin};
-use bevy::prelude::Res;
-use bevy::MinimalPlugins;
+use bevy::prelude::{EventWriter, IntoSystemDescriptor, Res};
+use bevy::{DefaultPlugins, MinimalPlugins};
 use rc_client::rc_protocol::types::{ReceivePacket, SendPacket};
+use std::io::stdin;
+use std::sync::atomic::{AtomicBool, Ordering};
+
+static SHUTDOWN_BIT: AtomicBool = AtomicBool::new(false);
 
 fn main() {
-    info!("Rustcraft Bevy Server Demo starting up");
+    let _ = ctrlc::set_handler(move || {
+        let _ = SHUTDOWN_BIT.store(true, Ordering::Relaxed);
+    });
+
+    info!("Rustcraft Server starting up");
 
     // Build App
     App::default()
@@ -35,6 +44,7 @@ fn main() {
             filter: "".into(),
             level: Level::DEBUG,
         })
+        .add_plugin(WorldPlugin)
         .add_plugin(TransportPlugin)
         // Startup System
         .insert_resource(WorldData::new())
@@ -47,13 +57,14 @@ fn main() {
         .add_system(systems::message::receive_message_event)
         // Gameplay Loop on Tick
         .add_system(tick)
-        .add_system_to_stage(CoreStage::PostUpdate, detect_shutdowns)
+        .add_system_to_stage(CoreStage::PreUpdate, detect_shutdowns)
         // Run App
         .run();
 }
 
-pub fn detect_shutdowns(shutdown: EventReader<AppExit>) {
-    if !shutdown.is_empty() {
-        println!("Sending disconnect to clients");
+pub fn detect_shutdowns(mut shutdown: EventWriter<AppExit>) {
+    if SHUTDOWN_BIT.load(Ordering::Relaxed) {
+        shutdown.send(AppExit);
+        info!("Shutting down server");
     }
 }
