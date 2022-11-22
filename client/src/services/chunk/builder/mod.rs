@@ -29,7 +29,6 @@ pub fn mesh_builder(
     mut flags: EventReader<RerenderChunkFlag>,
     chunks: Res<ChunkService>,
     mut meshes: ResMut<Assets<Mesh>>,
-    mut entity_meshes: Query<&Handle<Mesh>>,
     camera: Query<&Transform, With<Camera>>,
     block_states: Res<BlockStates>,
     mut builder_data: Local<MeshBuilderCache>,
@@ -60,10 +59,10 @@ pub fn mesh_builder(
 
     // Loop over all new chunks to render and add them to the list if the chunk exists and if its not already being rerendered
     for pos in rerender_chunks {
-        // If this chunk isn't already scheduled for rebuild
-        if !builder_data.chunks.iter().any(|v| v.chunk == pos) {
-            // And the chunk data exists
-            if let Some(data) = service.chunks.get(&pos) {
+        // The chunk data exists
+        if let Some(data) = service.chunks.get(&pos) {
+            // And if this chunk isn't already scheduled for rebuild
+            if !builder_data.chunks.iter().any(|v| v.chunk == pos) {
                 // Put entry into rebuild table
                 builder_data.chunks.push(MeshBuildEntry {
                     entity: data.entity.clone(),
@@ -81,7 +80,7 @@ pub fn mesh_builder(
     let mut build_chunks = Vec::with_capacity(build_chunks_count);
 
     // Collect
-    for _ in 0..build_chunks_count {
+    while build_chunks.len() < build_chunks_count {
         build_chunks.push(builder_data.chunks.pop().unwrap());
     }
 
@@ -93,24 +92,22 @@ pub fn mesh_builder(
     let updates = iterator
         .map(|entry: &MeshBuildEntry| {
             // If the data exists
-            if let Option::Some(chunk) = chunks.chunks.get(&entry.chunk) {
+            if let Some(chunk) = chunks.chunks.get(&entry.chunk) {
                 // Generate mesh & gpu buffers
                 Some((
                     chunk.generate_mesh(&chunks, &block_states, true),
-                    &entry.entity,
+                    &chunk.mesh,
                 ))
             } else {
+                warn!("Chunk data doesn't exist when trying to build chunk");
                 None
             }
         })
-        .collect::<Vec<Option<(UpdateChunkMesh, &Entity)>>>();
+        .collect::<Vec<Option<(UpdateChunkMesh, &Handle<Mesh>)>>>();
 
     for update in updates {
-        if let Some((val, entity)) = update {
-            warn!("Applying mesh");
-            if let Ok(handle) = entity_meshes.get(*entity) {
-                apply_mesh(val, meshes.get_mut(handle).unwrap());
-            }
+        if let Some((val, handle)) = update {
+            apply_mesh(val, meshes.get_mut(handle).unwrap());
         }
     }
 }

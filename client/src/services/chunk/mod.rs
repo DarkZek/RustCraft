@@ -45,9 +45,11 @@ impl ChunkService {
         meshes: &mut ResMut<Assets<Mesh>>,
         rerender_chunk: &mut EventWriter<RerenderChunkFlag>,
     ) {
+        let mesh = meshes.add(Mesh::from(shape::Plane { size: 0.0 }));
+
         let entity = commands
             .spawn(MaterialMeshBundle {
-                mesh: meshes.add(Mesh::from(shape::Plane { size: 0.0 })),
+                mesh: mesh.clone(),
                 material: asset_service.texture_atlas_material.clone(),
                 transform: Transform::from_translation(Vec3::new(
                     (position.x * CHUNK_SIZE as i32) as f32,
@@ -63,7 +65,7 @@ impl ChunkService {
             ))
             .id();
 
-        let chunk = ChunkData::new(data, entity, position);
+        let chunk = ChunkData::new(data, entity, position, mesh);
 
         self.chunks.insert(position, chunk);
 

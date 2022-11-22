@@ -1,6 +1,6 @@
 use crate::game::viewable_direction::ViewableDirection;
 use bevy::ecs::component::Component;
-use bevy::prelude::Entity;
+use bevy::prelude::{Entity, Handle, Mesh};
 
 use nalgebra::Vector3;
 use rc_protocol::constants::CHUNK_SIZE;
@@ -14,6 +14,8 @@ pub struct ChunkData {
 
     pub entity: Entity,
 
+    pub mesh: Handle<Mesh>,
+
     pub world: RawChunkData,
 
     // TODO: Investigate if caching this is even faster
@@ -24,13 +26,19 @@ pub struct ChunkData {
 }
 
 impl ChunkData {
-    pub fn new(data: RawChunkData, entity: Entity, position: Vector3<i32>) -> ChunkData {
+    pub fn new(
+        data: RawChunkData,
+        entity: Entity,
+        position: Vector3<i32>,
+        mesh: Handle<Mesh>,
+    ) -> ChunkData {
         ChunkData {
             world: data,
             viewable_map: None,
             position,
             light_levels: [[[[0, 0, 0, 255]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE],
             entity,
+            mesh,
         }
     }
 }
