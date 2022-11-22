@@ -34,38 +34,6 @@ impl ChunkService {
         }
     }
 
-    /// Loads a chunk from network into the textures by creating an entity and ChunkData entry
-    pub fn load_chunk(
-        &mut self,
-        position: Vector3<i32>,
-        data: &FullChunkUpdate,
-        commands: &mut Commands,
-        asset_service: &AssetService,
-        meshes: &mut ResMut<Assets<Mesh>>,
-    ) {
-        let entity = commands
-            .spawn(MaterialMeshBundle {
-                mesh: meshes.add(Mesh::from(shape::Plane { size: 0.0 })),
-                material: asset_service.texture_atlas_material.clone(),
-                transform: Transform::from_translation(Vec3::new(
-                    (position.x * CHUNK_SIZE as i32) as f32,
-                    (position.y * CHUNK_SIZE as i32) as f32,
-                    (position.z * CHUNK_SIZE as i32) as f32,
-                )),
-                ..default()
-            })
-            .insert(RerenderChunkFlag { chunk: position })
-            //TODO: Remove once bevy has fixed its shitty AABB generation
-            .insert(Aabb::from_min_max(
-                Vec3::new(0.0, 0.0, 0.0),
-                Vec3::new(16.0, 16.0, 16.0),
-            ))
-            .id();
-
-        self.chunks
-            .insert(position, ChunkData::new(data.data, entity, position));
-    }
-
     /// Creates a new chunk from data
     pub fn create_chunk(
         &mut self,
@@ -86,7 +54,10 @@ impl ChunkService {
                 )),
                 ..default()
             })
-            .insert(RerenderChunkFlag { chunk: position })
+            .insert(RerenderChunkFlag {
+                chunk: position,
+                adjacent: true,
+            })
             //TODO: Remove once bevy has fixed its shitty AABB generation
             .insert(Aabb::from_min_max(
                 Vec3::new(0.0, 0.0, 0.0),
