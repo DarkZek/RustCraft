@@ -5,39 +5,30 @@ pub mod render;
 pub mod services;
 pub mod state;
 
-use crate::game::blocks::{BlockStatesPlugin};
+use crate::game::blocks::BlockStatesPlugin;
 use crate::game::interaction::mouse_interaction;
+use crate::game::inventory::InventoryPlugin;
+use crate::game::item::states::ItemStates;
 use crate::game::parsing::json::JsonAssetLoader;
 use crate::game::parsing::pack::ResourcePackAssetLoader;
+use crate::game::world::WorldPlugin;
 use crate::services::asset::atlas::resource_packs::ResourcePacks;
-use crate::services::asset::atlas::{
-    ResourcePackData,
-};
+use crate::services::asset::atlas::ResourcePackData;
 use crate::services::asset::material::chunk::ChunkMaterial;
-use crate::services::asset::{AssetPlugin};
+use crate::services::asset::AssetPlugin;
 use crate::services::camera::CameraPlugin;
-
-use crate::services::chunk::systems::mesh_builder::mesh_builder;
 use crate::services::chunk::ChunkPlugin;
 use crate::services::input::InputPlugin;
 use crate::services::networking::NetworkingPlugin;
 use crate::services::physics::PhysicsPlugin;
+use crate::services::ui::loading::LoadingPlugin;
+use crate::services::ui::main_menu::MainMenuPlugin;
 use crate::services::ui::UIPlugin;
-
-
-
-
 use crate::state::AppState;
 use bevy::log::{Level, LogPlugin};
 use bevy::prelude::*;
-
-use crate::game::inventory::InventoryPlugin;
-use crate::game::item::states::ItemStates;
-use crate::services::ui::loading::{LoadingPlugin};
-use crate::services::ui::main_menu::MainMenuPlugin;
 use bevy::window::WindowResizeConstraints;
 use bevy_prototype_debug_lines::DebugLinesPlugin;
-use crate::game::world::WorldPlugin;
 
 #[rustfmt::skip]
 fn main() {

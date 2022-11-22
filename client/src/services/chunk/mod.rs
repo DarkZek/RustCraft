@@ -1,6 +1,6 @@
 use crate::services::asset::AssetService;
+use crate::services::chunk::builder::{mesh_builder, RerenderChunkFlag};
 use crate::services::chunk::data::{ChunkData, RawChunkData};
-use crate::services::chunk::systems::mesh_builder::{mesh_builder, RerenderChunkFlag};
 use bevy::prelude::*;
 use bevy::render::primitives::Aabb;
 use fnv::{FnvBuildHasher, FnvHashMap};
@@ -9,16 +9,17 @@ use rc_protocol::constants::CHUNK_SIZE;
 use rc_protocol::protocol::clientbound::chunk_update::FullChunkUpdate;
 use std::collections::HashMap;
 
+pub mod builder;
 pub mod data;
 pub mod lookup;
-pub mod systems;
 
 pub struct ChunkPlugin;
 
 impl Plugin for ChunkPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(ChunkService::new())
-            .add_system(mesh_builder);
+            .add_system(mesh_builder)
+            .add_event::<RerenderChunkFlag>();
     }
 }
 
@@ -42,6 +43,7 @@ impl ChunkService {
         commands: &mut Commands,
         asset_service: &AssetService,
         meshes: &mut ResMut<Assets<Mesh>>,
+        rerender_chunk: &mut EventWriter<RerenderChunkFlag>,
     ) {
         let entity = commands
             .spawn(MaterialMeshBundle {
@@ -54,10 +56,6 @@ impl ChunkService {
                 )),
                 ..default()
             })
-            .insert(RerenderChunkFlag {
-                chunk: position,
-                adjacent: true,
-            })
             //TODO: Remove once bevy has fixed its shitty AABB generation
             .insert(Aabb::from_min_max(
                 Vec3::new(0.0, 0.0, 0.0),
@@ -68,5 +66,10 @@ impl ChunkService {
         let chunk = ChunkData::new(data, entity, position);
 
         self.chunks.insert(position, chunk);
+
+        rerender_chunk.send(RerenderChunkFlag {
+            chunk: position,
+            adjacent: true,
+        });
     }
 }

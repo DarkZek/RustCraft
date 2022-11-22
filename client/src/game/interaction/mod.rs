@@ -7,7 +7,7 @@ use bevy_prototype_debug_lines::DebugLines;
 
 use crate::game::blocks::states::BlockStates;
 use crate::game::inventory::Inventory;
-use crate::services::chunk::systems::mesh_builder::RerenderChunkFlag;
+use crate::services::chunk::builder::RerenderChunkFlag;
 use crate::services::physics::aabb::Aabb;
 use rc_protocol::constants::{UserId, CHUNK_SIZE};
 use rc_protocol::protocol::clientbound::block_update::BlockUpdate;
@@ -25,6 +25,7 @@ pub fn mouse_interaction(
     inventory: Res<Inventory>,
     mut lines: ResMut<DebugLines>,
     blocks: Res<BlockStates>,
+    mut rerender_chunks: EventWriter<RerenderChunkFlag>,
 ) {
     let camera_pos = camera.get_single().unwrap();
 
@@ -59,7 +60,7 @@ pub fn mouse_interaction(
             chunk.world[inner_loc.x][inner_loc.y][inner_loc.z] = 0;
 
             // Rerender
-            commands.entity(chunk.entity).insert(RerenderChunkFlag {
+            rerender_chunks.send(RerenderChunkFlag {
                 chunk: chunk_loc,
                 adjacent: false,
             });
@@ -93,7 +94,7 @@ pub fn mouse_interaction(
                 chunk.world[inner_loc.x][inner_loc.y][inner_loc.z] = block_type;
 
                 // Rerender
-                commands.entity(chunk.entity).insert(RerenderChunkFlag {
+                rerender_chunks.send(RerenderChunkFlag {
                     chunk: chunk_loc,
                     adjacent: false,
                 });
@@ -112,7 +113,14 @@ pub fn mouse_interaction(
                 chunk[inner_loc.x][inner_loc.y][inner_loc.z] = block_type;
 
                 // Create chunk
-                chunks.create_chunk(chunk_loc, chunk, &mut commands, &mut assets, &mut meshes);
+                chunks.create_chunk(
+                    chunk_loc,
+                    chunk,
+                    &mut commands,
+                    &mut assets,
+                    &mut meshes,
+                    &mut rerender_chunks,
+                );
             }
 
             // Send network update

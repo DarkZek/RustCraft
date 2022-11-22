@@ -4,7 +4,7 @@ use crate::services::asset::AssetService;
 use crate::services::chunk::ChunkService;
 use bevy::prelude::*;
 
-use crate::services::chunk::systems::mesh_builder::RerenderChunkFlag;
+use crate::services::chunk::builder::RerenderChunkFlag;
 use nalgebra::Vector3;
 use rc_protocol::constants::CHUNK_SIZE;
 use rc_protocol::protocol::Protocol;
@@ -16,6 +16,7 @@ pub fn network_chunk_sync(
     mut meshes: ResMut<Assets<Mesh>>,
     mut asset_service: Res<AssetService>,
     mut chunk_service: ResMut<ChunkService>,
+    mut rerender_chunks: EventWriter<RerenderChunkFlag>,
 ) {
     for event in event_reader.iter() {
         match &event.0 {
@@ -28,6 +29,7 @@ pub fn network_chunk_sync(
                     &mut commands,
                     &asset_service,
                     &mut meshes,
+                    &mut rerender_chunks,
                 );
             }
             Protocol::BlockUpdate(update) => {
@@ -42,7 +44,7 @@ pub fn network_chunk_sync(
                     chunk.world[inner_loc.x][inner_loc.y][inner_loc.z] = update.id;
 
                     // Rerender
-                    commands.entity(chunk.entity).insert(RerenderChunkFlag {
+                    rerender_chunks.send(RerenderChunkFlag {
                         chunk: chunk_loc,
                         adjacent: false,
                     });
@@ -62,6 +64,7 @@ pub fn network_chunk_sync(
                         &mut commands,
                         &mut asset_service,
                         &mut meshes,
+                        &mut rerender_chunks,
                     );
                 }
             }

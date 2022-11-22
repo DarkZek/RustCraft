@@ -5,11 +5,11 @@ use crate::game::mesh::face::Face;
 use crate::game::viewable_direction::ViewableDirectionBitMap;
 
 use crate::services::asset::AssetService;
-use crate::services::chunk::systems::mesh_builder::RerenderChunkFlag;
 use crate::services::chunk::ChunkService;
 use crate::services::physics::aabb::Aabb;
 use crate::services::ui::loading::LoadingData;
 
+use crate::services::chunk::builder::RerenderChunkFlag;
 use bevy::asset::{AssetLoader, BoxedFuture, LoadContext, LoadedAsset};
 use bevy::prelude::*;
 use nalgebra::Vector3;
@@ -51,6 +51,7 @@ pub fn track_blockstate_changes(
     chunks: ResMut<ChunkService>,
     mut commands: Commands,
     mut loading: ResMut<LoadingData>,
+    mut rerender_chunks: EventWriter<RerenderChunkFlag>,
 ) {
     for event in events.iter() {
         match event {
@@ -138,7 +139,7 @@ pub fn track_blockstate_changes(
 
         // Rerender all chunks with new block states
         for (pos, chunk) in &chunks.chunks {
-            commands.entity(chunk.entity).insert(RerenderChunkFlag {
+            rerender_chunks.send(RerenderChunkFlag {
                 chunk: *pos,
                 adjacent: false,
             });
