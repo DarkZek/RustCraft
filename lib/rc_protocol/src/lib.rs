@@ -25,6 +25,22 @@ impl Plugin for ProtocolPlugin {
     }
 }
 
+pub struct CreateNetEntityCommand {
+    id: NetworkEntity,
+    // maybe an enum for entity type or something
+}
+
+pub fn create_net_entity(
+    mut commands: Commands,
+    mut net_entities: ResMut<NetworkEntities>,
+    mut receiver: MessageReceiver<CreateNetEntityCommand>,
+) {
+    for msg in receiver.iter() {
+        let entity = commands.spawn(());
+        net_entities.map.insert(msg.id, entity.id());
+    }
+}
+
 #[derive(Component, Default)]
 pub struct SyncPosition {
     val: Vec3,
