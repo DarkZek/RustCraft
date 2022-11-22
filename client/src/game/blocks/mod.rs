@@ -8,6 +8,7 @@ use crate::game::mesh::face::Face;
 use crate::game::viewable_direction::{ViewableDirection, ViewableDirectionBitMap};
 use crate::services::asset::atlas::index::TextureAtlasIndex;
 
+use crate::services::physics::aabb::Aabb;
 use bevy::prelude::*;
 use nalgebra::Vector3;
 use std::collections::HashMap;
@@ -23,6 +24,7 @@ pub struct Block {
     pub full: bool,
     pub draw_betweens: bool,
     pub faces: Vec<Face>,
+    pub bounding_boxes: Vec<Aabb>,
 }
 
 impl Block {
@@ -33,27 +35,7 @@ impl Block {
                 continue;
             }
 
-            // Draw based on direction to get winding order of vertices correct
-            match face.direction {
-                ViewableDirectionBitMap::Top => {
-                    kit.draw_top_face(pos + face.top_left, face.size, face.texture)
-                }
-                ViewableDirectionBitMap::Bottom => {
-                    kit.draw_bottom_face(pos + face.top_left, face.size, face.texture)
-                }
-                ViewableDirectionBitMap::Left => {
-                    kit.draw_left_face(pos + face.top_left, face.size, face.texture)
-                }
-                ViewableDirectionBitMap::Right => {
-                    kit.draw_right_face(pos + face.top_left, face.size, face.texture)
-                }
-                ViewableDirectionBitMap::Front => {
-                    kit.draw_front_face(pos + face.top_left, face.size, face.texture)
-                }
-                ViewableDirectionBitMap::Back => {
-                    kit.draw_back_face(pos + face.top_left, face.size, face.texture)
-                }
-            }
+            kit.draw_face(pos, face);
         }
     }
 }

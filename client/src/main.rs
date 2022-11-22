@@ -35,6 +35,7 @@ use crate::game::inventory::InventoryPlugin;
 use crate::game::item::states::ItemStates;
 use bevy::window::WindowResizeConstraints;
 use bevy_inspector_egui::WorldInspectorPlugin;
+use bevy_prototype_debug_lines::DebugLinesPlugin;
 
 #[rustfmt::skip]
 fn main() {
@@ -69,6 +70,7 @@ fn main() {
                 },
                 ..default()
             }))
+        .add_plugin(DebugLinesPlugin::default())
         .add_plugin(WorldInspectorPlugin::new())
         .insert_resource(Msaa { samples: 4 })
 
