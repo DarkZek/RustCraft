@@ -12,6 +12,7 @@ thiserror = "1.0.37"
 serde = { workspace = true }
 serde_json = { workspace = true }
 ctrlc = { version = "3.2.3" }
+noise = "0.8.2"
 
 [dependencies.bevy]
 workspace = true

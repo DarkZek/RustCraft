@@ -22,9 +22,9 @@ pub fn network_chunk_sync(
             Protocol::PartialChunkUpdate(update) => {
                 let location = Vector3::new(update.x, update.y, update.z);
 
-                chunk_service.load_chunk(
+                chunk_service.create_chunk(
                     location,
-                    &update,
+                    update.data,
                     &mut commands,
                     &asset_service,
                     &mut meshes,
@@ -42,9 +42,12 @@ pub fn network_chunk_sync(
                     chunk.world[inner_loc.x][inner_loc.y][inner_loc.z] = update.id;
 
                     // Rerender
-                    commands
-                        .entity(chunk.entity)
-                        .insert(RerenderChunkFlag { chunk: chunk_loc });
+                    commands.entity(chunk.entity).insert(RerenderChunkFlag {
+                        chunk: chunk_loc,
+                        adjacent: false,
+                    });
+
+                    // TODO: Figure out if I need to update adjacent blocks
                 } else {
                     // Create chunk data
                     let mut chunk = [[[0; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];

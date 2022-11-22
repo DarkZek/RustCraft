@@ -9,6 +9,7 @@ use std::io::{BufReader, BufWriter};
 pub struct ServerConfig {
     pub ip: String,
     pub port: u16,
+    pub save_world: bool,
 }
 
 impl Default for ServerConfig {
@@ -16,6 +17,7 @@ impl Default for ServerConfig {
         ServerConfig {
             ip: "127.0.0.1".to_string(),
             port: 25568,
+            save_world: true,
         }
     }
 }

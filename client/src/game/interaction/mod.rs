@@ -5,7 +5,6 @@ use crate::services::physics::raycasts::do_raycast;
 use bevy::prelude::*;
 use bevy_prototype_debug_lines::DebugLines;
 
-
 use crate::game::blocks::states::BlockStates;
 use crate::game::inventory::Inventory;
 use crate::services::chunk::systems::mesh_builder::RerenderChunkFlag;
@@ -60,9 +59,12 @@ pub fn mouse_interaction(
             chunk.world[inner_loc.x][inner_loc.y][inner_loc.z] = 0;
 
             // Rerender
-            commands
-                .entity(chunk.entity)
-                .insert(RerenderChunkFlag { chunk: chunk_loc });
+            commands.entity(chunk.entity).insert(RerenderChunkFlag {
+                chunk: chunk_loc,
+                adjacent: false,
+            });
+
+            // TODO: Update adjacent chunks if needed
 
             info!(
                 "Destroyed [{}, {}, {}]",
@@ -91,9 +93,12 @@ pub fn mouse_interaction(
                 chunk.world[inner_loc.x][inner_loc.y][inner_loc.z] = block_type;
 
                 // Rerender
-                commands
-                    .entity(chunk.entity)
-                    .insert(RerenderChunkFlag { chunk: chunk_loc });
+                commands.entity(chunk.entity).insert(RerenderChunkFlag {
+                    chunk: chunk_loc,
+                    adjacent: false,
+                });
+
+                // TODO: Update adjacent chunks if needed
 
                 info!(
                     "Updated [{}, {}, {}]",

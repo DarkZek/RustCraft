@@ -1,7 +1,9 @@
 use bevy::ecs::prelude::Component;
 use nalgebra::Vector3;
+use noise::{NoiseFn, Perlin};
 use rc_client::rc_protocol::constants::CHUNK_SIZE;
 use serde::{Deserialize, Serialize};
+use std::ops::Mul;
 
 #[derive(Debug, Component, Serialize, Deserialize)]
 pub struct ChunkData {
@@ -27,20 +29,39 @@ impl ChunkData {
     pub fn generate(position: Vector3<i32>) -> ChunkData {
         let mut world = [[[0; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
 
+        let ground_perlin = Perlin::new(0);
+        let grass_perlin = Perlin::new(1);
+
         for x in 0..CHUNK_SIZE {
             for y in 0..CHUNK_SIZE {
                 for z in 0..CHUNK_SIZE {
-                    if (x + y + z) % 3 == 0 {
+                    let absolute = Vector3::new(
+                        (position.x * 16) + x as i32,
+                        (position.y * 16) + y as i32,
+                        (position.z * 16) + z as i32,
+                    );
+
+                    let ground_level = 35
+                        + ground_perlin
+                            .get([absolute.x as f64 / 20.0, absolute.z as f64 / 20.0])
+                            .mul(3.0)
+                            .floor() as i32;
+
+                    println!("{:?}", ground_level);
+
+                    if absolute.y < ground_level {
                         world[x][y][z] = 1;
-                    } else {
+                    } else if absolute.y == ground_level {
                         world[x][y][z] = 2;
+                    } else if absolute.y == ground_level + 1 {
+                        if grass_perlin.get([absolute.x as f64 / 2.0, absolute.z as f64 / 2.0])
+                            > 0.7
+                        {
+                            world[x][y][z] = 3;
+                        }
                     }
                 }
             }
-        }
-
-        if position.x == 0 && position.y == 0 && position.z == 0 {
-            world[0][15][15] = 3;
         }
 
         ChunkData { position, world }

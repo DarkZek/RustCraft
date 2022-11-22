@@ -1,5 +1,5 @@
 use crate::game::world::data::WorldData;
-use crate::{detect_shutdowns, App, AppExit};
+use crate::{detect_shutdowns, App, AppExit, ServerConfig};
 use bevy::prelude::*;
 use std::fs;
 use std::fs::File;
@@ -15,8 +15,12 @@ impl Plugin for WorldPlugin {
     }
 }
 
-fn save_world(mut world: Res<WorldData>, mut bevy_shutdown: EventReader<AppExit>) {
-    if bevy_shutdown.is_empty() {
+fn save_world(
+    mut world: Res<WorldData>,
+    config: Res<ServerConfig>,
+    mut bevy_shutdown: EventReader<AppExit>,
+) {
+    if bevy_shutdown.is_empty() || !config.save_world {
         return;
     }
 

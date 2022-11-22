@@ -28,7 +28,7 @@ pub fn get_renet_connection_config() -> RenetConnectionConfig {
             sent_packet_buffer_size: 256,
             packet_budget: 8 * 1024,
             max_message_size: 256 * 1024,
-            message_send_queue_size: 8,
+            message_send_queue_size: 1024,
         }),
     ];
 

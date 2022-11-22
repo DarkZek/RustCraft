@@ -138,9 +138,10 @@ pub fn track_blockstate_changes(
 
         // Rerender all chunks with new block states
         for (pos, chunk) in &chunks.chunks {
-            commands
-                .entity(chunk.entity)
-                .insert(RerenderChunkFlag { chunk: *pos });
+            commands.entity(chunk.entity).insert(RerenderChunkFlag {
+                chunk: *pos,
+                adjacent: false,
+            });
         }
 
         loading.block_states = true;

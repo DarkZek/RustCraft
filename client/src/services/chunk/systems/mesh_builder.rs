@@ -11,6 +11,8 @@ use rc_protocol::constants::CHUNK_SIZE;
 #[derive(Component)]
 pub struct RerenderChunkFlag {
     pub chunk: Vector3<i32>,
+    /// Whether we should also re-render adjacent chunks
+    pub adjacent: bool,
 }
 
 pub fn mesh_builder(
