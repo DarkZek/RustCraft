@@ -1,5 +1,5 @@
 use crate::systems::authorization::GameUser;
-use rc_client::rc_protocol::constants::UserId;
+use rc_networking::constants::UserId;
 
 pub struct DisconnectionEvent {
     pub client: UserId,

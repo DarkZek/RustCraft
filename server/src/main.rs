@@ -19,7 +19,7 @@ use bevy::ecs::event::EventReader;
 use bevy::ecs::prelude::{StageLabel, SystemStage};
 use bevy::log::{info, Level, LogPlugin};
 use bevy::MinimalPlugins;
-use rc_client::rc_protocol::types::{ReceivePacket, SendPacket};
+use rc_networking::types::{ReceivePacket, SendPacket};
 
 fn main() {
     info!("Rustcraft Bevy Server Demo starting up");

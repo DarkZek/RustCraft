@@ -4,9 +4,11 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-rc_protocol = { path = "../rc_protocol" }
 bincode = { workspace = true }
+byteorder = "*"
 renet = "0.0.9"
+serde = { version = "1.0.145", features = ["derive"] }
+thiserror = "1.0.37"
 
 [dependencies.bevy]
 workspace = true

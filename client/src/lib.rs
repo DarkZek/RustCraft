@@ -3,6 +3,3 @@ pub mod game;
 pub mod helpers;
 pub mod services;
 pub mod state;
-
-pub use rc_protocol;
-pub use rc_networking;

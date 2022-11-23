@@ -1,9 +1,17 @@
+pub mod channels;
+pub mod config;
+pub mod constants;
+pub mod protocol;
+pub mod stream;
+pub mod error;
+pub mod types;
+
 use std::net::SocketAddr;
 use std::time::SystemTime;
 use bevy::prelude::{Res, Resource};
 use bevy::ecs::schedule::ShouldRun;
 use renet::{ConnectToken, RenetConnectionConfig};
-use rc_protocol::protocol::Protocol;
+use protocol::Protocol;
 
 pub use renet;
 pub use client::*;
@@ -93,8 +101,8 @@ mod client {
     use bevy::app::AppExit;
     use bevy::prelude::*;
     use renet::{RenetClient, RenetError};
-    use rc_protocol::constants::UserId;
-    use rc_protocol::types::{ReceivePacket, SendPacket};
+    use crate::constants::UserId;
+    use crate::types::{ReceivePacket, SendPacket};
     use crate::*;
 
     pub struct RenetClientPlugin;
@@ -208,8 +216,8 @@ pub mod server {
     use bevy::app::AppExit;
     use bevy::prelude::*;
     use renet::{RenetError, RenetServer, ServerEvent};
-    use rc_protocol::constants::UserId;
-    use rc_protocol::types::{ReceivePacket, SendPacket};
+    use crate::constants::UserId;
+    use crate::types::{ReceivePacket, SendPacket};
     use crate::*;
 
     pub struct RenetServerPlugin;

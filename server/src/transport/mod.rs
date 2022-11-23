@@ -7,15 +7,15 @@ use crate::systems::authorization::GameUser;
 use crate::transport::connection::{accept_connections};
 use bevy::app::{App, Plugin};
 
-use rc_client::rc_protocol::constants::UserId;
+use rc_networking::constants::UserId;
 use std::collections::HashMap;
 
 use std::net::{SocketAddr, UdpSocket};
 
 use std::time::SystemTime;
 use bevy::ecs::prelude::Resource;
-use rc_client::rc_networking::renet::{RenetServer, ServerAuthentication, ServerConfig};
-use rc_client::rc_networking::*;
+use rc_networking::renet::{RenetServer, ServerAuthentication, ServerConfig};
+use rc_networking::*;
 
 pub struct TransportPlugin;
 

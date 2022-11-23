@@ -2,7 +2,7 @@ use crate::game::chunk::ChunkData;
 
 use bevy::ecs::entity::Entity;
 use nalgebra::Vector3;
-use rc_client::rc_protocol::constants::EntityId;
+use rc_networking::constants::EntityId;
 use std::collections::HashMap;
 use std::sync::atomic::AtomicU64;
 use bevy::ecs::prelude::Resource;

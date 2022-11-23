@@ -1,7 +1,7 @@
 
 use bevy::ecs::prelude::Component;
 use nalgebra::Vector3;
-use rc_client::rc_protocol::constants::CHUNK_SIZE;
+use rc_networking::constants::CHUNK_SIZE;
 
 #[derive(Debug, Component)]
 pub struct ChunkData {
