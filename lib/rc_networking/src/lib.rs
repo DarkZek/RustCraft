@@ -1,3 +1,5 @@
+mod protocol;
+
 use std::net::SocketAddr;
 use std::time::{Duration, SystemTime};
 use bevy::prelude::{Res, Resource};

@@ -2,7 +2,7 @@ use bevy::app::App;
 use bevy::prelude::*;
 use bevy::utils::HashMap;
 use serde::{Deserialize, Serialize};
-use crate::message::{MessageReceiver, MessageSender};
+use crate::message::{Message, MessageReceiver, MessageSender};
 
 pub mod constants;
 pub mod protocol;
@@ -11,6 +11,12 @@ pub mod types;
 // special case: the player's entity should be the given id from renet
 #[derive(Copy, Clone, Hash, Ord, PartialOrd, Eq, PartialEq, Debug, Default, Component, Serialize, Deserialize)]
 pub struct NetworkEntity(pub u64);
+
+impl From<NetworkEntity> for u64 {
+    fn from(value: NetworkEntity) -> Self {
+        value.0
+    }
+}
 
 #[derive(Resource, Default)]
 pub struct NetworkEntities {
@@ -25,10 +31,12 @@ impl Plugin for ProtocolPlugin {
     }
 }
 
+#[derive(Serialize, Deserialize)]
 pub struct CreateNetEntityCommand {
     id: NetworkEntity,
     // maybe an enum for entity type or something
 }
+impl_message!(CreateNetEntityCommand, 2, 0);
 
 pub fn create_net_entity(
     mut commands: Commands,
@@ -46,10 +54,12 @@ pub struct SyncPosition {
     val: Vec3,
 }
 
+#[derive(Serialize, Deserialize)]
 pub struct SyncPositionCommand {
     id: NetworkEntity,
     pos: Vec3,
 }
+impl_message!(SyncPositionCommand, 1, 1);
 
 pub fn send_position_system(
     mut query: Query<(&NetworkEntity, &Transform, &mut SyncPosition)>,
@@ -76,26 +86,43 @@ pub fn recv_position_system (
     }
 }
 
-mod message {
+pub mod message {
     use bevy::app::App;
-    use bevy::ecs::event::{EventWriter, EventReader, Events, Event, EventId};
+    use bevy::ecs::event::{EventWriter, EventReader, Events, EventId, Event};
     use bevy::ecs::system::SystemParam;
+    use serde::{Deserialize, Serialize};
 
-    pub fn add_message<T: Event>(app: &mut App) {
+    #[macro_export]
+    macro_rules! impl_message {
+        ($typ: ty, $packet_id: literal, $channel_id: literal) => {
+            impl Message for $typ {
+                const PACKET_ID: u8 = $packet_id;
+                const CHANNEL_ID: u8 = $channel_id;
+            }
+        }
+    }
+
+    // marker trait for all messages
+    pub trait Message : Event + Serialize + for<'a> Deserialize<'a> {
+        const PACKET_ID: u8;
+        const CHANNEL_ID: u8;
+    }
+
+    pub fn add_message<T: Message>(app: &mut App) {
         if !app.world.contains_resource::<Events<T>>() {
             app.init_resource::<Events<T>>();
         }
     }
 
     #[derive(Default)]
-    pub struct Sender<T: Event>(T);
+    pub struct Sender<T: Message>(pub T);
 
     #[derive(SystemParam)]
-    pub struct MessageSender<'w, 's, T: Event> {
+    pub struct MessageSender<'w, 's, T: Message> {
         val: EventWriter<'w, 's, Sender<T>>
     }
 
-    impl<T: Event> MessageSender<'_, '_, T> {
+    impl<T: Message> MessageSender<'_, '_, T> {
         pub fn send(&mut self, t: T) {
             self.val.send(Sender(t));
         }
@@ -109,14 +136,14 @@ mod message {
         }
     }
 
-    pub struct Receiver<T: Event>(T);
+    pub struct Receiver<T: Message>(pub T);
 
     #[derive(SystemParam)]
-    pub struct MessageReceiver<'w, 's, T: Event> {
+    pub struct MessageReceiver<'w, 's, T: Message> {
         val: EventReader<'w, 's, Receiver<T>>
     }
 
-    impl<T: Event> MessageReceiver<'_, '_, T> {
+    impl<T: Message> MessageReceiver<'_, '_, T> {
         pub fn iter(&mut self) -> impl DoubleEndedIterator<Item=&T> + ExactSizeIterator<Item=&T> + '_ {
             self.val.iter()
                 .map(|v| &v.0)
