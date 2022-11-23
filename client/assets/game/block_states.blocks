@@ -329,6 +329,74 @@
                      "size": [1.0, 1.0, 1.0]
                  }
              ]
+        },
+        {
+            "identifier": "mcv3::Stone",
+            "translucent": false,
+            "full": true,
+            "draw_betweens": false,
+            "faces": [
+                {
+                    "top_left": [0.0, 1.0, 0.0],
+                    "top_right": [1.0, 1.0, 0.0],
+                    "bottom_left": [0.0, 1.0, 1.0],
+                    "size": [1.0, 1.0],
+                    "texture": "game/stone",
+                    "direction": 1,
+                    "edge": true
+                },
+                {
+                    "top_left": [0.0, 0.0, 0.0],
+                    "top_right": [0.0, 0.0, 1.0],
+                    "bottom_left": [1.0, 0.0, 0.0],
+                    "size": [1.0, 1.0],
+                    "texture": "game/stone",
+                    "direction": 2,
+                    "edge": true
+                },
+                {
+                    "top_left": [0.0, 0.0, 0.0],
+                    "top_right": [0.0, 1.0, 0.0],
+                    "bottom_left": [0.0, 0.0, 1.0],
+                    "size": [1.0, 1.0],
+                    "texture": "game/stone",
+                    "direction": 4,
+                    "edge": true
+                },
+                {
+                    "top_left": [1.0, 0.0, 1.0],
+                    "top_right": [1.0, 1.0, 1.0],
+                    "bottom_left": [1.0, 0.0, 0.0],
+                    "size": [1.0, 1.0],
+                    "texture": "game/stone",
+                    "direction": 8,
+                    "edge": true
+                },
+                {
+                    "top_left": [1.0, 0.0, 0.0],
+                    "top_right": [1.0, 1.0, 0.0],
+                    "bottom_left": [0.0, 0.0, 0.0],
+                    "size": [1.0, 1.0],
+                    "texture": "game/stone",
+                    "direction": 16,
+                    "edge": true
+                },
+                {
+                    "top_left": [0.0, 0.0, 1.0],
+                    "top_right": [0.0, 1.0, 1.0],
+                    "bottom_left": [1.0, 0.0, 1.0],
+                    "size": [1.0, 1.0],
+                    "texture": "game/stone",
+                    "direction": 32,
+                    "edge": true
+                }
+            ],
+             "colliders": [
+                 {
+                     "bottom_left": [0.0, 0.0, 0.0],
+                     "size": [1.0, 1.0, 1.0]
+                 }
+             ]
         }
     ]
 }

@@ -49,7 +49,9 @@ impl ChunkData {
 
                     println!("{:?}", ground_level);
 
-                    if absolute.y < ground_level {
+                    if absolute.y < ground_level - 3 {
+                        world[x][y][z] = 6;
+                    } else if absolute.y < ground_level {
                         world[x][y][z] = 1;
                     } else if absolute.y == ground_level {
                         world[x][y][z] = 2;
