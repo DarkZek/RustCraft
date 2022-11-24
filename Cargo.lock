@@ -2901,6 +2901,7 @@ dependencies = [
  "nalgebra",
  "noise",
  "rc_client",
+ "rc_networking",
  "serde",
  "serde_json",
  "thiserror",
