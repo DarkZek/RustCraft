@@ -4,7 +4,7 @@ Rustcraft is a Voxel Game with the goal of providing a fun, new and feature pack
 
 ## Installation
 
-Right now there are no stable releases, you have to build it yourself.\
+Right now there are no stable releases, you have to build it yourself.
 
 #### Install
 
