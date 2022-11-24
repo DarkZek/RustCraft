@@ -3024,8 +3024,11 @@ version = "0.1.0"
 dependencies = [
  "bevy",
  "bincode",
+ "byteorder",
  "rc_protocol",
  "renet",
+ "serde",
+ "thiserror",
 ]
 
 [[package]]

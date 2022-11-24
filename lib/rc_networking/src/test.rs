@@ -1,12 +1,12 @@
 use bevy::prelude::{Events, ResMut, World};
-use rc_protocol::message::{Message, Receiver};
 use crate::*;
+use crate::messaging::Message;
 
 // requires exclusive world access, defer calls until end of network start stage
 fn read_message<T: Message>(bytes: &[u8], world: &mut World) {
     let v: T = bincode::deserialize::<T>(bytes).unwrap();
-    let event = Receiver(v);
-    world.send_event(event);
+    //let event = Receiver(v);
+    //world.send_event(event);
 }
 
 fn read_packets_system(
