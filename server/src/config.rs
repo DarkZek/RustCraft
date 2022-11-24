@@ -1,5 +1,5 @@
 use bevy::prelude::{Commands, Res, Resource};
-use rc_client::rc_networking::Server;
+use rc_networking::Server;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::fs::File;

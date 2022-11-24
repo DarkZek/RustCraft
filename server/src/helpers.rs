@@ -1,4 +1,4 @@
-use rc_client::rc_networking::constants::CHUNK_SIZE;
+use rc_networking::constants::CHUNK_SIZE;
 use nalgebra::Vector3;
 
 #[inline]

@@ -1,4 +1,4 @@
-use rc_client::rc_networking::constants::UserId;
+use rc_networking::constants::UserId;
 
 pub struct ConnectionEvent {
     pub user: UserId,

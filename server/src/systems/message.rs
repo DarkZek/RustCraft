@@ -7,12 +7,12 @@ use bevy::ecs::prelude::*;
 use bevy::ecs::system::ResMut;
 use bevy::log::info;
 use nalgebra::{Quaternion, Vector3};
-use rc_client::rc_networking::constants::CHUNK_SIZE;
-use rc_client::rc_networking::protocol::clientbound::block_update::BlockUpdate;
-use rc_client::rc_networking::protocol::clientbound::entity_moved::EntityMoved;
-use rc_client::rc_networking::protocol::clientbound::entity_rotated::EntityRotated;
-use rc_client::rc_networking::protocol::Protocol;
-use rc_client::rc_networking::types::{ReceivePacket, SendPacket};
+use rc_networking::constants::CHUNK_SIZE;
+use rc_networking::protocol::clientbound::block_update::BlockUpdate;
+use rc_networking::protocol::clientbound::entity_moved::EntityMoved;
+use rc_networking::protocol::clientbound::entity_rotated::EntityRotated;
+use rc_networking::protocol::Protocol;
+use rc_networking::types::{ReceivePacket, SendPacket};
 
 pub fn receive_message_event(
     mut event_reader: EventReader<ReceivePacket>,

@@ -22,7 +22,7 @@ use bevy::ecs::prelude::{StageLabel, SystemStage};
 use bevy::log::{info, Level, LogPlugin};
 use bevy::prelude::{EventWriter, IntoSystemDescriptor, Res};
 use bevy::{DefaultPlugins, MinimalPlugins};
-use rc_client::rc_networking::types::{ReceivePacket, SendPacket};
+use rc_networking::types::{ReceivePacket, SendPacket};
 use std::io::stdin;
 use std::sync::atomic::{AtomicBool, Ordering};
 
