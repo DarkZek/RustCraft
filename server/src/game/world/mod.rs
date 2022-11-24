@@ -1,5 +1,5 @@
 use crate::game::world::data::WorldData;
-use crate::{detect_shutdowns, App, AppExit, ServerConfig};
+use crate::{App, AppExit, ServerConfig};
 use bevy::prelude::*;
 use std::fs;
 use std::fs::File;
