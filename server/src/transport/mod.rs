@@ -7,7 +7,7 @@ use crate::systems::authorization::GameUser;
 use crate::transport::connection::accept_connections;
 use bevy::app::{App, Plugin};
 
-use rc_client::rc_protocol::constants::UserId;
+use rc_client::rc_networking::constants::UserId;
 use std::collections::HashMap;
 
 use std::net::{IpAddr, SocketAddr, UdpSocket};

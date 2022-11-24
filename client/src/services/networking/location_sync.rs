@@ -1,10 +1,10 @@
 use bevy::prelude::*;
-use rc_protocol::constants::UserId;
+use rc_networking::constants::UserId;
 
-use rc_protocol::protocol::serverbound::player_move::PlayerMove;
-use rc_protocol::protocol::serverbound::player_rotate::PlayerRotate;
-use rc_protocol::protocol::Protocol;
-use rc_protocol::types::SendPacket;
+use rc_networking::protocol::serverbound::player_move::PlayerMove;
+use rc_networking::protocol::serverbound::player_rotate::PlayerRotate;
+use rc_networking::protocol::Protocol;
+use rc_networking::types::SendPacket;
 
 const MIN_LOCATION_CHANGE_SYNC: f32 = 0.1;
 

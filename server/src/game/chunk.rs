@@ -1,7 +1,7 @@
 use bevy::ecs::prelude::Component;
 use nalgebra::Vector3;
 use noise::{NoiseFn, Perlin};
-use rc_client::rc_protocol::constants::CHUNK_SIZE;
+use rc_client::rc_networking::constants::CHUNK_SIZE;
 use serde::{Deserialize, Serialize};
 use std::ops::Mul;
 

@@ -6,9 +6,9 @@ use bevy::prelude::*;
 
 use crate::services::chunk::builder::RerenderChunkFlag;
 use nalgebra::Vector3;
-use rc_protocol::constants::CHUNK_SIZE;
-use rc_protocol::protocol::Protocol;
-use rc_protocol::types::ReceivePacket;
+use rc_networking::constants::CHUNK_SIZE;
+use rc_networking::protocol::Protocol;
+use rc_networking::types::ReceivePacket;
 
 pub fn network_chunk_sync(
     mut event_reader: EventReader<ReceivePacket>,

@@ -9,10 +9,10 @@ use crate::game::blocks::states::BlockStates;
 use crate::game::inventory::Inventory;
 use crate::services::chunk::builder::RerenderChunkFlag;
 use crate::services::physics::aabb::Aabb;
-use rc_protocol::constants::{UserId, CHUNK_SIZE};
-use rc_protocol::protocol::clientbound::block_update::BlockUpdate;
-use rc_protocol::protocol::Protocol;
-use rc_protocol::types::SendPacket;
+use rc_networking::constants::{UserId, CHUNK_SIZE};
+use rc_networking::protocol::clientbound::block_update::BlockUpdate;
+use rc_networking::protocol::Protocol;
+use rc_networking::types::SendPacket;
 
 pub fn mouse_interaction(
     mouse_button_input: Res<Input<MouseButton>>,

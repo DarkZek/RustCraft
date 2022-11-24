@@ -1,4 +1,4 @@
-use rc_protocol::constants::UserId;
+use rc_networking::constants::UserId;
 
 pub struct AuthorizationEvent {
     pub client: UserId,

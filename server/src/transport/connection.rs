@@ -5,7 +5,7 @@ use crate::TransportSystem;
 use bevy::ecs::event::{EventReader, EventWriter};
 use bevy::ecs::system::ResMut;
 use rc_client::rc_networking::renet::ServerEvent;
-use rc_client::rc_protocol::constants::{EntityId, UserId};
+use rc_client::rc_networking::constants::{EntityId, UserId};
 
 const MAX_PING_TIMEOUT_SECONDS: u64 = 10;
 const PING_TIME_SECONDS: u64 = 15;

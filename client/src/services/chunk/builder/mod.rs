@@ -9,7 +9,7 @@ use bevy::prelude::*;
 use bevy::render::mesh::Indices;
 use nalgebra::Vector3;
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
-use rc_protocol::constants::CHUNK_SIZE;
+use rc_networking::constants::CHUNK_SIZE;
 use std::collections::{BinaryHeap, VecDeque};
 use std::sync::atomic::{AtomicI32, Ordering};
 
