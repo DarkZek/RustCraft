@@ -3,10 +3,10 @@ use crate::{TransportSystem, WorldData};
 use bevy::ecs::event::EventReader;
 use bevy::ecs::prelude::{Commands, EventWriter, Res};
 use bevy::ecs::system::ResMut;
-use rc_client::rc_protocol::protocol::clientbound::despawn_entity::DespawnEntity;
+use rc_networking::protocol::clientbound::despawn_entity::DespawnEntity;
 
-use rc_client::rc_protocol::protocol::Protocol;
-use rc_client::rc_protocol::types::SendPacket;
+use rc_networking::protocol::Protocol;
+use rc_networking::types::SendPacket;
 
 pub fn disconnection_event(
     mut event_reader: EventReader<DisconnectionEvent>,

@@ -4,16 +4,15 @@ use crate::services::chunk::ChunkService;
 use crate::services::physics::raycasts::do_raycast;
 use bevy::prelude::*;
 use bevy_prototype_debug_lines::DebugLines;
-use nalgebra::Vector3;
 
 use crate::game::blocks::states::BlockStates;
 use crate::game::inventory::Inventory;
-use crate::services::chunk::systems::mesh_builder::RerenderChunkFlag;
+use crate::services::chunk::builder::RerenderChunkFlag;
 use crate::services::physics::aabb::Aabb;
-use rc_protocol::constants::{UserId, CHUNK_SIZE};
-use rc_protocol::protocol::clientbound::block_update::BlockUpdate;
-use rc_protocol::protocol::Protocol;
-use rc_protocol::types::SendPacket;
+use rc_networking::constants::{UserId, CHUNK_SIZE};
+use rc_networking::protocol::clientbound::block_update::BlockUpdate;
+use rc_networking::protocol::Protocol;
+use rc_networking::types::SendPacket;
 
 pub fn mouse_interaction(
     mouse_button_input: Res<Input<MouseButton>>,
@@ -25,7 +24,8 @@ pub fn mouse_interaction(
     mut networking: EventWriter<SendPacket>,
     inventory: Res<Inventory>,
     mut lines: ResMut<DebugLines>,
-    mut blocks: Res<BlockStates>,
+    blocks: Res<BlockStates>,
+    mut rerender_chunks: EventWriter<RerenderChunkFlag>,
 ) {
     let camera_pos = camera.get_single().unwrap();
 
@@ -36,7 +36,7 @@ pub fn mouse_interaction(
         from_bevy_vec3(look),
         15.0,
         &chunks,
-        &mut meshes,
+        &blocks,
     );
 
     if cast.is_none() {
@@ -60,9 +60,12 @@ pub fn mouse_interaction(
             chunk.world[inner_loc.x][inner_loc.y][inner_loc.z] = 0;
 
             // Rerender
-            commands
-                .entity(chunk.entity)
-                .insert(RerenderChunkFlag { chunk: chunk_loc });
+            rerender_chunks.send(RerenderChunkFlag {
+                chunk: chunk_loc,
+                adjacent: false,
+            });
+
+            // TODO: Update adjacent chunks if needed
 
             info!(
                 "Destroyed [{}, {}, {}]",
@@ -91,9 +94,12 @@ pub fn mouse_interaction(
                 chunk.world[inner_loc.x][inner_loc.y][inner_loc.z] = block_type;
 
                 // Rerender
-                commands
-                    .entity(chunk.entity)
-                    .insert(RerenderChunkFlag { chunk: chunk_loc });
+                rerender_chunks.send(RerenderChunkFlag {
+                    chunk: chunk_loc,
+                    adjacent: false,
+                });
+
+                // TODO: Update adjacent chunks if needed
 
                 info!(
                     "Updated [{}, {}, {}]",
@@ -107,7 +113,14 @@ pub fn mouse_interaction(
                 chunk[inner_loc.x][inner_loc.y][inner_loc.z] = block_type;
 
                 // Create chunk
-                chunks.create_chunk(chunk_loc, chunk, &mut commands, &mut assets, &mut meshes);
+                chunks.create_chunk(
+                    chunk_loc,
+                    chunk,
+                    &mut commands,
+                    &mut assets,
+                    &mut meshes,
+                    &mut rerender_chunks,
+                );
             }
 
             // Send network update

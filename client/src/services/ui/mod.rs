@@ -1,10 +1,15 @@
+pub mod loading;
+pub mod main_menu;
+
+
+use crate::state::AppState;
 use bevy::prelude::*;
 
 pub struct UIPlugin;
 
 impl Plugin for UIPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(setup_ui);
+        app.add_system_set(SystemSet::on_enter(AppState::InGame).with_system(setup_ui));
     }
 }
 

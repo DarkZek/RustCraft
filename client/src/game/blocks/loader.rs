@@ -5,10 +5,11 @@ use crate::game::mesh::face::Face;
 use crate::game::viewable_direction::ViewableDirectionBitMap;
 
 use crate::services::asset::AssetService;
-use crate::services::chunk::systems::mesh_builder::RerenderChunkFlag;
 use crate::services::chunk::ChunkService;
 use crate::services::physics::aabb::Aabb;
-use crate::state::AppState;
+use crate::services::ui::loading::LoadingData;
+
+use crate::services::chunk::builder::RerenderChunkFlag;
 use bevy::asset::{AssetLoader, BoxedFuture, LoadContext, LoadedAsset};
 use bevy::prelude::*;
 use nalgebra::Vector3;
@@ -47,9 +48,10 @@ pub fn track_blockstate_changes(
     assets: ResMut<Assets<BlockStatesFile>>,
     mut states: ResMut<BlockStates>,
     atlas: Res<AssetService>,
-    mut app_state: ResMut<State<AppState>>,
     chunks: ResMut<ChunkService>,
     mut commands: Commands,
+    mut loading: ResMut<LoadingData>,
+    mut rerender_chunks: EventWriter<RerenderChunkFlag>,
 ) {
     for event in events.iter() {
         match event {
@@ -110,10 +112,10 @@ pub fn track_blockstate_changes(
                 let normal = match direction {
                     ViewableDirectionBitMap::Top => Vector3::new(0.0, 1.0, 0.0),
                     ViewableDirectionBitMap::Bottom => Vector3::new(0.0, -1.0, 0.0),
-                    ViewableDirectionBitMap::Left => Vector3::new(0.0, 0.0, 1.0),
-                    ViewableDirectionBitMap::Right => Vector3::new(0.0, 0.0, -1.0),
-                    ViewableDirectionBitMap::Front => Vector3::new(1.0, 0.0, 0.0),
-                    ViewableDirectionBitMap::Back => Vector3::new(-1.0, 0.0, 0.0),
+                    ViewableDirectionBitMap::Left => Vector3::new(0.0, 0.0, -1.0),
+                    ViewableDirectionBitMap::Right => Vector3::new(0.0, 0.0, 1.0),
+                    ViewableDirectionBitMap::Front => Vector3::new(-1.0, 0.0, 0.0),
+                    ViewableDirectionBitMap::Back => Vector3::new(1.0, 0.0, 0.0),
                 };
 
                 new_block.faces.push(Face {
@@ -137,14 +139,12 @@ pub fn track_blockstate_changes(
 
         // Rerender all chunks with new block states
         for (pos, chunk) in &chunks.chunks {
-            commands
-                .entity(chunk.entity)
-                .insert(RerenderChunkFlag { chunk: *pos });
+            rerender_chunks.send(RerenderChunkFlag {
+                chunk: *pos,
+                adjacent: false,
+            });
         }
-    }
 
-    // If we're still in loading mode, the block states being loaded means we're ready for the main menu. This may be changed in the future
-    if app_state.current() == &AppState::Loading {
-        app_state.set(AppState::MainMenu).unwrap();
+        loading.block_states = true;
     }
 }

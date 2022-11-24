@@ -4,11 +4,11 @@ use crate::services::asset::AssetService;
 use crate::services::chunk::ChunkService;
 use bevy::prelude::*;
 
-use crate::services::chunk::systems::mesh_builder::RerenderChunkFlag;
+use crate::services::chunk::builder::RerenderChunkFlag;
 use nalgebra::Vector3;
-use rc_protocol::constants::CHUNK_SIZE;
-use rc_protocol::protocol::Protocol;
-use rc_protocol::types::ReceivePacket;
+use rc_networking::constants::CHUNK_SIZE;
+use rc_networking::protocol::Protocol;
+use rc_networking::types::ReceivePacket;
 
 pub fn network_chunk_sync(
     mut event_reader: EventReader<ReceivePacket>,
@@ -16,18 +16,20 @@ pub fn network_chunk_sync(
     mut meshes: ResMut<Assets<Mesh>>,
     mut asset_service: Res<AssetService>,
     mut chunk_service: ResMut<ChunkService>,
+    mut rerender_chunks: EventWriter<RerenderChunkFlag>,
 ) {
     for event in event_reader.iter() {
         match &event.0 {
             Protocol::PartialChunkUpdate(update) => {
                 let location = Vector3::new(update.x, update.y, update.z);
 
-                chunk_service.load_chunk(
+                chunk_service.create_chunk(
                     location,
-                    &update,
+                    update.data,
                     &mut commands,
                     &asset_service,
                     &mut meshes,
+                    &mut rerender_chunks,
                 );
             }
             Protocol::BlockUpdate(update) => {
@@ -42,9 +44,12 @@ pub fn network_chunk_sync(
                     chunk.world[inner_loc.x][inner_loc.y][inner_loc.z] = update.id;
 
                     // Rerender
-                    commands
-                        .entity(chunk.entity)
-                        .insert(RerenderChunkFlag { chunk: chunk_loc });
+                    rerender_chunks.send(RerenderChunkFlag {
+                        chunk: chunk_loc,
+                        adjacent: false,
+                    });
+
+                    // TODO: Figure out if I need to update adjacent blocks
                 } else {
                     // Create chunk data
                     let mut chunk = [[[0; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
@@ -59,6 +64,7 @@ pub fn network_chunk_sync(
                         &mut commands,
                         &mut asset_service,
                         &mut meshes,
+                        &mut rerender_chunks,
                     );
                 }
             }

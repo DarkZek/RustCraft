@@ -2,7 +2,10 @@ use crate::helpers::global_to_local_position;
 use crate::services::chunk::ChunkService;
 use bevy::prelude::*;
 
+
+use crate::game::blocks::states::BlockStates;
 use crate::services::chunk::data::ChunkData;
+
 use nalgebra::Vector3;
 
 pub struct RaycastResult {
@@ -16,7 +19,7 @@ pub fn do_raycast(
     mut direction: Vector3<f32>,
     max_distance: f32,
     chunks: &ChunkService,
-    _meshes: &mut ResMut<Assets<Mesh>>,
+    blocks: &BlockStates,
 ) -> Option<RaycastResult> {
     direction = direction.normalize();
 
@@ -78,13 +81,33 @@ pub fn do_raycast(
 
         // Check if block is solid
         if let Some(chunk_data) = last_chunk {
-            if chunk_data.world[local_pos.x][local_pos.y][local_pos.z] != 0 {
-                // Solid block
-                return Some(RaycastResult {
-                    block,
-                    normal: last_position - block,
-                    distance,
-                });
+            let block_id = chunk_data.world[local_pos.x][local_pos.y][local_pos.z];
+            if block_id != 0 {
+                let collided_block = blocks.get_block(block_id as usize);
+
+                // Don't bother real aabb check if we know its a full block
+                if collided_block.full {
+                    // Solid block
+                    return Some(RaycastResult {
+                        block,
+                        normal: last_position - block,
+                        distance,
+                    });
+                }
+
+                // Loop through colliders on the block and see if the blocks collider is hit
+                for collider in &collided_block.bounding_boxes {
+                    if collider
+                        .ray_collides(block.cast::<f32>(), starting_position, direction)
+                        .0
+                    {
+                        return Some(RaycastResult {
+                            block,
+                            normal: last_position - block,
+                            distance,
+                        });
+                    }
+                }
             }
         }
 
@@ -95,23 +118,21 @@ pub fn do_raycast(
             if t_max.x < t_max.z {
                 block.x += step.x;
                 t_max.x += delta.x;
-                distance = t_max.x;
             } else {
                 block.z += step.z;
                 t_max.z += delta.z;
-                distance = t_max.z;
             }
         } else {
             if t_max.y < t_max.z {
                 block.y += step.y;
                 t_max.y += delta.y;
-                distance = t_max.y;
             } else {
                 block.z += step.z;
                 t_max.z += delta.z;
-                distance = t_max.z;
             }
         }
+
+        distance = (starting_position - block.cast::<f32>()).magnitude();
     }
 
     None

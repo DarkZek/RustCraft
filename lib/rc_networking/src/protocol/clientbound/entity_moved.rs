@@ -1,6 +1,6 @@
-use crate::constants::{EntityId};
+use crate::constants::EntityId;
+use serde::{Deserialize, Serialize};
 
-use serde::{Serialize, Deserialize};
 #[derive(Serialize, Deserialize, PartialEq, Debug, Copy, Clone)]
 #[repr(C)]
 pub struct EntityMoved {

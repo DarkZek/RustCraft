@@ -1,7 +1,7 @@
 use crate::game::blocks::loading::BlockStatesFile;
 use crate::game::blocks::Block;
-use bevy::prelude::Handle;
 use bevy::prelude::Resource;
+use bevy::prelude::{warn, Handle};
 use bevy::reflect::TypeUuid;
 
 #[derive(Debug, Clone, TypeUuid, Resource)]
@@ -21,9 +21,15 @@ impl BlockStates {
             asset: None,
         }
     }
+
     // Possibly remove, keeping it because it was in old version and I might need it
     pub fn get_block(&self, i: usize) -> &Block {
         // TODO: Return error block if out of range
-        self.states.get(i).unwrap()
+        if let Some(val) = self.states.get(i) {
+            val
+        } else {
+            warn!("Invalid block state received: {}", i);
+            self.states.get(0).unwrap()
+        }
     }
 }

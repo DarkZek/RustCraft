@@ -16,7 +16,7 @@ impl Plugin for CameraPlugin {
 
 fn setup_camera(mut commands: Commands) {
     let player_physics = PhysicsObject::new(
-        Vector3::new(0.0, 18.0, 0.0),
+        Vector3::new(0.0, 40.0, 0.0),
         vec![Aabb::new(
             Vector3::new(0.0, 1.0, 0.0),
             Vector3::new(1.0, 1.0, 1.0),

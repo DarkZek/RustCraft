@@ -1,5 +1,6 @@
 use crate::game::inventory::hotbar::{setup_hotbar_ui, update_hotbar};
 use crate::game::item::ItemStack;
+use crate::state::AppState;
 use bevy::app::{App, Plugin};
 use bevy::prelude::*;
 
@@ -11,7 +12,7 @@ impl Plugin for InventoryPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(Inventory::default())
             .add_system(update_hotbar)
-            .add_startup_system(setup_hotbar_ui);
+            .add_system_set(SystemSet::on_enter(AppState::InGame).with_system(setup_hotbar_ui));
     }
 }
 

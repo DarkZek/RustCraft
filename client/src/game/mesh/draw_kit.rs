@@ -1,8 +1,8 @@
-use crate::game::viewable_direction::{ViewableDirection, ViewableDirectionBitMap};
-use crate::services::asset::atlas::index::TextureAtlasIndex;
+
+
 
 use crate::game::mesh::face::Face;
-use nalgebra::{Vector2, Vector3};
+use nalgebra::{Vector3};
 
 /// Stores all objects allowing for more ergonomic drawing of objects
 pub struct DrawKit<'a> {

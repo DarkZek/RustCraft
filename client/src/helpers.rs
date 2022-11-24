@@ -2,7 +2,7 @@ use crate::services::chunk::data::Color;
 
 use bevy::prelude::Vec3;
 use nalgebra::{Point3, Vector3};
-use rc_protocol::constants::CHUNK_SIZE;
+use rc_networking::constants::CHUNK_SIZE;
 use std::ops::Add;
 
 /// Formats a u32 with American comma placement.

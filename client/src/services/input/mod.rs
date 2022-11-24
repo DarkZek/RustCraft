@@ -3,6 +3,7 @@ mod movement;
 
 use crate::services::input::look::update_input_look;
 use crate::services::input::movement::update_input_movement;
+use crate::state::AppState;
 use bevy::app::{App, Plugin};
 use bevy::prelude::*;
 use bevy::window::{CursorGrabMode, Windows};
@@ -11,10 +12,14 @@ pub struct InputPlugin;
 
 impl Plugin for InputPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(grab_mouse)
-            .insert_resource(InputService { captured: false })
-            .add_system(update_input_look)
-            .add_system(update_input_movement);
+        app.insert_resource(InputService { captured: false })
+            .add_system_set(
+                SystemSet::on_update(AppState::InGame)
+                    .with_system(update_input_look)
+                    .with_system(update_input_movement)
+                    .with_system(grab_mouse),
+            )
+            .add_system_set(SystemSet::on_enter(AppState::InGame).with_system(grab_mouse_on_play));
     }
 }
 
@@ -42,4 +47,11 @@ fn grab_mouse(
         window.set_cursor_grab_mode(CursorGrabMode::None);
         service.captured = false;
     }
+}
+
+fn grab_mouse_on_play(mut windows: ResMut<Windows>, mut service: ResMut<InputService>) {
+    let window = windows.get_primary_mut().unwrap();
+    window.set_cursor_visibility(false);
+    window.set_cursor_grab_mode(CursorGrabMode::Confined);
+    service.captured = true;
 }

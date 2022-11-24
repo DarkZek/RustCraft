@@ -1,9 +1,10 @@
 pub mod blocks;
 pub mod entity;
 pub mod interaction;
+pub mod inventory;
+pub mod item;
 pub mod mesh;
 pub mod parsing;
 pub mod player;
 pub mod viewable_direction;
-pub mod inventory;
-pub mod item;
+pub mod world;

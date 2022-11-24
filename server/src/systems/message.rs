@@ -1,18 +1,18 @@
 use crate::game::chunk::ChunkData;
 use crate::game::transform::Transform;
 use crate::helpers::global_to_local_position;
+use crate::{TransportSystem, WorldData};
 use bevy::ecs::event::{EventReader, EventWriter};
 use bevy::ecs::prelude::*;
 use bevy::ecs::system::ResMut;
 use bevy::log::info;
 use nalgebra::{Quaternion, Vector3};
-use rc_client::rc_protocol::constants::CHUNK_SIZE;
-use rc_client::rc_protocol::protocol::clientbound::block_update::BlockUpdate;
-use rc_client::rc_protocol::protocol::clientbound::entity_moved::EntityMoved;
-use rc_client::rc_protocol::protocol::clientbound::entity_rotated::EntityRotated;
-use rc_client::rc_protocol::protocol::Protocol;
-use rc_client::rc_protocol::types::{ReceivePacket, SendPacket};
-use crate::{TransportSystem, WorldData};
+use rc_networking::constants::CHUNK_SIZE;
+use rc_networking::protocol::clientbound::block_update::BlockUpdate;
+use rc_networking::protocol::clientbound::entity_moved::EntityMoved;
+use rc_networking::protocol::clientbound::entity_rotated::EntityRotated;
+use rc_networking::protocol::Protocol;
+use rc_networking::types::{ReceivePacket, SendPacket};
 
 pub fn receive_message_event(
     mut event_reader: EventReader<ReceivePacket>,

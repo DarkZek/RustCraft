@@ -1,6 +1,6 @@
-use crate::services::physics::aabb::Aabb;
+
 use bevy::reflect::TypeUuid;
-use nalgebra::{Vector2, Vector3};
+use nalgebra::{Vector3};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Deserialize, Serialize, TypeUuid)]

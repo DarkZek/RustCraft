@@ -2,10 +2,11 @@ use crate::services::asset::atlas::atlas::TextureAtlas;
 use crate::services::asset::atlas::resource_packs::ResourcePacks;
 use crate::services::asset::material::chunk::ChunkMaterial;
 use crate::services::asset::AssetService;
-use crate::services::chunk::data::ChunkData;
+
 use bevy::prelude::*;
 use bevy::reflect::TypeUuid;
 
+use crate::services::ui::loading::LoadingData;
 use fnv::FnvBuildHasher;
 use image::{DynamicImage, GenericImage};
 use std::collections::HashMap;
@@ -71,12 +72,14 @@ pub fn build_texture_atlas(
     mut data: ResMut<Assets<ResourcePackData>>,
     mut service: ResMut<AssetService>,
     mut stage: ResMut<AtlasLoadingStage>,
-    chunks: Query<Entity, (With<ChunkData>, With<Handle<StandardMaterial>>)>,
     mut images: ResMut<Assets<Image>>,
     mut materials: ResMut<Assets<ChunkMaterial>>,
-    mut commands: Commands,
+    mut loading: ResMut<LoadingData>,
 ) {
-    if *stage != AtlasLoadingStage::AwaitingPack || data.len() == 0 {
+    if *stage != AtlasLoadingStage::AwaitingPack
+        || data.len() == 0
+        || *stage == AtlasLoadingStage::Done
+    {
         return;
     }
 
@@ -115,10 +118,7 @@ pub fn build_texture_atlas(
         },
     );
 
-    for chunk in chunks.iter() {
-        commands.entity(chunk).insert(material.clone());
-    }
-
     *stage = AtlasLoadingStage::Done;
     service.texture_atlas_material = material;
+    loading.texture_atlas = true;
 }
