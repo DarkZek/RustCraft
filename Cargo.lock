@@ -2874,7 +2874,6 @@ dependencies = [
  "nalgebra",
  "rayon",
  "rc_networking",
- "rc_protocol",
  "serde",
  "serde_json",
  "thiserror",
@@ -2887,16 +2886,8 @@ version = "0.1.0"
 dependencies = [
  "bevy",
  "bincode",
- "rc_protocol",
- "renet",
-]
-
-[[package]]
-name = "rc_protocol"
-version = "0.1.0"
-dependencies = [
- "bincode",
  "byteorder",
+ "renet",
  "serde",
  "thiserror",
 ]
