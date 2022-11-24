@@ -1,9 +1,5 @@
-pub mod channels;
-pub mod config;
 pub mod constants;
 pub mod protocol;
-pub mod stream;
-pub mod error;
 pub mod types;
 
 use bevy::ecs::schedule::ShouldRun;
@@ -96,17 +92,11 @@ fn get_channel(protocol: &Protocol) -> Channel {
         Protocol::PlayerMove(_)
         | Protocol::EntityMoved(_)
         | Protocol::PlayerRotate(_)
-        | Protocol::EntityRotated(_)
-        | Protocol::Disconnect(_) => Channel::Unreliable,
+        | Protocol::EntityRotated(_) => Channel::Unreliable,
 
-        Protocol::Ping(_)
-        | Protocol::Pong(_)
-        | Protocol::PlayerJoin(_)
-        | Protocol::PlayerLeave(_)
-        | Protocol::BlockUpdate(_)
+        Protocol::BlockUpdate(_)
         | Protocol::ChatSent(_)
         | Protocol::DespawnEntity(_)
-        | Protocol::UserAuthenticate(_)
         | Protocol::SpawnEntity(_) => Channel::Reliable,
 
         Protocol::PartialChunkUpdate(_) => Channel::Block,
