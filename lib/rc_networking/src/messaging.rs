@@ -28,7 +28,6 @@ impl Plugin for ProtocolPlugin {
     }
 }
 
-
 #[cfg(not(feature = "server"))]
 use client as inner;
 
@@ -39,13 +38,13 @@ use inner::*;
 
 #[macro_export]
 macro_rules! impl_message {
-        ($typ: ty, $p_id: literal, c_id: literal) => {
-            impl Message for $typ {
-                const PACKET_ID: u8 = $p_id;
-                const CHANNEL_ID: u8 = $c_id;
-            }
+    ($typ: ty, $p_id: literal, c_id: literal) => {
+        impl Message for $typ {
+            const PACKET_ID: u8 = $p_id;
+            const CHANNEL_ID: u8 = $c_id;
         }
     }
+}
 
 pub trait Message: Event + Serialize + for<'a> Deserialize<'a> {
     const PACKET_ID: u8;
@@ -54,7 +53,7 @@ pub trait Message: Event + Serialize + for<'a> Deserialize<'a> {
 
 #[derive(SystemParam)]
 pub struct MessageSender<'w, 's, T: Message> {
-    val: EventWriter<'w, 's, Send<T>>
+    val: EventWriter<'w, 's, SendMsg<T>>
 }
 
 impl<T: Message> MessageSender<'_, '_, T> {
@@ -65,7 +64,7 @@ impl<T: Message> MessageSender<'_, '_, T> {
 
 #[derive(SystemParam)]
 pub struct MessageReceiver<'w, 's, T: Message> {
-    val: EventReader<'w, 's, Recv<T>>
+    val: EventReader<'w, 's, RecvMsg<T>>
 }
 
 impl<T: Message> MessageReceiver<'_, '_, T> {
@@ -87,18 +86,18 @@ mod client {
     use crate::messaging::{Message, MessageReceiver, MessageSender};
 
     #[derive(Default)]
-    pub struct Send<T>(pub T);
+    pub struct SendMsg<T>(pub T);
 
     #[derive(Default)]
-    pub struct Recv<T>(pub T);
+    pub struct RecvMsg<T>(pub T);
 
     impl<T: Message> MessageSender<'_, '_, T> {
         pub fn send(&mut self, t: T) {
-            self.val.send(Send(t));
+            self.val.send(SendMsg(t));
         }
 
         pub fn send_batch(&mut self, events: impl IntoIterator<Item=T>) {
-            self.val.send_batch(events.into_iter().map(|v| Send(v)));
+            self.val.send_batch(events.into_iter().map(|v| SendMsg(v)));
         }
     }
 
@@ -119,21 +118,21 @@ mod server {
     use crate::messaging::{Message, MessageReceiver, MessageSender};
 
     #[derive(Default)]
-    pub struct Send<T>(pub T, pub u64);
+    pub struct SendMsg<T>(pub T, pub u64);
 
     #[derive(Default)]
-    pub struct Recv<T>(pub T, pub u64);
+    pub struct RecvMsg<T>(pub T, pub u64);
 
     impl<T: Message> MessageSender<'_, '_, T> {
         pub fn send(&mut self, t: T, client: impl Into<u64>) {
-            self.val.send(Send(t, client.into()))
+            self.val.send(SendMsg(t, client.into()))
         }
 
         pub fn send_batch(&mut self, events: impl IntoIterator<Item=(T, impl Into<u64>)>) {
             let iter = events
                 .into_iter()
                 .map(|(v, e)| {
-                    Send(v, e.into())
+                    SendMsg(v, e.into())
                 });
             self.val.send_batch(iter);
         }
@@ -148,7 +147,7 @@ mod server {
                 })
         }
 
-        pub fn iter_with_id(&mut self) -> impl DoubleEndedIterator<Item=(&T, u64, EventId<Recv<T>>)> + ExactSizeIterator<Item=(&T, u64, EventId<Recv<T>>)> + '_ {
+        pub fn iter_with_id(&mut self) -> impl DoubleEndedIterator<Item=(&T, u64, EventId<RecvMsg<T>>)> + ExactSizeIterator<Item=(&T, u64, EventId<RecvMsg<T>>)> + '_ {
             self.val.iter_with_id()
                 .map(|(v, e)| {
                     (&v.0, v.1, e)
