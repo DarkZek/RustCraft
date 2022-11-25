@@ -4,6 +4,8 @@ mod messaging;
 pub mod constants;
 pub mod protocol;
 pub mod types;
+mod client;
+mod server;
 
 use bevy::ecs::schedule::ShouldRun;
 use bevy::prelude::{Res, Resource};
@@ -13,8 +15,8 @@ use std::net::SocketAddr;
 use std::time::{Duration, SystemTime};
 
 pub use renet;
-pub use client::*;
-pub use server::*;
+pub use client2::*;
+pub use server2::*;
 
 pub const PROTOCOL_ID: u64 = 4302467916224429941;
 
@@ -115,7 +117,7 @@ fn has_resource<T: Resource>(resource: Option<Res<T>>) -> ShouldRun {
     }
 }
 
-mod client {
+mod client2 {
     use crate::*;
     use bevy::app::AppExit;
     use bevy::prelude::*;
@@ -230,7 +232,7 @@ mod client {
     }
 }
 
-pub mod server {
+pub mod server2 {
     use crate::*;
     use bevy::app::AppExit;
     use bevy::prelude::*;

@@ -10,13 +10,6 @@ pub struct PacketTypes {
 use crate::messaging::server::SendMsg;
 use crate::messaging::server::RecvMsg;
 
-// requires exclusive world access, defer calls until end of network start stage
-fn read_message<T: Message>(client_id: u64, bytes: &[u8], world: &mut World) {
-    let v: T = bincode::deserialize::<T>(bytes).unwrap();
-    let event = RecvMsg(v, client_id);
-    world.send_event(event);
-}
-
 fn read_packets_system(
     mut server: ResMut<Server>,
 ) {
@@ -24,9 +17,17 @@ fn read_packets_system(
         .iter()
         .for_each(|&user| {
             while let Some(bytes) = server.receive_message(user, Channel::Reliable) {
-
+                // how to take this ^
             }
         })
+}
+
+// and call this
+// requires exclusive world access, defer calls until end of network start stage
+fn read_message<T: Message>(client_id: u64, bytes: &[u8], world: &mut World) {
+    let v: T = bincode::deserialize::<T>(bytes).unwrap();
+    let event = RecvMsg(v, client_id);
+    world.send_event(event);
 }
 
 pub struct RawMessage {
