@@ -8,8 +8,8 @@ use nalgebra::Vector3;
 
 use crate::services::physics::aabb::Aabb;
 use crate::state::AppState;
-use rc_protocol::protocol::Protocol;
-use rc_protocol::types::ReceivePacket;
+use rc_networking::protocol::Protocol;
+use rc_networking::types::ReceivePacket;
 
 pub fn messages_update(
     mut event_reader: EventReader<ReceivePacket>,

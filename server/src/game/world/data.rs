@@ -5,7 +5,7 @@ use bevy::ecs::entity::Entity;
 use bevy::ecs::prelude::Resource;
 use bevy::log::error;
 use nalgebra::Vector3;
-use rc_client::rc_protocol::constants::EntityId;
+use rc_networking::constants::EntityId;
 use std::collections::HashMap;
 use std::fs;
 use std::fs::File;

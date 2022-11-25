@@ -9,11 +9,11 @@ use std::sync::atomic::Ordering;
 
 use crate::game::world::data::ENTITY_ID_COUNT;
 use crate::{TransportSystem, WorldData};
-use rc_client::rc_protocol::constants::{EntityId, UserId};
-use rc_client::rc_protocol::protocol::clientbound::chunk_update::FullChunkUpdate;
-use rc_client::rc_protocol::protocol::clientbound::spawn_entity::SpawnEntity;
-use rc_client::rc_protocol::protocol::Protocol;
-use rc_client::rc_protocol::types::SendPacket;
+use rc_networking::constants::{EntityId, UserId};
+use rc_networking::protocol::clientbound::chunk_update::FullChunkUpdate;
+use rc_networking::protocol::clientbound::spawn_entity::SpawnEntity;
+use rc_networking::protocol::Protocol;
+use rc_networking::types::SendPacket;
 
 /// A user who is yet to be authorized
 pub struct GameUser {

@@ -5,8 +5,7 @@ use bevy::prelude::*;
 use bevy::render::primitives::Aabb;
 use fnv::{FnvBuildHasher, FnvHashMap};
 use nalgebra::Vector3;
-use rc_protocol::constants::CHUNK_SIZE;
-use rc_protocol::protocol::clientbound::chunk_update::FullChunkUpdate;
+use rc_networking::constants::CHUNK_SIZE;
 use std::collections::HashMap;
 
 pub mod builder;

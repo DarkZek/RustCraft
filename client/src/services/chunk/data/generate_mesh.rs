@@ -10,7 +10,7 @@ use bevy::ecs::component::Component;
 use crate::game::blocks::states::BlockStates;
 use fnv::FnvHashMap;
 use nalgebra::Vector3;
-use rc_protocol::constants::CHUNK_SIZE;
+use rc_networking::constants::CHUNK_SIZE;
 
 #[derive(Component)]
 pub struct UpdateChunkMesh {

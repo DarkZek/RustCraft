@@ -3,7 +3,7 @@ use bevy::ecs::component::Component;
 use bevy::prelude::{Entity, Handle, Mesh};
 
 use nalgebra::Vector3;
-use rc_protocol::constants::CHUNK_SIZE;
+use rc_networking::constants::CHUNK_SIZE;
 
 pub mod generate_mesh;
 pub mod viewable;

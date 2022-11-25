@@ -17,13 +17,10 @@ use crate::game::world::WorldPlugin;
 use crate::systems::tick::tick;
 use crate::transport::{TransportPlugin, TransportSystem};
 use bevy::app::{App, AppExit, CoreStage};
-use bevy::ecs::event::EventReader;
-use bevy::ecs::prelude::{StageLabel, SystemStage};
 use bevy::log::{info, Level, LogPlugin};
-use bevy::prelude::{EventWriter, IntoSystemDescriptor, Res};
-use bevy::{DefaultPlugins, MinimalPlugins};
-use rc_client::rc_protocol::types::{ReceivePacket, SendPacket};
-use std::io::stdin;
+use bevy::prelude::{EventWriter};
+use bevy::{MinimalPlugins};
+use rc_networking::types::{ReceivePacket, SendPacket};
 use std::sync::atomic::{AtomicBool, Ordering};
 
 static SHUTDOWN_BIT: AtomicBool = AtomicBool::new(false);

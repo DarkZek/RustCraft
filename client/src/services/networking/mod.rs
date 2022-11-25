@@ -10,13 +10,13 @@ use crate::services::networking::messages::messages_update;
 use bevy::prelude::*;
 use bevy::prelude::{info, Entity, SystemSet, Vec3};
 
-use rc_protocol::constants::EntityId;
+use rc_networking::constants::EntityId;
 
 use crate::state::AppState;
 use rc_networking::renet::ClientAuthentication;
 use rc_networking::*;
 
-use rc_protocol::types::{ReceivePacket, SendPacket};
+use rc_networking::types::{ReceivePacket, SendPacket};
 use std::collections::HashMap;
 use std::net::{SocketAddr, UdpSocket};
 use std::time::SystemTime;

@@ -1,6 +1,10 @@
+pub mod constants;
+pub mod protocol;
+pub mod types;
+
 use bevy::ecs::schedule::ShouldRun;
 use bevy::prelude::{Res, Resource};
-use rc_protocol::protocol::Protocol;
+use protocol::Protocol;
 use renet::{BlockChannelConfig, ChannelConfig, ConnectToken, RenetConnectionConfig};
 use std::net::SocketAddr;
 use std::time::{Duration, SystemTime};
@@ -88,17 +92,11 @@ fn get_channel(protocol: &Protocol) -> Channel {
         Protocol::PlayerMove(_)
         | Protocol::EntityMoved(_)
         | Protocol::PlayerRotate(_)
-        | Protocol::EntityRotated(_)
-        | Protocol::Disconnect(_) => Channel::Unreliable,
+        | Protocol::EntityRotated(_) => Channel::Unreliable,
 
-        Protocol::Ping(_)
-        | Protocol::Pong(_)
-        | Protocol::PlayerJoin(_)
-        | Protocol::PlayerLeave(_)
-        | Protocol::BlockUpdate(_)
+        Protocol::BlockUpdate(_)
         | Protocol::ChatSent(_)
         | Protocol::DespawnEntity(_)
-        | Protocol::UserAuthenticate(_)
         | Protocol::SpawnEntity(_) => Channel::Reliable,
 
         Protocol::PartialChunkUpdate(_) => Channel::Block,
@@ -116,8 +114,8 @@ mod client {
     use crate::*;
     use bevy::app::AppExit;
     use bevy::prelude::*;
-    use rc_protocol::constants::UserId;
-    use rc_protocol::types::{ReceivePacket, SendPacket};
+    use crate::constants::UserId;
+    use crate::types::{ReceivePacket, SendPacket};
     use renet::{RenetClient, RenetError};
     use std::ops::{Deref, DerefMut};
 
@@ -231,8 +229,8 @@ pub mod server {
     use crate::*;
     use bevy::app::AppExit;
     use bevy::prelude::*;
-    use rc_protocol::constants::UserId;
-    use rc_protocol::types::{ReceivePacket, SendPacket};
+    use crate::constants::UserId;
+    use crate::types::{ReceivePacket, SendPacket};
     use renet::{RenetError, RenetServer, ServerEvent};
     use std::ops::{Deref, DerefMut};
 
