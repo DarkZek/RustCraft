@@ -1,5 +1,4 @@
-use crate::services::chunk::data::Color;
-
+use crate::services::chunk::data::LightingColor;
 use bevy::prelude::Vec3;
 use nalgebra::{Point3, Vector3};
 use rc_networking::constants::CHUNK_SIZE;
@@ -44,7 +43,7 @@ impl Lerp for u8 {
     }
 }
 
-pub fn lerp_color(c1: Color, c2: Color, t: f32) -> Color {
+pub fn lerp_color(c1: LightingColor, c2: LightingColor, t: f32) -> LightingColor {
     if t == 0.0 {
         return c1;
     }

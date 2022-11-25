@@ -19,7 +19,6 @@ pub fn mouse_interaction(
     mut commands: Commands,
     camera: Query<&Transform, With<Camera>>,
     mut chunks: ResMut<ChunkService>,
-    mut meshes: ResMut<Assets<Mesh>>,
     mut assets: ResMut<AssetService>,
     mut networking: EventWriter<SendPacket>,
     inventory: Res<Inventory>,
@@ -118,7 +117,6 @@ pub fn mouse_interaction(
                     chunk,
                     &mut commands,
                     &mut assets,
-                    &mut meshes,
                     &mut rerender_chunks,
                 );
             }

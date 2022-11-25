@@ -111,11 +111,11 @@ fn has_resource<T: Resource>(resource: Option<Res<T>>) -> ShouldRun {
 }
 
 mod client {
+    use crate::constants::UserId;
+    use crate::types::{ReceivePacket, SendPacket};
     use crate::*;
     use bevy::app::AppExit;
     use bevy::prelude::*;
-    use crate::constants::UserId;
-    use crate::types::{ReceivePacket, SendPacket};
     use renet::{RenetClient, RenetError};
     use std::ops::{Deref, DerefMut};
 
@@ -226,11 +226,11 @@ mod client {
 }
 
 pub mod server {
+    use crate::constants::UserId;
+    use crate::types::{ReceivePacket, SendPacket};
     use crate::*;
     use bevy::app::AppExit;
     use bevy::prelude::*;
-    use crate::constants::UserId;
-    use crate::types::{ReceivePacket, SendPacket};
     use renet::{RenetError, RenetServer, ServerEvent};
     use std::ops::{Deref, DerefMut};
 

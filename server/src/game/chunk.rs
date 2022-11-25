@@ -47,8 +47,6 @@ impl ChunkData {
                             .mul(3.0)
                             .floor() as i32;
 
-                    println!("{:?}", ground_level);
-
                     if absolute.y < ground_level - 3 {
                         world[x][y][z] = 6;
                     } else if absolute.y < ground_level {

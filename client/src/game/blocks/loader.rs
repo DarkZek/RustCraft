@@ -81,7 +81,7 @@ pub fn track_blockstate_changes(
             .as_ref()
             .unwrap()
             .index
-            .get("game/invalid")
+            .get("game/error")
             .unwrap();
 
         for block in &asset.states {
@@ -95,6 +95,7 @@ pub fn track_blockstate_changes(
                     .iter()
                     .map(|v| Aabb::new(v.bottom_left, v.size))
                     .collect::<Vec<Aabb>>(),
+                emission: block.emission,
             };
 
             for face in &block.faces {

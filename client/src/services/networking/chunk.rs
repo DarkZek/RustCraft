@@ -28,7 +28,6 @@ pub fn network_chunk_sync(
                     update.data,
                     &mut commands,
                     &asset_service,
-                    &mut meshes,
                     &mut rerender_chunks,
                 );
             }
@@ -63,7 +62,6 @@ pub fn network_chunk_sync(
                         chunk,
                         &mut commands,
                         &mut asset_service,
-                        &mut meshes,
                         &mut rerender_chunks,
                     );
                 }

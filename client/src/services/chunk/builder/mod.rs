@@ -6,11 +6,15 @@ use crate::services::chunk::builder::entry::{MeshBuildEntry, PLAYER_POS};
 use crate::services::chunk::data::generate_mesh::UpdateChunkMesh;
 use crate::services::chunk::ChunkService;
 use bevy::prelude::*;
-use bevy::render::mesh::Indices;
+use bevy::render::mesh::{Indices, MeshVertexAttribute, PrimitiveTopology, VertexAttributeValues};
+use bevy::render::render_resource::VertexFormat;
 use nalgebra::Vector3;
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
-use std::collections::{BinaryHeap};
-use std::sync::atomic::{Ordering};
+use std::collections::BinaryHeap;
+use std::sync::atomic::Ordering;
+
+pub const ATTRIBUTE_LIGHTING_COLOR: MeshVertexAttribute =
+    MeshVertexAttribute::new("Lighting", 988540917, VertexFormat::Float32x4);
 
 pub struct RerenderChunkFlag {
     pub chunk: Vector3<i32>,
@@ -32,6 +36,7 @@ pub fn mesh_builder(
     block_states: Res<BlockStates>,
     mut builder_data: Local<MeshBuilderCache>,
     service: Res<ChunkService>,
+    mut commands: Commands,
 ) {
     // Update player location
     let pos = from_bevy_vec3(camera.single().translation);
@@ -96,17 +101,24 @@ pub fn mesh_builder(
                 Some((
                     chunk.generate_mesh(&chunks, &block_states, true),
                     &chunk.mesh,
+                    &chunk.entity,
                 ))
             } else {
                 warn!("Chunk data doesn't exist when trying to build chunk");
                 None
             }
         })
-        .collect::<Vec<Option<(UpdateChunkMesh, &Handle<Mesh>)>>>();
+        .collect::<Vec<Option<(UpdateChunkMesh, &Option<Handle<Mesh>>, &Entity)>>>();
 
     for update in updates {
-        if let Some((val, handle)) = update {
-            apply_mesh(val, meshes.get_mut(handle).unwrap());
+        if let Some((val, handle, entity)) = update {
+            if let Some(mesh) = handle {
+                apply_mesh(val, meshes.get_mut(mesh).unwrap());
+            } else {
+                let mut mesh = Mesh::new(PrimitiveTopology::TriangleList);
+                apply_mesh(val, &mut mesh);
+                commands.entity(*entity).insert(meshes.add(mesh));
+            }
         }
     }
 }
@@ -116,4 +128,8 @@ fn apply_mesh(update: UpdateChunkMesh, mesh: &mut Mesh) {
     mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, update.positions);
     mesh.insert_attribute(Mesh::ATTRIBUTE_NORMAL, update.normals);
     mesh.insert_attribute(Mesh::ATTRIBUTE_UV_0, update.uv_coordinates);
+    mesh.insert_attribute(
+        ATTRIBUTE_LIGHTING_COLOR,
+        VertexAttributeValues::Float32x4(update.lighting),
+    );
 }

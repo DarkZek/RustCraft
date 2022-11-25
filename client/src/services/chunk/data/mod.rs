@@ -14,7 +14,7 @@ pub struct ChunkData {
 
     pub entity: Entity,
 
-    pub mesh: Handle<Mesh>,
+    pub mesh: Option<Handle<Mesh>>,
 
     pub world: RawChunkData,
 
@@ -26,24 +26,19 @@ pub struct ChunkData {
 }
 
 impl ChunkData {
-    pub fn new(
-        data: RawChunkData,
-        entity: Entity,
-        position: Vector3<i32>,
-        mesh: Handle<Mesh>,
-    ) -> ChunkData {
+    pub fn new(data: RawChunkData, entity: Entity, position: Vector3<i32>) -> ChunkData {
         ChunkData {
             world: data,
             viewable_map: None,
             position,
-            light_levels: [[[[0, 0, 0, 255]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE],
+            light_levels: [[[[255, 255, 255, 255]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE],
             entity,
-            mesh,
+            mesh: None,
         }
     }
 }
 
 pub type RawChunkData = [[[u32; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
-pub type RawLightingData = [[[Color; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
+pub type RawLightingData = [[[LightingColor; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
 
-pub type Color = [u8; 4];
+pub type LightingColor = [u8; 4];
