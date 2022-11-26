@@ -1,4 +1,5 @@
-use std::time::Duration;
+use std::net::SocketAddr;
+use std::time::{Duration, SystemTime};
 use renet::*;
 
 pub const PROTOCOL_ID: u64 = 4302467916224429941;
@@ -10,6 +11,24 @@ pub const PRIVATE_KEY: [u8; 32] = [
     0xf2, 0xc7, 0x2d, 0x99, 0x2b, 0x1b, 0xe2, 0x5d,
     0x29, 0x2d, 0xd3, 0x26, 0x52, 0x71, 0x8a, 0x1b
 ];
+
+pub fn get_simple_connect_token(client_id: u64, addresses: Vec<SocketAddr>) -> ConnectToken {
+    let current_time = SystemTime::now()
+        .duration_since(SystemTime::UNIX_EPOCH)
+        .unwrap();
+
+    ConnectToken::generate(
+        current_time,
+        PROTOCOL_ID,
+        1000000000,
+        client_id,
+        10,
+        addresses,
+        None,
+        &PRIVATE_KEY,
+    )
+        .unwrap()
+}
 
 macro_rules! count {
     () => { 0usize };
