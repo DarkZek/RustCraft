@@ -11,11 +11,24 @@ pub const PRIVATE_KEY: [u8; 32] = [
     0x29, 0x2d, 0xd3, 0x26, 0x52, 0x71, 0x8a, 0x1b
 ];
 
+macro_rules! count {
+    () => { 0usize };
+    ($_head:expr) => { 1usize };
+    ($_head:expr, $($tail:expr),*) => {
+        1usize + count!($($tail),*)
+    };
+}
+
 macro_rules! make_channels {
     ($($n:tt),*) => {
         #[derive(Copy, Clone)]
         pub enum Channel {
             $($n),*
+        }
+        impl Channel {
+            pub const ALL: [Channel; count!($($n),*)] = [
+                $(Channel::$n),*
+            ];
         }
         impl From<Channel> for u8 {
             fn from(value: Channel) -> Self {
