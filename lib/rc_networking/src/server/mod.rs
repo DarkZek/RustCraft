@@ -1,9 +1,6 @@
-use std::io::Cursor;
-use std::marker::PhantomData;
 use bevy::prelude::*;
-use renet::{RenetError, RenetServer, ServerEvent};
-use serde::{Deserialize, Serialize};
-use crate::{Channel, impl_message};
+use renet::{RenetServer, ServerEvent};
+use crate::{Channel};
 use crate::messaging::server::*;
 
 pub struct ServerPlugin;
@@ -18,13 +15,11 @@ crate::make_wrapper_struct!(Server, RenetServer);
 
 pub fn update_system(
     mut server: ResMut<Server>,
-    mut renet_error: EventWriter<RenetError>,
     mut server_events: EventWriter<ServerEvent>,
     time: Res<Time>,
 ) {
     if let Err(e) = server.update(time.delta()) {
         error!("Renet Update: {}", e);
-        renet_error.send(RenetError::IO(e));
     }
 
     while let Some(event) = server.get_event() {
@@ -48,8 +43,14 @@ pub fn read_packets_system(world: &mut World) {
     });
 }
 
-pub fn send_packets_system(world: &mut World) {
-    world.resource_scope::<Server, _>(|world, mut server| {
-        
+pub fn write_packets_system(world: &mut World) {
+    world.resource_scope::<Server, _>(|world, mut server: Mut<Server>| {
+        serialize(world, server.as_mut());
     })
+}
+
+pub fn send_packets_system(mut server: ResMut<Server>) {
+    if let Err(e) = server.send_packets() {
+        error!("Renet Send: {}", e);
+    }
 }
