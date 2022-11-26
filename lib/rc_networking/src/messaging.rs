@@ -5,6 +5,11 @@ use bevy::utils::HashMap;
 use serde::{Deserialize, Serialize};
 use bevy::ecs::event::Event;
 use bevy::ecs::system::SystemParam;
+use deserialize::make_deserializers;
+
+make_deserializers![
+
+];
 
 // special case: the player's entity should be the given id from renet
 #[derive(Copy, Clone, Hash, Ord, PartialOrd, Eq, PartialEq, Debug, Default, Component, Serialize, Deserialize)]
@@ -78,6 +83,12 @@ pub fn deserialize<T: Message>(read: impl Read) -> T {
     bincode::deserialize_from(read).unwrap()
 }
 
+macro_rules! make_recv {
+    ($val: expr $(,)?) => { crate::messaging::client::RecvMsg($val) };
+    ($val: expr, $id: expr) => { crate::messaging::server::RecvMsg($val, $id) };
+}
+pub(crate) use make_recv;
+
 #[derive(SystemParam)]
 pub struct Sender<'w, 's, T: Event> {
     val: EventWriter<'w, 's, T>,
@@ -141,8 +152,15 @@ pub mod client {
     use std::ops::{Deref, DerefMut};
     use bevy::ecs::event::EventId;
     use bevy::ecs::system::SystemParam;
+    use bevy::prelude::World;
     use crate::messaging::Message;
     use crate::messaging::{Receiver, Sender};
+
+    use crate::messaging::client_de;
+
+    pub fn deserialize(world: &mut World, bytes: Vec<u8>) {
+        client_de(bytes, world);
+    }
 
     pub struct SendMsg<T>(pub T);
 
@@ -187,8 +205,15 @@ pub mod server {
     use std::ops::{Deref, DerefMut};
     use bevy::ecs::event::EventId;
     use bevy::ecs::system::SystemParam;
+    use bevy::prelude::World;
     use crate::messaging::Message;
     use crate::messaging::{Receiver, Sender};
+
+    use crate::messaging::server_de;
+
+    pub fn deserialize(world: &mut World, bytes: Vec<u8>, client_id: u64) {
+        server_de(bytes, world, client_id);
+    }
 
     pub struct SendMsg<T>(pub T, pub u64);
 
@@ -227,4 +252,34 @@ pub mod server {
                 .map(|(v, e)| (&v.0, v.1, e))
         }
     }
+}
+
+mod deserialize {
+    macro_rules! make_deserializers {
+        ($($typ:ty),*) => {
+            make_deserializers!(client_de, {}, {}, $($typ),*);
+            make_deserializers!(server_de, {client_id}, {client_id: u64}, $($typ),*);
+        };
+        ($name:ident, {$($c_id:tt)*}, {$($param:tt)*}, $($typ:ty),+) => {
+            fn $name(bytes: Vec<u8>, world: &mut World, $($param)*) {
+                let mut read = Cursor::new(bytes);
+                let id = deserialize_packet_id(&mut read);
+
+                match id {
+                    $(<$typ>::PACKET_ID => {
+                        let val = deserialize::<$typ>(read);
+                        let event = make_recv!(val, $c_id);
+                        world.send_event(event);
+                    })*
+                    _ => { unreachable!("Packet with Id {} is unknown", id); }
+                }
+            }
+        };
+        ($name:ident, {$($_c_id:tt)*}, {$($param:tt)*} $(,)?) => {
+            fn $name(bytes: Vec<u8>, world: &mut World, $($param)*) {
+
+            }
+        }
+    }
+    pub(crate) use make_deserializers;
 }

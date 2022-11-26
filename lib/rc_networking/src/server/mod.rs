@@ -1,5 +1,10 @@
+use std::io::Cursor;
+use std::marker::PhantomData;
 use bevy::prelude::*;
 use renet::{RenetError, RenetServer, ServerEvent};
+use serde::{Deserialize, Serialize};
+use crate::{Channel, impl_message};
+use crate::messaging::server::*;
 
 pub struct ServerPlugin;
 
@@ -28,13 +33,19 @@ pub fn update_system(
     }
 }
 
-pub fn read_packets_system(mut server: ResMut<Server>) {
-    server
-        .clients_id()
-        .iter()
-        .for_each(|&user_id| {
-            while let Some(bytes) = server.receive_message(user_id, 0) {
+pub fn read_packets_system(world: &mut World, mut server: ResMut<Server>) {
+    for channel in Channel::ALL {
+        server
+            .clients_id()
+            .iter()
+            .for_each(|&client_id| {
+                while let Some(bytes) = server.receive_message(client_id, channel) {
+                    deserialize(world, bytes, client_id);
+                }
+            })
+    }
+}
 
-            }
-        })
+pub fn send_packets_system(mut server: ResMut<Server>) {
+    
 }
