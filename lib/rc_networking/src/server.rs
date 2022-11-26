@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use renet::{RenetServer, ServerEvent};
-use crate::{Channel};
-use crate::messaging::server::*;
+use crate::Channel;
+use crate::messaging::server::{deserialize, serialize};
 
 pub struct ServerPlugin;
 

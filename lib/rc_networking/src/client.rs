@@ -1,7 +1,7 @@
 use bevy::prelude::*;
-use renet::{RenetClient, RenetError};
-use crate::{Channel};
-use crate::messaging::client::*;
+use renet::RenetClient;
+use crate::Channel;
+use crate::messaging::client::{deserialize, serialize};
 
 pub struct ClientPlugin;
 
