@@ -6,11 +6,11 @@ pub mod protocol;
 pub mod types;
 mod client;
 mod server;
+mod config;
 
 use bevy::ecs::schedule::ShouldRun;
 use bevy::prelude::{Res, Resource};
 use protocol::Protocol;
-use renet::{BlockChannelConfig, ChannelConfig, ConnectToken, RenetConnectionConfig};
 use std::net::SocketAddr;
 use std::time::{Duration, SystemTime};
 
