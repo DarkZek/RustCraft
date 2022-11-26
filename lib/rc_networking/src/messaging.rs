@@ -162,7 +162,7 @@ pub mod client {
     use crate::messaging::{client_de, client_ser};
 
     pub fn deserialize(world: &mut World, bytes: Vec<u8>) {
-        client_de(bytes, world);
+        client_de(world, bytes);
     }
 
     pub fn serialize(world: &mut World, client: &mut Client) {
@@ -220,7 +220,7 @@ pub mod server {
     use crate::server::Server;
 
     pub fn deserialize(world: &mut World, bytes: Vec<u8>, client_id: u64) {
-        server_de(bytes, world, client_id);
+        server_de(world, bytes, client_id);
     }
 
     pub fn serialize(world: &mut World, server: &mut Server) {
@@ -269,8 +269,8 @@ pub mod server {
 mod deserialize {
     macro_rules! make_deserializers {
         ($($typ:ty),*) => {
-            make_deserializers!(client_de, {}, {}, $($typ),*);
-            make_deserializers!(server_de, {client_id}, {client_id: u64}, $($typ),*);
+            make_deserializers!(@client $($typ),*);
+            make_deserializers!(@server $($typ),*);
 
             fn client_ser(world: &mut World, client: &mut Client) {
                 $(message_write_client::<$typ>(world, client);)*
@@ -280,26 +280,32 @@ mod deserialize {
                 $(message_write_server::<$typ>(world, server);)*
             }
         };
-        ($name:ident, {$($c_id:tt)*}, {$($param:tt)*}, $($typ:ty),+) => {
-            fn $name(bytes: Vec<u8>, world: &mut World, $($param)*) {
-                let mut read = Cursor::new(bytes);
-                let id = deserialize_packet_id(&mut read);
-
-                match id {
-                    $(<$typ>::PACKET_ID => {
-                        let val = deserialize::<$typ>(read);
-                        let event = make_recv!(val, $c_id);
-                        world.send_event(event);
-                    })*
-                    _ => { unreachable!("Packet with Id {} is unknown", id); }
-                }
+        (@client $($typ:ty),*) => {
+            fn client_de(world: &mut World, bytes: Vec<u8>) {
+                make_deserializers!(@body {}, $($typ:ty),*);
             }
         };
-        ($name:ident, {$($_c_id:tt)*}, {$($param:tt)*} $(,)?) => {
-            fn $name(bytes: Vec<u8>, world: &mut World, $($param)*) {
-
+        (@server $($typ:ty),*) => {
+            fn server_de(world: &mut World, bytes: Vec<u8>, client_id: u64) {
+                make_deserializers!(@body {client_id}, $($typ:ty),*);
             }
-        }
+        };
+        (@body {$($_c_id:tt)*} $(,)?) => {
+
+        };
+        (@body {$($c_id:tt)*}, $($typ:ty),*) => {
+            let mut read = Cursor::new(bytes);
+            let id = deserialize_packet_id(&mut read);
+
+            match id {
+                $(<$typ>::PACKET_ID => {
+                    let val = deserialize::<$typ>(read);
+                    let event = make_recv!(val, $c_id);
+                    world.send_event(event);
+                })*
+                _ => { unreachable!("Packet with Id {} is unknown", id); }
+            }
+        };
     }
     use bevy::prelude::{Events, World};
     pub(crate) use make_deserializers;
