@@ -307,8 +307,9 @@ mod deserialize {
             }
         };
     }
-    use bevy::prelude::{Events, World};
     pub(crate) use make_deserializers;
+
+    use bevy::prelude::{Events, World};
     use crate::client::Client;
     use crate::messaging::{Message, serialize};
     use crate::messaging::server;

@@ -1,4 +1,3 @@
-mod test;
 mod messaging;
 
 pub mod constants;
