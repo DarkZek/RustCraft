@@ -6,6 +6,8 @@ use serde::{Deserialize, Serialize};
 use bevy::ecs::event::Event;
 use bevy::ecs::system::SystemParam;
 use deserialize::make_deserializers;
+use crate::client::Client;
+use crate::server::Server;
 
 make_deserializers![
 
@@ -153,13 +155,18 @@ pub mod client {
     use bevy::ecs::event::EventId;
     use bevy::ecs::system::SystemParam;
     use bevy::prelude::World;
+    use crate::client::Client;
     use crate::messaging::Message;
     use crate::messaging::{Receiver, Sender};
 
-    use crate::messaging::client_de;
+    use crate::messaging::{client_de, client_ser};
 
     pub fn deserialize(world: &mut World, bytes: Vec<u8>) {
         client_de(bytes, world);
+    }
+
+    pub fn serialize(world: &mut World, client: &mut Client) {
+        client_ser(world, client);
     }
 
     pub struct SendMsg<T>(pub T);
@@ -209,10 +216,15 @@ pub mod server {
     use crate::messaging::Message;
     use crate::messaging::{Receiver, Sender};
 
-    use crate::messaging::server_de;
+    use crate::messaging::{server_de, server_ser};
+    use crate::server::Server;
 
     pub fn deserialize(world: &mut World, bytes: Vec<u8>, client_id: u64) {
         server_de(bytes, world, client_id);
+    }
+
+    pub fn serialize(world: &mut World, server: &mut Server) {
+        server_ser(world, server);
     }
 
     pub struct SendMsg<T>(pub T, pub u64);
@@ -259,6 +271,14 @@ mod deserialize {
         ($($typ:ty),*) => {
             make_deserializers!(client_de, {}, {}, $($typ),*);
             make_deserializers!(server_de, {client_id}, {client_id: u64}, $($typ),*);
+
+            fn client_ser(world: &mut World, client: &mut Client) {
+                $(message_write_client::<$typ>(world, client);)*
+            }
+
+            fn server_ser(world: &mut World, server: &mut Server) {
+                $(message_write_server::<$typ>(world, server);)*
+            }
         };
         ($name:ident, {$($c_id:tt)*}, {$($param:tt)*}, $($typ:ty),+) => {
             fn $name(bytes: Vec<u8>, world: &mut World, $($param)*) {
@@ -281,5 +301,29 @@ mod deserialize {
             }
         }
     }
+    use bevy::prelude::{Events, World};
     pub(crate) use make_deserializers;
+    use crate::client::Client;
+    use crate::messaging::{Message, serialize};
+    use crate::messaging::server;
+    use crate::messaging::client;
+    use crate::server::Server;
+
+    fn message_write_server<T: Message>(world: &mut World, server: &mut Server) {
+        let events = world.resource_mut::<Events<server::SendMsg<T>>>();
+        let mut reader = events.get_reader();
+        for msg in reader.iter(&events) {
+            let bytes = serialize(&msg.0);
+            server.send_message(msg.1, T::CHANNEL_ID, bytes);
+        }
+    }
+
+    fn message_write_client<T: Message>(world: &mut World, server: &mut Client) {
+        let events = world.resource_mut::<Events<client::SendMsg<T>>>();
+        let mut reader = events.get_reader();
+        for msg in reader.iter(&events) {
+            let bytes = serialize(&msg.0);
+            server.send_message( T::CHANNEL_ID, bytes);
+        }
+    }
 }
