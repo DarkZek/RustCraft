@@ -31,9 +31,9 @@ impl Plugin for ProtocolPlugin {
 
 #[macro_export]
 macro_rules! impl_message {
-    ($typ: ty, $p_id: literal, c_id: literal) => {
+    ($typ: ty, $p_id: literal, $c_id: literal) => {
         impl Message for $typ {
-            const PACKET_ID: u8 = $p_id;
+            const PACKET_ID: PacketIdType = $p_id;
             const CHANNEL_ID: u8 = $c_id;
         }
     }
