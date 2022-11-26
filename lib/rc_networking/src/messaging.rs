@@ -9,9 +9,7 @@ use deserialize::make_deserializers;
 use crate::client::Client;
 use crate::server::Server;
 
-make_deserializers![
-
-];
+make_deserializers![];
 
 // special case: the player's entity should be the given id from renet
 #[derive(Copy, Clone, Hash, Ord, PartialOrd, Eq, PartialEq, Debug, Default, Component, Serialize, Deserialize)]
