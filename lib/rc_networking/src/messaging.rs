@@ -1,3 +1,4 @@
+use std::io::{Cursor, Read};
 use bevy::app::App;
 use bevy::prelude::*;
 use bevy::utils::HashMap;
@@ -38,9 +39,43 @@ macro_rules! impl_message {
     }
 }
 
+pub type PacketIdType = u8;
+
 pub trait Message: Event + Serialize + for<'a> Deserialize<'a> {
-    const PACKET_ID: u8;
+    const PACKET_ID: PacketIdType;
     const CHANNEL_ID: u8;
+}
+
+const fn size_of_packet_id() -> usize {
+    std::mem::size_of::<PacketIdType>()
+}
+
+fn message_size<T: Message>() -> usize {
+    use std::mem::size_of;
+    size_of::<T>() + size_of_packet_id()
+}
+
+pub fn serialize<T: Message>(value: &T) -> Vec<u8> {
+    use std::io::{Write, Cursor};
+
+    let packet_size = message_size::<T>();
+    let mut bytes = Cursor::new(Vec::with_capacity(packet_size));
+
+    bytes.write(&T::PACKET_ID.to_le_bytes()).unwrap();
+    bincode::serialize_into(&mut bytes, &value).unwrap();
+
+    bytes.into_inner()
+}
+
+pub fn deserialize_packet_id(read: &mut impl Read) -> PacketIdType {
+    let mut packet_id = [0u8; size_of_packet_id()];
+    read.read(&mut packet_id).unwrap();
+    PacketIdType::from_le_bytes(packet_id)
+}
+
+pub fn deserialize<T: Message>(read: impl Read) -> T {
+    use std::io::{Read, Cursor};
+    bincode::deserialize_from(read).unwrap()
 }
 
 #[derive(SystemParam)]
