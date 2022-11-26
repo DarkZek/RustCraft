@@ -86,7 +86,7 @@ pub fn deserialize<T: Message>(read: impl Read) -> T {
 }
 
 macro_rules! make_recv {
-    ($val: expr $(,)?) => { crate::messaging::client::RecvMsg($val) };
+    ($val: expr $(,)*) => { crate::messaging::client::RecvMsg($val) };
     ($val: expr, $id: expr) => { crate::messaging::server::RecvMsg($val, $id) };
 }
 pub(crate) use make_recv;
@@ -282,12 +282,12 @@ mod deserialize {
         };
         (@client $($typ:ty),*) => {
             fn client_de(world: &mut World, bytes: Vec<u8>) {
-                make_deserializers!(@body {}, $($typ:ty),*);
+                make_deserializers!(@body {,}, $($typ),*);
             }
         };
         (@server $($typ:ty),*) => {
             fn server_de(world: &mut World, bytes: Vec<u8>, client_id: u64) {
-                make_deserializers!(@body {client_id}, $($typ:ty),*);
+                make_deserializers!(@body {client_id}, $($typ),*);
             }
         };
         (@body {$($_c_id:tt)*} $(,)?) => {
