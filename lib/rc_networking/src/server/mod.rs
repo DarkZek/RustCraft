@@ -33,19 +33,23 @@ pub fn update_system(
     }
 }
 
-pub fn read_packets_system(world: &mut World, mut server: ResMut<Server>) {
-    for channel in Channel::ALL {
-        server
-            .clients_id()
-            .iter()
-            .for_each(|&client_id| {
-                while let Some(bytes) = server.receive_message(client_id, channel) {
-                    deserialize(world, bytes, client_id);
-                }
-            })
-    }
+pub fn read_packets_system(world: &mut World) {
+    world.resource_scope::<Server, _>(|world, mut server| {
+        for channel in Channel::ALL {
+            server
+                .clients_id()
+                .iter()
+                .for_each(|&client_id| {
+                    while let Some(bytes) = server.receive_message(client_id, channel) {
+                        deserialize(world, bytes, client_id);
+                    }
+                })
+        }
+    });
 }
 
-pub fn send_packets_system(mut server: ResMut<Server>) {
-    
+pub fn send_packets_system(world: &mut World) {
+    world.resource_scope::<Server, _>(|world, mut server| {
+        
+    })
 }
