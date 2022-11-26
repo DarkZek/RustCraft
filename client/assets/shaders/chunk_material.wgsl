@@ -44,7 +44,9 @@ fn vertex(vertex: VertexInput) -> VertexOutput {
     out.clip_position = mesh_position_world_to_clip(out.world_position);
     out.world_normal = mesh_normal_local_to_world(vertex.normal);
     out.uv = vertex.uv;
-    out.lighting = vertex.lighting;
+
+    let ambient = 0.03;
+    out.lighting = vec4(vertex.lighting.xyz + ambient, 1.0);
 
     return out;
 }
@@ -59,7 +61,7 @@ struct FragmentInput {
 
 @fragment
 fn fragment(in: FragmentInput) -> @location(0) vec4<f32> {
-    let output_color: vec4<f32> = material.color * in.lighting;
+    let output_color: vec4<f32> = material.color;
 
     let output_color = output_color * textureSample(base_color_texture, base_color_sampler, in.uv);
 
@@ -92,6 +94,8 @@ fn fragment(in: FragmentInput) -> @location(0) vec4<f32> {
     input.V = calculate_view(in.world_position, false);
 
     let output = (pbr(input) * 0.5) + vec4(0.5);
+
+    let output = output * in.lighting;
 
     return output * output_color;
 }

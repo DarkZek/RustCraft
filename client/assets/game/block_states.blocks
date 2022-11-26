@@ -265,7 +265,7 @@
                      "size": [1.0, 1.0, 1.0]
                  }
              ],
-             "emission": [255,0,0,255]
+             "emission": [255,40,40,16]
         },
         {
             "identifier": "mcv3::Leaves",
@@ -334,7 +334,7 @@
                      "size": [1.0, 1.0, 1.0]
                  }
              ],
-             "emission": [0,255,0,255]
+             "emission": [100,200,100,16]
         },
         {
             "identifier": "mcv3::Stone",

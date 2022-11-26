@@ -1,9 +1,12 @@
 mod entry;
+mod generate_mesh;
+mod lighting;
 
 use crate::game::blocks::states::BlockStates;
 use crate::helpers::from_bevy_vec3;
 use crate::services::chunk::builder::entry::{MeshBuildEntry, PLAYER_POS};
-use crate::services::chunk::data::generate_mesh::UpdateChunkMesh;
+use crate::services::chunk::builder::generate_mesh::UpdateChunkMesh;
+use crate::services::chunk::builder::lighting::LightingUpdateData;
 use crate::services::chunk::ChunkService;
 use bevy::prelude::*;
 use bevy::render::mesh::{Indices, MeshVertexAttribute, PrimitiveTopology, VertexAttributeValues};
@@ -30,12 +33,11 @@ pub struct MeshBuilderCache {
 
 pub fn mesh_builder(
     mut flags: EventReader<RerenderChunkFlag>,
-    chunks: Res<ChunkService>,
+    mut chunks: ResMut<ChunkService>,
     mut meshes: ResMut<Assets<Mesh>>,
     camera: Query<&Transform, With<Camera>>,
     block_states: Res<BlockStates>,
     mut builder_data: Local<MeshBuilderCache>,
-    service: Res<ChunkService>,
     mut commands: Commands,
 ) {
     // Update player location
@@ -64,7 +66,7 @@ pub fn mesh_builder(
     // Loop over all new chunks to render and add them to the list if the chunk exists and if its not already being rerendered
     for pos in rerender_chunks {
         // The chunk data exists
-        if let Some(data) = service.chunks.get(&pos) {
+        if let Some(data) = chunks.chunks.get(&pos) {
             // And if this chunk isn't already scheduled for rebuild
             if !builder_data.chunks.iter().any(|v| v.chunk == pos) {
                 // Put entry into rebuild table
@@ -93,13 +95,36 @@ pub fn mesh_builder(
     #[cfg(target_arch = "wasm32")]
     let iterator = build_chunks.iter();
 
+    // Direct lighting pass
+    let updates = iterator
+        .map(|entry| {
+            if let Some(chunk) = chunks.chunks.get(&entry.chunk) {
+                Some((chunk.position, chunk.build_lighting(&block_states)))
+            } else {
+                None
+            }
+        })
+        .collect::<Vec<Option<(Vector3<i32>, LightingUpdateData)>>>();
+
+    // Update chunks
+    for update in updates {
+        if let Some((chunk_pos, update)) = update {
+            chunks.chunks.get_mut(&chunk_pos).unwrap().light_levels = update.data;
+        }
+    }
+
+    #[cfg(not(target_arch = "wasm32"))]
+    let iterator = build_chunks.par_iter();
+    #[cfg(target_arch = "wasm32")]
+    let iterator = build_chunks.iter();
+
     let updates = iterator
         .map(|entry: &MeshBuildEntry| {
             // If the data exists
             if let Some(chunk) = chunks.chunks.get(&entry.chunk) {
                 // Generate mesh & gpu buffers
                 Some((
-                    chunk.generate_mesh(&chunks, &block_states, true),
+                    chunk.build_mesh(&chunks, &block_states, true),
                     &chunk.mesh,
                     &chunk.entity,
                 ))

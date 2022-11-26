@@ -5,7 +5,6 @@ use bevy::prelude::{Entity, Handle, Mesh};
 use nalgebra::Vector3;
 use rc_networking::constants::CHUNK_SIZE;
 
-pub mod generate_mesh;
 pub mod viewable;
 
 #[derive(Debug, Component)]
