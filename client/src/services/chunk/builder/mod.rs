@@ -7,6 +7,7 @@ use crate::helpers::from_bevy_vec3;
 use crate::services::chunk::builder::entry::{MeshBuildEntry, PLAYER_POS};
 use crate::services::chunk::builder::generate_mesh::UpdateChunkMesh;
 use crate::services::chunk::builder::lighting::LightingUpdateData;
+use crate::services::chunk::nearby_cache::NearbyChunkCache;
 use crate::services::chunk::ChunkService;
 use bevy::prelude::*;
 use bevy::render::mesh::{Indices, MeshVertexAttribute, PrimitiveTopology, VertexAttributeValues};
@@ -99,7 +100,8 @@ pub fn mesh_builder(
     let updates = iterator
         .map(|entry| {
             if let Some(chunk) = chunks.chunks.get(&entry.chunk) {
-                Some((chunk.position, chunk.build_lighting(&block_states)))
+                let nearby = NearbyChunkCache::from_service(&chunks, chunk.position);
+                Some((chunk.position, chunk.build_lighting(&block_states, &nearby)))
             } else {
                 None
             }

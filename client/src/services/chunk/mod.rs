@@ -11,6 +11,7 @@ use std::collections::HashMap;
 pub mod builder;
 pub mod data;
 pub mod lookup;
+pub mod nearby_cache;
 
 pub struct ChunkPlugin;
 
