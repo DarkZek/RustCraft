@@ -9,7 +9,7 @@ use crate::services::chunk::ChunkService;
 use crate::services::physics::aabb::Aabb;
 use crate::services::ui::loading::LoadingData;
 
-use crate::services::chunk::builder::RerenderChunkFlag;
+use crate::services::chunk::builder::{RerenderChunkFlag, RerenderChunkFlagContext};
 use bevy::asset::{AssetLoader, BoxedFuture, LoadContext, LoadedAsset};
 use bevy::prelude::*;
 use nalgebra::Vector3;
@@ -71,6 +71,7 @@ pub fn track_blockstate_changes(
     }
 
     if states.recalculate {
+        println!("Recalculating!~");
         // Copy data over to blockstates, with full amount of data like normals and looking up texture atlas indexes
         let (_, asset) = assets.iter().next().unwrap();
 
@@ -142,7 +143,7 @@ pub fn track_blockstate_changes(
         for (pos, chunk) in &chunks.chunks {
             rerender_chunks.send(RerenderChunkFlag {
                 chunk: *pos,
-                adjacent: false,
+                context: RerenderChunkFlagContext::None,
             });
         }
 

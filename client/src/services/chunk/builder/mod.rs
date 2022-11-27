@@ -23,7 +23,15 @@ pub const ATTRIBUTE_LIGHTING_COLOR: MeshVertexAttribute =
 pub struct RerenderChunkFlag {
     pub chunk: Vector3<i32>,
     /// Whether we should also re-render adjacent chunks
-    pub adjacent: bool,
+    pub context: RerenderChunkFlagContext,
+}
+
+// The context surrounding the renrender chunk flag to know if we should load other chunks around
+#[derive(Eq, PartialEq)]
+pub enum RerenderChunkFlagContext {
+    None,
+    Adjacent,
+    Surrounding,
 }
 
 #[derive(Default)]
@@ -54,13 +62,26 @@ pub fn mesh_builder(
         rerender_chunks.push(flag.chunk);
 
         // If rerendering adjacent chunks add them too
-        if flag.adjacent {
+        if flag.context == RerenderChunkFlagContext::Adjacent {
             rerender_chunks.push(flag.chunk + Vector3::new(0, 0, 1));
             rerender_chunks.push(flag.chunk + Vector3::new(0, 0, -1));
             rerender_chunks.push(flag.chunk + Vector3::new(0, 1, 0));
             rerender_chunks.push(flag.chunk + Vector3::new(0, -1, 0));
             rerender_chunks.push(flag.chunk + Vector3::new(1, 0, 0));
             rerender_chunks.push(flag.chunk + Vector3::new(-1, 0, 0));
+        }
+
+        if flag.context == RerenderChunkFlagContext::Surrounding {
+            for x in -1..=1 {
+                for y in -1..=1 {
+                    for z in -1..=1 {
+                        if x == 0 && y == 0 && z == 0 {
+                            continue;
+                        }
+                        rerender_chunks.push(flag.chunk + Vector3::new(x, y, z));
+                    }
+                }
+            }
         }
     }
 

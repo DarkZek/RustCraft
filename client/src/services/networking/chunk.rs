@@ -4,7 +4,7 @@ use crate::services::asset::AssetService;
 use crate::services::chunk::ChunkService;
 use bevy::prelude::*;
 
-use crate::services::chunk::builder::RerenderChunkFlag;
+use crate::services::chunk::builder::{RerenderChunkFlag, RerenderChunkFlagContext};
 use nalgebra::Vector3;
 use rc_networking::constants::CHUNK_SIZE;
 use rc_networking::protocol::Protocol;
@@ -45,7 +45,7 @@ pub fn network_chunk_sync(
                     // Rerender
                     rerender_chunks.send(RerenderChunkFlag {
                         chunk: chunk_loc,
-                        adjacent: false,
+                        context: RerenderChunkFlagContext::Surrounding,
                     });
 
                     // TODO: Figure out if I need to update adjacent blocks

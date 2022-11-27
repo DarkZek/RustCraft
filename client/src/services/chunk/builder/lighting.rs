@@ -20,7 +20,6 @@ impl ChunkData {
         states: &BlockStates,
         cache: &NearbyChunkCache,
     ) -> LightingUpdateData {
-        let now = Instant::now();
         let mut lights = get_lights(self.position, states, cache);
 
         // Loop through each light and calculate its individual impact
@@ -36,7 +35,13 @@ impl ChunkData {
 
             let mut point = VecDeque::with_capacity(100);
 
-            point.push_back((light_pos, color[3]));
+            // Starting points
+            point.push_back((light_pos + Vector3::new(1, 0, 0), color[3] - 1));
+            point.push_back((light_pos - Vector3::new(1, 0, 0), color[3] - 1));
+            point.push_back((light_pos + Vector3::new(0, 1, 0), color[3] - 1));
+            point.push_back((light_pos - Vector3::new(0, 1, 0), color[3] - 1));
+            point.push_back((light_pos + Vector3::new(0, 0, 1), color[3] - 1));
+            point.push_back((light_pos - Vector3::new(0, 0, 1), color[3] - 1));
 
             while !point.is_empty() {
                 let (pos, strength) = point.pop_front().unwrap();
@@ -50,15 +55,16 @@ impl ChunkData {
                     continue;
                 }
 
-                let chunk = if let Some(v) = cache.get_chunk(chunk_pos) {
-                    v
-                } else {
-                    continue;
-                };
+                if let Some(v) = cache.get_chunk(chunk_pos) {
+                    assert_eq!(v.position, chunk_pos);
 
-                if chunk.world[block_pos.x][block_pos.z][block_pos.z] != 0 {
-                    // Collision, bail
-                    continue;
+                    if !states
+                        .get_block(v.world[block_pos.x][block_pos.y][block_pos.z] as usize)
+                        .translucent
+                    {
+                        // Collision, bail
+                        continue;
+                    }
                 }
 
                 if chunk_pos == self.position {
@@ -93,7 +99,7 @@ impl ChunkData {
                 for z in 0..CHUNK_SIZE {
                     let mut out_color = [0; 4];
 
-                    // Calculate total strength and
+                    // Calculate total strength
                     let mut strength: f32 = 0.0;
                     let mut max_strength: f32 = 0.0;
                     for (_, strengths) in &light_strengths {
@@ -118,8 +124,6 @@ impl ChunkData {
             }
         }
 
-        println!("{}ns", now.elapsed().as_nanos());
-
         LightingUpdateData { data }
     }
 }
@@ -132,9 +136,9 @@ fn get_lights(
 ) -> Vec<(Vector3<i32>, [u8; 4])> {
     let mut lights = Vec::new();
 
-    for chunk_x in (chunk_pos.x - 1)..(chunk_pos.x + 1) {
-        for chunk_y in (chunk_pos.y - 1)..(chunk_pos.y + 1) {
-            for chunk_z in (chunk_pos.z - 1)..(chunk_pos.z + 1) {
+    for chunk_x in (chunk_pos.x - 1)..=(chunk_pos.x + 1) {
+        for chunk_y in (chunk_pos.y - 1)..=(chunk_pos.y + 1) {
+            for chunk_z in (chunk_pos.z - 1)..=(chunk_pos.z + 1) {
                 // Get chunk
                 if let Some(chunk) = cache.get_chunk(Vector3::new(chunk_x, chunk_y, chunk_z)) {
                     for x in 0..CHUNK_SIZE {

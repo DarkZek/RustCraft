@@ -1,5 +1,5 @@
 use crate::services::asset::AssetService;
-use crate::services::chunk::builder::{mesh_builder, RerenderChunkFlag};
+use crate::services::chunk::builder::{mesh_builder, RerenderChunkFlag, RerenderChunkFlagContext};
 use crate::services::chunk::data::{ChunkData, RawChunkData};
 use bevy::prelude::*;
 use bevy::render::primitives::Aabb;
@@ -67,7 +67,7 @@ impl ChunkService {
 
         rerender_chunk.send(RerenderChunkFlag {
             chunk: position,
-            adjacent: true,
+            context: RerenderChunkFlagContext::Surrounding,
         });
     }
 }

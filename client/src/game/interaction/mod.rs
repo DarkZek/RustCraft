@@ -7,7 +7,7 @@ use bevy_prototype_debug_lines::DebugLines;
 
 use crate::game::blocks::states::BlockStates;
 use crate::game::inventory::Inventory;
-use crate::services::chunk::builder::RerenderChunkFlag;
+use crate::services::chunk::builder::{RerenderChunkFlag, RerenderChunkFlagContext};
 use crate::services::physics::aabb::Aabb;
 use rc_networking::constants::{UserId, CHUNK_SIZE};
 use rc_networking::protocol::clientbound::block_update::BlockUpdate;
@@ -61,7 +61,7 @@ pub fn mouse_interaction(
             // Rerender
             rerender_chunks.send(RerenderChunkFlag {
                 chunk: chunk_loc,
-                adjacent: false,
+                context: RerenderChunkFlagContext::Surrounding,
             });
 
             // TODO: Update adjacent chunks if needed
@@ -95,7 +95,7 @@ pub fn mouse_interaction(
                 // Rerender
                 rerender_chunks.send(RerenderChunkFlag {
                     chunk: chunk_loc,
-                    adjacent: false,
+                    context: RerenderChunkFlagContext::Surrounding,
                 });
 
                 // TODO: Update adjacent chunks if needed
