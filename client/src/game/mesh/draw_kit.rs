@@ -20,35 +20,12 @@ impl DrawKit<'_> {
 
         let indices_index = self.positions.len() as u32;
 
-        self.positions.push([
-            position.x + face.top_left.x,
-            position.y + face.top_left.y,
-            position.z + face.top_left.z,
-        ]);
-        self.positions.push([
-            position.x + face.top_right.x,
-            position.y + face.top_right.y,
-            position.z + face.top_right.z,
-        ]);
-        self.positions.push([
-            position.x + face.bottom_left.x,
-            position.y + face.bottom_left.y,
-            position.z + face.bottom_left.z,
-        ]);
-        self.positions.push([
-            position.x + bottom_right.x,
-            position.y + bottom_right.y,
-            position.z + bottom_right.z,
-        ]);
-
-        self.normals
-            .push([face.normal.x, face.normal.y, face.normal.z]);
-        self.normals
-            .push([face.normal.x, face.normal.y, face.normal.z]);
-        self.normals
-            .push([face.normal.x, face.normal.y, face.normal.z]);
-        self.normals
-            .push([face.normal.x, face.normal.y, face.normal.z]);
+        let mut pos = [
+            position + face.top_left,
+            position + face.top_right,
+            position + face.bottom_left,
+            position + bottom_right,
+        ];
 
         let color = [
             color[0] as f32 / 255.0,
@@ -56,10 +33,13 @@ impl DrawKit<'_> {
             color[2] as f32 / 255.0,
             color[3] as f32 / 255.0,
         ];
-        self.lighting.push(color);
-        self.lighting.push(color);
-        self.lighting.push(color);
-        self.lighting.push(color);
+
+        for pos in pos {
+            self.positions.push([pos.x, pos.y, pos.z]);
+            self.normals
+                .push([face.normal.x, face.normal.y, face.normal.z]);
+            self.lighting.push(color);
+        }
 
         self.uv_coordinates
             .push([face.texture.u_min, face.texture.v_max]);

@@ -65,10 +65,6 @@ fn fragment(in: FragmentInput) -> @location(0) vec4<f32> {
 
     let output_color = output_color * textureSample(base_color_texture, base_color_sampler, in.uv);
 
-    if output_color.a == 0.0 {
-        discard;
-    }
-
     var input: PbrInput;
     input.material.base_color = vec4(1.0, 1.0, 1.0, 1.0);
     input.material.reflectance = 0.03;
@@ -93,9 +89,7 @@ fn fragment(in: FragmentInput) -> @location(0) vec4<f32> {
     );
     input.V = calculate_view(in.world_position, false);
 
-    let output = (pbr(input) * 0.5) + vec4(0.5);
+    var pbr_color = (pbr(input) * 0.5) + vec4(0.5);
 
-    let output = output * in.lighting;
-
-    return output * output_color;
+    return pbr_color * in.lighting * output_color;
 }

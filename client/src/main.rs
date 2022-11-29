@@ -54,8 +54,8 @@ fn main() {
                     resize_constraints: WindowResizeConstraints {
                         min_width: 256.0,
                         min_height: 256.0,
-                        max_width: 1920.0,
-                        max_height: 1080.0,
+                        max_width: 1920.0*8.0,
+                        max_height: 1080.0*8.0,
                     },
                     ..default()
                 },
@@ -67,7 +67,7 @@ fn main() {
         
         .add_plugin(DebugLinesPlugin::default())
         
-        .insert_resource(Msaa { samples: 4 })
+        .insert_resource(Msaa { samples: 1 })
 
         // Networking
         .add_plugin(NetworkingPlugin)
