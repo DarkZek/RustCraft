@@ -8,7 +8,6 @@ pub mod client;
 pub mod server;
 
 mod serialize;
-mod event;
 mod messages;
 
 #[macro_export]
