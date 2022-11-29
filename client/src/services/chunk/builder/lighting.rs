@@ -3,9 +3,12 @@ use crate::game::blocks::Block;
 use crate::helpers::{get_chunk_coords, global_to_local_position};
 use crate::services::chunk::data::{ChunkData, LightingColor, RawLightingData};
 use crate::services::chunk::nearby_cache::NearbyChunkCache;
-use nalgebra::Vector3;
+use bevy::prelude::system_adapter::new;
+use bevy::prelude::Entity;
+use nalgebra::{Vector3, Vector4};
 use rc_networking::constants::CHUNK_SIZE;
 use std::collections::VecDeque;
+use std::mem;
 use std::time::Instant;
 
 const MAX_LIGHT_VALUE: usize = 16;
@@ -20,20 +23,27 @@ impl ChunkData {
         states: &BlockStates,
         cache: &NearbyChunkCache,
     ) -> LightingUpdateData {
+        let start = Instant::now();
+
         let mut lights = get_lights(self.position, states, cache);
 
-        // Loop through each light and calculate its individual impact
-        let mut light_strengths: Vec<([u8; 4], [[[u8; 16]; 16]; 16])> = Vec::new();
+        if lights.len() == 0 {
+            return LightingUpdateData {
+                data: [[[[0 as u8; 4]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE],
+            };
+        }
+
+        let lights_len = lights.len();
+
+        // Rolling average of chunk lighting data
+        let mut data = [[[[0 as u32; 5]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
 
         // Propagate lighting
         for (light_pos, color) in lights {
-            assert!(color[3] <= 16);
-
             // a 32 block wide area around the light that tracks what blocks its visited
             let mut visited = [[[false; CHUNK_SIZE * 2]; CHUNK_SIZE * 2]; CHUNK_SIZE * 2];
-            let mut strengths = [[[0; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
 
-            let mut point = VecDeque::with_capacity(100);
+            let mut point = VecDeque::with_capacity(1000);
 
             // Starting points
             point.push_back((light_pos + Vector3::new(1, 0, 0), color[3] - 1));
@@ -68,8 +78,13 @@ impl ChunkData {
                 }
 
                 if chunk_pos == self.position {
-                    strengths[block_pos.x as usize][block_pos.y as usize][block_pos.z as usize] =
-                        strength;
+                    let current_color =
+                        &mut data[block_pos.x as usize][block_pos.y as usize][block_pos.z as usize];
+                    current_color[0] += strength as u32 * color[0] as u32;
+                    current_color[1] += strength as u32 * color[1] as u32;
+                    current_color[2] += strength as u32 * color[2] as u32;
+                    current_color[3] += strength as u32;
+                    current_color[4] = current_color[4].max(strength as u32);
                 }
 
                 visited[(pos.x - light_pos.x + CHUNK_SIZE as i32) as usize]
@@ -87,44 +102,40 @@ impl ChunkData {
                 point.push_back((pos + Vector3::new(0, 0, 1), strength - 1));
                 point.push_back((pos - Vector3::new(0, 0, 1), strength - 1));
             }
-
-            light_strengths.push((color, strengths));
         }
 
         // Combine strengths
-        let mut data = [[[[0 as u8; 4]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
+        let mut out = [[[[0 as u8; 4]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
 
         for x in 0..CHUNK_SIZE {
             for y in 0..CHUNK_SIZE {
                 for z in 0..CHUNK_SIZE {
-                    let mut out_color = [0; 4];
+                    let color = &data[x][y][z];
 
-                    // Calculate total strength
-                    let mut strength: f32 = 0.0;
-                    let mut max_strength: f32 = 0.0;
-                    for (_, strengths) in &light_strengths {
-                        strength += strengths[x][y][z] as f32;
-                        max_strength = max_strength.max(strengths[x][y][z] as f32);
+                    // If there's no lighting data for this block ignore it
+                    if color[3] == 0 {
+                        continue;
                     }
 
-                    // Add to color based on proportion of strength
-                    for (color, strengths) in &light_strengths {
-                        for i in 0..=2 {
-                            out_color[i] += (color[i] as f32
-                                * (strengths[x][y][z] as f32 / strength)
-                                * (max_strength / MAX_LIGHT_VALUE as f32))
-                                .floor() as u8
-                        }
-                    }
+                    let out_color = &mut out[x][y][z];
+
+                    out_color[0] = (color[0] / color[3] * MAX_LIGHT_VALUE as u32 / color[4]) as u8;
+                    out_color[1] = (color[1] / color[3] * MAX_LIGHT_VALUE as u32 / color[4]) as u8;
+                    out_color[2] = (color[2] / color[3] * MAX_LIGHT_VALUE as u32 / color[4]) as u8;
 
                     out_color[3] = 255;
-
-                    data[x][y][z] = out_color;
                 }
             }
         }
 
-        LightingUpdateData { data }
+        println!(
+            "Took {}ns to render {:?} with {} lights",
+            start.elapsed().as_nanos(),
+            self.position,
+            lights_len
+        );
+
+        LightingUpdateData { data: out }
     }
 }
 
