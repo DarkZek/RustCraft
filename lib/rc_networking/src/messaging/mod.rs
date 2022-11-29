@@ -12,9 +12,9 @@ mod messages;
 
 #[macro_export]
 macro_rules! impl_message {
-    ($typ: ty, $p_id: literal, $c_id: literal) => {
-        impl Message for $typ {
-            const PACKET_ID: PacketIdType = $p_id;
+    ($typ: ty, $p_id: expr, $c_id: expr) => {
+        impl crate::messaging::Message for $typ {
+            const PACKET_ID: crate::messaging::PacketIdType = $p_id;
             const CHANNEL_ID: u8 = $c_id;
         }
     }
@@ -41,10 +41,6 @@ impl From<NetworkEntity> for u64 {
 pub struct NetworkEntities {
     map: HashMap<NetworkEntity, Entity>,
 }
-
-
-
-use bevy::prelude::{EventReader, EventWriter};
 
 #[derive(SystemParam)]
 pub struct Sender<'w, 's, T: Event> {
