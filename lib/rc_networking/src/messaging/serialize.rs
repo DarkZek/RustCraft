@@ -62,11 +62,11 @@ macro_rules! make_serializer {
             use crate::messaging::serialize::*;
             #[allow(unused)]
             pub fn client_de(world: &mut World, bytes: Vec<u8>) {
-                make_deserializers!(@body bytes, world, {,}, $($typ),*);
+                make_serializer!(@body bytes, world, {,}, $($typ),*);
             }
             #[allow(unused)]
             pub fn server_de(world: &mut World, bytes: Vec<u8>, client_id: u64) {
-                make_deserializers!(@body bytes, world, {client_id}, $($typ),*);
+                make_serializer!(@body bytes, world, {client_id}, $($typ),*);
             }
             #[allow(unused)]
             pub fn client_ser(world: &mut World, client: &mut Client) {
