@@ -60,7 +60,6 @@ pub fn connect_to_server(mut commands: Commands) {
     let client = rc_networking::renet::RenetClient::new(
         current_time,
         socket,
-        user_id,
         get_renet_connection_config(),
         ClientAuthentication::Secure {
             connect_token: get_simple_connect_token(user_id, vec![server_addr]),

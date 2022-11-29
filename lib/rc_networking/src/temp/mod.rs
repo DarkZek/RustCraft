@@ -19,7 +19,7 @@ fn get_channel(protocol: &Protocol) -> Channel {
         | Protocol::DespawnEntity(_)
         | Protocol::SpawnEntity(_) => Channel::Reliable,
 
-        Protocol::PartialChunkUpdate(_) => Channel::Block,
+        Protocol::PartialChunkUpdate(_) => Channel::Chunk,
     }
 }
 
@@ -104,7 +104,7 @@ pub mod client2 {
         }
         send(&mut client, &mut recv, Channel::Unreliable);
         send(&mut client, &mut recv, Channel::Reliable);
-        send(&mut client, &mut recv, Channel::Block);
+        send(&mut client, &mut recv, Channel::Chunk);
     }
 
     fn write_packets_system(mut client: ResMut<Client>, mut to_send: EventReader<SendPacket>) {
@@ -221,7 +221,7 @@ pub mod server2 {
             }
             send(&mut server, &mut recv, user_id, Channel::Unreliable);
             send(&mut server, &mut recv, user_id, Channel::Reliable);
-            send(&mut server, &mut recv, user_id, Channel::Block);
+            send(&mut server, &mut recv, user_id, Channel::Chunk);
         })
     }
 

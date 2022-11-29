@@ -65,7 +65,7 @@ macro_rules! make_channels {
     };
 }
 
-make_channels!(Reliable, Unreliable, Block);
+make_channels!(Reliable, Unreliable, Chunk);
 
 pub fn get_renet_connection_config() -> RenetConnectionConfig {
     let channels_config = vec![
@@ -81,8 +81,8 @@ pub fn get_renet_connection_config() -> RenetConnectionConfig {
                 ..Default::default()
             }
         ),
-        ChannelConfig::Block(BlockChannelConfig {
-            channel_id: Channel::Block.into(),
+        ChannelConfig::Chunk(ChunkChannelConfig {
+            channel_id: Channel::Chunk.into(),
             slice_size: 1024,
             resend_time: Duration::from_millis(300),
             sent_packet_buffer_size: 256,
