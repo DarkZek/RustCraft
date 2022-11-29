@@ -57,18 +57,19 @@ fn message_write_client<T: Message>(world: &mut World, server: &mut Client) {
 
 macro_rules! make_deserializers {
         ($($typ:ty),*) => {
+            #[allow(unused)]
             pub fn client_de(world: &mut World, bytes: Vec<u8>) {
                 make_deserializers!(@body {,}, $($typ),*);
             }
-
+            #[allow(unused)]
             pub fn server_de(world: &mut World, bytes: Vec<u8>, client_id: u64) {
                 make_deserializers!(@body {client_id}, $($typ),*);
             }
-
+            #[allow(unused)]
             pub fn client_ser(world: &mut World, client: &mut Client) {
                 $(message_write_client::<$typ>(world, client);)*
             }
-
+            #[allow(unused)]
             pub fn server_ser(world: &mut World, server: &mut Server) {
                 $(message_write_server::<$typ>(world, server);)*
             }

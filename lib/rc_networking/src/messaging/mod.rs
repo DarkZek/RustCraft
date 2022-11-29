@@ -52,6 +52,7 @@ pub struct Sender<'w, 's, T: Event> {
     val: EventWriter<'w, 's, T>,
 }
 
+#[allow(unused)]
 impl<T: Event> Sender<'_, '_, T> {
     pub fn send(&mut self, t: impl Into<T>) {
         self.val.send(t.into());
@@ -65,7 +66,7 @@ impl<T: Event> Sender<'_, '_, T> {
     }
 
     pub fn send_default(&mut self) where T: Default {
-        self.send_default();
+        self.val.send_default();
     }
 }
 
@@ -74,6 +75,7 @@ pub struct Receiver<'w, 's, T: Event> {
     val: EventReader<'w, 's, T>,
 }
 
+#[allow(unused)]
 impl<T: Event> Receiver<'_, '_, T> {
     pub fn len(&self) -> usize {
         self.val.len()
@@ -88,10 +90,12 @@ impl<T: Event> Receiver<'_, '_, T> {
     }
 }
 
+#[allow(unused)]
 macro_rules! make_recv {
     ($val: expr $(,)*) => { crate::messaging::client::RecvMsg($val) };
     ($val: expr, $id: expr) => { crate::messaging::server::RecvMsg($val, $id) };
 }
+#[allow(unused)]
 pub(crate) use make_recv;
 
 macro_rules! impl_deref {

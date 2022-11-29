@@ -37,6 +37,7 @@ pub struct MessageReceiver<'w, 's, T: Message> {
 
 impl_deref!(MessageReceiver<'w, 's, T>, Receiver<'w, 's, RecvMsg<T>>);
 
+#[allow(unused)]
 impl<T: Message> MessageReceiver<'_, '_, T> {
     pub fn iter(&mut self) -> impl DoubleEndedIterator<Item=(&T, u64)> + ExactSizeIterator + '_ {
         self.val
