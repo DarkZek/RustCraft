@@ -1,6 +1,7 @@
 use std::net::SocketAddr;
 use std::time::{Duration, SystemTime};
 use renet::*;
+use crate::messaging::PacketIdType;
 
 pub const PROTOCOL_ID: u64 = 4302467916224429941;
 
@@ -39,7 +40,7 @@ macro_rules! count {
 }
 
 macro_rules! make_channels {
-    ($($n:tt),*) => {
+    ($({$n:tt, $c:tt}),*) => {
         #[derive(Copy, Clone)]
         pub enum Channel {
             $($n),*
@@ -48,12 +49,20 @@ macro_rules! make_channels {
             pub const ALL: [Channel; count!($($n),*)] = [
                 $(Channel::$n),*
             ];
+            make_channels!(@conster (0 as PacketIdType), $($c)*);
         }
-        impl From<Channel> for u8 {
+        impl From<Channel> for PacketIdType {
             fn from(value: Channel) -> Self {
-                make_channels!(@matcher 0u8, value, {}, $($n)*)
+                make_channels!(@matcher (0 as PacketIdType), value, {}, $($n)*)
             }
         }
+    };
+    (@conster $_idx:expr $(,)*) => {
+
+    };
+    (@conster $idx:expr, $head:tt $($tail:tt)*) => {
+        pub const $head: PacketIdType = $idx;
+        make_channels!(@conster $idx + (1 as PacketIdType), $($tail)*);
     };
     (@matcher $_idx: expr, $value:expr, {$($arms:tt)*}, $(,)*) => {
         match $value {
@@ -61,11 +70,11 @@ macro_rules! make_channels {
         }
     };
     (@matcher $idx: expr, $value:expr, {$($arms:tt)*}, $head:tt $($tail:tt)*) => {
-        make_channels!(@matcher $idx + 1u8, $value, {$($arms)* Channel::$head => { $idx }}, $($tail)*)
+        make_channels!(@matcher $idx + (1 as PacketIdType), $value, {$($arms)* Channel::$head => { $idx }}, $($tail)*)
     };
 }
 
-make_channels!(Reliable, Unreliable, Chunk);
+make_channels!({Reliable, RELIABLE}, {Unreliable, UNRELIABLE}, {Chunk, CHUNK});
 
 pub fn get_renet_connection_config() -> RenetConnectionConfig {
     let channels_config = vec![
