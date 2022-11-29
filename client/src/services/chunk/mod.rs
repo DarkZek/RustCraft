@@ -1,5 +1,5 @@
 use crate::services::asset::AssetService;
-use crate::services::chunk::builder::{mesh_builder, RerenderChunkFlag};
+use crate::services::chunk::builder::{mesh_builder, RerenderChunkFlag, RerenderChunkFlagContext};
 use crate::services::chunk::data::{ChunkData, RawChunkData};
 use bevy::prelude::*;
 use bevy::render::primitives::Aabb;
@@ -11,6 +11,7 @@ use std::collections::HashMap;
 pub mod builder;
 pub mod data;
 pub mod lookup;
+pub mod nearby_cache;
 
 pub struct ChunkPlugin;
 
@@ -41,22 +42,18 @@ impl ChunkService {
         data: RawChunkData,
         commands: &mut Commands,
         asset_service: &AssetService,
-        meshes: &mut ResMut<Assets<Mesh>>,
         rerender_chunk: &mut EventWriter<RerenderChunkFlag>,
     ) {
-        let mesh = meshes.add(Mesh::from(shape::Plane { size: 0.0 }));
-
         let entity = commands
-            .spawn(MaterialMeshBundle {
-                mesh: mesh.clone(),
-                material: asset_service.texture_atlas_material.clone(),
-                transform: Transform::from_translation(Vec3::new(
-                    (position.x * CHUNK_SIZE as i32) as f32,
-                    (position.y * CHUNK_SIZE as i32) as f32,
-                    (position.z * CHUNK_SIZE as i32) as f32,
-                )),
-                ..default()
-            })
+            .spawn(asset_service.texture_atlas_material.clone())
+            .insert(Transform::from_translation(Vec3::new(
+                (position.x * CHUNK_SIZE as i32) as f32,
+                (position.y * CHUNK_SIZE as i32) as f32,
+                (position.z * CHUNK_SIZE as i32) as f32,
+            )))
+            .insert(GlobalTransform::default())
+            .insert(Visibility::default())
+            .insert(ComputedVisibility::default())
             //TODO: Remove once bevy has fixed its shitty AABB generation
             .insert(Aabb::from_min_max(
                 Vec3::new(0.0, 0.0, 0.0),
@@ -64,13 +61,13 @@ impl ChunkService {
             ))
             .id();
 
-        let chunk = ChunkData::new(data, entity, position, mesh);
+        let chunk = ChunkData::new(data, entity, position);
 
         self.chunks.insert(position, chunk);
 
         rerender_chunk.send(RerenderChunkFlag {
             chunk: position,
-            adjacent: true,
+            context: RerenderChunkFlagContext::Surrounding,
         });
     }
 }

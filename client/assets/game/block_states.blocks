@@ -6,7 +6,8 @@
             "full": false,
             "draw_betweens": false,
             "faces": [],
-            "colliders": []
+            "colliders": [],
+            "emission": [0,0,0,0]
         },
         {
             "identifier": "mcv3::Dirt",
@@ -74,7 +75,8 @@
                     "bottom_left": [0.0, 0.0, 0.0],
                     "size": [1.0, 1.0, 1.0]
                 }
-            ]
+            ],
+            "emission": [0,0,0,0]
         },
          {
             "identifier": "mcv3::Grass",
@@ -142,7 +144,8 @@
                     "bottom_left": [0.0, 0.0, 0.0],
                     "size": [1.0, 1.0, 1.0]
                 }
-            ]
+            ],
+            "emission": [0,0,0,0]
         },
         {
             "identifier": "mcv3::LongGrass",
@@ -192,7 +195,8 @@
                      "bottom_left": [0.2, 0.0, 0.2],
                      "size": [0.6, 0.8, 0.6]
                  }
-             ]
+             ],
+             "emission": [0,0,0,0]
         },
         {
             "identifier": "mcv3::Wood",
@@ -260,7 +264,8 @@
                      "bottom_left": [0.0, 0.0, 0.0],
                      "size": [1.0, 1.0, 1.0]
                  }
-             ]
+             ],
+             "emission": [255,40,40,16]
         },
         {
             "identifier": "mcv3::Leaves",
@@ -328,7 +333,8 @@
                      "bottom_left": [0.0, 0.0, 0.0],
                      "size": [1.0, 1.0, 1.0]
                  }
-             ]
+             ],
+             "emission": [100,200,100,16]
         },
         {
             "identifier": "mcv3::Stone",
@@ -396,7 +402,8 @@
                      "bottom_left": [0.0, 0.0, 0.0],
                      "size": [1.0, 1.0, 1.0]
                  }
-             ]
+             ],
+             "emission": [0,0,0,0]
         }
     ]
 }

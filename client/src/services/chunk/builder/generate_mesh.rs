@@ -1,11 +1,10 @@
 use crate::game::mesh::draw_kit::DrawKit;
-use crate::game::viewable_direction::ViewableDirection;
+use crate::game::viewable_direction::{AxisAlignedDirection, ViewableDirection};
 
 use crate::services::chunk::data::ChunkData;
 
 use crate::services::chunk::ChunkService;
 use bevy::ecs::component::Component;
-
 
 use crate::game::blocks::states::BlockStates;
 use fnv::FnvHashMap;
@@ -19,11 +18,12 @@ pub struct UpdateChunkMesh {
     pub indices: Vec<u32>,
     pub normals: Vec<[f32; 3]>,
     pub uv_coordinates: Vec<[f32; 2]>,
+    pub lighting: Vec<[f32; 4]>,
     pub viewable_map: Option<[[[ViewableDirection; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE]>,
 }
 
 impl ChunkData {
-    pub fn generate_mesh(
+    pub fn build_mesh(
         &self,
         chunks: &ChunkService,
         block_states: &BlockStates,
@@ -63,6 +63,7 @@ impl ChunkData {
         let mut indices = Vec::new();
         let mut normals = Vec::new();
         let mut uv_coordinates = Vec::new();
+        let mut lighting = Vec::new();
 
         // Create the buffers to add the mesh data into
         let chunk = self.world;
@@ -76,16 +77,51 @@ impl ChunkData {
                     if chunk[x][y][z] != 0 && viewable != 0 {
                         let block = block_states.get_block(chunk[x][y][z] as usize);
 
-                        //let light_color = self.light_levels[x][y][z];
+                        let mut light_color = [self.light_levels[x][y][z]; 6];
+
+                        light_color[AxisAlignedDirection::Top as usize] = if y < CHUNK_SIZE - 1 {
+                            self.light_levels[x][y + 1][z]
+                        } else {
+                            [0; 4]
+                        };
+                        light_color[AxisAlignedDirection::Bottom as usize] = if y > 0 {
+                            self.light_levels[x][y - 1][z]
+                        } else {
+                            [0; 4]
+                        };
+
+                        light_color[AxisAlignedDirection::Right as usize] = if x < CHUNK_SIZE - 1 {
+                            self.light_levels[x + 1][y][z]
+                        } else {
+                            [0; 4]
+                        };
+                        light_color[AxisAlignedDirection::Left as usize] = if x > 0 {
+                            self.light_levels[x - 1][y][z]
+                        } else {
+                            [0; 4]
+                        };
+
+                        light_color[AxisAlignedDirection::Back as usize] = if z < CHUNK_SIZE - 1 {
+                            self.light_levels[x][y][z + 1]
+                        } else {
+                            [0; 4]
+                        };
+                        light_color[AxisAlignedDirection::Front as usize] = if z > 0 {
+                            self.light_levels[x][y][z - 1]
+                        } else {
+                            [0; 4]
+                        };
 
                         block.draw(
                             Vector3::new(x as f32, y as f32, z as f32),
                             ViewableDirection(viewable),
+                            light_color,
                             DrawKit {
                                 positions: &mut positions,
                                 indices: &mut indices,
                                 normals: &mut normals,
                                 uv_coordinates: &mut uv_coordinates,
+                                lighting: &mut lighting,
                             },
                         );
                     }
@@ -100,6 +136,7 @@ impl ChunkData {
             indices,
             normals,
             uv_coordinates,
+            lighting,
             viewable_map: Some(viewable),
         }
     }

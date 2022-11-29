@@ -31,7 +31,7 @@ impl TextureAtlas {
 
             // Add error texture
             textures.push((
-                String::from("mcv3/error"),
+                String::from("game/error"),
                 DynamicImage::ImageRgba8(gen_invalid_texture()),
             ));
 

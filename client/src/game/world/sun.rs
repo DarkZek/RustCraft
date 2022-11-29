@@ -17,7 +17,7 @@ pub fn setup_sun(mut commands: Commands) {
                 right: 40.0,
                 bottom: -40.0,
                 top: 40.0,
-                near: -50.0,
+                near: -20.0,
                 far: 50.0,
                 ..default()
             },

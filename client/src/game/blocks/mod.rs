@@ -5,11 +5,12 @@ pub mod states;
 use crate::game::blocks::states::BlockStates;
 use crate::game::mesh::draw_kit::DrawKit;
 use crate::game::mesh::face::Face;
-use crate::game::viewable_direction::{ViewableDirection};
+use crate::game::viewable_direction::{AxisAlignedDirection, ViewableDirection};
 use crate::services::asset::atlas::index::TextureAtlasIndex;
 
 use crate::game::blocks::loader::{track_blockstate_changes, BlockStateAssetLoader};
 use crate::game::blocks::loading::BlockStatesFile;
+use crate::services::chunk::data::LightingColor;
 use crate::services::physics::aabb::Aabb;
 use crate::state::AppState;
 use bevy::prelude::*;
@@ -42,17 +43,27 @@ pub struct Block {
     pub draw_betweens: bool,
     pub faces: Vec<Face>,
     pub bounding_boxes: Vec<Aabb>,
+    pub emission: [u8; 4],
 }
 
 impl Block {
-    pub fn draw(&self, pos: Vector3<f32>, visible_map: ViewableDirection, mut kit: DrawKit) {
+    pub fn draw(
+        &self,
+        pos: Vector3<f32>,
+        visible_map: ViewableDirection,
+        light_color: [LightingColor; 6],
+        mut kit: DrawKit,
+    ) {
         for face in &self.faces {
             if !visible_map.has_flag(face.direction) && face.edge {
                 // Not visible from that direction and marked as an edge face, so cull
                 continue;
             }
 
-            kit.draw_face(pos, face);
+            // Get lighting color
+            let color = light_color[AxisAlignedDirection::from(face.direction) as usize];
+
+            kit.draw_face(pos, face, color);
         }
     }
 }

@@ -92,14 +92,6 @@ pub fn build_texture_atlas(
         Some(val) => val,
     };
 
-    // Add invalid texture
-    if !textures.images.contains_key("game/invalid") {
-        let mut img = DynamicImage::new_rgb8(2, 2);
-        img.put_pixel(0, 0, image::Rgba([255, 0, 255, 255]));
-        img.put_pixel(1, 1, image::Rgba([255, 0, 255, 255]));
-        textures.images.insert("game/invalid".to_string(), img);
-    }
-
     // Build the texture atlas
     let atlas = TextureAtlas::new(pack, &mut textures.images, &mut images);
 

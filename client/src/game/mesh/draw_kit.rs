@@ -1,8 +1,7 @@
-
-
-
 use crate::game::mesh::face::Face;
-use nalgebra::{Vector3};
+use crate::services::chunk::data::LightingColor;
+use bevy::render::mesh::MeshVertexAttribute;
+use nalgebra::Vector3;
 
 /// Stores all objects allowing for more ergonomic drawing of objects
 pub struct DrawKit<'a> {
@@ -10,24 +9,11 @@ pub struct DrawKit<'a> {
     pub indices: &'a mut Vec<u32>,
     pub normals: &'a mut Vec<[f32; 3]>,
     pub uv_coordinates: &'a mut Vec<[f32; 2]>,
+    pub lighting: &'a mut Vec<[f32; 4]>,
 }
 
 impl DrawKit<'_> {
-    /// Draws a set of data to buffers
-    pub fn draw(
-        &mut self,
-        position: [f32; 3],
-        indice: u32,
-        normal: [f32; 3],
-        uv_coordinate: [f32; 2],
-    ) {
-        self.positions.push(position);
-        self.indices.push(indice);
-        self.normals.push(normal);
-        self.uv_coordinates.push(uv_coordinate);
-    }
-
-    pub fn draw_face(&mut self, position: Vector3<f32>, face: &Face) {
+    pub fn draw_face(&mut self, position: Vector3<f32>, face: &Face, color: LightingColor) {
         let center = (face.top_right + face.bottom_left) / 2.0;
 
         let bottom_right = center + (center - face.top_left);
@@ -63,6 +49,17 @@ impl DrawKit<'_> {
             .push([face.normal.x, face.normal.y, face.normal.z]);
         self.normals
             .push([face.normal.x, face.normal.y, face.normal.z]);
+
+        let color = [
+            color[0] as f32 / 255.0,
+            color[1] as f32 / 255.0,
+            color[2] as f32 / 255.0,
+            color[3] as f32 / 255.0,
+        ];
+        self.lighting.push(color);
+        self.lighting.push(color);
+        self.lighting.push(color);
+        self.lighting.push(color);
 
         self.uv_coordinates
             .push([face.texture.u_min, face.texture.v_max]);

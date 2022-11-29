@@ -1,6 +1,5 @@
-
 use bevy::reflect::TypeUuid;
-use nalgebra::{Vector3};
+use nalgebra::Vector3;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Deserialize, Serialize, TypeUuid)]
@@ -17,6 +16,7 @@ pub struct DeserialisedBlock {
     pub draw_betweens: bool,
     pub faces: Vec<DeserialisedFace>,
     pub colliders: Vec<DeserialisedAabb>,
+    pub emission: [u8; 4],
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]

@@ -99,6 +99,30 @@ impl ViewableDirection {
     }
 }
 
+/// A sequqential direction enum used for indexing arrays
+#[derive(Clone, Copy, PartialEq, Debug, Deserialize, Serialize)]
+pub enum AxisAlignedDirection {
+    Top = 0,
+    Bottom = 1,
+    Left = 2,
+    Right = 3,
+    Front = 4,
+    Back = 5,
+}
+
+impl From<ViewableDirectionBitMap> for AxisAlignedDirection {
+    fn from(value: ViewableDirectionBitMap) -> Self {
+        match value {
+            ViewableDirectionBitMap::Top => AxisAlignedDirection::Top,
+            ViewableDirectionBitMap::Bottom => AxisAlignedDirection::Bottom,
+            ViewableDirectionBitMap::Left => AxisAlignedDirection::Left,
+            ViewableDirectionBitMap::Right => AxisAlignedDirection::Right,
+            ViewableDirectionBitMap::Front => AxisAlignedDirection::Front,
+            ViewableDirectionBitMap::Back => AxisAlignedDirection::Back,
+        }
+    }
+}
+
 pub fn calculate_viewable(
     block_states: &BlockStates,
     chunk: &ChunkData,
