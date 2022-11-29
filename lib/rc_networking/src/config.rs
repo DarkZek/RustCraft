@@ -61,7 +61,7 @@ macro_rules! make_channels {
         }
     };
     (@matcher $idx: expr, $value:expr, {$($arms:tt)*}, $head:tt $($tail:tt)*) => {
-        make_channels!(@matcher $idx + 1u8, $value, {$($arms)* Channel::$head => { $idx }}, $($tail)*);
+        make_channels!(@matcher $idx + 1u8, $value, {$($arms)* Channel::$head => { $idx }}, $($tail)*)
     };
 }
 

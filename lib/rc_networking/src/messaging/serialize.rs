@@ -34,7 +34,6 @@ pub fn deserialize_packet_id(read: &mut impl Read) -> PacketIdType {
 }
 
 pub fn deserialize<T: Message>(read: impl Read) -> T {
-    use std::io::{Read, Cursor};
     bincode::deserialize_from(read).unwrap()
 }
 

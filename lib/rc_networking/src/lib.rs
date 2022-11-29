@@ -10,11 +10,6 @@ pub use temp::types as types;
 pub use temp::client2::*;
 pub use temp::server2::*;
 
-use bevy::ecs::schedule::ShouldRun;
-use bevy::prelude::{Res, Resource};
-use protocol::Protocol;
-use std::net::SocketAddr;
-use std::time::{Duration, SystemTime};
 
 pub use renet;
 
