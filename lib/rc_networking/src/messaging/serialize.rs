@@ -37,7 +37,7 @@ pub fn deserialize<T: Message>(read: impl Read) -> T {
     bincode::deserialize_from(read).unwrap()
 }
 
-fn message_write_server<T: Message>(world: &mut World, server: &mut Server) {
+pub fn message_write_server<T: Message>(world: &mut World, server: &mut Server) {
     let events = world.resource_mut::<Events<server::SendMsg<T>>>();
     let mut reader = events.get_reader();
     for msg in reader.iter(&events) {
@@ -46,7 +46,7 @@ fn message_write_server<T: Message>(world: &mut World, server: &mut Server) {
     }
 }
 
-fn message_write_client<T: Message>(world: &mut World, server: &mut Client) {
+pub fn message_write_client<T: Message>(world: &mut World, server: &mut Client) {
     let events = world.resource_mut::<Events<client::SendMsg<T>>>();
     let mut reader = events.get_reader();
     for msg in reader.iter(&events) {
@@ -55,15 +55,18 @@ fn message_write_client<T: Message>(world: &mut World, server: &mut Client) {
     }
 }
 
-macro_rules! make_deserializers {
+macro_rules! make_serializer {
         ($($typ:ty),*) => {
+            use std::io::{Cursor, Read};
+            use crate::messaging::Message;
+            use crate::messaging::serialize::*;
             #[allow(unused)]
             pub fn client_de(world: &mut World, bytes: Vec<u8>) {
-                make_deserializers!(@body {,}, $($typ),*);
+                make_deserializers!(@body bytes, world, {,}, $($typ),*);
             }
             #[allow(unused)]
             pub fn server_de(world: &mut World, bytes: Vec<u8>, client_id: u64) {
-                make_deserializers!(@body {client_id}, $($typ),*);
+                make_deserializers!(@body bytes, world, {client_id}, $($typ),*);
             }
             #[allow(unused)]
             pub fn client_ser(world: &mut World, client: &mut Client) {
@@ -77,18 +80,18 @@ macro_rules! make_deserializers {
         (@body {$($_c_id:tt)*} $(,)?) => {
 
         };
-        (@body {$($c_id:tt)*}, $($typ:ty),*) => {
-            let mut read = Cursor::new(bytes);
+        (@body $bytes:ident, $world:ident, {$($c_id:tt)*}, $($typ:ty),*) => {
+            let mut read = Cursor::new($bytes);
             let id = deserialize_packet_id(&mut read);
 
             match id {
                 $(<$typ>::PACKET_ID => {
                     let val = deserialize::<$typ>(read);
-                    let event = make_recv!(val, $c_id);
-                    world.send_event(event);
+                    let event = crate::messaging::make_recv!(val, $c_id);
+                    $world.send_event(event);
                 })*
                 _ => { unreachable!("Packet with Id {} is unknown", id); }
             }
         };
     }
-pub(crate) use make_deserializers;
+pub(crate) use make_serializer;
