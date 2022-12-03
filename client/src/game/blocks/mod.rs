@@ -3,16 +3,16 @@ pub mod loading;
 pub mod states;
 
 use crate::game::blocks::states::BlockStates;
-use crate::game::mesh::draw_kit::DrawKit;
-use crate::game::mesh::face::Face;
 use crate::game::viewable_direction::{AxisAlignedDirection, ViewableDirection};
-use crate::services::asset::atlas::index::TextureAtlasIndex;
+use crate::systems::asset::atlas::index::TextureAtlasIndex;
 
 use crate::game::blocks::loader::{track_blockstate_changes, BlockStateAssetLoader};
 use crate::game::blocks::loading::BlockStatesFile;
-use crate::services::chunk::data::LightingColor;
-use crate::services::physics::aabb::Aabb;
 use crate::state::AppState;
+use crate::systems::chunk::data::LightingColor;
+use crate::systems::chunk::mesh::draw_kit::DrawKit;
+use crate::systems::chunk::mesh::face::Face;
+use crate::systems::physics::aabb::Aabb;
 use bevy::prelude::*;
 use nalgebra::Vector3;
 use std::collections::HashMap;

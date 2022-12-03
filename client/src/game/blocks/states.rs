@@ -8,7 +8,7 @@ use bevy::reflect::TypeUuid;
 #[uuid = "97103fab-1e50-36b7-0c33-0938a62b0809"]
 pub struct BlockStates {
     pub states: Vec<Block>,
-    /// Used to tell the blockstates to recalculate, only used when the blockstates are ready but waiting on the texture atlas to finish loading
+    /// Used to tell the blockstates to recalculate, only used when the blockstates are ready but waiting on the texture atlas to finish loading.rs
     pub recalculate: bool,
     pub asset: Option<Handle<BlockStatesFile>>,
 }

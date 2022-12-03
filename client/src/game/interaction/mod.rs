@@ -1,14 +1,14 @@
 use crate::helpers::{from_bevy_vec3, global_to_local_position};
-use crate::services::asset::AssetService;
-use crate::services::chunk::ChunkService;
-use crate::services::physics::raycasts::do_raycast;
+use crate::systems::asset::AssetService;
+use crate::systems::chunk::ChunkSystem;
+use crate::systems::physics::raycasts::do_raycast;
 use bevy::prelude::*;
 use bevy_prototype_debug_lines::DebugLines;
 
 use crate::game::blocks::states::BlockStates;
 use crate::game::inventory::Inventory;
-use crate::services::chunk::builder::{RerenderChunkFlag, RerenderChunkFlagContext};
-use crate::services::physics::aabb::Aabb;
+use crate::systems::chunk::builder::{RerenderChunkFlag, RerenderChunkFlagContext};
+use crate::systems::physics::aabb::Aabb;
 use rc_networking::constants::{UserId, CHUNK_SIZE};
 use rc_networking::protocol::clientbound::block_update::BlockUpdate;
 use rc_networking::protocol::Protocol;
@@ -18,7 +18,7 @@ pub fn mouse_interaction(
     mouse_button_input: Res<Input<MouseButton>>,
     mut commands: Commands,
     camera: Query<&Transform, With<Camera>>,
-    mut chunks: ResMut<ChunkService>,
+    mut chunks: ResMut<ChunkSystem>,
     mut assets: ResMut<AssetService>,
     mut networking: EventWriter<SendPacket>,
     inventory: Res<Inventory>,

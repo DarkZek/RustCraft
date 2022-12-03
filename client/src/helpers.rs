@@ -1,4 +1,4 @@
-use crate::services::chunk::data::LightingColor;
+use crate::systems::chunk::data::LightingColor;
 use bevy::prelude::Vec3;
 use nalgebra::{Point3, Vector3};
 use rc_networking::constants::CHUNK_SIZE;

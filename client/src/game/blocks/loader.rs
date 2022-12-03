@@ -1,15 +1,15 @@
 use crate::game::blocks::loading::BlockStatesFile;
 use crate::game::blocks::states::BlockStates;
 use crate::game::blocks::Block;
-use crate::game::mesh::face::Face;
 use crate::game::viewable_direction::ViewableDirectionBitMap;
 
-use crate::services::asset::AssetService;
-use crate::services::chunk::ChunkService;
-use crate::services::physics::aabb::Aabb;
-use crate::services::ui::loading::LoadingData;
+use crate::systems::asset::AssetService;
+use crate::systems::chunk::ChunkSystem;
+use crate::systems::physics::aabb::Aabb;
+use crate::systems::ui::loading::LoadingData;
 
-use crate::services::chunk::builder::{RerenderChunkFlag, RerenderChunkFlagContext};
+use crate::systems::chunk::builder::{RerenderChunkFlag, RerenderChunkFlagContext};
+use crate::systems::chunk::mesh::face::Face;
 use bevy::asset::{AssetLoader, BoxedFuture, LoadContext, LoadedAsset};
 use bevy::prelude::*;
 use nalgebra::Vector3;
@@ -48,7 +48,7 @@ pub fn track_blockstate_changes(
     assets: ResMut<Assets<BlockStatesFile>>,
     mut states: ResMut<BlockStates>,
     atlas: Res<AssetService>,
-    chunks: ResMut<ChunkService>,
+    chunks: ResMut<ChunkSystem>,
     mut commands: Commands,
     mut loading: ResMut<LoadingData>,
     mut rerender_chunks: EventWriter<RerenderChunkFlag>,
