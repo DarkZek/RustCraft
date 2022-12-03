@@ -5,7 +5,7 @@ use crate::services::chunk::data::{ChunkData, LightingColor, RawLightingData};
 use crate::services::chunk::nearby_cache::NearbyChunkCache;
 use bevy::prelude::system_adapter::new;
 use bevy::prelude::Entity;
-use nalgebra::{Vector3, Vector4};
+use nalgebra::{max, Vector3, Vector4};
 use rc_networking::constants::CHUNK_SIZE;
 use std::collections::VecDeque;
 use std::mem;
@@ -119,17 +119,26 @@ impl ChunkData {
 
                     let out_color = &mut out[x][y][z];
 
-                    out_color[0] = (color[0] / color[3] * MAX_LIGHT_VALUE as u32 / color[4]) as u8;
-                    out_color[1] = (color[1] / color[3] * MAX_LIGHT_VALUE as u32 / color[4]) as u8;
-                    out_color[2] = (color[2] / color[3] * MAX_LIGHT_VALUE as u32 / color[4]) as u8;
+                    // Get the proportional color
+                    out_color[0] = (color[0] / color[3]) as u8;
+                    out_color[1] = (color[1] / color[3]) as u8;
+                    out_color[2] = (color[2] / color[3]) as u8;
 
-                    out_color[3] = 255;
+                    // Light falloff
+                    out_color[0] =
+                        (out_color[0] as u32 * color[4] as u32 / MAX_LIGHT_VALUE as u32) as u8;
+                    out_color[1] =
+                        (out_color[1] as u32 * color[4] as u32 / MAX_LIGHT_VALUE as u32) as u8;
+                    out_color[2] =
+                        (out_color[2] as u32 * color[4] as u32 / MAX_LIGHT_VALUE as u32) as u8;
+
+                    out_color[3] = color[4] as u8;
                 }
             }
         }
 
         println!(
-            "Took {}ns to render {:?} with {} lights",
+            "Took {}ns to render {:?} with {} lights with flood fill",
             start.elapsed().as_nanos(),
             self.position,
             lights_len
@@ -137,7 +146,156 @@ impl ChunkData {
 
         LightingUpdateData { data: out }
     }
+
+    pub fn build_lighting_blur(
+        &self,
+        states: &BlockStates,
+        cache: &NearbyChunkCache,
+    ) -> LightingUpdateData {
+        let start = Instant::now();
+
+        let mut out = [[[[0 as u8; 4]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
+        let mut collision = [[[false; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
+
+        for x in 0..CHUNK_SIZE {
+            for y in 0..CHUNK_SIZE {
+                for z in 0..CHUNK_SIZE {
+                    let block = states.get_block(self.world[x][y][z] as usize);
+
+                    collision[x][y][z] = !block.translucent;
+
+                    if block.emission[3] == 0 {
+                        continue;
+                    }
+
+                    println!("Found emitter at {} {} {}", x, y, z);
+
+                    out[x][y][z] = block.emission;
+                    collision[x][y][z] = true;
+                }
+            }
+        }
+
+        let mut changed = true;
+        while (changed) {
+            changed = false;
+            //println!("pass");
+            for x in 0..CHUNK_SIZE {
+                for y in 0..CHUNK_SIZE {
+                    for z in 0..CHUNK_SIZE {
+                        if collision[x][y][z] {
+                            continue;
+                        }
+
+                        // Average 6 surrounding blocks
+                        let mut avg = Vector4::<u32>::zeros();
+                        let mut max_strength: u8 = 0;
+                        for side in &BLOCK_SIDES {
+                            let (chunk_pos, block_pos) = global_to_local_position(
+                                side + Vector3::new(x, y, z).cast::<i32>() + (self.position * 16),
+                            );
+
+                            // If its this chunk then read this chunks lighting data
+                            if chunk_pos == self.position {
+                                avg += Vector4::new(
+                                    out[block_pos.x][block_pos.y][block_pos.z][0] as u32
+                                        * out[block_pos.x][block_pos.y][block_pos.z][3] as u32,
+                                    out[block_pos.x][block_pos.y][block_pos.z][1] as u32
+                                        * out[block_pos.x][block_pos.y][block_pos.z][3] as u32,
+                                    out[block_pos.x][block_pos.y][block_pos.z][2] as u32
+                                        * out[block_pos.x][block_pos.y][block_pos.z][3] as u32,
+                                    out[block_pos.x][block_pos.y][block_pos.z][3] as u32,
+                                );
+                                max_strength =
+                                    max_strength.max(out[block_pos.x][block_pos.y][block_pos.z][3]);
+                                //println!("{:?} {} X {} {} {}", avg, max_strength, x, y, z);
+                                continue;
+                            }
+
+                            if let Some(v) = cache.get_chunk(chunk_pos) {
+                                avg += Vector4::new(
+                                    v.light_levels[block_pos.x][block_pos.y][block_pos.z][0] as u32
+                                        * out[block_pos.x][block_pos.y][block_pos.z][3] as u32,
+                                    v.light_levels[block_pos.x][block_pos.y][block_pos.z][1] as u32
+                                        * out[block_pos.x][block_pos.y][block_pos.z][3] as u32,
+                                    v.light_levels[block_pos.x][block_pos.y][block_pos.z][2] as u32
+                                        * out[block_pos.x][block_pos.y][block_pos.z][3] as u32,
+                                    v.light_levels[block_pos.x][block_pos.y][block_pos.z][3] as u32,
+                                );
+                                max_strength = max_strength
+                                    .max(v.light_levels[block_pos.x][block_pos.y][block_pos.z][3]);
+                            }
+                        }
+
+                        if max_strength == 0 || avg.w == 0 {
+                            continue;
+                        }
+
+                        //println!("{:?} {}", avg, max_strength);
+
+                        avg /= avg.w;
+                        max_strength -= 1;
+
+                        //println!("bb {:?} {}", avg, max_strength);
+
+                        if out[x][y][z]
+                            != [avg.x as u8, avg.y as u8, avg.z as u8, max_strength.min(16)]
+                        {
+                            //println!("modify {:?}", out[x][y][z]);
+                            out[x][y][z] =
+                                [avg.x as u8, avg.y as u8, avg.z as u8, max_strength.min(16)];
+
+                            //println!("chabgwed");
+                            changed = true;
+                        }
+                    }
+                }
+            }
+
+            //println!("{:?}", out);
+        }
+
+        for x in 0..CHUNK_SIZE {
+            for y in 0..CHUNK_SIZE {
+                for z in 0..CHUNK_SIZE {
+                    let out_color = &mut out[x][y][z];
+
+                    // If there's no lighting data for this block ignore it
+                    if out_color[3] == 0 {
+                        continue;
+                    }
+
+                    // Light falloff
+                    out_color[0] =
+                        (out_color[0] as u32 * out_color[3] as u32 / MAX_LIGHT_VALUE as u32) as u8;
+                    out_color[1] =
+                        (out_color[1] as u32 * out_color[3] as u32 / MAX_LIGHT_VALUE as u32) as u8;
+                    out_color[2] =
+                        (out_color[2] as u32 * out_color[3] as u32 / MAX_LIGHT_VALUE as u32) as u8;
+
+                    out_color[3] = out_color[3] as u8;
+                }
+            }
+        }
+
+        println!(
+            "Took {}ns to render {:?} with with blur",
+            start.elapsed().as_nanos(),
+            self.position,
+        );
+
+        LightingUpdateData { data: out }
+    }
 }
+
+const BLOCK_SIDES: [Vector3<i32>; 6] = [
+    Vector3::new(1, 0, 0),
+    Vector3::new(-1, 0, 0),
+    Vector3::new(0, 1, 0),
+    Vector3::new(0, -1, 0),
+    Vector3::new(0, 0, 1),
+    Vector3::new(0, 0, -1),
+];
 
 // Gets all the lights in this chunk and the surrounding chunks
 fn get_lights(
