@@ -95,12 +95,18 @@ impl ChunkData {
                     continue;
                 }
 
-                point.push_back((pos + Vector3::new(1, 0, 0), strength - 1));
-                point.push_back((pos - Vector3::new(1, 0, 0), strength - 1));
-                point.push_back((pos + Vector3::new(0, 1, 0), strength - 1));
-                point.push_back((pos - Vector3::new(0, 1, 0), strength - 1));
-                point.push_back((pos + Vector3::new(0, 0, 1), strength - 1));
-                point.push_back((pos - Vector3::new(0, 0, 1), strength - 1));
+                for side in &BLOCK_SIDES {
+                    let new_pos = pos + side;
+
+                    if visited[(new_pos.x - light_pos.x + CHUNK_SIZE as i32) as usize]
+                        [(new_pos.y - light_pos.y + CHUNK_SIZE as i32) as usize]
+                        [(new_pos.z - light_pos.z + CHUNK_SIZE as i32) as usize]
+                    {
+                        continue;
+                    }
+
+                    point.push_back((new_pos, strength - 1));
+                }
             }
         }
 
