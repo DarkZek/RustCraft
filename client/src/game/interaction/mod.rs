@@ -25,6 +25,7 @@ pub fn mouse_interaction(
     mut lines: ResMut<DebugLines>,
     blocks: Res<BlockStates>,
     mut rerender_chunks: EventWriter<RerenderChunkFlag>,
+    mut meshes: ResMut<Assets<Mesh>>,
 ) {
     let camera_pos = camera.get_single().unwrap();
 
@@ -64,8 +65,6 @@ pub fn mouse_interaction(
                 context: RerenderChunkFlagContext::Surrounding,
             });
 
-            // TODO: Update adjacent chunks if needed
-
             info!(
                 "Destroyed [{}, {}, {}]",
                 ray.block.x as usize % CHUNK_SIZE,
@@ -98,8 +97,6 @@ pub fn mouse_interaction(
                     context: RerenderChunkFlagContext::Surrounding,
                 });
 
-                // TODO: Update adjacent chunks if needed
-
                 info!(
                     "Updated [{}, {}, {}]",
                     ray.block.x, ray.block.y, ray.block.z
@@ -118,6 +115,7 @@ pub fn mouse_interaction(
                     &mut commands,
                     &mut assets,
                     &mut rerender_chunks,
+                    &mut meshes,
                 );
             }
 

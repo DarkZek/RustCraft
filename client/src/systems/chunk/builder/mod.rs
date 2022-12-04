@@ -148,36 +148,21 @@ pub fn mesh_builder(
                 // Generate mesh & gpu buffers
                 Some((
                     chunk.build_mesh(&chunks, &block_states, true),
-                    &chunk.mesh,
-                    &chunk.entity,
+                    &chunk.opaque_mesh,
+                    &chunk.translucent_mesh,
                 ))
             } else {
                 warn!("Chunk data doesn't exist when trying to build chunk");
                 None
             }
         })
-        .collect::<Vec<Option<(UpdateChunkMesh, &Option<Handle<Mesh>>, &Entity)>>>();
+        .collect::<Vec<Option<(UpdateChunkMesh, &Handle<Mesh>, &Handle<Mesh>)>>>();
 
     for update in updates {
-        if let Some((val, handle, entity)) = update {
-            if let Some(mesh) = handle {
-                apply_mesh(val, meshes.get_mut(mesh).unwrap());
-            } else {
-                let mut mesh = Mesh::new(PrimitiveTopology::TriangleList);
-                apply_mesh(val, &mut mesh);
-                commands.entity(*entity).insert(meshes.add(mesh));
-            }
+        if let Some((val, opaque_mesh, translucent_mesh)) = update {
+            val.opaque.apply_mesh(meshes.get_mut(opaque_mesh).unwrap());
+            val.translucent
+                .apply_mesh(meshes.get_mut(translucent_mesh).unwrap());
         }
     }
-}
-
-fn apply_mesh(update: UpdateChunkMesh, mesh: &mut Mesh) {
-    mesh.set_indices(Some(Indices::U32(update.indices)));
-    mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, update.positions);
-    mesh.insert_attribute(Mesh::ATTRIBUTE_NORMAL, update.normals);
-    mesh.insert_attribute(Mesh::ATTRIBUTE_UV_0, update.uv_coordinates);
-    mesh.insert_attribute(
-        ATTRIBUTE_LIGHTING_COLOR,
-        VertexAttributeValues::Float32x4(update.lighting),
-    );
 }

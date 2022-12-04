@@ -13,11 +13,11 @@ pub struct ChunkData {
 
     pub entity: Entity,
 
-    pub mesh: Option<Handle<Mesh>>,
+    pub opaque_mesh: Handle<Mesh>,
+    pub translucent_mesh: Handle<Mesh>,
 
     pub world: RawChunkData,
 
-    // TODO: Investigate if caching this is even faster
     pub viewable_map: Option<[[[ViewableDirection; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE]>,
 
     // Stores the lighting intensity and color map
@@ -25,14 +25,21 @@ pub struct ChunkData {
 }
 
 impl ChunkData {
-    pub fn new(data: RawChunkData, entity: Entity, position: Vector3<i32>) -> ChunkData {
+    pub fn new(
+        data: RawChunkData,
+        entity: Entity,
+        position: Vector3<i32>,
+        opaque_mesh: Handle<Mesh>,
+        translucent_mesh: Handle<Mesh>,
+    ) -> ChunkData {
         ChunkData {
             world: data,
             viewable_map: None,
             position,
             light_levels: [[[[255, 255, 255, 255]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE],
             entity,
-            mesh: None,
+            opaque_mesh,
+            translucent_mesh,
         }
     }
 }

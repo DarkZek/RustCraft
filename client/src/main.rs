@@ -25,6 +25,7 @@ use crate::systems::ui::UIPlugin;
 use bevy::log::{Level, LogPlugin};
 use bevy::prelude::*;
 use bevy::window::WindowResizeConstraints;
+use bevy_inspector_egui::{InspectorPlugin, WorldInspectorPlugin};
 use bevy_prototype_debug_lines::DebugLinesPlugin;
 
 #[rustfmt::skip]
@@ -58,6 +59,7 @@ fn main() {
                 },
                 ..default()
             }))
+        .add_plugin(WorldInspectorPlugin::new())
         
         // add the app state 
         .add_state(AppState::Preloading)

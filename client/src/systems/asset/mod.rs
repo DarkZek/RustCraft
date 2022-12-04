@@ -29,12 +29,13 @@ pub struct AssetService {
     resource_packs: Handle<ResourcePacks>,
     pub texture_atlas: Option<TextureAtlas>,
     pack: Option<Handle<ResourcePackData>>,
-    pub texture_atlas_material: Handle<ChunkMaterial>,
+    pub opaque_texture_atlas_material: Handle<ChunkMaterial>,
+    pub translucent_texture_atlas_material: Handle<ChunkMaterial>,
 }
 
 impl AssetService {
     pub fn new(server: Res<AssetServer>, materials: &mut Assets<ChunkMaterial>) -> AssetService {
-        let texture_atlas_material = materials.add(ChunkMaterial {
+        let loading_material = materials.add(ChunkMaterial {
             color: Color::GRAY,
             color_texture: None,
             alpha_mode: Default::default(),
@@ -44,7 +45,8 @@ impl AssetService {
             resource_packs: server.load("resources.json"),
             texture_atlas: None,
             pack: None,
-            texture_atlas_material,
+            opaque_texture_atlas_material: loading_material.clone(),
+            translucent_texture_atlas_material: loading_material,
         }
     }
 }

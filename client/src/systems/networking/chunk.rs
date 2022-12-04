@@ -29,6 +29,7 @@ pub fn network_chunk_sync(
                     &mut commands,
                     &asset_service,
                     &mut rerender_chunks,
+                    &mut meshes,
                 );
             }
             Protocol::BlockUpdate(update) => {
@@ -47,8 +48,6 @@ pub fn network_chunk_sync(
                         chunk: chunk_loc,
                         context: RerenderChunkFlagContext::Surrounding,
                     });
-
-                    // TODO: Figure out if I need to update adjacent blocks
                 } else {
                     // Create chunk data
                     let mut chunk = [[[0; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
@@ -63,6 +62,7 @@ pub fn network_chunk_sync(
                         &mut commands,
                         &mut asset_service,
                         &mut rerender_chunks,
+                        &mut meshes,
                     );
                 }
             }

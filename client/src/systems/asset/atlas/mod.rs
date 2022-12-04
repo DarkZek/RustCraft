@@ -99,8 +99,8 @@ pub fn build_texture_atlas(
     service.texture_atlas = Some(atlas);
 
     // Create a new material
-    let material = materials.set(
-        &service.texture_atlas_material,
+    materials.set(
+        &service.opaque_texture_atlas_material,
         ChunkMaterial {
             color: Color::WHITE,
             color_texture: Some(
@@ -110,7 +110,17 @@ pub fn build_texture_atlas(
         },
     );
 
+    materials.set(
+        &service.translucent_texture_atlas_material,
+        ChunkMaterial {
+            color: Color::WHITE,
+            color_texture: Some(
+                images.get_handle(service.texture_atlas.as_ref().unwrap().get_image()),
+            ),
+            alpha_mode: AlphaMode::Blend,
+        },
+    );
+
     *stage = AtlasLoadingStage::Done;
-    service.texture_atlas_material = material;
     loading.texture_atlas = true;
 }

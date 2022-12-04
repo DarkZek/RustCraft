@@ -14,11 +14,8 @@ use rc_networking::constants::CHUNK_SIZE;
 #[derive(Component)]
 pub struct UpdateChunkMesh {
     pub chunk: Vector3<i32>,
-    pub positions: Vec<[f32; 3]>,
-    pub indices: Vec<u32>,
-    pub normals: Vec<[f32; 3]>,
-    pub uv_coordinates: Vec<[f32; 2]>,
-    pub lighting: Vec<[f32; 4]>,
+    pub opaque: DrawKit,
+    pub translucent: DrawKit,
     pub viewable_map: Option<[[[ViewableDirection; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE]>,
 }
 
@@ -59,11 +56,8 @@ impl ChunkData {
 
         let viewable = self.generate_viewable_map(block_states, map, edge_faces);
 
-        let mut positions = Vec::new();
-        let mut indices = Vec::new();
-        let mut normals = Vec::new();
-        let mut uv_coordinates = Vec::new();
-        let mut lighting = Vec::new();
+        let mut opaque = DrawKit::new();
+        let mut translucent = DrawKit::new();
 
         // Create the buffers to add the mesh data into
         let chunk = self.world;
@@ -116,12 +110,10 @@ impl ChunkData {
                             Vector3::new(x as f32, y as f32, z as f32),
                             ViewableDirection(viewable),
                             light_color,
-                            DrawKit {
-                                positions: &mut positions,
-                                indices: &mut indices,
-                                normals: &mut normals,
-                                uv_coordinates: &mut uv_coordinates,
-                                lighting: &mut lighting,
+                            if block.translucent {
+                                &mut translucent
+                            } else {
+                                &mut opaque
                             },
                         );
                     }
@@ -132,11 +124,8 @@ impl ChunkData {
         // Check top faces
         UpdateChunkMesh {
             chunk: self.position,
-            positions,
-            indices,
-            normals,
-            uv_coordinates,
-            lighting,
+            opaque,
+            translucent,
             viewable_map: Some(viewable),
         }
     }

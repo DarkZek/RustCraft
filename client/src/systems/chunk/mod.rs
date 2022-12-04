@@ -2,6 +2,7 @@ use crate::systems::asset::AssetService;
 use crate::systems::chunk::builder::{mesh_builder, RerenderChunkFlag, RerenderChunkFlagContext};
 use crate::systems::chunk::data::{ChunkData, RawChunkData};
 use bevy::prelude::*;
+use bevy::render::mesh::PrimitiveTopology;
 use bevy::render::primitives::Aabb;
 use fnv::{FnvBuildHasher, FnvHashMap};
 use nalgebra::Vector3;
@@ -44,9 +45,13 @@ impl ChunkSystem {
         commands: &mut Commands,
         asset_service: &AssetService,
         rerender_chunk: &mut EventWriter<RerenderChunkFlag>,
+        meshes: &mut Assets<Mesh>,
     ) {
+        let opaque = meshes.add(Mesh::new(PrimitiveTopology::TriangleList));
+        let translucent = meshes.add(Mesh::new(PrimitiveTopology::TriangleList));
+
         let entity = commands
-            .spawn(asset_service.texture_atlas_material.clone())
+            .spawn(asset_service.opaque_texture_atlas_material.clone())
             .insert(Transform::from_translation(Vec3::new(
                 (position.x * CHUNK_SIZE as i32) as f32,
                 (position.y * CHUNK_SIZE as i32) as f32,
@@ -55,14 +60,26 @@ impl ChunkSystem {
             .insert(GlobalTransform::default())
             .insert(Visibility::default())
             .insert(ComputedVisibility::default())
-            //TODO: Remove once bevy has fixed its shitty AABB generation
             .insert(Aabb::from_min_max(
                 Vec3::new(0.0, 0.0, 0.0),
                 Vec3::new(16.0, 16.0, 16.0),
             ))
+            .insert(opaque.clone())
+            .with_children(|c| {
+                c.spawn(asset_service.translucent_texture_atlas_material.clone())
+                    .insert(Transform::default())
+                    .insert(GlobalTransform::default())
+                    .insert(Visibility::default())
+                    .insert(ComputedVisibility::default())
+                    .insert(Aabb::from_min_max(
+                        Vec3::new(0.0, 0.0, 0.0),
+                        Vec3::new(16.0, 16.0, 16.0),
+                    ))
+                    .insert(translucent.clone());
+            })
             .id();
 
-        let chunk = ChunkData::new(data, entity, position);
+        let chunk = ChunkData::new(data, entity, position, opaque, translucent);
 
         self.chunks.insert(position, chunk);
 

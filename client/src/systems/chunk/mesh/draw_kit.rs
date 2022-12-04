@@ -1,18 +1,30 @@
+use crate::systems::chunk::builder::ATTRIBUTE_LIGHTING_COLOR;
 use crate::systems::chunk::data::LightingColor;
 use crate::systems::chunk::mesh::face::Face;
-use bevy::render::mesh::MeshVertexAttribute;
+use bevy::prelude::Mesh;
+use bevy::render::mesh::{Indices, MeshVertexAttribute, VertexAttributeValues};
 use nalgebra::Vector3;
 
 /// Stores all objects allowing for more ergonomic drawing of objects
-pub struct DrawKit<'a> {
-    pub positions: &'a mut Vec<[f32; 3]>,
-    pub indices: &'a mut Vec<u32>,
-    pub normals: &'a mut Vec<[f32; 3]>,
-    pub uv_coordinates: &'a mut Vec<[f32; 2]>,
-    pub lighting: &'a mut Vec<[f32; 4]>,
+pub struct DrawKit {
+    pub positions: Vec<[f32; 3]>,
+    pub indices: Vec<u32>,
+    pub normals: Vec<[f32; 3]>,
+    pub uv_coordinates: Vec<[f32; 2]>,
+    pub lighting: Vec<[f32; 4]>,
 }
 
-impl DrawKit<'_> {
+impl DrawKit {
+    pub fn new() -> DrawKit {
+        DrawKit {
+            positions: vec![],
+            indices: vec![],
+            normals: vec![],
+            uv_coordinates: vec![],
+            lighting: vec![],
+        }
+    }
+
     pub fn draw_face(&mut self, position: Vector3<f32>, face: &Face, color: LightingColor) {
         let center = (face.top_right + face.bottom_left) / 2.0;
 
@@ -56,5 +68,16 @@ impl DrawKit<'_> {
         self.indices.push(indices_index + 3);
         self.indices.push(indices_index + 1);
         self.indices.push(indices_index + 2);
+    }
+
+    pub fn apply_mesh(self, mesh: &mut Mesh) {
+        mesh.set_indices(Some(Indices::U32(self.indices)));
+        mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, self.positions);
+        mesh.insert_attribute(Mesh::ATTRIBUTE_NORMAL, self.normals);
+        mesh.insert_attribute(Mesh::ATTRIBUTE_UV_0, self.uv_coordinates);
+        mesh.insert_attribute(
+            ATTRIBUTE_LIGHTING_COLOR,
+            VertexAttributeValues::Float32x4(self.lighting),
+        );
     }
 }
