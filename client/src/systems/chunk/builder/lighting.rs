@@ -1,8 +1,6 @@
 use crate::game::blocks::states::BlockStates;
 use crate::game::blocks::Block;
-use crate::helpers::{
-    check_chunk_boundaries, get_chunk_coords, global_to_local_position, MAX_LIGHT_VALUE,
-};
+use crate::helpers::{get_chunk_coords, global_to_local_position};
 use crate::systems::chunk::data::{ChunkData, LightingColor, RawLightingData};
 use crate::systems::chunk::nearby_cache::NearbyChunkCache;
 use bevy::prelude::system_adapter::new;
@@ -11,8 +9,9 @@ use nalgebra::{max, Vector3, Vector4};
 use rc_networking::constants::CHUNK_SIZE;
 use std::collections::VecDeque;
 use std::mem;
-use std::ops::Range;
 use std::time::Instant;
+
+const MAX_LIGHT_VALUE: usize = 16;
 
 pub struct LightingUpdateData {
     pub data: RawLightingData,
@@ -26,7 +25,7 @@ impl ChunkData {
     ) -> LightingUpdateData {
         let start = Instant::now();
 
-        let mut lights = self.get_lights(states, cache);
+        let mut lights = get_lights(self.position, states, cache);
 
         if lights.len() == 0 {
             return LightingUpdateData {
@@ -41,55 +40,68 @@ impl ChunkData {
 
         // Propagate lighting
         for (light_pos, color) in lights {
-            // a map of where the light has visited
-            let mut visited = [[[false; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
+            // a 32 block wide area around the light that tracks what blocks its visited
+            let mut visited = [[[false; CHUNK_SIZE * 2]; CHUNK_SIZE * 2]; CHUNK_SIZE * 2];
 
-            let mut point = VecDeque::with_capacity(100);
+            let mut point = VecDeque::with_capacity(1000);
 
             // Starting points
-            point.push_back((light_pos, color[3]));
+            point.push_back((light_pos + Vector3::new(1, 0, 0), color[3] - 1));
+            point.push_back((light_pos - Vector3::new(1, 0, 0), color[3] - 1));
+            point.push_back((light_pos + Vector3::new(0, 1, 0), color[3] - 1));
+            point.push_back((light_pos - Vector3::new(0, 1, 0), color[3] - 1));
+            point.push_back((light_pos + Vector3::new(0, 0, 1), color[3] - 1));
+            point.push_back((light_pos - Vector3::new(0, 0, 1), color[3] - 1));
 
             while !point.is_empty() {
                 let (pos, strength) = point.pop_front().unwrap();
 
-                if visited[pos.x][pos.y][pos.z] {
-                    continue;
-                }
+                let (chunk_pos, block_pos) = global_to_local_position(pos);
 
-                if !states
-                    .get_block(self.world[pos.x][pos.y][pos.z] as usize)
-                    .translucent
+                if visited[(pos.x - light_pos.x + CHUNK_SIZE as i32) as usize]
+                    [(pos.y - light_pos.y + CHUNK_SIZE as i32) as usize]
+                    [(pos.z - light_pos.z + CHUNK_SIZE as i32) as usize]
                 {
-                    // Collision, bail
                     continue;
                 }
 
-                let current_color = &mut data[pos.x][pos.y][pos.z];
+                if let Some(v) = cache.get_chunk(chunk_pos) {
+                    assert_eq!(v.position, chunk_pos);
 
-                current_color[0] += strength as u32 * color[0] as u32;
-                current_color[1] += strength as u32 * color[1] as u32;
-                current_color[2] += strength as u32 * color[2] as u32;
-                current_color[3] += strength as u32;
-                current_color[4] = current_color[4].max(strength as u32);
+                    if !states
+                        .get_block(v.world[block_pos.x][block_pos.y][block_pos.z] as usize)
+                        .translucent
+                    {
+                        // Collision, bail
+                        continue;
+                    }
+                }
 
-                visited[pos.x][pos.y][pos.z] = true;
+                if chunk_pos == self.position {
+                    let current_color =
+                        &mut data[block_pos.x as usize][block_pos.y as usize][block_pos.z as usize];
+                    current_color[0] += strength as u32 * color[0] as u32;
+                    current_color[1] += strength as u32 * color[1] as u32;
+                    current_color[2] += strength as u32 * color[2] as u32;
+                    current_color[3] += strength as u32;
+                    current_color[4] = current_color[4].max(strength as u32);
+                }
+
+                visited[(pos.x - light_pos.x + CHUNK_SIZE as i32) as usize]
+                    [(pos.y - light_pos.y + CHUNK_SIZE as i32) as usize]
+                    [(pos.z - light_pos.z + CHUNK_SIZE as i32) as usize] = true;
 
                 if strength == 1 {
                     continue;
                 }
 
                 for side in &BLOCK_SIDES {
-                    if !check_chunk_boundaries(pos, *side) {
-                        continue;
-                    }
+                    let new_pos = pos + side;
 
-                    let new_pos = Vector3::new(
-                        (pos.x as i32 + side.x) as usize,
-                        (pos.y as i32 + side.y) as usize,
-                        (pos.z as i32 + side.z) as usize,
-                    );
-
-                    if visited[new_pos.x][new_pos.y][new_pos.z] {
+                    if visited[(new_pos.x - light_pos.x + CHUNK_SIZE as i32) as usize]
+                        [(new_pos.y - light_pos.y + CHUNK_SIZE as i32) as usize]
+                        [(new_pos.z - light_pos.z + CHUNK_SIZE as i32) as usize]
+                    {
                         continue;
                     }
 
@@ -117,6 +129,14 @@ impl ChunkData {
                     out_color[0] = (color[0] / color[3]) as u8;
                     out_color[1] = (color[1] / color[3]) as u8;
                     out_color[2] = (color[2] / color[3]) as u8;
+
+                    // Light falloff
+                    out_color[0] =
+                        (out_color[0] as u32 * color[4] as u32 / MAX_LIGHT_VALUE as u32) as u8;
+                    out_color[1] =
+                        (out_color[1] as u32 * color[4] as u32 / MAX_LIGHT_VALUE as u32) as u8;
+                    out_color[2] =
+                        (out_color[2] as u32 * color[4] as u32 / MAX_LIGHT_VALUE as u32) as u8;
 
                     out_color[3] = color[4] as u8;
                 }
@@ -251,6 +271,14 @@ impl ChunkData {
                         continue;
                     }
 
+                    // Light falloff
+                    out_color[0] =
+                        (out_color[0] as u32 * out_color[3] as u32 / MAX_LIGHT_VALUE as u32) as u8;
+                    out_color[1] =
+                        (out_color[1] as u32 * out_color[3] as u32 / MAX_LIGHT_VALUE as u32) as u8;
+                    out_color[2] =
+                        (out_color[2] as u32 * out_color[3] as u32 / MAX_LIGHT_VALUE as u32) as u8;
+
                     out_color[3] = out_color[3] as u8;
                 }
             }
@@ -264,128 +292,6 @@ impl ChunkData {
 
         LightingUpdateData { data: out }
     }
-
-    // Gets all the lights in this chunk and the surrounding chunks
-    fn get_lights(
-        &self,
-        states: &BlockStates,
-        cache: &NearbyChunkCache,
-    ) -> Vec<(Vector3<usize>, [u8; 4])> {
-        let mut lights = Vec::new();
-
-        // Direct lights in this scene
-        for x in 0..CHUNK_SIZE {
-            for y in 0..CHUNK_SIZE {
-                for z in 0..CHUNK_SIZE {
-                    let block = states.get_block(self.world[x][y][z] as usize);
-
-                    if block.emission[3] == 0 {
-                        continue;
-                    }
-
-                    lights.push((Vector3::new(x, y, z), block.emission));
-                }
-            }
-        }
-
-        // Light from above
-        self.collect_neighbor_lights(
-            0..(CHUNK_SIZE as i32),
-            16..17,
-            0..(CHUNK_SIZE as i32),
-            Vector3::new(0, -1, 0),
-            cache,
-            &mut lights,
-        );
-
-        // Light from below
-        self.collect_neighbor_lights(
-            0..(CHUNK_SIZE as i32),
-            -1..0,
-            0..(CHUNK_SIZE as i32),
-            Vector3::new(0, 1, 0),
-            cache,
-            &mut lights,
-        );
-
-        // Light from the front
-        self.collect_neighbor_lights(
-            0..(CHUNK_SIZE as i32),
-            0..(CHUNK_SIZE as i32),
-            16..17,
-            Vector3::new(0, 0, -1),
-            cache,
-            &mut lights,
-        );
-
-        // Light from the back
-        self.collect_neighbor_lights(
-            0..(CHUNK_SIZE as i32),
-            0..(CHUNK_SIZE as i32),
-            -1..0,
-            Vector3::new(0, 0, 1),
-            cache,
-            &mut lights,
-        );
-
-        // Light from the left
-        self.collect_neighbor_lights(
-            16..17,
-            0..(CHUNK_SIZE as i32),
-            0..(CHUNK_SIZE as i32),
-            Vector3::new(-1, 0, 0),
-            cache,
-            &mut lights,
-        );
-
-        // Light from the right
-        self.collect_neighbor_lights(
-            -1..0,
-            0..(CHUNK_SIZE as i32),
-            0..(CHUNK_SIZE as i32),
-            Vector3::new(1, 0, 0),
-            cache,
-            &mut lights,
-        );
-
-        lights
-    }
-
-    fn collect_neighbor_lights(
-        &self,
-        x_range: Range<i32>,
-        y_range: Range<i32>,
-        z_range: Range<i32>,
-        offset: Vector3<i32>,
-        cache: &NearbyChunkCache,
-        lights: &mut Vec<(Vector3<usize>, [u8; 4])>,
-    ) {
-        // Check lighting coming from an above chunk
-        for x in x_range {
-            for y in y_range.clone() {
-                for z in z_range.clone() {
-                    let (chunk_pos, local_pos) = global_to_local_position(
-                        Vector3::new(x, y, z) + (self.position * CHUNK_SIZE as i32),
-                    );
-
-                    if let Some(chunk) = cache.get_chunk(chunk_pos) {
-                        let light = chunk.light_levels[local_pos.x][local_pos.y][local_pos.z];
-                        if light[3] > 1 {
-                            // Add light
-                            lights.push((
-                                Vector3::new(
-                                    (x + offset.x) as usize,
-                                    (y + offset.y) as usize,
-                                    (z + offset.z) as usize,
-                                ),
-                                [light[0], light[1], light[2], light[3] - 1],
-                            ))
-                        }
-                    }
-                }
-            }
-        }
-    }
 }
 
 const BLOCK_SIDES: [Vector3<i32>; 6] = [
@@ -396,3 +302,41 @@ const BLOCK_SIDES: [Vector3<i32>; 6] = [
     Vector3::new(0, 0, 1),
     Vector3::new(0, 0, -1),
 ];
+
+// Gets all the lights in this chunk and the surrounding chunks
+fn get_lights(
+    chunk_pos: Vector3<i32>,
+    states: &BlockStates,
+    cache: &NearbyChunkCache,
+) -> Vec<(Vector3<i32>, [u8; 4])> {
+    let mut lights = Vec::new();
+
+    for chunk_x in (chunk_pos.x - 1)..=(chunk_pos.x + 1) {
+        for chunk_y in (chunk_pos.y - 1)..=(chunk_pos.y + 1) {
+            for chunk_z in (chunk_pos.z - 1)..=(chunk_pos.z + 1) {
+                // Get chunk
+                if let Some(chunk) = cache.get_chunk(Vector3::new(chunk_x, chunk_y, chunk_z)) {
+                    for x in 0..CHUNK_SIZE {
+                        for y in 0..CHUNK_SIZE {
+                            for z in 0..CHUNK_SIZE {
+                                let block = states.get_block(chunk.world[x][y][z] as usize);
+
+                                if block.emission[3] == 0 {
+                                    continue;
+                                }
+
+                                lights.push((
+                                    Vector3::new(x, y, z).cast::<i32>()
+                                        + (CHUNK_SIZE as i32 * chunk.position),
+                                    block.emission,
+                                ));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    lights
+}

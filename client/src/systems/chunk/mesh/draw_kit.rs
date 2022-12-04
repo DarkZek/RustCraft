@@ -1,4 +1,3 @@
-use crate::helpers::MAX_LIGHT_VALUE;
 use crate::systems::chunk::data::LightingColor;
 use crate::systems::chunk::mesh::face::Face;
 use bevy::render::mesh::MeshVertexAttribute;
@@ -14,12 +13,7 @@ pub struct DrawKit<'a> {
 }
 
 impl DrawKit<'_> {
-    pub fn draw_face(&mut self, position: Vector3<f32>, face: &Face, mut color: LightingColor) {
-        // Light falloff
-        color[0] = (color[0] as u32 * color[3] as u32 / MAX_LIGHT_VALUE as u32) as u8;
-        color[1] = (color[1] as u32 * color[3] as u32 / MAX_LIGHT_VALUE as u32) as u8;
-        color[2] = (color[2] as u32 * color[3] as u32 / MAX_LIGHT_VALUE as u32) as u8;
-
+    pub fn draw_face(&mut self, position: Vector3<f32>, face: &Face, color: LightingColor) {
         let center = (face.top_right + face.bottom_left) / 2.0;
 
         let bottom_right = center + (center - face.top_left);
