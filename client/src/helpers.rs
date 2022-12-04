@@ -131,6 +131,21 @@ pub fn global_to_local_position(vector: Vector3<i32>) -> (Vector3<i32>, Vector3<
     (chunk_loc, inner_loc)
 }
 
+#[inline]
+/// Returns true when a position moved by a direction is still within the 0-15 chunk boundaries
+pub fn check_chunk_boundaries(pos: Vector3<usize>, dir: Vector3<i32>) -> bool {
+    match (dir.x, dir.y, dir.z) {
+        (1, 0, 0) => pos.x < CHUNK_SIZE - 1,
+        (-1, 0, 0) => pos.x > 0,
+        (0, 1, 0) => pos.y < CHUNK_SIZE - 1,
+        (0, -1, 0) => pos.y > 0,
+        (0, 0, 1) => pos.z < CHUNK_SIZE - 1,
+        (0, 0, -1) => pos.z > 0,
+
+        _ => panic!("Invalid direction"),
+    }
+}
+
 pub enum TextureSubdivisionMethod {
     TopLeft,
     TopRight,

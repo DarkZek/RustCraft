@@ -145,9 +145,10 @@ pub fn mesh_builder(
         .map(|entry: &MeshBuildEntry| {
             // If the data exists
             if let Some(chunk) = chunks.chunks.get(&entry.chunk) {
+                let cache = NearbyChunkCache::from_service(&chunks, chunk.position);
                 // Generate mesh & gpu buffers
                 Some((
-                    chunk.build_mesh(&chunks, &block_states, true),
+                    chunk.build_mesh(&chunks, &block_states, true, &cache),
                     &chunk.opaque_mesh,
                     &chunk.translucent_mesh,
                 ))

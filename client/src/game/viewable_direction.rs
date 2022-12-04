@@ -99,6 +99,15 @@ impl ViewableDirection {
     }
 }
 
+pub const BLOCK_SIDES: [Vector3<i32>; 6] = [
+    Vector3::new(0, 1, 0),
+    Vector3::new(0, -1, 0),
+    Vector3::new(-1, 0, 0),
+    Vector3::new(1, 0, 0),
+    Vector3::new(0, 0, -1),
+    Vector3::new(0, 0, 1),
+];
+
 /// A sequqential direction enum used for indexing arrays
 #[derive(Clone, Copy, PartialEq, Debug, Deserialize, Serialize)]
 pub enum AxisAlignedDirection {

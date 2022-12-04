@@ -1,4 +1,4 @@
-use crate::game::viewable_direction::{AxisAlignedDirection, ViewableDirection};
+use crate::game::viewable_direction::{AxisAlignedDirection, ViewableDirection, BLOCK_SIDES};
 
 use crate::systems::chunk::data::ChunkData;
 
@@ -6,7 +6,9 @@ use crate::systems::chunk::ChunkSystem;
 use bevy::ecs::component::Component;
 
 use crate::game::blocks::states::BlockStates;
+use crate::helpers::{check_chunk_boundaries, global_to_local_position};
 use crate::systems::chunk::mesh::draw_kit::DrawKit;
+use crate::systems::chunk::nearby_cache::NearbyChunkCache;
 use fnv::FnvHashMap;
 use nalgebra::Vector3;
 use rc_networking::constants::CHUNK_SIZE;
@@ -25,6 +27,7 @@ impl ChunkData {
         chunks: &ChunkSystem,
         block_states: &BlockStates,
         edge_faces: bool,
+        cache: &NearbyChunkCache,
     ) -> UpdateChunkMesh {
         // Get adjacent chunks
         let mut map = FnvHashMap::default();
@@ -73,38 +76,19 @@ impl ChunkData {
 
                         let mut light_color = [self.light_levels[x][y][z]; 6];
 
-                        light_color[AxisAlignedDirection::Top as usize] = if y < CHUNK_SIZE - 1 {
-                            self.light_levels[x][y + 1][z]
-                        } else {
-                            [0; 4]
-                        };
-                        light_color[AxisAlignedDirection::Bottom as usize] = if y > 0 {
-                            self.light_levels[x][y - 1][z]
-                        } else {
-                            [0; 4]
-                        };
+                        for (i, side) in BLOCK_SIDES.iter().enumerate() {
+                            let (chunk_pos, local_pos) = global_to_local_position(
+                                Vector3::new(x, y, z).cast::<i32>()
+                                    + side
+                                    + (self.position * CHUNK_SIZE as i32),
+                            );
 
-                        light_color[AxisAlignedDirection::Right as usize] = if x < CHUNK_SIZE - 1 {
-                            self.light_levels[x + 1][y][z]
-                        } else {
-                            [0; 4]
-                        };
-                        light_color[AxisAlignedDirection::Left as usize] = if x > 0 {
-                            self.light_levels[x - 1][y][z]
-                        } else {
-                            [0; 4]
-                        };
-
-                        light_color[AxisAlignedDirection::Back as usize] = if z < CHUNK_SIZE - 1 {
-                            self.light_levels[x][y][z + 1]
-                        } else {
-                            [0; 4]
-                        };
-                        light_color[AxisAlignedDirection::Front as usize] = if z > 0 {
-                            self.light_levels[x][y][z - 1]
-                        } else {
-                            [0; 4]
-                        };
+                            light_color[i] = if let Some(chunk) = cache.get_chunk(chunk_pos) {
+                                chunk.light_levels[local_pos.x][local_pos.y][local_pos.z]
+                            } else {
+                                [0; 4]
+                            }
+                        }
 
                         block.draw(
                             Vector3::new(x as f32, y as f32, z as f32),

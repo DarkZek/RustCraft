@@ -1,5 +1,6 @@
 use crate::game::blocks::states::BlockStates;
 use crate::game::blocks::Block;
+use crate::game::viewable_direction::BLOCK_SIDES;
 use crate::helpers::{get_chunk_coords, global_to_local_position};
 use crate::systems::chunk::data::{ChunkData, LightingColor, RawLightingData};
 use crate::systems::chunk::nearby_cache::NearbyChunkCache;
@@ -293,15 +294,6 @@ impl ChunkData {
         LightingUpdateData { data: out }
     }
 }
-
-const BLOCK_SIDES: [Vector3<i32>; 6] = [
-    Vector3::new(1, 0, 0),
-    Vector3::new(-1, 0, 0),
-    Vector3::new(0, 1, 0),
-    Vector3::new(0, -1, 0),
-    Vector3::new(0, 0, 1),
-    Vector3::new(0, 0, -1),
-];
 
 // Gets all the lights in this chunk and the surrounding chunks
 fn get_lights(
