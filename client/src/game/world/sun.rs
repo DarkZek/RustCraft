@@ -2,27 +2,42 @@ use crate::game::player::Player;
 use bevy::prelude::shape::Quad;
 use bevy::prelude::*;
 use bevy::render::primitives::Plane;
+use bevy::utils::Instant;
+use nalgebra::Vector3;
 use std::f32::consts::PI;
+use std::time::{SystemTime, UNIX_EPOCH};
+use zip::DateTime;
 
-#[derive(Default)]
+#[derive(Resource)]
 pub struct SunData {
-    sprite: Option<Entity>,
-    light: Option<Entity>,
+    sun_sprite: Entity,
+    moon_sprite: Entity,
 }
 
 pub fn setup_sun(
     mut commands: Commands,
-    query: Query<Entity, With<Camera>>,
     mut meshes: ResMut<Assets<Mesh>>,
-    mut sundata: Local<SunData>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+    mut assets: Res<AssetServer>,
 ) {
-    // Camera entity
-    let entity = query.single();
-
     // TODO: Spawn this attached to the camera so it moves around with it
-    sundata.light = Some(commands.entity(entity).add_children(|child| {
-        child
-            .spawn(DirectionalLightBundle {
+    let sun_sprite = commands
+        .spawn(PbrBundle {
+            mesh: meshes.add(Mesh::from(Quad::new(Vec2::new(150.0, 150.0)))),
+            material: materials.add(StandardMaterial {
+                base_color: Color::WHITE,
+                base_color_texture: Some(assets.load("textures/world/sun.png")),
+                unlit: true,
+                alpha_mode: AlphaMode::Blend,
+                ..default()
+            }),
+            transform: Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),
+            global_transform: Default::default(),
+            visibility: Default::default(),
+            computed_visibility: Default::default(),
+        })
+        .with_children(|c| {
+            c.spawn(DirectionalLightBundle {
                 directional_light: DirectionalLight {
                     color: Color::rgb(1., 1., 1.),
                     illuminance: 50000.0,
@@ -39,27 +54,83 @@ pub fn setup_sun(
                     ..default()
                 },
                 transform: Transform::from_rotation(Quat::from_euler(
-                    EulerRot::ZYX,
+                    EulerRot::XYZ,
+                    PI / 2.0,
                     0.0,
-                    PI / 6.,
-                    -PI / 5.,
+                    0.0,
                 )),
                 ..default()
-            })
-            .id()
-    }));
+            });
+        })
+        .id();
 
-    sundata.sprite = Some(commands.entity(entity).add_children(|child| {
-        child
-            .spawn(PbrBundle {
-                //mesh: meshes.add(Mesh::from(Quad::new(Vec2::new(10.0, 10.0)))),
-                mesh: meshes.add(Mesh::from(shape::Box::new(1.0, 1.0, 1.0))),
-                material: Default::default(),
-                transform: Transform::from_translation(Vec3::new(0.0, 0.0, 8.0)),
-                global_transform: Default::default(),
-                visibility: Default::default(),
-                computed_visibility: Default::default(),
-            })
-            .id()
-    }));
+    let moon_sprite = commands
+        .spawn(PbrBundle {
+            mesh: meshes.add(Mesh::from(Quad::new(Vec2::new(150.0, 150.0)))),
+            material: materials.add(StandardMaterial {
+                base_color: Color::WHITE,
+                base_color_texture: Some(assets.load("textures/world/moon.png")),
+                unlit: true,
+                alpha_mode: AlphaMode::Blend,
+                ..default()
+            }),
+            transform: Transform::from_translation(Vec3::new(PI / 2.0, 0.0, 0.0)),
+            global_transform: Default::default(),
+            visibility: Default::default(),
+            computed_visibility: Default::default(),
+        })
+        .id();
+
+    commands.insert_resource(SunData {
+        sun_sprite,
+        moon_sprite,
+    });
+}
+
+pub fn update_sun(mut sundata: ResMut<SunData>, mut query: Query<&mut Transform>) {
+    let day_len = 10000;
+
+    let sun_distance = 600.0;
+
+    let time = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_millis()
+        % day_len;
+
+    let mut day_progress = (time as f32 / day_len as f32);
+
+    let rotation_amount = day_progress * 2.0 * PI + (PI / 4.0);
+    let x = (rotation_amount.cos() - rotation_amount.sin()) * sun_distance;
+    let y = (rotation_amount.cos() + rotation_amount.sin()) * sun_distance;
+
+    let mut transform = query.get_mut(sundata.sun_sprite).unwrap();
+    transform.translation = Vec3::new(0.0, y, x);
+
+    transform.rotation = Quat::from_axis_angle(
+        Vec3::new(1.0, 0.0, 0.0),
+        (day_progress * -PI * 2.0) + (PI / 2.0),
+    );
+
+    let rotation_amount = day_progress * 2.0 * PI + (PI / 4.0) + PI;
+    let x = (rotation_amount.cos() - rotation_amount.sin()) * sun_distance;
+    let y = (rotation_amount.cos() + rotation_amount.sin()) * sun_distance;
+
+    let mut transform = query.get_mut(sundata.moon_sprite).unwrap();
+    transform.translation = Vec3::new(0.0, y, x);
+
+    transform.rotation = Quat::from_axis_angle(
+        Vec3::new(1.0, 0.0, 0.0),
+        (day_progress * -PI * 2.0) + (PI / 2.0) + PI,
+    );
+
+    // Update directional light
+    let (x, y, z) = Quat::from_axis_angle(
+        Vec3::new(1.0, 0.0, 0.0),
+        (day_progress * -PI * 2.0) + (PI / 2.0),
+    )
+    .to_euler(EulerRot::XYZ);
+
+    // let mut transform = query.get_mut(sundata.moon_sprite).unwrap();
+    // transform. = Vec3::new(0.0, y, x);
 }

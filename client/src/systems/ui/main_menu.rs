@@ -16,7 +16,7 @@ pub fn setup_main_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
                 position_type: PositionType::Absolute,
                 ..default()
             },
-            background_color: Color::rgba(0.1, 0.1, 0.1, 0.2).into(),
+            background_color: Color::rgba(0.1, 0.1, 0.1, 0.00).into(),
             ..default()
         })
         .with_children(|c| {
