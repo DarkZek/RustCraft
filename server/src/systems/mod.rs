@@ -1,5 +1,6 @@
-pub mod tick;
-pub mod connection;
 pub mod authorization;
-pub mod message;
+pub mod chunk;
+pub mod connection;
 pub mod disconnect;
+pub mod message;
+pub mod tick;

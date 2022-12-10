@@ -14,12 +14,13 @@ pub mod transport;
 use crate::config::{load_config, ServerConfig};
 use crate::game::world::data::WorldData;
 use crate::game::world::WorldPlugin;
+use crate::systems::chunk::ChunkPlugin;
 use crate::systems::tick::tick;
 use crate::transport::{TransportPlugin, TransportSystem};
 use bevy::app::{App, AppExit, CoreStage};
 use bevy::log::{info, Level, LogPlugin};
-use bevy::prelude::{EventWriter};
-use bevy::{MinimalPlugins};
+use bevy::prelude::EventWriter;
+use bevy::MinimalPlugins;
 use rc_networking::types::{ReceivePacket, SendPacket};
 use std::sync::atomic::{AtomicBool, Ordering};
 
@@ -43,6 +44,7 @@ fn main() {
         })
         .add_plugin(WorldPlugin)
         .add_plugin(TransportPlugin)
+        .add_plugin(ChunkPlugin)
         // Startup System
         .insert_resource(WorldData::load_spawn_chunks())
         .add_event::<ReceivePacket>()

@@ -35,7 +35,12 @@ pub struct AssetService {
 
 impl AssetService {
     pub fn new(server: Res<AssetServer>, materials: &mut Assets<ChunkMaterial>) -> AssetService {
-        let loading_material = materials.add(ChunkMaterial {
+        let opaque_texture_atlas_material = materials.add(ChunkMaterial {
+            color: Color::GRAY,
+            color_texture: None,
+            alpha_mode: Default::default(),
+        });
+        let translucent_texture_atlas_material = materials.add(ChunkMaterial {
             color: Color::GRAY,
             color_texture: None,
             alpha_mode: Default::default(),
@@ -45,8 +50,8 @@ impl AssetService {
             resource_packs: server.load("resources.json"),
             texture_atlas: None,
             pack: None,
-            opaque_texture_atlas_material: loading_material.clone(),
-            translucent_texture_atlas_material: loading_material,
+            opaque_texture_atlas_material,
+            translucent_texture_atlas_material,
         }
     }
 }

@@ -12,6 +12,7 @@ use zip::DateTime;
 pub struct SunData {
     sun_sprite: Entity,
     moon_sprite: Entity,
+    directional_light: Entity,
 }
 
 pub fn setup_sun(
@@ -36,32 +37,7 @@ pub fn setup_sun(
             visibility: Default::default(),
             computed_visibility: Default::default(),
         })
-        .with_children(|c| {
-            c.spawn(DirectionalLightBundle {
-                directional_light: DirectionalLight {
-                    color: Color::rgb(1., 1., 1.),
-                    illuminance: 50000.0,
-                    shadow_projection: OrthographicProjection {
-                        left: -40.0,
-                        right: 40.0,
-                        bottom: -40.0,
-                        top: 40.0,
-                        near: -20.0,
-                        far: 50.0,
-                        ..default()
-                    },
-                    shadows_enabled: true,
-                    ..default()
-                },
-                transform: Transform::from_rotation(Quat::from_euler(
-                    EulerRot::XYZ,
-                    PI / 2.0,
-                    0.0,
-                    0.0,
-                )),
-                ..default()
-            });
-        })
+        .with_children(|c| {})
         .id();
 
     let moon_sprite = commands
@@ -81,24 +57,54 @@ pub fn setup_sun(
         })
         .id();
 
+    let directional_light = commands
+        .spawn(DirectionalLightBundle {
+            directional_light: DirectionalLight {
+                color: Color::rgb(1., 1., 1.),
+                illuminance: 50000.0,
+                shadow_projection: OrthographicProjection {
+                    left: -40.0,
+                    right: 40.0,
+                    bottom: -40.0,
+                    top: 40.0,
+                    near: -20.0,
+                    far: 50.0,
+                    ..default()
+                },
+                shadows_enabled: true,
+                ..default()
+            },
+            transform: Transform::from_rotation(Quat::from_euler(
+                EulerRot::XYZ,
+                PI / 2.0,
+                0.0,
+                0.0,
+            )),
+            ..default()
+        })
+        .id();
+
     commands.insert_resource(SunData {
         sun_sprite,
         moon_sprite,
+        directional_light,
     });
 }
 
 pub fn update_sun(mut sundata: ResMut<SunData>, mut query: Query<&mut Transform>) {
-    let day_len = 10000;
+    let day_len_ms = 1000 * 60;
 
     let sun_distance = 600.0;
 
-    let time = SystemTime::now()
+    let mut time = SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .unwrap()
         .as_millis()
-        % day_len;
+        % day_len_ms;
 
-    let mut day_progress = (time as f32 / day_len as f32);
+    let mut day_progress = (time as f32 / day_len_ms as f32);
+
+    day_progress = 0.05;
 
     let rotation_amount = day_progress * 2.0 * PI + (PI / 4.0);
     let x = (rotation_amount.cos() - rotation_amount.sin()) * sun_distance;
@@ -125,12 +131,11 @@ pub fn update_sun(mut sundata: ResMut<SunData>, mut query: Query<&mut Transform>
     );
 
     // Update directional light
-    let (x, y, z) = Quat::from_axis_angle(
+    let rot = Quat::from_axis_angle(
         Vec3::new(1.0, 0.0, 0.0),
-        (day_progress * -PI * 2.0) + (PI / 2.0),
-    )
-    .to_euler(EulerRot::XYZ);
+        (day_progress * -PI * 2.0) + (PI / 2.0) + PI,
+    );
 
-    // let mut transform = query.get_mut(sundata.moon_sprite).unwrap();
-    // transform. = Vec3::new(0.0, y, x);
+    let mut transform = query.get_mut(sundata.directional_light).unwrap();
+    transform.rotation = rot;
 }

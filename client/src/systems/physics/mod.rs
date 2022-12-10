@@ -21,6 +21,7 @@ impl Plugin for PhysicsPlugin {
 #[derive(Component)]
 pub struct PhysicsObject {
     pub position: Vector3<f32>,
+    pub previous_position: Vector3<f32>,
     pub velocity: Vector3<f32>,
     pub colliders: Vec<Aabb>,
 }
@@ -29,6 +30,7 @@ impl PhysicsObject {
     pub fn new(position: Vector3<f32>, colliders: Vec<Aabb>) -> PhysicsObject {
         PhysicsObject {
             position,
+            previous_position: position,
             velocity: Vector3::zeros(),
             colliders,
         }

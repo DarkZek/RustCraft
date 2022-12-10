@@ -3119,6 +3119,7 @@ dependencies = [
  "ctrlc",
  "nalgebra",
  "noise",
+ "rayon",
  "rc_client",
  "rc_networking",
  "serde",

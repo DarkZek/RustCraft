@@ -45,7 +45,7 @@ fn vertex(vertex: VertexInput) -> VertexOutput {
     out.world_normal = mesh_normal_local_to_world(vertex.normal);
     out.uv = vertex.uv;
 
-    let ambient = 0.03;
+    let ambient = 0.02;
     out.lighting = vec4(vertex.lighting.xyz + ambient, 1.0);
 
     return out;
