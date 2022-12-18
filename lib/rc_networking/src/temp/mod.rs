@@ -17,7 +17,8 @@ fn get_channel(protocol: &Protocol) -> Channel {
         Protocol::BlockUpdate(_)
         | Protocol::ChatSent(_)
         | Protocol::DespawnEntity(_)
-        | Protocol::SpawnEntity(_) => Channel::Reliable,
+        | Protocol::SpawnEntity(_)
+        | Protocol::RequestChunk(_) => Channel::Reliable,
 
         Protocol::PartialChunkUpdate(_) => Channel::Chunk,
     }
