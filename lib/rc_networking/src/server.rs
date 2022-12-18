@@ -7,7 +7,10 @@ pub struct ServerPlugin;
 
 impl Plugin for ServerPlugin {
     fn build(&self, app: &mut App) {
-        todo!()
+        use bevy::prelude::CoreStage::*;
+        crate::messaging::add_events(app);
+
+
     }
 }
 

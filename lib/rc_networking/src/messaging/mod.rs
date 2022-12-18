@@ -10,6 +10,8 @@ pub mod server;
 mod serialize;
 mod messages;
 
+pub(crate) use messages::add_events;
+
 #[macro_export]
 macro_rules! impl_message {
     ($typ: ty, $p_id: expr, $c_id: expr) => {
