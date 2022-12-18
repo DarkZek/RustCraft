@@ -45,7 +45,7 @@ fn vertex(vertex: VertexInput) -> VertexOutput {
     out.world_normal = mesh_normal_local_to_world(vertex.normal);
     out.uv = vertex.uv;
 
-    let ambient = 0.03;
+    let ambient = 0.02;
     out.lighting = vec4(vertex.lighting.xyz + ambient, 1.0);
 
     return out;
@@ -64,10 +64,6 @@ fn fragment(in: FragmentInput) -> @location(0) vec4<f32> {
     let output_color: vec4<f32> = material.color;
 
     let output_color = output_color * textureSample(base_color_texture, base_color_sampler, in.uv);
-
-    if output_color.a == 0.0 {
-        discard;
-    }
 
     var input: PbrInput;
     input.material.base_color = vec4(1.0, 1.0, 1.0, 1.0);
@@ -93,9 +89,7 @@ fn fragment(in: FragmentInput) -> @location(0) vec4<f32> {
     );
     input.V = calculate_view(in.world_position, false);
 
-    let output = (pbr(input) * 0.5) + vec4(0.5);
+    var pbr_color = (pbr(input) * 0.5) + vec4(0.5);
 
-    let output = output * in.lighting;
-
-    return output * output_color;
+    return pbr_color * in.lighting * output_color;
 }

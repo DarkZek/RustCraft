@@ -1,7 +1,7 @@
 use crate::game::blocks::states::BlockStates;
 use crate::game::blocks::Block;
-use crate::services::asset::atlas::index::Rotate;
-use crate::services::chunk::data::{ChunkData, RawChunkData};
+use crate::systems::asset::atlas::index::Rotate;
+use crate::systems::chunk::data::{ChunkData, RawChunkData};
 use bevy::prelude::warn;
 use nalgebra::Vector3;
 use serde::{Deserialize, Serialize};
@@ -98,6 +98,15 @@ impl ViewableDirection {
         self.0 += flag as u8;
     }
 }
+
+pub const BLOCK_SIDES: [Vector3<i32>; 6] = [
+    Vector3::new(0, 1, 0),
+    Vector3::new(0, -1, 0),
+    Vector3::new(-1, 0, 0),
+    Vector3::new(1, 0, 0),
+    Vector3::new(0, 0, -1),
+    Vector3::new(0, 0, 1),
+];
 
 /// A sequqential direction enum used for indexing arrays
 #[derive(Clone, Copy, PartialEq, Debug, Deserialize, Serialize)]

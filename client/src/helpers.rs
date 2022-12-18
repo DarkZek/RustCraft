@@ -1,4 +1,4 @@
-use crate::services::chunk::data::LightingColor;
+use crate::systems::chunk::data::LightingColor;
 use bevy::prelude::Vec3;
 use nalgebra::{Point3, Vector3};
 use rc_networking::constants::CHUNK_SIZE;
@@ -131,6 +131,40 @@ pub fn global_to_local_position(vector: Vector3<i32>) -> (Vector3<i32>, Vector3<
     (chunk_loc, inner_loc)
 }
 
+#[inline]
+pub fn global_f32_to_local_position(vector: Vector3<f32>) -> (Vector3<i32>, Vector3<usize>) {
+    // Locate block
+    let inner_loc = Vector3::new(
+        ((vector.x as usize % CHUNK_SIZE) + CHUNK_SIZE) % CHUNK_SIZE,
+        ((vector.y as usize % CHUNK_SIZE) + CHUNK_SIZE) % CHUNK_SIZE,
+        ((vector.z as usize % CHUNK_SIZE) + CHUNK_SIZE) % CHUNK_SIZE,
+    );
+
+    // Locate chunk
+    let chunk_loc = Vector3::new(
+        (vector.x / CHUNK_SIZE as f32).floor() as i32,
+        (vector.y / CHUNK_SIZE as f32).floor() as i32,
+        (vector.z / CHUNK_SIZE as f32).floor() as i32,
+    );
+
+    (chunk_loc, inner_loc)
+}
+
+#[inline]
+/// Returns true when a position moved by a direction is still within the 0-15 chunk boundaries
+pub fn check_chunk_boundaries(pos: Vector3<usize>, dir: Vector3<i32>) -> bool {
+    match (dir.x, dir.y, dir.z) {
+        (1, 0, 0) => pos.x < CHUNK_SIZE - 1,
+        (-1, 0, 0) => pos.x > 0,
+        (0, 1, 0) => pos.y < CHUNK_SIZE - 1,
+        (0, -1, 0) => pos.y > 0,
+        (0, 0, 1) => pos.z < CHUNK_SIZE - 1,
+        (0, 0, -1) => pos.z > 0,
+
+        _ => panic!("Invalid direction"),
+    }
+}
+
 pub enum TextureSubdivisionMethod {
     TopLeft,
     TopRight,
@@ -142,78 +176,3 @@ pub enum TextureSubdivisionMethod {
     Bottom,
     Full,
 }
-
-// pub struct AtlasIndex {
-//     pub lookup: TextureAtlasIndex,
-// }
-//
-// impl AtlasIndex {
-//     pub fn new_lookup(name: &str) -> AtlasIndex {
-//         let texture = ATLAS_LOOKUPS.get().unwrap().get(name);
-//
-//         let lookup = match texture {
-//             Some(tex) => tex,
-//             // Lookup error texture instead
-//             None => {
-//                 log_warn!("No texture index for {}", name);
-//                 ATLAS_LOOKUPS.get().unwrap().get("mcv3/error").unwrap()
-//             }
-//         };
-//
-//         AtlasIndex { lookup: *lookup }
-//     }
-//
-//     pub fn get_subdivision(&self, subdivision: TextureSubdivisionMethod) -> TextureAtlasIndex {
-//         match subdivision {
-//             TextureSubdivisionMethod::TopLeft => {
-//                 let width = self.lookup.width() / 2.0;
-//                 let height = self.lookup.height() / 2.0;
-//
-//                 self.lookup
-//                     .local_offset(None, Some(-width), None, Some(-height))
-//             }
-//             TextureSubdivisionMethod::TopRight => {
-//                 let width = self.lookup.width() / 2.0;
-//                 let height = self.lookup.height() / 2.0;
-//
-//                 self.lookup
-//                     .local_offset(Some(width), None, None, Some(-height))
-//             }
-//             TextureSubdivisionMethod::BottomLeft => {
-//                 let width = self.lookup.width() / 2.0;
-//                 let height = self.lookup.height() / 2.0;
-//
-//                 self.lookup
-//                     .local_offset(None, Some(-width), Some(height), None)
-//             }
-//             TextureSubdivisionMethod::BottomRight => {
-//                 let width = self.lookup.width() / 2.0;
-//                 let height = self.lookup.height() / 2.0;
-//
-//                 self.lookup
-//                     .local_offset(Some(width), None, Some(height), None)
-//             }
-//             TextureSubdivisionMethod::Top => {
-//                 let height = self.lookup.height() / 2.0;
-//
-//                 self.lookup.local_offset(None, None, None, Some(-height))
-//             }
-//             TextureSubdivisionMethod::Left => {
-//                 let width = self.lookup.width() / 2.0;
-//
-//                 self.lookup.local_offset(None, Some(-width), None, None)
-//             }
-//             TextureSubdivisionMethod::Right => {
-//                 let width = self.lookup.width() / 2.0;
-//
-//                 self.lookup.local_offset(Some(width), None, None, None)
-//             }
-//             TextureSubdivisionMethod::Bottom => {
-//                 let height = self.lookup.height() / 2.0;
-//
-//                 self.lookup.local_offset(None, None, Some(height), None)
-//             }
-//             TextureSubdivisionMethod::Full => self.lookup.clone(),
-//         }
-//     }
-// }

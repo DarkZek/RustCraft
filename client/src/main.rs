@@ -1,33 +1,31 @@
 pub mod error;
 pub mod game;
 pub mod helpers;
-pub mod render;
-pub mod services;
 pub mod state;
+pub mod systems;
 
 use crate::game::blocks::BlockStatesPlugin;
 use crate::game::interaction::mouse_interaction;
 use crate::game::inventory::InventoryPlugin;
 use crate::game::item::states::ItemStates;
-use crate::game::parsing::json::JsonAssetLoader;
-use crate::game::parsing::pack::ResourcePackAssetLoader;
 use crate::game::world::WorldPlugin;
-use crate::services::asset::atlas::resource_packs::ResourcePacks;
-use crate::services::asset::atlas::ResourcePackData;
-use crate::services::asset::material::chunk::ChunkMaterial;
-use crate::services::asset::AssetPlugin;
-use crate::services::camera::CameraPlugin;
-use crate::services::chunk::ChunkPlugin;
-use crate::services::input::InputPlugin;
-use crate::services::networking::NetworkingPlugin;
-use crate::services::physics::PhysicsPlugin;
-use crate::services::ui::loading::LoadingPlugin;
-use crate::services::ui::main_menu::MainMenuPlugin;
-use crate::services::ui::UIPlugin;
 use crate::state::AppState;
+use crate::systems::asset::atlas::resource_packs::ResourcePacks;
+use crate::systems::asset::atlas::ResourcePackData;
+use crate::systems::asset::material::chunk::ChunkMaterial;
+use crate::systems::asset::parsing::json::JsonAssetLoader;
+use crate::systems::asset::parsing::pack::ResourcePackAssetLoader;
+use crate::systems::asset::AssetPlugin;
+use crate::systems::camera::CameraPlugin;
+use crate::systems::chunk::ChunkPlugin;
+use crate::systems::input::InputPlugin;
+use crate::systems::networking::NetworkingPlugin;
+use crate::systems::physics::PhysicsPlugin;
+use crate::systems::ui::UIPlugin;
 use bevy::log::{Level, LogPlugin};
 use bevy::prelude::*;
 use bevy::window::WindowResizeConstraints;
+use bevy_inspector_egui::{InspectorPlugin, WorldInspectorPlugin};
 use bevy_prototype_debug_lines::DebugLinesPlugin;
 
 #[rustfmt::skip]
@@ -54,20 +52,21 @@ fn main() {
                     resize_constraints: WindowResizeConstraints {
                         min_width: 256.0,
                         min_height: 256.0,
-                        max_width: 1920.0,
-                        max_height: 1080.0,
+                        max_width: 1920.0*8.0,
+                        max_height: 1080.0*8.0,
                     },
                     ..default()
                 },
                 ..default()
             }))
+        .add_plugin(WorldInspectorPlugin::new())
         
         // add the app state 
         .add_state(AppState::Preloading)
         
         .add_plugin(DebugLinesPlugin::default())
         
-        .insert_resource(Msaa { samples: 4 })
+        .insert_resource(Msaa { samples: 1 })
 
         // Networking
         .add_plugin(NetworkingPlugin)
@@ -75,7 +74,7 @@ fn main() {
         // Interaction
         .add_system(mouse_interaction)
         
-        // Chunk loading
+        // Chunk loading.rs
         .add_plugin(ChunkPlugin)
 
         .add_plugin(InputPlugin)
@@ -86,9 +85,7 @@ fn main() {
 
         .add_plugin(WorldPlugin)
 
-        .add_plugin(LoadingPlugin)
         .add_plugin(UIPlugin)
-        .add_plugin(MainMenuPlugin)
 
         .add_plugin(InventoryPlugin)
         
@@ -103,7 +100,7 @@ fn main() {
 
         .add_plugin(BlockStatesPlugin)
         
-        // Asset loading
+        // Asset loading.rs
         .add_plugin(AssetPlugin)
         .run();
 }

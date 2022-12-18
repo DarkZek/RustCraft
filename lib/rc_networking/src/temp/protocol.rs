@@ -1,13 +1,14 @@
 use crate::protocol::clientbound::block_update::BlockUpdate;
 use crate::protocol::clientbound::chat::ChatSent;
 use crate::protocol::clientbound::chunk_update::FullChunkUpdate;
+use crate::protocol::clientbound::despawn_entity::DespawnEntity;
+use crate::protocol::clientbound::entity_moved::EntityMoved;
+use crate::protocol::clientbound::entity_rotated::EntityRotated;
+use crate::protocol::clientbound::spawn_entity::SpawnEntity;
 use crate::protocol::serverbound::player_move::PlayerMove;
 use crate::protocol::serverbound::player_rotate::PlayerRotate;
-use crate::protocol::clientbound::entity_moved::EntityMoved;
-use crate::protocol::clientbound::spawn_entity::SpawnEntity;
-use crate::protocol::clientbound::entity_rotated::EntityRotated;
-use crate::protocol::clientbound::despawn_entity::DespawnEntity;
-use serde::{Serialize, Deserialize};
+use crate::protocol::serverbound::request_chunk::RequestChunk;
+use serde::{Deserialize, Serialize};
 
 pub mod clientbound;
 pub mod serverbound;
@@ -24,4 +25,5 @@ pub enum Protocol {
     ChatSent(ChatSent),
     PartialChunkUpdate(FullChunkUpdate),
     SpawnEntity(SpawnEntity),
+    RequestChunk(RequestChunk),
 }
