@@ -76,6 +76,10 @@ macro_rules! make_serializer {
             pub fn server_ser(world: &mut World, server: &mut Server) {
                 $(message_write_server::<$typ>(world, server);)*
             }
+            #[allow(unused)]
+            pub fn add_events(app: &mut App) {
+                $(app.add_event::<$typ>();)*
+            }
         };
         (@body {$($_c_id:tt)*} $(,)?) => {
 
