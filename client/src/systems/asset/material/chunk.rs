@@ -32,6 +32,7 @@ impl Material for ChunkMaterial {
         self.alpha_mode
     }
 
+    #[allow(unused_variables)]
     fn specialize(
         pipeline: &MaterialPipeline<Self>,
         descriptor: &mut RenderPipelineDescriptor,

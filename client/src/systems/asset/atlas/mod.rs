@@ -8,7 +8,7 @@ use bevy::reflect::TypeUuid;
 
 use crate::systems::ui::loading::LoadingData;
 use fnv::FnvBuildHasher;
-use image::{DynamicImage, GenericImage};
+use image::DynamicImage;
 use std::collections::HashMap;
 use std::ffi::OsString;
 
@@ -99,7 +99,8 @@ pub fn build_texture_atlas(
     service.texture_atlas = Some(atlas);
 
     // Create a new material
-    materials.set(
+    // Use _ to keep the assets loaded
+    _ = materials.set(
         &service.opaque_texture_atlas_material,
         ChunkMaterial {
             color: Color::WHITE,
@@ -110,7 +111,7 @@ pub fn build_texture_atlas(
         },
     );
 
-    materials.set(
+    _ = materials.set(
         &service.translucent_texture_atlas_material,
         ChunkMaterial {
             color: Color::WHITE,

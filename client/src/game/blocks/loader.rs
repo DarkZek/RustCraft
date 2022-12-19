@@ -43,6 +43,9 @@ impl AssetLoader for BlockStateAssetLoader {
 // TODO: Set the block states files contents to nothing after copying to save RAM
 
 /// Copies the blockstate asset to the Resource
+
+#[allow(unused_variables)]
+#[allow(unused_mut)]
 pub fn track_blockstate_changes(
     mut events: EventReader<AssetEvent<BlockStatesFile>>,
     assets: ResMut<Assets<BlockStatesFile>>,
