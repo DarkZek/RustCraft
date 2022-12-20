@@ -4,6 +4,8 @@ mod client;
 mod server;
 
 pub mod temp;
+
+use bevy::ecs::schedule::ShouldRun;
 pub use temp::constants as constants;
 pub use temp::protocol as protocol;
 pub use temp::types as types;
@@ -36,3 +38,6 @@ macro_rules! make_wrapper_struct {
 
 pub(crate) use make_wrapper_struct;
 
+fn has_resource<T: bevy::prelude::Resource>(res: Option<bevy::prelude::Res<T>>) -> ShouldRun {
+    res.map(|_| ShouldRun::Yes).unwrap_or(ShouldRun::No)
+}
