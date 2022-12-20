@@ -59,25 +59,30 @@ pub(crate) fn message_write_client<T: Message>(world: &mut World, server: &mut C
 
 macro_rules! make_serializer {
         ($($typ:ty)*) => {
-            use std::io::{Cursor, Read};
+            use std::io::Cursor;
             use crate::messaging::Message;
             use crate::messaging::serialize::*;
+
             #[allow(unused)]
             pub fn client_de(world: &mut World, bytes: Vec<u8>) {
                 make_serializer!(@body bytes, world, {__client_dummy}, $($typ),*);
             }
+
             #[allow(unused)]
             pub fn server_de(world: &mut World, bytes: Vec<u8>, client_id: u64) {
                 make_serializer!(@body bytes, world, {client_id}, $($typ),*);
             }
+
             #[allow(unused)]
             pub fn client_ser(world: &mut World, client: &mut Client) {
                 $(message_write_client::<$typ>(world, client);)*
             }
+
             #[allow(unused)]
             pub fn server_ser(world: &mut World, server: &mut Server) {
                 $(message_write_server::<$typ>(world, server);)*
             }
+
             #[allow(unused)]
             pub fn add_events(app: &mut App) {
                 $(app.add_event::<$typ>();)*
