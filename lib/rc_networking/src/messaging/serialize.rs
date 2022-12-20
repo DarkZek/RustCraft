@@ -58,13 +58,13 @@ pub(crate) fn message_write_client<T: Message>(world: &mut World, server: &mut C
 }
 
 macro_rules! make_serializer {
-        ($($typ:ty),*) => {
+        ($($typ:ty)*) => {
             use std::io::{Cursor, Read};
             use crate::messaging::Message;
             use crate::messaging::serialize::*;
             #[allow(unused)]
             pub fn client_de(world: &mut World, bytes: Vec<u8>) {
-                make_serializer!(@body bytes, world, {,}, $($typ),*);
+                make_serializer!(@body bytes, world, {__client_dummy}, $($typ),*);
             }
             #[allow(unused)]
             pub fn server_de(world: &mut World, bytes: Vec<u8>, client_id: u64) {
@@ -86,7 +86,7 @@ macro_rules! make_serializer {
         (@body {$($_c_id:tt)*} $(,)?) => {
 
         };
-        (@body $bytes:ident, $world:ident, {$($c_id:tt)*}, $($typ:ty),*) => {
+        (@body $bytes:ident, $world:ident, {$c_id:ident}, $($typ:ty),*) => {
             let mut read = Cursor::new($bytes);
             let id = deserialize_packet_id(&mut read);
 

@@ -90,6 +90,7 @@ impl<T: Event> Receiver<'_, '_, T> {
 #[allow(unused)]
 macro_rules! make_recv {
     ($val: expr $(,)*) => { crate::messaging::client::RecvMsg($val) };
+    ($val: expr, __client_dummy) => { crate::messaging::client::RecvMsg($val) };
     ($val: expr, $id: expr) => { crate::messaging::server::RecvMsg($val, $id) };
 }
 #[allow(unused)]
