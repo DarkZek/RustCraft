@@ -6,16 +6,8 @@ use crate::server::Server;
 use crate::messaging::server;
 use crate::messaging::client;
 
-const fn size_of_packet_id() -> usize {
-    std::mem::size_of::<PacketIdType>()
-}
-
-fn message_size<T: Message>() -> usize {
-    use std::mem::size_of;
-    size_of::<T>() + size_of_packet_id()
-}
-
-pub fn serialize<T: Message>(value: &T) -> Vec<u8> {
+// change bincode usages here to swap serializer backends
+pub(crate) fn serialize<T: Message>(value: &T) -> Vec<u8> {
     use std::io::{Write, Cursor};
 
     let packet_size = message_size::<T>();
@@ -27,17 +19,27 @@ pub fn serialize<T: Message>(value: &T) -> Vec<u8> {
     bytes.into_inner()
 }
 
-pub fn deserialize_packet_id(read: &mut impl Read) -> PacketIdType {
+pub(crate) fn deserialize<T: Message>(read: impl Read) -> T {
+    bincode::deserialize_from(read).unwrap()
+}
+
+// these should not be touched as their function does not depend on the serializer
+const fn size_of_packet_id() -> usize {
+    std::mem::size_of::<PacketIdType>()
+}
+
+fn message_size<T: Message>() -> usize {
+    use std::mem::size_of;
+    size_of::<T>() + size_of_packet_id()
+}
+
+pub(crate) fn deserialize_packet_id(read: &mut impl Read) -> PacketIdType {
     let mut packet_id = [0u8; size_of_packet_id()];
     read.read(&mut packet_id).unwrap();
     PacketIdType::from_le_bytes(packet_id)
 }
 
-pub fn deserialize<T: Message>(read: impl Read) -> T {
-    bincode::deserialize_from(read).unwrap()
-}
-
-pub fn message_write_server<T: Message>(world: &mut World, server: &mut Server) {
+pub(crate) fn message_write_server<T: Message>(world: &mut World, server: &mut Server) {
     let events = world.resource_mut::<Events<server::SendMsg<T>>>();
     let mut reader = events.get_reader();
     for msg in reader.iter(&events) {
@@ -46,7 +48,7 @@ pub fn message_write_server<T: Message>(world: &mut World, server: &mut Server) 
     }
 }
 
-pub fn message_write_client<T: Message>(world: &mut World, server: &mut Client) {
+pub(crate) fn message_write_client<T: Message>(world: &mut World, server: &mut Client) {
     let events = world.resource_mut::<Events<client::SendMsg<T>>>();
     let mut reader = events.get_reader();
     for msg in reader.iter(&events) {
