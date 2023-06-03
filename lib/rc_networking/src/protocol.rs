@@ -1,6 +1,6 @@
 use crate::protocol::clientbound::block_update::BlockUpdate;
 use crate::protocol::clientbound::chat::ChatSent;
-use crate::protocol::clientbound::chunk_update::FullChunkUpdate;
+use crate::protocol::clientbound::chunk_update::{FullChunkUpdate, PartialChunkUpdate};
 use crate::protocol::clientbound::despawn_entity::DespawnEntity;
 use crate::protocol::clientbound::entity_moved::EntityMoved;
 use crate::protocol::clientbound::entity_rotated::EntityRotated;
@@ -23,7 +23,9 @@ pub enum Protocol {
     DespawnEntity(DespawnEntity),
     BlockUpdate(BlockUpdate),
     ChatSent(ChatSent),
-    PartialChunkUpdate(FullChunkUpdate),
+    // Unused as networking solution does not support such large packets being sent so fast
+    FullChunkUpdate(FullChunkUpdate),
+    PartialChunkUpdate(PartialChunkUpdate),
     SpawnEntity(SpawnEntity),
     RequestChunk(RequestChunk),
 }

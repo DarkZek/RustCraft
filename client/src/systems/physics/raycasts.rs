@@ -97,7 +97,8 @@ pub fn do_raycast(
                 // Loop through colliders on the block and see if the blocks collider is hit
                 for collider in &collided_block.bounding_boxes {
                     if collider
-                        .ray_collides(block.cast::<f32>(), starting_position, direction)
+                        .offset(block.cast::<f32>())
+                        .ray_collides(starting_position, direction)
                         .0
                     {
                         return Some(RaycastResult {

@@ -61,10 +61,7 @@ pub fn messages_update(
                     )))
                     .insert(PhysicsObject::new(
                         Vector3::new(entity.loc[0], entity.loc[1], entity.loc[2]),
-                        vec![Aabb::new(
-                            Vector3::new(0.0, 1.0, 0.0),
-                            Vector3::new(1.0, 1.0, 1.0),
-                        )],
+                        Aabb::new(Vector3::new(0.0, 1.0, 0.0), Vector3::new(1.0, 1.0, 1.0)),
                     ))
                     .insert(Entity)
                     .insert(PbrBundle {
@@ -78,6 +75,7 @@ pub fn messages_update(
 
                 info!("Entity spawned {:?}!", entity.id);
             }
+            Protocol::FullChunkUpdate(_) => {}
             Protocol::PartialChunkUpdate(_) => {}
             Protocol::DespawnEntity(packet) => {
                 if let Some(entity) = system.entity_mapping.remove(&packet.entity) {

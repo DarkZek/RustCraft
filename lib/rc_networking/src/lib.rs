@@ -5,7 +5,9 @@ pub mod types;
 use bevy::ecs::schedule::ShouldRun;
 use bevy::prelude::{Res, Resource};
 use protocol::Protocol;
-use renet::{BlockChannelConfig, ChannelConfig, ConnectToken, RenetConnectionConfig};
+use renet::{
+    BlockChannelConfig, ChannelConfig, ConnectToken, ReliableChannelConfig, RenetConnectionConfig,
+};
 use std::net::SocketAddr;
 use std::time::{Duration, SystemTime};
 
@@ -38,8 +40,8 @@ pub fn get_renet_connection_config() -> RenetConnectionConfig {
 
     let config = RenetConnectionConfig {
         max_packet_size: 16 * 1024,
-        sent_packets_buffer_size: 256,
-        received_packets_buffer_size: 256,
+        sent_packets_buffer_size: 256 * 100,
+        received_packets_buffer_size: 256 * 100,
         reassembly_buffer_size: 256,
         rtt_smoothing_factor: 0.005,
         packet_loss_smoothing_factor: 0.1,
@@ -98,9 +100,10 @@ fn get_channel(protocol: &Protocol) -> Channel {
         | Protocol::ChatSent(_)
         | Protocol::DespawnEntity(_)
         | Protocol::SpawnEntity(_)
+        | Protocol::PartialChunkUpdate(_)
         | Protocol::RequestChunk(_) => Channel::Reliable,
 
-        Protocol::PartialChunkUpdate(_) => Channel::Block,
+        Protocol::FullChunkUpdate(_) => Channel::Block,
     }
 }
 

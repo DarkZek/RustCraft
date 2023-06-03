@@ -5,9 +5,11 @@ use bevy::ecs::event::EventReader;
 use bevy::ecs::prelude::{Commands, EventWriter};
 use bevy::ecs::system::Query;
 use bevy::log::info;
+use nalgebra::Vector3;
 use std::sync::atomic::Ordering;
 
 use crate::game::world::data::ENTITY_ID_COUNT;
+use crate::systems::chunk::ChunkSystem;
 use crate::{TransportSystem, WorldData};
 use rc_networking::constants::{EntityId, UserId};
 use rc_networking::protocol::clientbound::chunk_update::FullChunkUpdate;
@@ -36,6 +38,7 @@ pub fn authorization_event(
     mut send_packet: EventWriter<SendPacket>,
     mut commands: Commands,
     transforms: Query<&Transform>,
+    mut chunk_system: ResMut<ChunkSystem>,
 ) {
     for client in event_reader.iter() {
         info!("Authorisation event");
@@ -86,14 +89,11 @@ pub fn authorization_event(
 
         // Send world to client
         for (loc, chunk) in global.chunks.iter() {
-            let chunk = Protocol::PartialChunkUpdate(FullChunkUpdate::new(
-                chunk.world,
-                loc.x,
-                loc.y,
-                loc.z,
-            ));
-
-            send_packet.send(SendPacket(chunk, client.client));
+            chunk_system
+                .requesting_chunks
+                .entry(*loc)
+                .or_insert_with(|| vec![])
+                .push(client.client);
         }
     }
 }

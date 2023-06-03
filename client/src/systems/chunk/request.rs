@@ -46,6 +46,7 @@ pub fn request_chunks(
                 }
 
                 system.requested_chunks.push(potential_chunk);
+
                 chunk_requests.send(SendPacket(
                     Protocol::RequestChunk(RequestChunk::new(
                         potential_chunk.x,
@@ -57,5 +58,4 @@ pub fn request_chunks(
             }
         }
     }
-    println!("Moved chunk");
 }
