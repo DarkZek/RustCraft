@@ -151,12 +151,12 @@ impl Aabb {
             } else {
                 1.0 / direction.x
             },
-            if direction.x == 0.0 {
+            if direction.y == 0.0 {
                 0.0
             } else {
                 1.0 / direction.y
             },
-            if direction.x == 0.0 {
+            if direction.z == 0.0 {
                 0.0
             } else {
                 1.0 / direction.z
@@ -321,53 +321,40 @@ impl Aabb {
     }
 
     /// Only one axis at a time
-    pub fn try_move(&self, mut movement: Vector3<f32>, other: &Aabb) -> Vector3<f32> {
-        let minkowski_sum = Aabb::new(
-            other.bottom_left - self.size,
-            other.size + (self.size * 2.0),
-        );
-        let offset = Vector3::new(0.05, 0.05, 0.05);
-
+    pub fn try_move(&self, movement: Vector3<f32>, other: &Aabb) -> Vector3<f32> {
+        println!("try_move({:?}, {:?}, {:?})", self, movement, other);
         let corners = [
-            Vector3::new(0.05, 0.05, 0.05) + self.bottom_left,
-            Vector3::new(-0.05, 0.05, 0.05)
-                + self.bottom_left
-                + Vector3::new(self.size.x, 0.0, 0.0),
-            Vector3::new(0.05, 0.05, -0.05)
-                + self.bottom_left
-                + Vector3::new(0.0, 0.0, self.size.z),
-            Vector3::new(-0.05, 0.05, -0.05)
-                + self.bottom_left
-                + Vector3::new(self.size.x, 0.0, self.size.z),
-            Vector3::new(0.05, -0.05, 0.05)
-                + self.bottom_left
-                + Vector3::new(0.0, self.size.y, 0.0),
-            Vector3::new(-0.05, -0.05, 0.05)
-                + self.bottom_left
-                + Vector3::new(self.size.x, self.size.y, 0.0),
-            Vector3::new(0.05, -0.05, -0.05)
-                + self.bottom_left
-                + Vector3::new(0.0, self.size.y, self.size.z),
-            Vector3::new(-0.05, -0.05, -0.05)
-                + self.bottom_left
-                + Vector3::new(self.size.x, self.size.y, self.size.z),
+            self.bottom_left,
+            self.bottom_left + Vector3::new(self.size.x, 0.0, 0.0),
+            self.bottom_left + Vector3::new(0.0, 0.0, self.size.z),
+            self.bottom_left + Vector3::new(self.size.x, 0.0, self.size.z),
+            self.bottom_left + Vector3::new(0.0, self.size.y, 0.0),
+            self.bottom_left + Vector3::new(self.size.x, self.size.y, 0.0),
+            self.bottom_left + Vector3::new(0.0, self.size.y, self.size.z),
+            self.bottom_left + Vector3::new(self.size.x, self.size.y, self.size.z),
         ];
 
+        let mut new_movement = movement.clone();
+
         for point in corners {
-            let (hit, dist) = minkowski_sum.ray_collides(point, movement.normalize());
+            let (hit, dist) = other.ray_collides(point, movement.normalize());
             if hit {
+                println!(
+                    "Dist {:?} Dir {:?} Player Point {:?} Block Collider: {:?}\n\tray_collides({:?}, {:?})",
+                    dist, new_movement, point, other, point + Vector3::new(0.0, 0.01, 0.0), movement.normalize()
+                );
                 if movement.x != 0.0 {
-                    movement.x = clamp(movement.x, -dist, dist);
+                    new_movement.x = clamp(movement.x, -dist, dist);
                 }
                 if movement.y != 0.0 {
-                    movement.y = clamp(movement.y, -dist, dist);
+                    new_movement.y = clamp(movement.y, -dist, dist);
                 }
                 if movement.z != 0.0 {
-                    //movement.z = clamp(movement.z, -dist, dist);
+                    new_movement.z = clamp(movement.z, -dist, dist);
                 }
             }
         }
 
-        movement
+        new_movement
     }
 }
