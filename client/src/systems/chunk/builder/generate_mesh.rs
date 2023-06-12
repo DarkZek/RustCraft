@@ -1,4 +1,4 @@
-use crate::game::viewable_direction::{AxisAlignedDirection, ViewableDirection, BLOCK_SIDES};
+use crate::game::viewable_direction::{ViewableDirection, BLOCK_SIDES};
 
 use crate::systems::chunk::data::ChunkData;
 
@@ -6,7 +6,7 @@ use crate::systems::chunk::ChunkSystem;
 use bevy::ecs::component::Component;
 
 use crate::game::blocks::states::BlockStates;
-use crate::helpers::{check_chunk_boundaries, global_to_local_position};
+use crate::helpers::global_to_local_position;
 use crate::systems::chunk::mesh::draw_kit::DrawKit;
 use crate::systems::chunk::nearby_cache::NearbyChunkCache;
 use fnv::FnvHashMap;

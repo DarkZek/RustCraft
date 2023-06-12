@@ -10,7 +10,7 @@ use crate::systems::chunk::builder::lighting::LightingUpdateData;
 use crate::systems::chunk::nearby_cache::NearbyChunkCache;
 use crate::systems::chunk::ChunkSystem;
 use bevy::prelude::*;
-use bevy::render::mesh::{Indices, MeshVertexAttribute, PrimitiveTopology, VertexAttributeValues};
+use bevy::render::mesh::MeshVertexAttribute;
 use bevy::render::render_resource::VertexFormat;
 use nalgebra::Vector3;
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
@@ -40,6 +40,7 @@ pub struct MeshBuilderCache {
     chunks: BinaryHeap<MeshBuildEntry>,
 }
 
+#[allow(unused)]
 pub fn mesh_builder(
     mut flags: EventReader<RerenderChunkFlag>,
     mut chunks: ResMut<ChunkSystem>,

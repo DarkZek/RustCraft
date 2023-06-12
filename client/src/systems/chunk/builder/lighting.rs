@@ -1,15 +1,11 @@
 use crate::game::blocks::states::BlockStates;
-use crate::game::blocks::Block;
 use crate::game::viewable_direction::BLOCK_SIDES;
-use crate::helpers::{get_chunk_coords, global_to_local_position};
-use crate::systems::chunk::data::{ChunkData, LightingColor, RawLightingData};
+use crate::helpers::{global_to_local_position};
+use crate::systems::chunk::data::{ChunkData, RawLightingData};
 use crate::systems::chunk::nearby_cache::NearbyChunkCache;
-use bevy::prelude::system_adapter::new;
-use bevy::prelude::Entity;
-use nalgebra::{max, Vector3, Vector4};
+use nalgebra::{Vector3, Vector4};
 use rc_networking::constants::CHUNK_SIZE;
 use std::collections::VecDeque;
-use std::mem;
 use std::time::Instant;
 
 const MAX_LIGHT_VALUE: usize = 16;
@@ -26,7 +22,7 @@ impl ChunkData {
     ) -> LightingUpdateData {
         let start = Instant::now();
 
-        let mut lights = get_lights(self.position, states, cache);
+        let lights = get_lights(self.position, states, cache);
 
         if lights.len() == 0 {
             return LightingUpdateData {
@@ -184,7 +180,7 @@ impl ChunkData {
         }
 
         let mut changed = true;
-        while (changed) {
+        while changed {
             changed = false;
             //println!("pass");
             for x in 0..CHUNK_SIZE {
