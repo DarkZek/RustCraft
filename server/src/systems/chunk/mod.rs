@@ -6,7 +6,7 @@ use nalgebra::Vector3;
 use rayon::iter::ParallelIterator;
 use rayon::prelude::IntoParallelRefIterator;
 use rc_client::helpers::TextureSubdivisionMethod::Full;
-use rc_networking::constants::UserId;
+use rc_networking::constants::{UserId, CHUNK_SIZE};
 use rc_networking::protocol::clientbound::chunk_update::FullChunkUpdate;
 use rc_networking::protocol::Protocol;
 use rc_networking::types::{ReceivePacket, SendPacket};
@@ -35,8 +35,8 @@ impl Plugin for ChunkPlugin {
 
 #[derive(Resource)]
 pub struct ChunkSystem {
-    pub generating_chunks: HashMap<Vector3<i32>, Vec<UserId>>,
-    pub requesting_chunks: HashMap<Vector3<i32>, Vec<UserId>>,
+    pub generating_chunks: Vec<Vector3<i32>>,
+    pub requesting_chunks: HashMap<UserId, Vec<Vector3<i32>>>,
 }
 
 pub fn request_chunks(
@@ -44,34 +44,40 @@ pub fn request_chunks(
     mut world: ResMut<WorldData>,
     mut send_packets: EventWriter<SendPacket>,
 ) {
-    if system.requesting_chunks.len() == 0 {
-        return;
-    }
+    for (user, chunks) in &mut system.requesting_chunks {
+        if chunks.len() == 0 {
+            continue;
+        }
 
-    let pos = *system.requesting_chunks.keys().next().unwrap();
-    let chunk_users = system.requesting_chunks.remove(&pos).unwrap();
+        chunks.sort_by(|a, b| {
+            let a_dist: i32 = (&player_pos - (a.cast::<f32>() * CHUNK_SIZE as f32)).norm() as i32;
+            let b_dist: i32 = (&player_pos - (b.cast::<f32>() * CHUNK_SIZE as f32)).norm() as i32;
+            a_dist.cmp(&b_dist)
+        });
 
-    // Check if chunk exists
-    if world.chunks.contains_key(&pos) {
-        let chunk = world.chunks.get(&pos).unwrap();
-        let partial_updates = FullChunkUpdate::new(
-            chunk.world,
-            chunk.position.x,
-            chunk.position.y,
-            chunk.position.z,
-        )
-        .to_partial();
-        // Send to user
-        for user in chunk_users {
+        let chunk_pos = chunks.pop().unwrap();
+
+        // Check if chunk exists
+        if world.chunks.contains_key(&chunk_pos) {
+            let chunk = world.chunks.get(&chunk_pos).unwrap();
+            let partial_updates = FullChunkUpdate::new(
+                chunk.world,
+                chunk.position.x,
+                chunk.position.y,
+                chunk.position.z,
+            )
+            .to_partial();
+            // Send to user
             for partial in partial_updates.iter() {
                 send_packets.send(SendPacket(
                     Protocol::PartialChunkUpdate(partial.clone()),
-                    user,
+                    *user,
                 ));
             }
+        } else {
+            system.generating_chunks.push(chunk_pos);
+            chunks.push(chunk_users);
         }
-    } else {
-        system.generating_chunks.insert(pos, chunk_users);
     }
 }
 
@@ -99,25 +105,6 @@ pub fn generate_chunks(
         .collect::<Vec<ChunkData>>();
 
     for chunk in chunks {
-        let packet = FullChunkUpdate::new(
-            chunk.world,
-            chunk.position.x,
-            chunk.position.y,
-            chunk.position.z,
-        );
-
-        let partial_updates = packet.to_partial();
-
-        // Send to users
-        for user in system.generating_chunks.remove(&chunk.position).unwrap() {
-            for partial in partial_updates.iter() {
-                send_packets.send(SendPacket(
-                    Protocol::PartialChunkUpdate(partial.clone()),
-                    user,
-                ));
-            }
-        }
-
         world.chunks.insert(chunk.position, chunk);
     }
 }
@@ -133,9 +120,9 @@ pub fn get_chunk_requests(
 
             system
                 .requesting_chunks
-                .entry(pos)
+                .entry(packet.1)
                 .or_insert_with(|| vec![])
-                .push(packet.1);
+                .push(pos);
         }
     }
 }
