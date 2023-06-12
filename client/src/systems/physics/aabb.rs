@@ -35,12 +35,14 @@ impl Aabb {
         Aabb { bottom_left, size }
     }
 
+    /// Offset an Aabb by a given offset
     pub fn offset(&self, offset: Vector3<f32>) -> Self {
         let mut new = self.clone();
         new.bottom_left += offset;
         new
     }
 
+    /// Draws a `Aabb` outline with DebugLines
     pub fn draw_lines(boxes: &Vec<Aabb>, position: Vector3<f32>, lines: &mut ResMut<DebugLines>) {
         for val in boxes {
             val.offset(position).draw(lines, 0.0, Color::WHITE);
@@ -207,61 +209,6 @@ impl Aabb {
         let z_check_2 = other.bottom_left.z + other.size.z <= self.bottom_left.z;
 
         !(x_check_1 || x_check_2 || y_check_1 || y_check_2 || z_check_1 || z_check_2)
-    }
-
-    pub fn get_voxel_collision_coords(
-        &self,
-        chunks: &ChunkSystem,
-        blocks: &BlockStates,
-    ) -> Vec<Vector3<i32>> {
-        let mut matches = Vec::new();
-
-        let mut previous_chunk: Option<&ChunkData> = None;
-        // Loop over all potential blocks
-        for x in (f32::floor(self.bottom_left.x) as i32)
-            ..(f32::ceil(self.bottom_left.x + self.size.x) as i32)
-        {
-            for y in (f32::floor(self.bottom_left.y) as i32)
-                ..(f32::ceil(self.bottom_left.y + self.size.y) as i32)
-            {
-                for z in (f32::floor(self.bottom_left.z) as i32)
-                    ..(f32::ceil(self.bottom_left.z + self.size.z) as i32)
-                {
-                    let block: Vector3<i32> = Vector3::new(x, y, z);
-                    let (chunk_pos, block_pos) = global_to_local_position(block);
-
-                    // Chunk caching to speed things up
-                    if previous_chunk.is_none() || previous_chunk.unwrap().position != chunk_pos {
-                        previous_chunk = chunks.chunks.get(&chunk_pos);
-                    }
-
-                    if let Some(chunk_data) = previous_chunk {
-                        // Fetch block id
-                        let block_id = chunk_data.world[block_pos.x][block_pos.y][block_pos.z];
-
-                        // Fetch block information
-                        let block_data = blocks.get_block(block_id as usize);
-
-                        for collider in &block_data.bounding_boxes {
-                            let collider = collider.offset(Vector3::new(
-                                block.x as f32,
-                                block.y as f32,
-                                block.z as f32,
-                            ));
-                            if collider.aabb_collides(self) {
-                                // Collision!
-                                matches.push(block);
-
-                                // No need to check other colliders for this block
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        matches
     }
 
     /// Get the colliders of all blocks that could come in contact with an `Aabb`
