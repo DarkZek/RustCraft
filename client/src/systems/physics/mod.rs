@@ -14,7 +14,7 @@ pub struct PhysicsPlugin;
 
 impl Plugin for PhysicsPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(physics_tick).add_system(physics_sync);
+        //app.add_system(physics_tick).add_system(physics_sync);
     }
 }
 

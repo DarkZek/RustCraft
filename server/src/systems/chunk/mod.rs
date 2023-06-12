@@ -1,10 +1,12 @@
 use crate::game::chunk::ChunkData;
-use crate::{App, WorldData};
+use crate::{App, TransportSystem, WorldData};
+use bevy::ecs::system;
 use bevy::prelude::*;
 use bevy::time::FixedTimestep;
 use nalgebra::Vector3;
 use rayon::iter::ParallelIterator;
 use rayon::prelude::IntoParallelRefIterator;
+use rc_client::helpers::from_bevy_vec3;
 use rc_client::helpers::TextureSubdivisionMethod::Full;
 use rc_networking::constants::{UserId, CHUNK_SIZE};
 use rc_networking::protocol::clientbound::chunk_update::FullChunkUpdate;
@@ -43,17 +45,26 @@ pub fn request_chunks(
     mut system: ResMut<ChunkSystem>,
     mut world: ResMut<WorldData>,
     mut send_packets: EventWriter<SendPacket>,
+    transport: Res<TransportSystem>,
+    mut transforms: Query<&mut Transform>,
 ) {
+    let mut to_generate = Vec::new();
     for (user, chunks) in &mut system.requesting_chunks {
         if chunks.len() == 0 {
             continue;
         }
 
-        chunks.sort_by(|a, b| {
-            let a_dist: i32 = (&player_pos - (a.cast::<f32>() * CHUNK_SIZE as f32)).norm() as i32;
-            let b_dist: i32 = (&player_pos - (b.cast::<f32>() * CHUNK_SIZE as f32)).norm() as i32;
-            a_dist.cmp(&b_dist)
-        });
+        if let Some(entity) = transport.clients.get(&user).unwrap().entity {
+            if let Ok(transform) = transforms.get(entity) {
+                let pos = from_bevy_vec3(transform.translation);
+
+                chunks.sort_by(|a, b| {
+                    let a_dist: i32 = (&pos - (a.cast::<f32>() * CHUNK_SIZE as f32)).norm() as i32;
+                    let b_dist: i32 = (&pos - (b.cast::<f32>() * CHUNK_SIZE as f32)).norm() as i32;
+                    a_dist.cmp(&b_dist)
+                });
+            }
+        }
 
         let chunk_pos = chunks.pop().unwrap();
 
@@ -75,10 +86,13 @@ pub fn request_chunks(
                 ));
             }
         } else {
-            system.generating_chunks.push(chunk_pos);
-            chunks.push(chunk_users);
+            if !to_generate.contains(&chunk_pos) {
+                to_generate.push(chunk_pos);
+            }
+            chunks.push(chunk_pos);
         }
     }
+    system.generating_chunks.append(&mut to_generate);
 }
 
 pub fn generate_chunks(
@@ -87,13 +101,12 @@ pub fn generate_chunks(
     mut send_packets: EventWriter<SendPacket>,
 ) {
     // Generate X chunks per loop
-    let chunks_per_loop = 5;
+    let chunks_per_loop = system.generating_chunks.len().min(5 as usize);
 
     let build_chunks = system
         .generating_chunks
-        .keys()
-        .take(chunks_per_loop)
-        .collect::<Vec<(&Vector3<i32>)>>();
+        .drain(0..chunks_per_loop)
+        .collect::<Vec<(Vector3<i32>)>>();
 
     #[cfg(not(target_arch = "wasm32"))]
     let iterator = build_chunks.par_iter();
@@ -101,7 +114,7 @@ pub fn generate_chunks(
     let iterator = build_chunks.iter();
 
     let chunks = iterator
-        .map(|pos| ChunkData::generate(**pos))
+        .map(|pos| ChunkData::generate(*pos))
         .collect::<Vec<ChunkData>>();
 
     for chunk in chunks {
