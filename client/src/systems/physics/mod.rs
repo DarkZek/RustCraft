@@ -25,6 +25,7 @@ pub struct PhysicsObject {
     pub velocity: Vector3<f32>,
     pub collider: Aabb,
     pub gravity: bool,
+    pub touching_ground: bool,
 }
 
 impl PhysicsObject {
@@ -34,7 +35,8 @@ impl PhysicsObject {
             previous_position: position,
             velocity: Vector3::zeros(),
             collider,
-            gravity: true,
+            gravity: false,
+            touching_ground: false,
         }
     }
 }

@@ -17,13 +17,17 @@ impl Plugin for CameraPlugin {
 }
 
 fn setup_camera(mut commands: Commands) {
-    let player_physics = PhysicsObject::new(
+    let mut player_physics = PhysicsObject::new(
         Vector3::new(0.0, 40.0, 0.0),
         Aabb::new(
             Vector3::new(-0.35, -1.7, -0.35),
             Vector3::new(0.7, 1.85, 0.7),
         ),
     );
+
+    // Enable gravity for local player
+    player_physics.gravity = true;
+
     let start_transform = Transform::from_translation(Vec3::new(
         player_physics.position.x,
         player_physics.position.y,

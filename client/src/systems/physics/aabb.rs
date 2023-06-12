@@ -48,7 +48,7 @@ impl Aabb {
     }
 
     /// Draw an outline of a Aabb collider using DebugLines
-    pub fn draw(&self, lines: &mut ResMut<DebugLines>, duration: f32, color: Color) {
+    pub fn draw(&self, lines: &mut DebugLines, duration: f32, color: Color) {
         let base = self.bottom_left;
 
         // Bottom ring
@@ -197,20 +197,16 @@ impl Aabb {
 
     /// Check if this Aabb intersects with `other`
     pub fn aabb_collides(&self, other: &Self) -> bool {
-        let x_check_1 = other.bottom_left.x > self.bottom_left.x
-            && other.bottom_left.x < self.bottom_left.x + self.size.x;
-        let x_check_2 = other.bottom_left.x + other.size.x > self.bottom_left.x
-            && other.bottom_left.x + other.size.x < self.bottom_left.x + self.size.x;
-        let y_check_1 = other.bottom_left.y > self.bottom_left.y
-            && other.bottom_left.y < self.bottom_left.y + self.size.y;
-        let y_check_2 = other.bottom_left.y + other.size.y > self.bottom_left.y
-            && other.bottom_left.y + other.size.y < self.bottom_left.y + self.size.y;
-        let z_check_1 = other.bottom_left.z > self.bottom_left.z
-            && other.bottom_left.z < self.bottom_left.z + self.size.z;
-        let z_check_2 = other.bottom_left.z + other.size.z > self.bottom_left.z
-            && other.bottom_left.z + other.size.z < self.bottom_left.z + self.size.z;
+        let x_check_1 = other.bottom_left.x >= self.bottom_left.x + self.size.x;
+        let x_check_2 = other.bottom_left.x + other.size.x <= self.bottom_left.x;
 
-        x_check_1 || x_check_2 || y_check_1 || y_check_2 || z_check_1 || z_check_2
+        let y_check_1 = other.bottom_left.y >= self.bottom_left.y + self.size.y;
+        let y_check_2 = other.bottom_left.y + other.size.y <= self.bottom_left.y;
+
+        let z_check_1 = other.bottom_left.z >= self.bottom_left.z + self.size.z;
+        let z_check_2 = other.bottom_left.z + other.size.z <= self.bottom_left.z;
+
+        !(x_check_1 || x_check_2 || y_check_1 || y_check_2 || z_check_1 || z_check_2)
     }
 
     pub fn get_voxel_collision_coords(
@@ -268,7 +264,8 @@ impl Aabb {
         matches
     }
 
-    pub fn get_voxel_collision_colliders(
+    /// Get the colliders of all blocks that could come in contact with an `Aabb`
+    pub fn get_surrounding_voxel_collision_colliders(
         &self,
         chunks: &ChunkSystem,
         blocks: &BlockStates,
@@ -277,14 +274,14 @@ impl Aabb {
 
         let mut previous_chunk: Option<&ChunkData> = None;
         // Loop over all potential blocks
-        for x in (f32::floor(self.bottom_left.x) as i32)
-            ..(f32::ceil(self.bottom_left.x + self.size.x) as i32)
+        for x in (f32::floor(self.bottom_left.x) as i32 - 1)
+            ..(f32::ceil(self.bottom_left.x + self.size.x) as i32 + 1)
         {
-            for y in (f32::floor(self.bottom_left.y) as i32)
-                ..(f32::ceil(self.bottom_left.y + self.size.y) as i32)
+            for y in (f32::floor(self.bottom_left.y) as i32 - 1)
+                ..(f32::ceil(self.bottom_left.y + self.size.y) as i32 + 1)
             {
-                for z in (f32::floor(self.bottom_left.z) as i32)
-                    ..(f32::ceil(self.bottom_left.z + self.size.z) as i32)
+                for z in (f32::floor(self.bottom_left.z) as i32 - 1)
+                    ..(f32::ceil(self.bottom_left.z + self.size.z) as i32 + 1)
                 {
                     let block: Vector3<i32> = Vector3::new(x, y, z);
                     let (chunk_pos, block_pos) = global_to_local_position(block);
@@ -307,10 +304,7 @@ impl Aabb {
                                 block.y as f32,
                                 block.z as f32,
                             ));
-                            if collider.aabb_collides(self) {
-                                // Collision!
-                                matches.push(collider);
-                            }
+                            matches.push(collider);
                         }
                     }
                 }
@@ -320,41 +314,122 @@ impl Aabb {
         matches
     }
 
-    /// Only one axis at a time
-    pub fn try_move(&self, movement: Vector3<f32>, other: &Aabb) -> Vector3<f32> {
-        println!("try_move({:?}, {:?}, {:?})", self, movement, other);
-        let corners = [
-            self.bottom_left,
-            self.bottom_left + Vector3::new(self.size.x, 0.0, 0.0),
-            self.bottom_left + Vector3::new(0.0, 0.0, self.size.z),
-            self.bottom_left + Vector3::new(self.size.x, 0.0, self.size.z),
-            self.bottom_left + Vector3::new(0.0, self.size.y, 0.0),
-            self.bottom_left + Vector3::new(self.size.x, self.size.y, 0.0),
-            self.bottom_left + Vector3::new(0.0, self.size.y, self.size.z),
-            self.bottom_left + Vector3::new(self.size.x, self.size.y, self.size.z),
-        ];
-
-        let mut new_movement = movement.clone();
-
-        for point in corners {
-            let (hit, dist) = other.ray_collides(point, movement.normalize());
-            if hit {
-                println!(
-                    "Dist {:?} Dir {:?} Player Point {:?} Block Collider: {:?}\n\tray_collides({:?}, {:?})",
-                    dist, new_movement, point, other, point + Vector3::new(0.0, 0.01, 0.0), movement.normalize()
-                );
-                if movement.x != 0.0 {
-                    new_movement.x = clamp(movement.x, -dist, dist);
-                }
-                if movement.y != 0.0 {
-                    new_movement.y = clamp(movement.y, -dist, dist);
-                }
-                if movement.z != 0.0 {
-                    new_movement.z = clamp(movement.z, -dist, dist);
-                }
-            }
+    /// Returns the maximum movement allowed before collision with another `Aabb`
+    pub fn try_move(&self, mut movement: Vector3<f32>, other: &Aabb) -> Vector3<f32> {
+        if movement.x > 0.0 {
+            let mx = self.bottom_left.x + self.size.x + movement.x;
+            movement.x -= mx - other.bottom_left.x + 0.0001;
+        } else if movement.x < 0.0 {
+            let mx = self.bottom_left.x + movement.x;
+            movement.x -= mx - (other.bottom_left.x + other.size.x) - 0.0001;
+        }
+        if movement.y > 0.0 {
+            let my = self.bottom_left.y + self.size.y + movement.y;
+            movement.y -= my - other.bottom_left.y + 0.0001;
+        } else if movement.y < 0.0 {
+            let my = self.bottom_left.y + movement.y;
+            movement.y -= my - (other.bottom_left.y + other.size.y) - 0.0001;
+        }
+        if movement.z > 0.0 {
+            let mz = self.bottom_left.z + self.size.z + movement.z;
+            movement.z -= mz - other.bottom_left.z + 0.0001;
+        } else if movement.z < 0.0 {
+            let mz = self.bottom_left.z + movement.z;
+            movement.z -= mz - (other.bottom_left.z + other.size.z) - 0.0001;
         }
 
-        new_movement
+        movement
     }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use bevy_inspector_egui::egui::Shape::Vec;
+
+    #[test]
+    fn move_test_x() {
+        let player = Aabb::new(Vector3::new(1.2, 0.0, 0.5), Vector3::new(1.0, 2.0, 1.0));
+        let block = Aabb::new(Vector3::new(0.0, 0.0, 0.0), Vector3::new(1.0, 1.0, 1.0));
+        let new_pos = player.try_move(Vector3::new(-0.5, 0.0, 0.0), &block);
+        assert!(
+            new_pos.x > -0.2 && new_pos.x < -0.199,
+            "value {}",
+            new_pos.x
+        );
+        assert_eq!(new_pos.y, 0.0);
+        assert_eq!(new_pos.z, 0.0);
+    }
+    #[test]
+    fn move_test_y() {
+        let player = Aabb::new(Vector3::new(0.5, 1.1, 0.5), Vector3::new(1.0, 2.0, 1.0));
+        let block = Aabb::new(Vector3::new(0.0, 0.0, 0.0), Vector3::new(1.0, 1.0, 1.0));
+        let new_pos = player.try_move(Vector3::new(0.0, -0.2, 0.0), &block);
+        assert_eq!(new_pos.x, 0.0);
+        assert!(
+            new_pos.y > -0.1 && new_pos.y < -0.0999,
+            "value {}",
+            new_pos.y
+        );
+        assert_eq!(new_pos.z, 0.0);
+    }
+    #[test]
+    fn move_test_z() {
+        let player = Aabb::new(Vector3::new(0.5, 0.0, 1.1), Vector3::new(1.0, 2.0, 1.0));
+        let block = Aabb::new(Vector3::new(0.0, 0.0, 0.0), Vector3::new(1.0, 1.0, 1.0));
+        let new_pos = player.try_move(Vector3::new(0.0, 0.0, -0.2), &block);
+        assert_eq!(new_pos.x, 0.0);
+        assert_eq!(new_pos.y, 0.0);
+        assert!(
+            new_pos.z > -0.1 && new_pos.z < -0.0999,
+            "value {}",
+            new_pos.z
+        );
+    }
+    #[test]
+    fn move_test_neg_x() {
+        let player = Aabb::new(Vector3::new(-1.2, 0.0, 0.5), Vector3::new(1.0, 2.0, 1.0));
+        let block = Aabb::new(Vector3::new(0.0, 0.0, 0.0), Vector3::new(1.0, 1.0, 1.0));
+        let new_pos = player.try_move(Vector3::new(0.5, 0.0, 0.0), &block);
+        assert!(new_pos.x > 0.2 && new_pos.x < 0.201, "value {}", new_pos.x);
+        assert_eq!(new_pos.y, 0.0);
+        assert_eq!(new_pos.z, 0.0);
+    }
+
+    #[test]
+    fn test_detection_1() {
+        let player = Aabb::new(
+            Vector3::new(0.31867227, 36.0001, 0.0),
+            Vector3::new(0.7, 1.85, 0.7),
+        );
+        let block = Aabb::new(Vector3::new(1.0, 35.0, 0.0), Vector3::new(1.0, 1.0, 1.0));
+        assert!(!player.aabb_collides(&block));
+        assert!(!block.aabb_collides(&player));
+    }
+    #[test]
+    fn test_detection_2() {
+        let player = Aabb::new(
+            Vector3::new(-17.618488, 38.0001, 11.824133),
+            Vector3::new(0.7, 1.85, 0.7),
+        );
+        let block = Aabb::new(Vector3::new(-18.0, 37.0, 12.0), Vector3::new(1.0, 1.0, 1.0));
+        assert!(!player.aabb_collides(&block));
+        assert!(!block.aabb_collides(&player));
+    }
+    /*
+
+    #[test]
+    fn move_test_scene_1() {
+        let player = Aabb::new(Vector3::new(-17.618488, 38.0001, 11.824133), Vector3::new(0.7, 1.85, 0.7));
+        let block = Aabb::new(Vector3::new(0.0, 0.0, 0.0), Vector3::new(1.0, 1.0, 1.0));
+        let new_pos = player.try_move(Vector3::new(0.0, 1.9669533e-6, 0.0), &block);
+        assert_eq!(new_pos.x, 0.0);
+        assert_eq!(new_pos.y, 0.0);
+        assert!(
+            new_pos.z > -0.1 && new_pos.z < -0.0999,
+            "value {}",
+            new_pos.z
+        );
+    }
+     */
 }
