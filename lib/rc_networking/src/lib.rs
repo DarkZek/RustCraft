@@ -101,6 +101,7 @@ fn get_channel(protocol: &Protocol) -> Channel {
         | Protocol::DespawnEntity(_)
         | Protocol::SpawnEntity(_)
         | Protocol::PartialChunkUpdate(_)
+        | Protocol::UpdateLoading(_)
         | Protocol::RequestChunk(_) => Channel::Reliable,
 
         Protocol::FullChunkUpdate(_) => Channel::Block,

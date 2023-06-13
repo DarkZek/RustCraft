@@ -21,12 +21,15 @@ pub fn messages_update(
     mut system: ResMut<NetworkingSystem>,
     mut app_state: ResMut<State<AppState>>,
 ) {
-    // If we've received packets we're connected. Change this in the future to be a dedicated packet
-    if *app_state.current() == AppState::Connecting {
-        app_state.set(AppState::InGame).unwrap();
-    }
     for event in event_reader.iter() {
         match &event.0 {
+            Protocol::UpdateLoading(update) => {
+                if update.loading {
+                    app_state.set(AppState::Connecting).unwrap();
+                } else {
+                    app_state.set(AppState::InGame).unwrap();
+                }
+            }
             Protocol::EntityMoved(update) => {
                 if let Some(Ok(mut transform)) = system
                     .entity_mapping

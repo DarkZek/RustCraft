@@ -26,6 +26,7 @@ pub struct GameUser {
     pub user_id: UserId,
     pub entity_id: EntityId,
     pub entity: Option<Entity>,
+    pub loading: bool,
 }
 
 impl GameUser {
@@ -44,7 +45,6 @@ pub fn authorization_event(
     mut chunk_system: ResMut<ChunkSystem>,
 ) {
     for client in event_reader.iter() {
-        info!("Authorisation event");
         // Spawn other entities for new player
         for (id, entity) in &global.entities {
             let transform = transforms.get(*entity).unwrap();
@@ -95,13 +95,29 @@ pub fn authorization_event(
 
         let mut chunks = global.chunks.keys();
 
-        // Send world to client, sorting by closest chunks
-        for loc in chunks {
-            chunk_system
-                .requesting_chunks
-                .entry(client.client)
-                .or_insert_with(|| vec![])
-                .push(*loc);
+        let (player_chunk, _) = global_to_local_position(Vector3::new(
+            player_pos.x as i32,
+            player_pos.y as i32,
+            player_pos.z as i32,
+        ));
+
+        let chunk_load_radius = 3;
+
+        // Load chunks around player
+        for x in (player_chunk.x - chunk_load_radius)..(player_chunk.x + chunk_load_radius) {
+            for y in (player_chunk.y - chunk_load_radius)..(player_chunk.y + chunk_load_radius) {
+                for z in (player_chunk.z - chunk_load_radius)..(player_chunk.z + chunk_load_radius)
+                {
+                    chunk_system
+                        .requesting_chunks
+                        .entry(client.client)
+                        .or_insert_with(|| vec![])
+                        .push(Vector3::new(x, y, z));
+                }
+            }
         }
+
+        // List this user as still loading in content, so we know to send them a packet to close the loading screen once chunks have been sent
+        transport.initialising_clients.insert(client.client);
     }
 }

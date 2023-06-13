@@ -54,6 +54,7 @@ fn main() {
         .add_system(systems::connection::connection_event)
         .add_system(systems::disconnect::disconnection_event)
         .add_system(systems::message::receive_message_event)
+        .add_system(systems::finish_join::detect_finish_join)
         // Gameplay Loop on Tick
         .add_system(tick)
         .add_system_to_stage(CoreStage::PreUpdate, detect_shutdowns)

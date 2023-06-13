@@ -1,7 +1,9 @@
+pub mod connecting;
 pub mod loading;
 pub mod main_menu;
 
 use crate::state::AppState;
+use crate::systems::ui::connecting::ConnectingData;
 use crate::systems::ui::loading::{
     check_loading, remove_loading_ui, set_loading, setup_loading_ui, LoadingData,
 };
@@ -22,7 +24,17 @@ impl Plugin for UIPlugin {
             .insert_resource(LoadingData::default())
             .add_system_set(SystemSet::on_update(AppState::Preloading).with_system(set_loading))
             .add_system_set(SystemSet::on_update(AppState::Loading).with_system(check_loading))
-            .add_system_set(SystemSet::on_exit(AppState::Loading).with_system(remove_loading_ui));
+            .add_system_set(SystemSet::on_exit(AppState::Loading).with_system(remove_loading_ui))
+            // Connecting
+            .insert_resource(ConnectingData::default())
+            .add_system_set(
+                SystemSet::on_enter(AppState::Connecting)
+                    .with_system(connecting::setup_connecting_ui),
+            )
+            .add_system_set(
+                SystemSet::on_exit(AppState::Connecting)
+                    .with_system(connecting::remove_connecting_ui),
+            );
     }
 }
 

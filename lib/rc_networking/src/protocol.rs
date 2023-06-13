@@ -5,6 +5,7 @@ use crate::protocol::clientbound::despawn_entity::DespawnEntity;
 use crate::protocol::clientbound::entity_moved::EntityMoved;
 use crate::protocol::clientbound::entity_rotated::EntityRotated;
 use crate::protocol::clientbound::spawn_entity::SpawnEntity;
+use crate::protocol::clientbound::update_loading::UpdateLoading;
 use crate::protocol::serverbound::player_move::PlayerMove;
 use crate::protocol::serverbound::player_rotate::PlayerRotate;
 use crate::protocol::serverbound::request_chunk::RequestChunk;
@@ -28,4 +29,5 @@ pub enum Protocol {
     PartialChunkUpdate(PartialChunkUpdate),
     SpawnEntity(SpawnEntity),
     RequestChunk(RequestChunk),
+    UpdateLoading(UpdateLoading),
 }

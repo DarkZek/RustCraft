@@ -25,6 +25,7 @@ pub fn accept_connections(
                 user_id,
                 entity_id: EntityId(*id),
                 entity: None,
+                loading: true,
             };
 
             system.clients.insert(user_id, user);

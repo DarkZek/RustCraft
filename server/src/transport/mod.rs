@@ -8,7 +8,7 @@ use crate::transport::connection::accept_connections;
 use bevy::app::{App, Plugin};
 
 use rc_networking::constants::UserId;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use std::net::{IpAddr, SocketAddr, UdpSocket};
 use std::str::FromStr;
@@ -25,6 +25,8 @@ pub struct TransportPlugin;
 #[derive(Default, Resource)]
 pub struct TransportSystem {
     pub clients: HashMap<UserId, GameUser>,
+    // List of clients still initialising content
+    pub initialising_clients: HashSet<UserId>,
     total_connections: usize,
 }
 
