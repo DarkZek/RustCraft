@@ -1,49 +1,70 @@
+use crate::game::blocks::states::BlockStates;
 use crate::game::player::Player;
+use crate::systems::chunk::ChunkSystem;
 use crate::systems::input::InputSystem;
 use crate::systems::physics::PhysicsObject;
 use bevy::prelude::*;
 use nalgebra::Vector3;
+
+const MOVEMENT_SPEED_POSITION: f32 = 2.0;
+const MOVEMENT_SPEED_VELOCITY: f32 = 15.0;
 
 pub fn update_input_movement(
     service: Res<InputSystem>,
     mut player: Query<(&mut PhysicsObject, &Player)>,
     keys: Res<Input<KeyCode>>,
     time: Res<Time>,
+    chunks: Res<ChunkSystem>,
+    block_states: Res<BlockStates>,
 ) {
     if !service.captured {
         return;
     }
 
-    let (mut player_physics, player) = player.single_mut();
+    let (mut player_physics, player): (Mut<PhysicsObject>, &Player) = player.single_mut();
 
     let forward = -Vector3::new(player.yaw.sin(), 0.0, player.yaw.cos());
-
     let right = forward.cross(&Vector3::new(0.0, 1.0, 0.0));
 
-    if keys.pressed(KeyCode::Space) {
-        player_physics.position.y += 0.2;
-    }
-    if keys.pressed(KeyCode::LShift) {
-        //player_physics.position.y -= 0.2;
+    let flying_multiplier = if player_physics.touching_ground {
+        1.0
+    } else {
+        0.4
+    };
+
+    let mut proposed_delta = Vector3::zeros();
+
+    if keys.just_pressed(KeyCode::Space) && player_physics.touching_ground {
+        player_physics.velocity.y += 12.0;
     }
     if keys.pressed(KeyCode::W) {
         // W is being held down
-        //player_physics.position += forward * 0.02;
-        player_physics.velocity += forward * 2.1 * time.delta_seconds() * 50.0;
+        proposed_delta +=
+            forward * MOVEMENT_SPEED_POSITION * time.delta_seconds() * flying_multiplier;
+        player_physics.velocity +=
+            forward * time.delta_seconds() * MOVEMENT_SPEED_VELOCITY * flying_multiplier;
     }
     if keys.pressed(KeyCode::S) {
         // W is being held down
-        //player_physics.position -= forward * 0.02;
-        player_physics.velocity -= forward * 2.1 * time.delta_seconds() * 50.0;
+        proposed_delta -=
+            forward * MOVEMENT_SPEED_POSITION * time.delta_seconds() * flying_multiplier;
+        player_physics.velocity -=
+            forward * time.delta_seconds() * MOVEMENT_SPEED_VELOCITY * flying_multiplier;
     }
     if keys.pressed(KeyCode::A) {
         // W is being held down
-        //player_physics.position -= right * 0.02;
-        player_physics.velocity -= right * 2.1 * time.delta_seconds() * 50.0;
+        proposed_delta -=
+            right * MOVEMENT_SPEED_POSITION * time.delta_seconds() * flying_multiplier;
+        player_physics.velocity -=
+            right * time.delta_seconds() * MOVEMENT_SPEED_VELOCITY * flying_multiplier;
     }
     if keys.pressed(KeyCode::D) {
         // W is being held down
-        //player_physics.position += right * 0.02;
-        player_physics.velocity += right * 2.1 * time.delta_seconds() * 50.0;
+        proposed_delta +=
+            right * MOVEMENT_SPEED_POSITION * time.delta_seconds() * flying_multiplier;
+        player_physics.velocity +=
+            right * time.delta_seconds() * MOVEMENT_SPEED_VELOCITY * flying_multiplier;
     }
+
+    player_physics.translate(proposed_delta, &chunks, &block_states);
 }

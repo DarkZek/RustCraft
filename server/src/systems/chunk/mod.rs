@@ -54,7 +54,7 @@ pub fn request_chunks(
             continue;
         }
 
-        if let Some(entity) = transport.clients.get(&user).unwrap().entity {
+        if let Some(Some(entity)) = transport.clients.get(&user).map(|v| v.entity) {
             if let Ok(transform) = transforms.get(entity) {
                 let pos = from_bevy_vec3(transform.translation);
 

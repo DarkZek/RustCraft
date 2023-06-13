@@ -1,4 +1,6 @@
+use crate::game::blocks::states::BlockStates;
 use crate::state::AppState;
+use crate::systems::chunk::ChunkSystem;
 use crate::systems::physics::aabb::Aabb;
 use crate::systems::physics::simulate::physics_tick;
 use crate::systems::physics::sync::physics_sync;
@@ -42,6 +44,36 @@ impl PhysicsObject {
             collider,
             gravity: false,
             touching_ground: false,
+        }
+    }
+
+    pub fn translate(
+        &mut self,
+        delta: Vector3<f32>,
+        chunks: &ChunkSystem,
+        block_states: &BlockStates,
+    ) {
+        if delta == Vector3::zeros() {
+            return;
+        }
+
+        let mut current_aabb = self.collider.offset(self.position);
+        let potential_collisions =
+            current_aabb.get_surrounding_voxel_collision_colliders(&chunks, &block_states);
+
+        if delta.x != 0.0 {
+            self.position +=
+                current_aabb.try_translate(Vector3::new(delta.x, 0.0, 0.0), &potential_collisions);
+            current_aabb = self.collider.offset(self.position);
+        }
+        if delta.y != 0.0 {
+            self.position +=
+                current_aabb.try_translate(Vector3::new(0.0, delta.y, 0.0), &potential_collisions);
+            current_aabb = self.collider.offset(self.position);
+        }
+        if delta.z != 0.0 {
+            self.position +=
+                current_aabb.try_translate(Vector3::new(0.0, 0.0, delta.z), &potential_collisions);
         }
     }
 }

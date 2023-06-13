@@ -287,6 +287,30 @@ impl Aabb {
 
         movement
     }
+
+    /// Attempt to translate an Aabb by a delta, moving the maximum distance allowed before a collision
+    /// Supports movement on only one axis at a time
+    pub fn try_translate(
+        &self,
+        mut proposed_delta: Vector3<f32>,
+        colliders: &Vec<Aabb>,
+    ) -> Vector3<f32> {
+        let mut proposed_aabb = self.offset(proposed_delta);
+
+        for block in colliders {
+            if !block.aabb_collides(&proposed_aabb) {
+                continue;
+            }
+
+            // Previous delta change could have made the move redundant
+            if block.aabb_collides(&proposed_aabb) {
+                proposed_delta = self.try_move(proposed_delta, &block);
+            }
+            proposed_aabb = self.offset(proposed_delta);
+        }
+
+        proposed_delta
+    }
 }
 
 #[cfg(test)]

@@ -43,6 +43,6 @@ pub fn setup_connecting_ui(
 
 pub fn remove_connecting_ui(mut commands: Commands, data: ResMut<ConnectingData>) {
     if let Some(ui) = data.ui {
-        commands.entity(ui).despawn();
+        commands.entity(ui).despawn_recursive();
     }
 }
