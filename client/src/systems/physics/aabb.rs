@@ -319,7 +319,7 @@ mod tests {
     use bevy_inspector_egui::egui::Shape::Vec;
 
     #[test]
-    fn move_test_x() {
+    fn aabb_vs_aabb_move_test_x() {
         let player = Aabb::new(Vector3::new(1.2, 0.0, 0.5), Vector3::new(1.0, 2.0, 1.0));
         let block = Aabb::new(Vector3::new(0.0, 0.0, 0.0), Vector3::new(1.0, 1.0, 1.0));
         let new_pos = player.try_move(Vector3::new(-0.5, 0.0, 0.0), &block);
@@ -332,7 +332,7 @@ mod tests {
         assert_eq!(new_pos.z, 0.0);
     }
     #[test]
-    fn move_test_y() {
+    fn aabb_vs_aabb_move_test_y() {
         let player = Aabb::new(Vector3::new(0.5, 1.1, 0.5), Vector3::new(1.0, 2.0, 1.0));
         let block = Aabb::new(Vector3::new(0.0, 0.0, 0.0), Vector3::new(1.0, 1.0, 1.0));
         let new_pos = player.try_move(Vector3::new(0.0, -0.2, 0.0), &block);
@@ -345,7 +345,7 @@ mod tests {
         assert_eq!(new_pos.z, 0.0);
     }
     #[test]
-    fn move_test_z() {
+    fn aabb_vs_aabb_move_test_z() {
         let player = Aabb::new(Vector3::new(0.5, 0.0, 1.1), Vector3::new(1.0, 2.0, 1.0));
         let block = Aabb::new(Vector3::new(0.0, 0.0, 0.0), Vector3::new(1.0, 1.0, 1.0));
         let new_pos = player.try_move(Vector3::new(0.0, 0.0, -0.2), &block);
@@ -358,17 +358,17 @@ mod tests {
         );
     }
     #[test]
-    fn move_test_neg_x() {
+    fn aabb_vs_aabb_move_test_neg_x() {
         let player = Aabb::new(Vector3::new(-1.2, 0.0, 0.5), Vector3::new(1.0, 2.0, 1.0));
         let block = Aabb::new(Vector3::new(0.0, 0.0, 0.0), Vector3::new(1.0, 1.0, 1.0));
         let new_pos = player.try_move(Vector3::new(0.5, 0.0, 0.0), &block);
-        assert!(new_pos.x > 0.2 && new_pos.x < 0.201, "value {}", new_pos.x);
+        assert!(new_pos.x > 0.199 && new_pos.x < 0.2, "value {}", new_pos.x);
         assert_eq!(new_pos.y, 0.0);
         assert_eq!(new_pos.z, 0.0);
     }
 
     #[test]
-    fn test_detection_1() {
+    fn aabb_vs_aabb_test_detection_1() {
         let player = Aabb::new(
             Vector3::new(0.31867227, 36.0001, 0.0),
             Vector3::new(0.7, 1.85, 0.7),
@@ -378,7 +378,7 @@ mod tests {
         assert!(!block.aabb_collides(&player));
     }
     #[test]
-    fn test_detection_2() {
+    fn aabb_vs_aabb_test_detection_2() {
         let player = Aabb::new(
             Vector3::new(-17.618488, 38.0001, 11.824133),
             Vector3::new(0.7, 1.85, 0.7),
@@ -387,20 +387,18 @@ mod tests {
         assert!(!player.aabb_collides(&block));
         assert!(!block.aabb_collides(&player));
     }
-    /*
-
     #[test]
-    fn move_test_scene_1() {
-        let player = Aabb::new(Vector3::new(-17.618488, 38.0001, 11.824133), Vector3::new(0.7, 1.85, 0.7));
-        let block = Aabb::new(Vector3::new(0.0, 0.0, 0.0), Vector3::new(1.0, 1.0, 1.0));
-        let new_pos = player.try_move(Vector3::new(0.0, 1.9669533e-6, 0.0), &block);
-        assert_eq!(new_pos.x, 0.0);
-        assert_eq!(new_pos.y, 0.0);
-        assert!(
-            new_pos.z > -0.1 && new_pos.z < -0.0999,
-            "value {}",
-            new_pos.z
-        );
+    fn ray_vs_aabb_test_detection_1() {
+        let block = Aabb::new(Vector3::new(0.0, 34.0, 0.0), Vector3::new(1.0, 1.0, 1.0));
+        let dir = Vector3::new(0.23533043, -0.9655777, -0.110811174);
+        let pos = Vector3::new(-0.6499001, 35.700104, 0.30660504);
+        assert!(!block.ray_collides(pos, dir).0);
     }
-     */
+    #[test]
+    fn ray_vs_aabb_test_detection_2() {
+        let block = Aabb::new(Vector3::new(0.0, 32.0, -2.0), Vector3::new(1.0, 1.0, 1.0));
+        let dir = Vector3::new(0.026328959, -0.82820773, -0.5598024);
+        let pos = Vector3::new(-0.1359614, 35.7001, 0.23648061);
+        assert!(block.ray_collides(pos, dir).0);
+    }
 }

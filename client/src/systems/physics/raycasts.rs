@@ -1,10 +1,12 @@
 use crate::helpers::global_to_local_position;
 use crate::systems::chunk::ChunkSystem;
 use bevy::prelude::*;
+use bevy_prototype_debug_lines::DebugLines;
 
 use crate::game::blocks::states::BlockStates;
 use crate::systems::chunk::data::ChunkData;
 
+use crate::systems::physics::aabb::Aabb;
 use nalgebra::Vector3;
 
 pub struct RaycastResult {
@@ -25,9 +27,9 @@ pub fn do_raycast(
     let mut last_chunk: Option<&ChunkData> = None;
 
     let mut block = Vector3::new(
-        starting_position.x as i32,
-        starting_position.y as i32,
-        starting_position.z as i32,
+        starting_position.x.floor() as i32,
+        starting_position.y.floor() as i32,
+        starting_position.z.floor() as i32,
     );
 
     let step = Vector3::new(

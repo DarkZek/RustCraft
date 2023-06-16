@@ -21,7 +21,6 @@ impl Plugin for InputPlugin {
                     .with_system(update_input_movement)
                     .with_system(grab_mouse),
             )
-            .add_system(test)
             .add_system_set(SystemSet::on_enter(AppState::InGame).with_system(grab_mouse_on_play));
     }
 }
@@ -57,13 +56,4 @@ fn grab_mouse_on_play(mut windows: ResMut<Windows>, mut service: ResMut<InputSys
     window.set_cursor_visibility(false);
     window.set_cursor_grab_mode(CursorGrabMode::Confined);
     service.captured = true;
-}
-
-fn test(mut rerender_chunk: EventWriter<RerenderChunkFlag>, keys: Res<Input<KeyCode>>) {
-    if keys.just_pressed(KeyCode::M) {
-        rerender_chunk.send(RerenderChunkFlag {
-            chunk: Vector3::new(0, 2, 0),
-            context: RerenderChunkFlagContext::None,
-        })
-    }
 }
