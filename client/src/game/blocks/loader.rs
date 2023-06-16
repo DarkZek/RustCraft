@@ -92,6 +92,11 @@ pub fn track_blockstate_changes(
                 full: block.full,
                 draw_betweens: block.draw_betweens,
                 faces: Vec::with_capacity(block.faces.len()),
+                collision_boxes: (&block.colliders)
+                    .iter()
+                    .filter(|v| v.collidable)
+                    .map(|v| Aabb::new(v.bottom_left, v.size))
+                    .collect::<Vec<Aabb>>(),
                 bounding_boxes: (&block.colliders)
                     .iter()
                     .map(|v| Aabb::new(v.bottom_left, v.size))

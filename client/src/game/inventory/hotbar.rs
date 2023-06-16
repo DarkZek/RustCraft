@@ -13,7 +13,7 @@ pub fn setup_hotbar_ui(
     let mut hotbar_icons = [None, None, None, None, None, None, None, None, None, None];
 
     // TODO: Get better way of filling hotbar with items
-    for i in 0..5 {
+    for i in 0..6 {
         inventory.hotbar[i] = Some(ItemStack::new(
             (*itemstates.states.get(i).unwrap()).clone(),
             1,

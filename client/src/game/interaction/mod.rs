@@ -53,7 +53,7 @@ pub fn mouse_interaction(
         // Highlight selected block
         let block = blocks.get_block(chunk.world[inner_loc.x][inner_loc.y][inner_loc.z] as usize);
 
-        Aabb::draw_lines(&block.bounding_boxes, ray.block.cast::<f32>(), &mut lines);
+        Aabb::draw_lines(&block.collision_boxes, ray.block.cast::<f32>(), &mut lines);
 
         if mouse_button_input.just_pressed(MouseButton::Left) {
             // Found chunk! Update block

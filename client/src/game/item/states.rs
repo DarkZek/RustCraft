@@ -35,6 +35,11 @@ impl ItemStates {
                     icon: "wood_log".to_string(),
                     block_state: Some(4),
                 },
+                ItemType {
+                    name: "Lamp".to_string(),
+                    icon: "lamp".to_string(),
+                    block_state: Some(7),
+                },
             ],
         }
     }

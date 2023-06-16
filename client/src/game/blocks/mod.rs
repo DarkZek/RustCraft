@@ -42,6 +42,7 @@ pub struct Block {
     pub full: bool,
     pub draw_betweens: bool,
     pub faces: Vec<Face>,
+    pub collision_boxes: Vec<Aabb>,
     pub bounding_boxes: Vec<Aabb>,
     pub emission: [u8; 4],
 }

@@ -73,7 +73,8 @@
             "colliders": [
                 {
                     "bottom_left": [0.0, 0.0, 0.0],
-                    "size": [1.0, 1.0, 1.0]
+                    "size": [1.0, 1.0, 1.0],
+                    "collidable": true
                 }
             ],
             "emission": [0,0,0,0]
@@ -142,7 +143,8 @@
             "colliders": [
                 {
                     "bottom_left": [0.0, 0.0, 0.0],
-                    "size": [1.0, 1.0, 1.0]
+                    "size": [1.0, 1.0, 1.0],
+                    "collidable": true
                 }
             ],
             "emission": [0,0,0,0]
@@ -193,7 +195,8 @@
              "colliders": [
                  {
                      "bottom_left": [0.2, 0.0, 0.2],
-                     "size": [0.6, 0.8, 0.6]
+                     "size": [0.6, 0.8, 0.6],
+                     "collidable": false
                  }
              ],
              "emission": [0,0,0,0]
@@ -262,7 +265,8 @@
              "colliders": [
                  {
                      "bottom_left": [0.0, 0.0, 0.0],
-                     "size": [1.0, 1.0, 1.0]
+                     "size": [1.0, 1.0, 1.0],
+                     "collidable": true
                  }
              ],
              "emission": [255,40,40,16]
@@ -331,10 +335,11 @@
              "colliders": [
                  {
                      "bottom_left": [0.0, 0.0, 0.0],
-                     "size": [1.0, 1.0, 1.0]
+                     "size": [1.0, 1.0, 1.0],
+                     "collidable": true
                  }
              ],
-             "emission": [100,200,100,16]
+             "emission": [0,0,0,0]
         },
         {
             "identifier": "mcv3::Stone",
@@ -397,13 +402,84 @@
                     "edge": true
                 }
             ],
-             "colliders": [
-                 {
-                     "bottom_left": [0.0, 0.0, 0.0],
-                     "size": [1.0, 1.0, 1.0]
-                 }
-             ],
-             "emission": [0,0,0,0]
+            "colliders": [
+                {
+                    "bottom_left": [0.0, 0.0, 0.0],
+                    "size": [1.0, 1.0, 1.0],
+                    "collidable": true
+                }
+            ],
+            "emission": [0,0,0,0]
+        },
+        {
+            "identifier": "mcv3::Lamp",
+            "translucent": true,
+            "full": false,
+            "draw_betweens": true,
+            "faces": [
+                {
+                    "top_left": [0.25, 0.75, 0.25],
+                    "top_right": [0.75, 0.75, 0.25],
+                    "bottom_left": [0.25, 0.75, 0.75],
+                    "size": [0.5, 0.5],
+                    "texture": "game/lamp_bottom",
+                    "direction": 1,
+                    "edge": false
+                },
+                {
+                    "top_left": [0.25, 0.0, 0.25],
+                    "top_right": [0.75, 0.0, 0.25],
+                    "bottom_left": [0.25, 0.0, 0.75],
+                    "size": [0.5, 0.5],
+                    "texture": "game/lamp_bottom",
+                    "direction": 2,
+                    "edge": true
+                },
+                {
+                    "top_left": [0.25, 0.0, 0.25],
+                    "top_right": [0.25, 0.75, 0.25],
+                    "bottom_left": [0.25, 0.0, 0.75],
+                    "size": [0.5, 0.75],
+                    "texture": "game/lamp_side",
+                    "direction": 4,
+                    "edge": false
+                },
+                {
+                    "top_left": [0.75, 0.0, 0.75],
+                    "top_right": [0.75, 0.7, 0.75],
+                    "bottom_left": [0.75, 0.0, 0.25],
+                    "size": [0.5, 0.75],
+                    "texture": "game/lamp_side",
+                    "direction": 8,
+                    "edge": false
+                },
+                {
+                    "top_left": [0.75, 0.0, 0.25],
+                    "top_right": [0.75, 0.75, 0.25],
+                    "bottom_left": [0.25, 0.0, 0.25],
+                    "size": [1.0, 1.0],
+                    "texture": "game/lamp_side",
+                    "direction": 16,
+                    "edge": false
+                },
+                {
+                    "top_left": [0.25, 0.0, 0.75],
+                    "top_right": [0.25, 0.75, 0.75],
+                    "bottom_left": [0.75, 0.0, 0.75],
+                    "size": [1.0, 1.0],
+                    "texture": "game/lamp_side",
+                    "direction": 32,
+                    "edge": false
+                }
+            ],
+            "colliders": [
+                {
+                    "bottom_left": [0.25, 0.0, 0.25],
+                    "size": [0.5, 0.75, 0.5],
+                    "collidable": true
+                }
+            ],
+            "emission": [200,100,100,14]
         }
     ]
 }

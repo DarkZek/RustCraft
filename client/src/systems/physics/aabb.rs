@@ -245,7 +245,7 @@ impl Aabb {
                         // Fetch block information
                         let block_data = blocks.get_block(block_id as usize);
 
-                        for collider in &block_data.bounding_boxes {
+                        for collider in &block_data.collision_boxes {
                             let collider = collider.offset(Vector3::new(
                                 block.x as f32,
                                 block.y as f32,

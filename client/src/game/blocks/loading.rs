@@ -34,4 +34,5 @@ pub struct DeserialisedFace {
 pub struct DeserialisedAabb {
     pub bottom_left: Vector3<f32>,
     pub size: Vector3<f32>,
+    pub collidable: bool,
 }
