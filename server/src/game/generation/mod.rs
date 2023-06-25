@@ -9,7 +9,6 @@ use crate::game::generation::phase2::generate_greybox_chunk;
 use crate::game::generation::phase3::decorate_chunk;
 use crate::game::generation::phase4::add_structures_to_chunk;
 use nalgebra::Vector3;
-use noise::{NoiseFn, Perlin};
 use rc_networking::constants::CHUNK_SIZE;
 use std::ops::Mul;
 

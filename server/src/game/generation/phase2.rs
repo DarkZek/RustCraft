@@ -1,6 +1,6 @@
 use crate::game::chunk::RawChunkData;
 use nalgebra::{Vector2, Vector3};
-use noise::{NoiseFn, Perlin};
+use noise::{NoiseFn, Simplex};
 use rc_client::systems::chunk::biome::{ChunkEnvironment, Terrain};
 use rc_networking::constants::CHUNK_SIZE;
 use std::ops::Mul;
@@ -10,7 +10,7 @@ pub fn generate_greybox_chunk(
     pos: Vector3<i32>,
     environment: &ChunkEnvironment,
 ) -> (RawChunkData, [[i32; CHUNK_SIZE]; CHUNK_SIZE]) {
-    let ground_perlin = Perlin::new(0);
+    let ground_noise = Simplex::new(0);
 
     let mut heightmap = [[0; CHUNK_SIZE]; CHUNK_SIZE];
 
@@ -25,7 +25,7 @@ pub fn generate_greybox_chunk(
             }
 
             let ground_level = base_height
-                + ground_perlin
+                + ground_noise
                     .get([absolute.x as f64 / 20.0, absolute[1] as f64 / 20.0])
                     .mul(3.0)
                     .floor() as i32;

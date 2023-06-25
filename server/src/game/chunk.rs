@@ -1,6 +1,5 @@
 use bevy::ecs::prelude::Component;
 use nalgebra::Vector3;
-use noise::{NoiseFn, Perlin};
 use rc_networking::constants::CHUNK_SIZE;
 use serde::{Deserialize, Serialize};
 use std::ops::Mul;
