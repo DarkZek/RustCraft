@@ -269,7 +269,7 @@
                      "collidable": true
                  }
              ],
-             "emission": [255,40,40,16]
+             "emission": [0,0,0,0]
         },
         {
             "identifier": "mcv3::Leaves",
@@ -446,7 +446,7 @@
                 },
                 {
                     "top_left": [0.75, 0.0, 0.75],
-                    "top_right": [0.75, 0.7, 0.75],
+                    "top_right": [0.75, 0.75, 0.75],
                     "bottom_left": [0.75, 0.0, 0.25],
                     "size": [0.5, 0.75],
                     "texture": "game/lamp_side",
@@ -480,6 +480,76 @@
                 }
             ],
             "emission": [200,100,100,14]
+        },
+        {
+            "identifier": "mcv3::Sand",
+            "translucent": false,
+            "full": true,
+            "draw_betweens": false,
+            "faces": [
+                {
+                    "top_left": [0.0, 1.0, 0.0],
+                    "top_right": [1.0, 1.0, 0.0],
+                    "bottom_left": [0.0, 1.0, 1.0],
+                    "size": [1.0, 1.0],
+                    "texture": "game/sand",
+                    "direction": 1,
+                    "edge": true
+                },
+                {
+                    "top_left": [0.0, 0.0, 0.0],
+                    "top_right": [0.0, 0.0, 1.0],
+                    "bottom_left": [1.0, 0.0, 0.0],
+                    "size": [1.0, 1.0],
+                    "texture": "game/sand",
+                    "direction": 2,
+                    "edge": true
+                },
+                {
+                    "top_left": [0.0, 0.0, 0.0],
+                    "top_right": [0.0, 1.0, 0.0],
+                    "bottom_left": [0.0, 0.0, 1.0],
+                    "size": [1.0, 1.0],
+                    "texture": "game/sand",
+                    "direction": 4,
+                    "edge": true
+                },
+                {
+                    "top_left": [1.0, 0.0, 1.0],
+                    "top_right": [1.0, 1.0, 1.0],
+                    "bottom_left": [1.0, 0.0, 0.0],
+                    "size": [1.0, 1.0],
+                    "texture": "game/sand",
+                    "direction": 8,
+                    "edge": true
+                },
+                {
+                    "top_left": [1.0, 0.0, 0.0],
+                    "top_right": [1.0, 1.0, 0.0],
+                    "bottom_left": [0.0, 0.0, 0.0],
+                    "size": [1.0, 1.0],
+                    "texture": "game/sand",
+                    "direction": 16,
+                    "edge": true
+                },
+                {
+                    "top_left": [0.0, 0.0, 1.0],
+                    "top_right": [0.0, 1.0, 1.0],
+                    "bottom_left": [1.0, 0.0, 1.0],
+                    "size": [1.0, 1.0],
+                    "texture": "game/sand",
+                    "direction": 32,
+                    "edge": true
+                }
+            ],
+            "colliders": [
+                {
+                    "bottom_left": [0.0, 0.0, 0.0],
+                    "size": [1.0, 1.0, 1.0],
+                    "collidable": true
+                }
+            ],
+            "emission": [0,0,0,0]
         }
     ]
 }

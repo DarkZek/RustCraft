@@ -10,6 +10,7 @@ use nalgebra::Vector3;
 use rc_networking::constants::CHUNK_SIZE;
 use std::collections::HashMap;
 
+pub mod biome;
 pub mod builder;
 pub mod data;
 pub mod lookup;

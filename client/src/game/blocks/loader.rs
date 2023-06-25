@@ -71,7 +71,7 @@ pub fn track_blockstate_changes(
     }
 
     if states.recalculate {
-        println!("Recalculating!~");
+        info!("Reloading block states");
         // Copy data over to blockstates, with full amount of data like normals and looking up texture atlas indexes
         let (_, asset) = assets.iter().next().unwrap();
 
