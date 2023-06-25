@@ -45,7 +45,7 @@ pub fn generate_greybox_chunk(
                     (pos.z * 16) + z as i32,
                 );
                 if absolute.y < heightmap[x][z] {
-                    world[x][y][z] = 1;
+                    world[x][y][z] = 6;
                 }
             }
         }

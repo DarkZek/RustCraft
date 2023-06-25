@@ -28,8 +28,8 @@ pub fn decorate_chunk(
                 let ground_level = heightmap[x][z];
 
                 // Dirt
-                if absolute.y < ground_level - 1 && absolute.y > ground_level - 4 {
-                    world[x][y][z] = 6;
+                if absolute.y < ground_level && absolute.y > ground_level - 4 {
+                    world[x][y][z] = 1;
                 }
                 // Grass
                 if absolute.y == ground_level {

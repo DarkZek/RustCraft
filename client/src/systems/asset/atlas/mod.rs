@@ -99,7 +99,7 @@ pub fn build_texture_atlas(
     service.texture_atlas = Some(atlas);
 
     // Create a new material
-    materials.set(
+    let _ = materials.set(
         &service.opaque_texture_atlas_material,
         ChunkMaterial {
             color: Color::WHITE,
@@ -110,14 +110,14 @@ pub fn build_texture_atlas(
         },
     );
 
-    materials.set(
+    let _ = materials.set(
         &service.translucent_texture_atlas_material,
         ChunkMaterial {
             color: Color::WHITE,
             color_texture: Some(
                 images.get_handle(service.texture_atlas.as_ref().unwrap().get_image()),
             ),
-            alpha_mode: AlphaMode::Blend,
+            alpha_mode: AlphaMode::Opaque, // Culling happens in custom shader
         },
     );
 
