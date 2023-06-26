@@ -1,3 +1,4 @@
+mod noise;
 mod phase1;
 mod phase2;
 mod phase3;

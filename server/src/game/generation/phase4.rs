@@ -1,7 +1,7 @@
 use crate::game::chunk::RawChunkData;
+use crate::game::generation::noise::SimplexNoise;
 use crate::helpers::global_to_local_position;
 use nalgebra::Vector3;
-use noise::{NoiseFn, Simplex};
 use rc_client::systems::chunk::biome::{ChunkEnvironment, Vegetation};
 use rc_networking::constants::CHUNK_SIZE;
 
@@ -12,7 +12,7 @@ pub fn add_structures_to_chunk(
     heightmap: &[[i32; CHUNK_SIZE]; CHUNK_SIZE],
     environment: &ChunkEnvironment,
 ) {
-    let tree_noise = Simplex::new(seed + 10);
+    let tree_noise = SimplexNoise::new(seed + 10).with_scale(2.0);
 
     for x in 0..CHUNK_SIZE {
         for y in 0..CHUNK_SIZE {
@@ -28,7 +28,7 @@ pub fn add_structures_to_chunk(
                 // Trees
                 if absolute.y == ground_level + 1
                     && environment.vegetation == Vegetation::Trees
-                    && tree_noise.get([absolute.x as f64 / 2.0, absolute.z as f64 / 2.0]) > 0.67
+                    && tree_noise.sample_2d(absolute.x, absolute.z) > 0.67
                 {
                     spawn_tree(seed, pos, absolute, world, heightmap, environment);
                 }
