@@ -24,7 +24,11 @@ pub fn update_input_look(
     for motion in mouse.iter() {
         player.pitch -= (MOUSE_SENSITIVITY * motion.delta.y * window_scale).to_radians();
         player.yaw -= (MOUSE_SENSITIVITY * motion.delta.x * window_scale).to_radians();
-
+        
+        // Prevent the player from looking too far up or down
+        player.pitch = player.pitch.min(std::f32::consts::FRAC_PI_2);
+        player.pitch = player.pitch.max(-std::f32::consts::FRAC_PI_2);
+        
         transform.rotation = Quat::from_axis_angle(Vec3::Y, player.yaw)
             * Quat::from_axis_angle(Vec3::X, player.pitch);
     }
