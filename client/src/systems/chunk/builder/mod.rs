@@ -122,7 +122,10 @@ pub fn mesh_builder(
         .map(|entry| {
             if let Some(chunk) = chunks.chunks.get(&entry.chunk) {
                 let nearby = NearbyChunkCache::from_service(&chunks, chunk.position);
-                Some((chunk.position, chunk.build_lighting(&block_states, &nearby)))
+                Some((
+                    chunk.position,
+                    chunk.build_lighting_blur(&block_states, &nearby),
+                ))
             } else {
                 None
             }

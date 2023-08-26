@@ -5,7 +5,7 @@ use crate::helpers::{get_chunk_coords, global_to_local_position};
 use crate::systems::chunk::data::{ChunkData, LightingColor, RawLightingData};
 use crate::systems::chunk::nearby_cache::NearbyChunkCache;
 use bevy::prelude::system_adapter::new;
-use bevy::prelude::Entity;
+use bevy::prelude::{Color, Entity};
 use nalgebra::{max, Vector3, Vector4};
 use rc_networking::constants::CHUNK_SIZE;
 use std::collections::VecDeque;
@@ -183,6 +183,10 @@ impl ChunkData {
             }
         }
 
+        let chunk_position = self.position * 16;
+
+        let change = (1.0 / MAX_LIGHT_VALUE as f32).floor() as u8;
+
         let mut changed = true;
         while (changed) {
             changed = false;
@@ -194,63 +198,50 @@ impl ChunkData {
                             continue;
                         }
 
-                        // Average 6 surrounding blocks
-                        let mut avg = Vector4::<u32>::zeros();
-                        let mut max_strength: u8 = 0;
+                        // This solution works by splitting the colours into three channels and finding the maximum of the channel of the 6 surrounding
+                        // blocks, and removing 1 for falloff
+                        // This could be implemented as a loop over indexes, for performance I combined it
+
+                        // The maximum value from each channel
+                        let mut max_values = Vector4::new(0, 0, 0, 0);
+
+                        // Find maximum of 6 surrounding blocks
                         for side in &BLOCK_SIDES {
                             let (chunk_pos, block_pos) = global_to_local_position(
-                                side + Vector3::new(x, y, z).cast::<i32>() + (self.position * 16),
+                                side + Vector3::new(x, y, z).cast::<i32>() + chunk_position,
                             );
 
                             // If its this chunk then read this chunks lighting data
-                            if chunk_pos == self.position {
-                                avg += Vector4::new(
-                                    out[block_pos.x][block_pos.y][block_pos.z][0] as u32
-                                        * out[block_pos.x][block_pos.y][block_pos.z][3] as u32,
-                                    out[block_pos.x][block_pos.y][block_pos.z][1] as u32
-                                        * out[block_pos.x][block_pos.y][block_pos.z][3] as u32,
-                                    out[block_pos.x][block_pos.y][block_pos.z][2] as u32
-                                        * out[block_pos.x][block_pos.y][block_pos.z][3] as u32,
-                                    out[block_pos.x][block_pos.y][block_pos.z][3] as u32,
-                                );
-                                max_strength =
-                                    max_strength.max(out[block_pos.x][block_pos.y][block_pos.z][3]);
-                                //println!("{:?} {} X {} {} {}", avg, max_strength, x, y, z);
+                            let color = if chunk_pos == self.position {
+                                &out[block_pos.x][block_pos.y][block_pos.z]
+                            } else if let Some(v) = cache.get_chunk(chunk_pos) {
+                                &v.light_levels[block_pos.x][block_pos.y][block_pos.z]
+                            } else {
+                                // Block doesn't exist
+                                continue;
+                            };
+
+                            // Zero intensity
+                            if color[3] == 0 {
                                 continue;
                             }
-
-                            if let Some(v) = cache.get_chunk(chunk_pos) {
-                                avg += Vector4::new(
-                                    v.light_levels[block_pos.x][block_pos.y][block_pos.z][0] as u32
-                                        * out[block_pos.x][block_pos.y][block_pos.z][3] as u32,
-                                    v.light_levels[block_pos.x][block_pos.y][block_pos.z][1] as u32
-                                        * out[block_pos.x][block_pos.y][block_pos.z][3] as u32,
-                                    v.light_levels[block_pos.x][block_pos.y][block_pos.z][2] as u32
-                                        * out[block_pos.x][block_pos.y][block_pos.z][3] as u32,
-                                    v.light_levels[block_pos.x][block_pos.y][block_pos.z][3] as u32,
-                                );
-                                max_strength = max_strength
-                                    .max(v.light_levels[block_pos.x][block_pos.y][block_pos.z][3]);
-                            }
+                            max_values.x = max_values.x.max(color[0]);
+                            max_values.y = max_values.y.max(color[1]);
+                            max_values.z = max_values.z.max(color[2]);
+                            max_values.w = max_values.w.max(color[3]);
                         }
 
-                        if max_strength == 0 || avg.w == 0 {
-                            continue;
+                        if max_values.w != 0 {
+                            max_values.w -= 1;
                         }
 
-                        //println!("{:?} {}", avg, max_strength);
+                        max_values.x = max_values.x.min(change) - change;
+                        max_values.y = max_values.y.min(change) - change;
+                        max_values.z = max_values.z.min(change) - change;
 
-                        avg /= avg.w;
-                        max_strength -= 1;
-
-                        //println!("bb {:?} {}", avg, max_strength);
-
-                        if out[x][y][z]
-                            != [avg.x as u8, avg.y as u8, avg.z as u8, max_strength.min(16)]
-                        {
+                        if out[x][y][z] != max_values.data.as_slice() {
                             //println!("modify {:?}", out[x][y][z]);
-                            out[x][y][z] =
-                                [avg.x as u8, avg.y as u8, avg.z as u8, max_strength.min(16)];
+                            out[x][y][z] = [max_values.x, max_values.y, max_values.z, max_values.w];
 
                             //println!("chabgwed");
                             changed = true;
@@ -262,28 +253,28 @@ impl ChunkData {
             //println!("{:?}", out);
         }
 
-        for x in 0..CHUNK_SIZE {
-            for y in 0..CHUNK_SIZE {
-                for z in 0..CHUNK_SIZE {
-                    let out_color = &mut out[x][y][z];
-
-                    // If there's no lighting data for this block ignore it
-                    if out_color[3] == 0 {
-                        continue;
-                    }
-
-                    // Light falloff
-                    out_color[0] =
-                        (out_color[0] as u32 * out_color[3] as u32 / MAX_LIGHT_VALUE as u32) as u8;
-                    out_color[1] =
-                        (out_color[1] as u32 * out_color[3] as u32 / MAX_LIGHT_VALUE as u32) as u8;
-                    out_color[2] =
-                        (out_color[2] as u32 * out_color[3] as u32 / MAX_LIGHT_VALUE as u32) as u8;
-
-                    out_color[3] = out_color[3] as u8;
-                }
-            }
-        }
+        // for x in 0..CHUNK_SIZE {
+        //     for y in 0..CHUNK_SIZE {
+        //         for z in 0..CHUNK_SIZE {
+        //             let out_color = &mut out[x][y][z];
+        //
+        //             // If there's no lighting data for this block ignore it
+        //             if out_color[3] == 0 {
+        //                 continue;
+        //             }
+        //
+        //             // Light falloff
+        //             out_color[0] =
+        //                 (out_color[0] as u32 * out_color[3] as u32 / MAX_LIGHT_VALUE as u32) as u8;
+        //             out_color[1] =
+        //                 (out_color[1] as u32 * out_color[3] as u32 / MAX_LIGHT_VALUE as u32) as u8;
+        //             out_color[2] =
+        //                 (out_color[2] as u32 * out_color[3] as u32 / MAX_LIGHT_VALUE as u32) as u8;
+        //
+        //             out_color[3] = out_color[3] as u8;
+        //         }
+        //     }
+        // }
 
         println!(
             "Took {}ns to render {:?} with with blur",
