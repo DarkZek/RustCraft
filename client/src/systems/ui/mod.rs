@@ -1,9 +1,12 @@
 pub mod connecting;
+mod inventory;
 pub mod loading;
 pub mod main_menu;
 
 use crate::state::AppState;
 use crate::systems::ui::connecting::ConnectingData;
+use crate::systems::ui::inventory::hotbar::{setup_hotbar_ui, update_hotbar_ui};
+use crate::systems::ui::inventory::InventoryUI;
 use crate::systems::ui::loading::{
     check_loading, remove_loading_ui, set_loading, setup_loading_ui, LoadingData,
 };
@@ -25,6 +28,10 @@ impl Plugin for UIPlugin {
             .add_system_set(SystemSet::on_update(AppState::Preloading).with_system(set_loading))
             .add_system_set(SystemSet::on_update(AppState::Loading).with_system(check_loading))
             .add_system_set(SystemSet::on_exit(AppState::Loading).with_system(remove_loading_ui))
+            // Inventory
+            .insert_resource(InventoryUI::default())
+            .add_system_set(SystemSet::on_enter(AppState::InGame).with_system(setup_hotbar_ui))
+            .add_system(update_hotbar_ui)
             // Connecting
             .insert_resource(ConnectingData::default())
             .add_system_set(

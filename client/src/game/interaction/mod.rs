@@ -7,6 +7,8 @@ use bevy_prototype_debug_lines::DebugLines;
 
 use crate::game::blocks::states::BlockStates;
 use crate::game::inventory::Inventory;
+use crate::game::item::states::ItemStates;
+use crate::game::item::{ItemStack, ItemType};
 use crate::systems::chunk::builder::{RerenderChunkFlag, RerenderChunkFlagContext};
 use crate::systems::physics::aabb::Aabb;
 use rc_networking::constants::{UserId, CHUNK_SIZE};
@@ -21,11 +23,12 @@ pub fn mouse_interaction(
     mut chunks: ResMut<ChunkSystem>,
     mut assets: ResMut<AssetService>,
     mut networking: EventWriter<SendPacket>,
-    inventory: Res<Inventory>,
+    mut inventory: ResMut<Inventory>,
     mut lines: ResMut<DebugLines>,
     blocks: Res<BlockStates>,
     mut rerender_chunks: EventWriter<RerenderChunkFlag>,
     mut meshes: ResMut<Assets<Mesh>>,
+    mut items: Res<ItemStates>,
 ) {
     let camera_pos = camera.get_single().unwrap();
 
@@ -56,6 +59,16 @@ pub fn mouse_interaction(
         Aabb::draw_lines(&block.collision_boxes, ray.block.cast::<f32>(), &mut lines);
 
         if mouse_button_input.just_pressed(MouseButton::Left) {
+            let block_id = chunk.world[inner_loc.x][inner_loc.y][inner_loc.z];
+
+            // Todo: Drop calculations
+            //blocks.get_block(block_id as usize).
+
+            if let Some(item) = items.states.get(block_id as usize) {
+                inventory.push_item(ItemStack::new(item.clone(), 1));
+                info!("Added 1 {} to inventory", item.name);
+            }
+
             // Found chunk! Update block
             chunk.world[inner_loc.x][inner_loc.y][inner_loc.z] = 0;
 
@@ -80,7 +93,7 @@ pub fn mouse_interaction(
         }
     }
     if mouse_button_input.just_pressed(MouseButton::Right) {
-        if let Some(block_type) = inventory.selected_block_id() {
+        if let Some(block_type) = inventory.take_selected_block_id() {
             let pos = ray.block + ray.normal;
 
             // Locate chunk
