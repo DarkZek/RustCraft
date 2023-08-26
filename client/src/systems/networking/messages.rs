@@ -19,15 +19,15 @@ pub fn messages_update(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut system: ResMut<NetworkingSystem>,
-    mut app_state: ResMut<State<AppState>>,
+    mut app_state: ResMut<NextState<AppState>>,
 ) {
     for event in event_reader.iter() {
         match &event.0 {
             Protocol::UpdateLoading(update) => {
                 if update.loading {
-                    app_state.set(AppState::Connecting).unwrap();
+                    app_state.set(AppState::Connecting);
                 } else {
-                    app_state.set(AppState::InGame).unwrap();
+                    app_state.set(AppState::InGame);
                 }
             }
             Protocol::EntityMoved(update) => {

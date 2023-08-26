@@ -2,7 +2,6 @@ pub mod constants;
 pub mod protocol;
 pub mod types;
 
-use bevy::ecs::schedule::ShouldRun;
 use bevy::prelude::{Res, Resource};
 use protocol::Protocol;
 use renet::{
@@ -108,10 +107,10 @@ fn get_channel(protocol: &Protocol) -> Channel {
     }
 }
 
-fn has_resource<T: Resource>(resource: Option<Res<T>>) -> ShouldRun {
+fn has_resource<T: Resource>(resource: Option<Res<T>>) -> bool {
     match resource.is_some() {
-        true => ShouldRun::Yes,
-        false => ShouldRun::No,
+        true => true,
+        false => false,
     }
 }
 
@@ -120,6 +119,7 @@ mod client {
     use crate::types::{ReceivePacket, SendPacket};
     use crate::*;
     use bevy::app::AppExit;
+    use bevy::app::CoreSet::{PostUpdate, PreUpdate};
     use bevy::prelude::*;
     use renet::{RenetClient, RenetError};
     use std::ops::{Deref, DerefMut};
@@ -128,34 +128,34 @@ mod client {
 
     impl Plugin for RenetClientPlugin {
         fn build(&self, app: &mut App) {
-            use bevy::prelude::CoreStage::*;
-
             app.add_event::<RenetError>()
-                .add_system_to_stage(
-                    PreUpdate,
-                    update_system.with_run_criteria(has_resource::<Client>),
+                .add_system(
+                    update_system
+                        .run_if(has_resource::<Client>)
+                        .in_base_set(PreUpdate),
                 )
-                .add_system_to_stage(
-                    PreUpdate,
+                .add_system(
                     read_packets_system
                         .after(update_system)
-                        .with_run_criteria(has_resource::<Client>),
+                        .run_if(has_resource::<Client>)
+                        .in_base_set(PreUpdate),
                 )
-                .add_system_to_stage(
-                    PostUpdate,
+                .add_system(
                     detect_shutdown_system
                         .after(bevy::window::exit_on_all_closed)
-                        .with_run_criteria(has_resource::<Client>),
+                        .run_if(has_resource::<Client>)
+                        .in_base_set(PostUpdate),
                 )
-                .add_system_to_stage(
-                    PostUpdate,
+                .add_system(
                     write_packets_system
                         .before(send_packets_system)
-                        .with_run_criteria(has_resource::<Client>),
+                        .run_if(has_resource::<Client>)
+                        .in_base_set(PostUpdate),
                 )
-                .add_system_to_stage(
-                    PostUpdate,
-                    send_packets_system.with_run_criteria(has_resource::<Client>),
+                .add_system(
+                    send_packets_system
+                        .run_if(has_resource::<Client>)
+                        .in_base_set(PostUpdate),
                 );
         }
     }
@@ -235,6 +235,7 @@ pub mod server {
     use crate::types::{ReceivePacket, SendPacket};
     use crate::*;
     use bevy::app::AppExit;
+    use bevy::app::CoreSet::{PostUpdate, PreUpdate};
     use bevy::prelude::*;
     use renet::{RenetError, RenetServer, ServerEvent};
     use std::ops::{Deref, DerefMut};
@@ -243,29 +244,30 @@ pub mod server {
 
     impl Plugin for RenetServerPlugin {
         fn build(&self, app: &mut App) {
-            use bevy::prelude::CoreStage::*;
             app.add_event::<RenetError>()
                 .add_event::<ServerEvent>()
-                .add_system_to_stage(
-                    PreUpdate,
-                    update_system.with_run_criteria(has_resource::<Server>),
+                .add_system(
+                    update_system
+                        .run_if(has_resource::<Server>)
+                        .in_base_set(PreUpdate),
                 )
-                .add_system_to_stage(
-                    PreUpdate,
+                .add_system(
                     read_packets_system
                         .after(update_system)
-                        .with_run_criteria(has_resource::<Server>),
+                        .run_if(has_resource::<Server>)
+                        .in_base_set(PreUpdate),
                 )
-                .add_system(detect_shutdown_system.with_run_criteria(has_resource::<Server>))
-                .add_system_to_stage(
-                    PostUpdate,
+                .add_system(detect_shutdown_system.run_if(has_resource::<Server>))
+                .add_system(
                     write_packets_system
                         .before(send_packets_system)
-                        .with_run_criteria(has_resource::<Server>),
+                        .run_if(has_resource::<Server>)
+                        .in_base_set(PostUpdate),
                 )
-                .add_system_to_stage(
-                    PostUpdate,
-                    send_packets_system.with_run_criteria(has_resource::<Server>),
+                .add_system(
+                    send_packets_system
+                        .run_if(has_resource::<Server>)
+                        .in_base_set(PostUpdate),
                 );
         }
     }

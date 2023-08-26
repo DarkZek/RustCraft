@@ -24,8 +24,8 @@ use crate::systems::physics::PhysicsPlugin;
 use crate::systems::ui::UIPlugin;
 use bevy::log::{Level, LogPlugin};
 use bevy::prelude::*;
-use bevy::window::WindowResizeConstraints;
-use bevy_inspector_egui::{InspectorPlugin, WorldInspectorPlugin};
+use bevy::window::{WindowResizeConstraints, WindowResolution};
+use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_prototype_debug_lines::DebugLinesPlugin;
 
 #[rustfmt::skip]
@@ -36,7 +36,7 @@ fn main() {
             DefaultPlugins
             .set(LogPlugin {
                 filter: "wgpu=error,rustcraft=debug,naga=error,bevy_app=info".into(),
-                level: Level::DEBUG,
+                level: Level::TRACE,
             })
             .set(bevy::prelude::AssetPlugin {
                 watch_for_changes: true,
@@ -44,10 +44,9 @@ fn main() {
             })
             .set(ImagePlugin::default_nearest())
             .set(WindowPlugin {
-                window: WindowDescriptor {
+                primary_window: Some(Window {
                     title: "app".to_string(),
-                    width: 1280.,
-                    height: 720.,
+                    resolution: WindowResolution::new(1280., 720.),
                     position: WindowPosition::Automatic,
                     resize_constraints: WindowResizeConstraints {
                         min_width: 256.0,
@@ -56,17 +55,15 @@ fn main() {
                         max_height: 1080.0*8.0,
                     },
                     ..default()
-                },
+                }),
                 ..default()
             }))
         .add_plugin(WorldInspectorPlugin::new())
         
         // add the app state 
-        .add_state(AppState::Preloading)
+        .add_state::<AppState>()
         
         .add_plugin(DebugLinesPlugin::default())
-        
-        .insert_resource(Msaa { samples: 1 })
 
         // Networking
         .add_plugin(NetworkingPlugin)

@@ -63,7 +63,7 @@ struct FragmentInput {
 fn fragment(in: FragmentInput) -> @location(0) vec4<f32> {
     let output_color: vec4<f32> = material.color;
 
-    let output_color = output_color * textureSample(base_color_texture, base_color_sampler, in.uv);
+    output_color = output_color * textureSample(base_color_texture, base_color_sampler, in.uv);
 
     if output_color.a < 0.1 {
        discard;

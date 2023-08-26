@@ -61,13 +61,13 @@ pub fn button_system(
         (&Interaction, &mut BackgroundColor),
         (Changed<Interaction>, With<Button>),
     >,
-    mut app_state: ResMut<State<AppState>>,
+    mut app_state: ResMut<NextState<AppState>>,
 ) {
     for (interaction, mut color) in &mut interaction_query {
         match *interaction {
             Interaction::Clicked => {
                 *color = PRESSED_BUTTON.into();
-                app_state.set(AppState::Connecting).unwrap();
+                app_state.set(AppState::Connecting);
             }
             Interaction::Hovered => {
                 *color = HOVERED_BUTTON.into();

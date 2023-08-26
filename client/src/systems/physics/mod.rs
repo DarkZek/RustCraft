@@ -5,7 +5,8 @@ use crate::systems::physics::aabb::Aabb;
 use crate::systems::physics::simulate::physics_tick;
 use crate::systems::physics::sync::physics_sync;
 use bevy::ecs::component::Component;
-use bevy::prelude::{App, Plugin, SystemSet};
+use bevy::prelude::IntoSystemConfigs;
+use bevy::prelude::{App, IntoSystemConfig, OnUpdate, Plugin, SystemSet};
 use nalgebra::Vector3;
 
 pub mod aabb;
@@ -17,10 +18,10 @@ pub struct PhysicsPlugin;
 
 impl Plugin for PhysicsPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_set(
-            SystemSet::on_update(AppState::InGame)
-                .with_system(physics_tick)
-                .with_system(physics_sync),
+        app.add_systems(
+            (physics_tick, physics_sync)
+                .chain()
+                .in_set(OnUpdate(AppState::InGame)),
         );
     }
 }

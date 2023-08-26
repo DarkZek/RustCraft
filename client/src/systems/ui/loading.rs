@@ -1,8 +1,8 @@
 use crate::state::AppState;
 use bevy::prelude::*;
 
-pub fn set_loading(mut app_state: ResMut<State<AppState>>) {
-    app_state.set(AppState::Loading).unwrap();
+pub fn set_loading(mut app_state: ResMut<NextState<AppState>>) {
+    app_state.set(AppState::Loading);
 }
 
 #[derive(Resource, Default, Debug)]
@@ -37,7 +37,11 @@ pub fn remove_loading_ui(mut commands: Commands, data: ResMut<LoadingData>) {
     commands.remove_resource::<LoadingData>();
 }
 
-pub fn check_loading(data: Res<LoadingData>, mut app_state: ResMut<State<AppState>>) {
+pub fn check_loading(
+    data: Res<LoadingData>,
+    mut app_state: ResMut<State<AppState>>,
+    mut set_app_state: ResMut<NextState<AppState>>,
+) {
     if !data.is_changed() {
         return;
     }
@@ -45,8 +49,8 @@ pub fn check_loading(data: Res<LoadingData>, mut app_state: ResMut<State<AppStat
     // Once every part is done loading.rs, show the main menu
     if data.texture_atlas && data.block_states {
         // If we're still in loading.rs mode, the block states being loaded means we're ready for the main menu. This may be changed in the future
-        if app_state.current() == &AppState::Loading {
-            app_state.set(AppState::MainMenu).unwrap();
+        if app_state.0 == AppState::Loading {
+            set_app_state.set(AppState::MainMenu);
         }
     }
 }

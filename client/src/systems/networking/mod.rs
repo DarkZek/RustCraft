@@ -32,9 +32,7 @@ impl Plugin for NetworkingPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugin(RenetClientPlugin)
             // Once the game is in the Main Menu connect to server as we have no main screen yet
-            .add_system_set(
-                SystemSet::on_enter(AppState::Connecting).with_system(connect_to_server),
-            )
+            .add_system(connect_to_server.in_schedule(OnEnter(AppState::Connecting)))
             .add_system(messages_update)
             .add_system(network_location_sync)
             .add_event::<ReceivePacket>()

@@ -17,9 +17,10 @@ use crate::game::world::WorldPlugin;
 use crate::systems::chunk::ChunkPlugin;
 use crate::systems::tick::tick;
 use crate::transport::{TransportPlugin, TransportSystem};
-use bevy::app::{App, AppExit, CoreStage};
+use bevy::app::CoreSet::PreUpdate;
+use bevy::app::{App, AppExit};
 use bevy::log::{info, Level, LogPlugin};
-use bevy::prelude::EventWriter;
+use bevy::prelude::{EventWriter, IntoSystemConfig};
 use bevy::MinimalPlugins;
 use rc_networking::types::{ReceivePacket, SendPacket};
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -40,7 +41,7 @@ fn main() {
         // Plugins
         .add_plugin(LogPlugin {
             filter: "rechannel=warn".into(),
-            level: Level::INFO,
+            level: Level::TRACE,
         })
         .add_plugin(WorldPlugin)
         .add_plugin(TransportPlugin)
@@ -57,7 +58,7 @@ fn main() {
         .add_system(systems::finish_join::detect_finish_join)
         // Gameplay Loop on Tick
         .add_system(tick)
-        .add_system_to_stage(CoreStage::PreUpdate, detect_shutdowns)
+        .add_system(detect_shutdowns.in_base_set(PreUpdate))
         // Run App
         .run();
 }

@@ -62,15 +62,6 @@ pub fn setup_sun(
             directional_light: DirectionalLight {
                 color: Color::rgb(1., 1., 1.),
                 illuminance: 50000.0,
-                shadow_projection: OrthographicProjection {
-                    left: -40.0,
-                    right: 40.0,
-                    bottom: -40.0,
-                    top: 40.0,
-                    near: -20.0,
-                    far: 50.0,
-                    ..default()
-                },
                 shadows_enabled: true,
                 ..default()
             },

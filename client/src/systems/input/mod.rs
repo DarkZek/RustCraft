@@ -7,7 +7,7 @@ use crate::systems::input::look::update_input_look;
 use crate::systems::input::movement::update_input_movement;
 use bevy::app::{App, Plugin};
 use bevy::prelude::*;
-use bevy::window::{CursorGrabMode, Windows};
+use bevy::window::{CursorGrabMode, PrimaryWindow};
 use nalgebra::Vector3;
 
 pub struct InputPlugin;
@@ -15,13 +15,12 @@ pub struct InputPlugin;
 impl Plugin for InputPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(InputSystem { captured: false })
-            .add_system_set(
-                SystemSet::on_update(AppState::InGame)
-                    .with_system(update_input_look)
-                    .with_system(update_input_movement)
-                    .with_system(grab_mouse),
+            .add_systems(
+                (update_input_look, update_input_movement, grab_mouse)
+                    .chain()
+                    .in_set(OnUpdate(AppState::InGame)),
             )
-            .add_system_set(SystemSet::on_enter(AppState::InGame).with_system(grab_mouse_on_play));
+            .add_system(grab_mouse_on_play.in_schedule(OnEnter(AppState::InGame)));
     }
 }
 
@@ -33,27 +32,34 @@ pub struct InputSystem {
 // This system grabs the mouse when the left mouse button is pressed
 // and releases it when the escape key is pressed
 fn grab_mouse(
-    mut windows: ResMut<Windows>,
+    mut primary_query: Query<&mut Window, With<PrimaryWindow>>,
     mouse: Res<Input<MouseButton>>,
     key: Res<Input<KeyCode>>,
     mut service: ResMut<InputSystem>,
 ) {
-    let window = windows.get_primary_mut().unwrap();
+    let Ok(mut window) = primary_query.get_single_mut() else {
+        return;
+    };
     if mouse.just_pressed(MouseButton::Left) {
-        window.set_cursor_visibility(false);
-        window.set_cursor_grab_mode(CursorGrabMode::Confined);
+        window.cursor.visible = false;
+        window.cursor.grab_mode = CursorGrabMode::Confined;
         service.captured = true;
     }
     if key.just_pressed(KeyCode::Escape) {
-        window.set_cursor_visibility(true);
-        window.set_cursor_grab_mode(CursorGrabMode::None);
+        window.cursor.visible = true;
+        window.cursor.grab_mode = CursorGrabMode::None;
         service.captured = false;
     }
 }
 
-fn grab_mouse_on_play(mut windows: ResMut<Windows>, mut service: ResMut<InputSystem>) {
-    let window = windows.get_primary_mut().unwrap();
-    window.set_cursor_visibility(false);
-    window.set_cursor_grab_mode(CursorGrabMode::Confined);
+fn grab_mouse_on_play(
+    mut primary_query: Query<&mut Window, With<PrimaryWindow>>,
+    mut service: ResMut<InputSystem>,
+) {
+    let Ok(mut window) = primary_query.get_single_mut() else {
+        return;
+    };
+    window.cursor.visible = false;
+    window.cursor.grab_mode = CursorGrabMode::Confined;
     service.captured = true;
 }

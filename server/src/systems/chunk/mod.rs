@@ -2,7 +2,6 @@ use crate::game::chunk::ChunkData;
 use crate::{App, TransportSystem, WorldData};
 use bevy::ecs::system;
 use bevy::prelude::*;
-use bevy::time::FixedTimestep;
 use nalgebra::Vector3;
 use rayon::iter::ParallelIterator;
 use rayon::prelude::IntoParallelRefIterator;
@@ -25,12 +24,7 @@ impl Plugin for ChunkPlugin {
             requesting_chunks: Default::default(),
         })
         .add_system(get_chunk_requests)
-        .add_system_set(
-            SystemSet::new()
-                // This prints out "hello world" once every second
-                .with_run_criteria(FixedTimestep::step(CHUNK_REQUEST_TIMESTEP))
-                .with_system(request_chunks),
-        )
+        .add_system(request_chunks)
         .add_system(generate_chunks);
     }
 }
