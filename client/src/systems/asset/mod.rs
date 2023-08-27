@@ -16,9 +16,12 @@ pub struct AssetPlugin;
 impl Plugin for AssetPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(AtlasLoadingStage::AwaitingIndex)
-            .add_startup_system(create_asset_service)
-            .add_system(load_resource_zips)
-            .add_system(build_texture_atlas.run_if(in_state(AppState::Loading)));
+            .add_systems(Startup, create_asset_service)
+            .add_systems(Update, load_resource_zips)
+            .add_systems(
+                Update,
+                build_texture_atlas.run_if(in_state(AppState::Loading)),
+            );
     }
 }
 

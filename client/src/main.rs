@@ -35,7 +35,7 @@ fn main() {
     
     App::new()
         .add_plugins(
-            DefaultPlugins/*
+            DefaultPlugins
             .set(LogPlugin {
                 filter: "wgpu=error,rustcraft=debug,naga=error,bevy_app=info".into(),
                 level: Level::TRACE,
@@ -44,8 +44,8 @@ fn main() {
                 watch_for_changes: ChangeWatcher::with_delay(Duration::from_millis(200)),
                 ..default()
             })
-            .set(ImagePlugin::default_nearest())*/)
-        /*.add_plugin(WorldInspectorPlugin::new())
+            .set(ImagePlugin::default_nearest()))
+        .add_plugins(WorldInspectorPlugin::new())
         
         // add the app state 
         .add_state::<AppState>()
@@ -53,38 +53,38 @@ fn main() {
         .add_plugin(DebugLinesPlugin::default())
 
         // Networking
-        .add_plugin(NetworkingPlugin)
+        .add_plugins(NetworkingPlugin)
         
         // Interaction
-        .add_system(mouse_interaction)
+        .add_systems(Update, mouse_interaction)
         
         // Chunk loading.rs
-        .add_plugin(ChunkPlugin)
+        .add_plugins(ChunkPlugin)
 
-        .add_plugin(InputPlugin)
+        .add_plugins(InputPlugin)
 
-        .add_plugin(CameraPlugin)
+        .add_plugins(CameraPlugin)
 
-        .add_plugin(PhysicsPlugin)
+        .add_plugins(PhysicsPlugin)
 
-        .add_plugin(WorldPlugin)
+        .add_plugins(WorldPlugin)
 
-        .add_plugin(UIPlugin)
+        .add_plugins(UIPlugin)
 
-        .add_plugin(InventoryPlugin)
+        .add_plugins(InventoryPlugin)
         
         .insert_resource(ItemStates::new())
         
         // Asset Loaders
         .add_asset::<ResourcePacks>()
         .add_asset::<ResourcePackData>()
-        .add_plugin(MaterialPlugin::<ChunkMaterial>::default())
+        .add_plugins(MaterialPlugin::<ChunkMaterial>::default())
         .init_asset_loader::<JsonAssetLoader<ResourcePacks>>()
         .init_asset_loader::<ResourcePackAssetLoader>()
 
-        .add_plugin(BlockStatesPlugin)
+        .add_plugins(BlockStatesPlugin)
         
         // Asset loading.rs
-        .add_plugin(AssetPlugin)*/
+        .add_plugins(AssetPlugin)
         .run();
 }

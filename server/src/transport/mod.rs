@@ -15,7 +15,7 @@ use std::str::FromStr;
 
 use crate::ServerConfig;
 use bevy::ecs::prelude::Resource;
-use bevy::prelude::info;
+use bevy::prelude::{info, Update};
 use rc_networking::*;
 use std::time::SystemTime;
 
@@ -56,7 +56,7 @@ impl Plugin for TransportPlugin {
         app.add_plugin(RenetServerPlugin)
             .insert_resource(Server(server))
             .insert_resource(transport_system)
-            .add_system(accept_connections)
+            .add_systems(Update, accept_connections)
             .add_event::<ConnectionEvent>()
             .add_event::<AuthorizationEvent>()
             .add_event::<DisconnectionEvent>();

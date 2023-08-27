@@ -50,11 +50,11 @@ fn main() {
         .add_event::<ReceivePacket>()
         .add_event::<SendPacket>()
         // Receive Server Events
-        .add_system(systems::authorization::authorization_event)
-        .add_system(systems::connection::connection_event)
-        .add_system(systems::disconnect::disconnection_event)
-        .add_system(systems::message::receive_message_event)
-        .add_system(systems::finish_join::detect_finish_join)
+        .add_systems(Update, systems::authorization::authorization_event)
+        .add_systems(Update, systems::connection::connection_event)
+        .add_systems(Update, systems::disconnect::disconnection_event)
+        .add_systems(Update, systems::message::receive_message_event)
+        .add_systems(Update, systems::finish_join::detect_finish_join)
         // Gameplay Loop on Tick
         .add_systems(Update, tick)
         .add_systems(PreUpdate, detect_shutdowns)

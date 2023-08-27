@@ -31,15 +31,15 @@ impl Plugin for NetworkingPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugin(RenetClientPlugin)
             // Once the game is in the Main Menu connect to server as we have no main screen yet
-            .add_system(connect_to_server.in_schedule(OnEnter(AppState::Connecting)))
-            .add_system(messages_update)
-            .add_system(network_location_sync)
+            .add_systems(OnEnter(AppState::Connecting), connect_to_server)
+            .add_systems(Update, messages_update)
+            .add_systems(Update, network_location_sync)
             .add_event::<ReceivePacket>()
             .add_event::<SendPacket>()
             .add_event::<ConnectionEvent>()
             .add_event::<DisconnectionEvent>()
             .add_event::<AuthorizationEvent>()
-            .add_system(network_chunk_sync)
+            .add_systems(Update, network_chunk_sync)
             .insert_resource(LastNetworkTranslationSync(Vec3::default()))
             .insert_resource(LastNetworkRotationSync(Quat::default()))
             .insert_resource(NetworkingSystem::default());

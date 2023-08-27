@@ -162,6 +162,7 @@ pub fn mesh_builder(
 
     for update in updates {
         if let Some((val, opaque_mesh, translucent_mesh)) = update {
+            // TODO: Remove mesh component when chunk is entirely transparent
             val.opaque.apply_mesh(meshes.get_mut(opaque_mesh).unwrap());
             val.translucent
                 .apply_mesh(meshes.get_mut(translucent_mesh).unwrap());

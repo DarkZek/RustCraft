@@ -23,9 +23,9 @@ pub struct ChunkPlugin;
 impl Plugin for ChunkPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(ChunkSystem::new())
-            .add_system(mesh_builder)
+            .add_systems(Update, mesh_builder)
             .add_event::<RerenderChunkFlag>()
-            .add_system(request_chunks);
+            .add_systems(Update, request_chunks);
     }
 }
 

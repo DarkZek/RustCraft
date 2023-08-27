@@ -21,7 +21,7 @@ impl Plugin for InputPlugin {
                     .chain()
                     .run_if(in_state(AppState::InGame)),
             )
-            .add_system(grab_mouse_on_play.in_schedule(OnEnter(AppState::InGame)));
+            .add_systems(OnEnter(AppState::InGame), grab_mouse_on_play);
     }
 }
 

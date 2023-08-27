@@ -11,7 +11,7 @@ pub struct WorldPlugin;
 
 impl Plugin for WorldPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(save_world);
+        app.add_systems(Update, save_world);
     }
 }
 

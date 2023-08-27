@@ -23,9 +23,9 @@ impl Plugin for ChunkPlugin {
             generating_chunks: Default::default(),
             requesting_chunks: Default::default(),
         })
-        .add_system(get_chunk_requests)
-        .add_system(request_chunks)
-        .add_system(generate_chunks);
+        .add_systems(Update, get_chunk_requests)
+        .add_systems(Update, request_chunks)
+        .add_systems(Update, generate_chunks);
     }
 }
 

@@ -12,8 +12,8 @@ pub struct CameraPlugin;
 
 impl Plugin for CameraPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(setup_camera)
-            .add_system(camera_player_sync);
+        app.add_systems(Startup, setup_camera)
+            .add_systems(Update, camera_player_sync);
     }
 }
 
@@ -42,7 +42,7 @@ fn setup_camera(mut commands: Commands) {
             /// The clear color operation to perform for the main 3d pass.
             clear_color: ClearColorConfig::Custom(Color::rgba(0.7137, 0.7803, 0.8784, 1.0)),
             depth_load_op: Camera3dDepthLoadOp::Clear(0.0),
-            depth_texture_usages: TextureUsages::all().into(),
+            depth_texture_usages: TextureUsages::RENDER_ATTACHMENT.into(),
         },
         projection: Projection::Perspective(PerspectiveProjection {
             fov: std::f32::consts::PI / 3.0,

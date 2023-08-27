@@ -17,25 +17,31 @@ pub struct UIPlugin;
 
 impl Plugin for UIPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(setup_ui.in_schedule(OnEnter(AppState::InGame)))
+        app.add_systems(OnEnter(AppState::InGame), setup_ui)
             // Main menu
-            .add_system(setup_main_menu.in_schedule(OnEnter(AppState::MainMenu)))
-            .add_system(button_system.run_if(in_state(AppState::MainMenu)))
-            .add_system(destroy_main_menu.in_schedule(OnExit(AppState::MainMenu)))
+            .add_systems(OnEnter(AppState::MainMenu), setup_main_menu)
+            .add_systems(Update, button_system.run_if(in_state(AppState::MainMenu)))
+            .add_systems(OnExit(AppState::MainMenu), destroy_main_menu)
             // Loading
-            .add_startup_system(setup_loading_ui)
             .insert_resource(LoadingData::default())
-            .add_system(set_loading.run_if(in_state(AppState::Preloading)))
-            .add_system(check_loading.run_if(in_state(AppState::Loading)))
-            .add_system(remove_loading_ui.in_schedule(OnExit(AppState::Loading)))
+            .add_systems(Startup, setup_loading_ui)
+            .add_systems(Update, set_loading.run_if(in_state(AppState::Preloading)))
+            .add_systems(Update, check_loading.run_if(in_state(AppState::Loading)))
+            .add_systems(OnExit(AppState::Loading), remove_loading_ui)
             // Inventory
             .insert_resource(InventoryUI::default())
-            .add_system(setup_hotbar_ui.in_schedule(OnEnter(AppState::InGame)))
-            .add_system(update_hotbar_ui)
+            .add_systems(OnEnter(AppState::InGame), setup_hotbar_ui)
+            .add_systems(Update, update_hotbar_ui)
             // Connecting
             .insert_resource(ConnectingData::default())
-            .add_system(connecting::setup_connecting_ui.in_schedule(OnEnter(AppState::Connecting)))
-            .add_system(connecting::remove_connecting_ui.in_schedule(OnExit(AppState::Connecting)));
+            .add_systems(
+                OnEnter(AppState::Connecting),
+                connecting::setup_connecting_ui,
+            )
+            .add_systems(
+                OnExit(AppState::Connecting),
+                connecting::remove_connecting_ui,
+            );
     }
 }
 
