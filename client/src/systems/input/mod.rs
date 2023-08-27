@@ -16,9 +16,10 @@ impl Plugin for InputPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(InputSystem { captured: false })
             .add_systems(
+                Update,
                 (update_input_look, update_input_movement, grab_mouse)
                     .chain()
-                    .in_set(OnUpdate(AppState::InGame)),
+                    .run_if(in_state(AppState::InGame)),
             )
             .add_system(grab_mouse_on_play.in_schedule(OnEnter(AppState::InGame)));
     }

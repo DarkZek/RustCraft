@@ -25,7 +25,7 @@ impl Plugin for BlockStatesPlugin {
             .init_asset_loader::<BlockStateAssetLoader>()
             .add_startup_system(create_block_states)
             .insert_resource(BlockStates::new())
-            .add_system(track_blockstate_changes.in_set(OnUpdate(AppState::Loading)));
+            .add_system(track_blockstate_changes.run_if(in_state(AppState::Loading)));
     }
 }
 

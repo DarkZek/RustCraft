@@ -16,7 +16,6 @@ use std::str::FromStr;
 use crate::ServerConfig;
 use bevy::ecs::prelude::Resource;
 use bevy::prelude::info;
-use rc_networking::renet::{RenetServer, ServerAuthentication};
 use rc_networking::*;
 use std::time::SystemTime;
 
@@ -48,20 +47,7 @@ impl Plugin for TransportPlugin {
             .duration_since(SystemTime::UNIX_EPOCH)
             .unwrap();
         let socket = UdpSocket::bind(bind_addr).unwrap();
-        let server = RenetServer::new(
-            current_time,
-            renet::ServerConfig {
-                max_clients: 1024,
-                protocol_id: PROTOCOL_ID,
-                public_addr: bind_addr,
-                authentication: ServerAuthentication::Secure {
-                    private_key: PRIVATE_KEY,
-                },
-            },
-            get_renet_connection_config(),
-            socket,
-        )
-        .unwrap();
+        let server = 0;
 
         info!("Listening to connections on {:?}", bind_addr);
 

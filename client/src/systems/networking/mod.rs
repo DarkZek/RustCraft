@@ -13,7 +13,6 @@ use bevy::prelude::{info, Entity, SystemSet, Vec3};
 use rc_networking::constants::EntityId;
 
 use crate::state::AppState;
-use rc_networking::renet::ClientAuthentication;
 use rc_networking::*;
 
 use rc_networking::types::{ReceivePacket, SendPacket};
@@ -55,16 +54,7 @@ pub fn connect_to_server(mut commands: Commands) {
         .unwrap();
     let socket = UdpSocket::bind(bind_addr).unwrap();
     let user_id = current_time.as_millis() as u64;
-    let client = rc_networking::renet::RenetClient::new(
-        current_time,
-        socket,
-        user_id,
-        get_renet_connection_config(),
-        ClientAuthentication::Secure {
-            connect_token: get_simple_connect_token(user_id, vec![server_addr]),
-        },
-    )
-    .unwrap();
+    let client = 0;
 
     commands.insert_resource(Client(client));
 

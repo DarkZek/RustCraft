@@ -1,10 +1,11 @@
 use bevy::reflect::TypeUuid;
 use serde::{Deserialize, Serialize};
 
+use bevy::reflect::TypePath;
 use std::path::PathBuf;
 
 /// A listing of all resource packs available to the program
-#[derive(Debug, Clone, TypeUuid, Deserialize, Serialize)]
+#[derive(Debug, Clone, TypeUuid, Deserialize, Serialize, TypePath)]
 #[uuid = "7b14806a-672b-443b-8d16-4f18afefa463"]
 pub struct ResourcePacks {
     list: Vec<ResourcePack>,

@@ -16,7 +16,8 @@ pub fn setup_loading_ui(mut commands: Commands, mut data: ResMut<LoadingData>) {
     let ui = commands
         .spawn(NodeBundle {
             style: Style {
-                size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
                 flex_direction: FlexDirection::Column,
                 justify_content: JustifyContent::FlexEnd,
                 position_type: PositionType::Absolute,
@@ -49,7 +50,7 @@ pub fn check_loading(
     // Once every part is done loading.rs, show the main menu
     if data.texture_atlas && data.block_states {
         // If we're still in loading.rs mode, the block states being loaded means we're ready for the main menu. This may be changed in the future
-        if app_state.0 == AppState::Loading {
+        if *app_state == AppState::Loading {
             set_app_state.set(AppState::MainMenu);
         }
     }

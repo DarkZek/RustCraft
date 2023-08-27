@@ -6,7 +6,6 @@ edition = "2021"
 [dependencies]
 byteorder = "*"
 bincode = { workspace = true }
-renet = "0.0.9"
 serde = { version = "1.0.145", features = ["derive"] }
 thiserror = "1.0.37"
 

@@ -21,7 +21,8 @@ pub fn setup_hotbar_ui(
     commands
         .spawn(NodeBundle {
             style: Style {
-                size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
                 flex_direction: FlexDirection::Column,
                 justify_content: JustifyContent::FlexEnd,
                 position_type: PositionType::Absolute,
@@ -33,7 +34,8 @@ pub fn setup_hotbar_ui(
             parent
                 .spawn(ImageBundle {
                     style: Style {
-                        size: Size::new(Val::Px(800.0), Val::Px(80.0)),
+                        width: Val::Px(800.0),
+                        height: Val::Px(80.0),
                         align_self: AlignSelf::Center,
                         position_type: PositionType::Absolute,
                         ..default()
@@ -46,7 +48,8 @@ pub fn setup_hotbar_ui(
                         parent
                             .spawn(ImageBundle {
                                 style: Style {
-                                    size: Size::new(Val::Px(80.0), Val::Px(80.0)),
+                                    width: Val::Px(80.0),
+                                    height: Val::Px(80.0),
                                     align_self: AlignSelf::FlexStart,
                                     position_type: PositionType::Absolute,
                                     ..default()
@@ -63,16 +66,12 @@ pub fn setup_hotbar_ui(
                             parent
                                 .spawn(ImageBundle {
                                     style: Style {
-                                        size: Size::new(Val::Px(80.0), Val::Px(80.0)),
+                                        width: Val::Px(80.0),
+                                        height: Val::Px(80.0),
                                         align_self: AlignSelf::FlexStart,
                                         position_type: PositionType::Absolute,
-                                        position: UiRect::new(
-                                            Val::Percent(
-                                                (100.0 / (HOTBAR_SLOTS as f32)) * i as f32,
-                                            ),
-                                            Val::Auto,
-                                            Val::Auto,
-                                            Val::Auto,
+                                        left: Val::Percent(
+                                            (100.0 / (HOTBAR_SLOTS as f32)) * i as f32,
                                         ),
                                         display: Display::None,
                                         ..default()
@@ -89,17 +88,14 @@ pub fn setup_hotbar_ui(
                             parent
                                 .spawn(TextBundle {
                                     style: Style {
-                                        size: Size::new(Val::Px(80.0), Val::Px(80.0)),
+                                        width: Val::Px(80.0),
+                                        height: Val::Px(80.0),
                                         align_self: AlignSelf::FlexStart,
                                         position_type: PositionType::Absolute,
-                                        position: UiRect::new(
-                                            Val::Percent(
-                                                (100.0 / (HOTBAR_SLOTS as f32)) * i as f32 + 1.0,
-                                            ),
-                                            Val::Auto,
-                                            Val::Percent(5.0),
-                                            Val::Auto,
+                                        left: Val::Percent(
+                                            (100.0 / (HOTBAR_SLOTS as f32)) * i as f32 + 1.0,
                                         ),
+                                        right: Val::Percent(5.0),
                                         display: Display::None,
                                         ..default()
                                     },
@@ -149,12 +145,8 @@ pub fn update_hotbar_ui(
             .get_mut(*inventory_ui.hotbar_selected_image.as_ref().unwrap())
             .unwrap();
 
-        hotbar_style.position = UiRect::new(
-            Val::Percent((100.0 / HOTBAR_SLOTS as f32) * inventory.hotbar_slot as f32),
-            Val::Auto,
-            Val::Auto,
-            Val::Auto,
-        );
+        hotbar_style.left =
+            Val::Percent((100.0 / HOTBAR_SLOTS as f32) * inventory.hotbar_slot as f32);
     }
 
     if inventory_ui.hotbar_icons.is_none() {

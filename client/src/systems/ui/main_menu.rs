@@ -10,7 +10,8 @@ pub fn setup_main_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
     let entity = commands
         .spawn(NodeBundle {
             style: Style {
-                size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
                 flex_direction: FlexDirection::Column,
                 justify_content: JustifyContent::FlexEnd,
                 position_type: PositionType::Absolute,
@@ -22,7 +23,8 @@ pub fn setup_main_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
         .with_children(|c| {
             c.spawn(ButtonBundle {
                 style: Style {
-                    size: Size::new(Val::Px(150.0), Val::Px(65.0)),
+                    width: Val::Px(150.0),
+                    height: Val::Px(65.0),
                     margin: UiRect::all(Val::Auto),
                     justify_content: JustifyContent::Center,
                     align_items: AlignItems::Center,
@@ -65,7 +67,7 @@ pub fn button_system(
 ) {
     for (interaction, mut color) in &mut interaction_query {
         match *interaction {
-            Interaction::Clicked => {
+            Interaction::Pressed => {
                 *color = PRESSED_BUTTON.into();
                 app_state.set(AppState::Connecting);
             }

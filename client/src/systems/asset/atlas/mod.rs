@@ -7,6 +7,7 @@ use bevy::prelude::*;
 use bevy::reflect::TypeUuid;
 
 use crate::systems::ui::loading::LoadingData;
+use bevy::reflect::TypePath;
 use fnv::FnvBuildHasher;
 use image::{DynamicImage, GenericImage};
 use std::collections::HashMap;
@@ -24,7 +25,7 @@ pub enum AtlasLoadingStage {
 }
 
 /// The images that make up a resource pack
-#[derive(Debug, Clone, TypeUuid)]
+#[derive(Debug, Clone, TypeUuid, TypePath)]
 #[uuid = "7b14806a-672b-423b-8d16-4f18afefa463"]
 pub struct ResourcePackData {
     images: HashMap<String, DynamicImage, FnvBuildHasher>,

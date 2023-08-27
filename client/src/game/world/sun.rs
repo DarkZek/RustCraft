@@ -1,7 +1,6 @@
 use crate::game::player::Player;
 use bevy::prelude::shape::Quad;
 use bevy::prelude::*;
-use bevy::render::primitives::Plane;
 use bevy::utils::Instant;
 use nalgebra::Vector3;
 use std::f32::consts::PI;

@@ -1,6 +1,7 @@
 use crate::systems::chunk::builder::ATTRIBUTE_LIGHTING_COLOR;
 use bevy::pbr::{MaterialPipeline, MaterialPipelineKey};
 use bevy::prelude::*;
+use bevy::reflect::TypePath;
 use bevy::render::mesh::MeshVertexBufferLayout;
 use bevy::render::render_resource::{RenderPipelineDescriptor, SpecializedMeshPipelineError};
 use bevy::{
@@ -9,7 +10,7 @@ use bevy::{
 };
 
 // This is the struct that will be passed to your shader
-#[derive(AsBindGroup, TypeUuid, Debug, Clone)]
+#[derive(AsBindGroup, TypeUuid, Debug, Clone, TypePath)]
 #[uuid = "f690fdae-d598-45ab-8225-97e2a3f056e0"]
 pub struct ChunkMaterial {
     #[uniform(0)]

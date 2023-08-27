@@ -20,6 +20,7 @@ use std::sync::atomic::Ordering;
 pub const ATTRIBUTE_LIGHTING_COLOR: MeshVertexAttribute =
     MeshVertexAttribute::new("Lighting", 988540917, VertexFormat::Float32x4);
 
+#[derive(Event)]
 pub struct RerenderChunkFlag {
     pub chunk: Vector3<i32>,
     /// Whether we should also re-render adjacent chunks

@@ -22,43 +22,30 @@ use crate::systems::input::InputPlugin;
 use crate::systems::networking::NetworkingPlugin;
 use crate::systems::physics::PhysicsPlugin;
 use crate::systems::ui::UIPlugin;
+use bevy::asset::ChangeWatcher;
 use bevy::log::{Level, LogPlugin};
 use bevy::prelude::*;
 use bevy::window::{WindowResizeConstraints, WindowResolution};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_prototype_debug_lines::DebugLinesPlugin;
+use std::time::Duration;
 
 #[rustfmt::skip]
 fn main() {
     
     App::new()
         .add_plugins(
-            DefaultPlugins
+            DefaultPlugins/*
             .set(LogPlugin {
                 filter: "wgpu=error,rustcraft=debug,naga=error,bevy_app=info".into(),
                 level: Level::TRACE,
             })
             .set(bevy::prelude::AssetPlugin {
-                watch_for_changes: true,
+                watch_for_changes: ChangeWatcher::with_delay(Duration::from_millis(200)),
                 ..default()
             })
-            .set(ImagePlugin::default_nearest())
-            .set(WindowPlugin {
-                primary_window: Some(Window {
-                    title: "app".to_string(),
-                    resolution: WindowResolution::new(1280., 720.),
-                    position: WindowPosition::Automatic,
-                    resize_constraints: WindowResizeConstraints {
-                        min_width: 256.0,
-                        min_height: 256.0,
-                        max_width: 1920.0*8.0,
-                        max_height: 1080.0*8.0,
-                    },
-                    ..default()
-                }),
-                ..default()
-            }))
-        .add_plugin(WorldInspectorPlugin::new())
+            .set(ImagePlugin::default_nearest())*/)
+        /*.add_plugin(WorldInspectorPlugin::new())
         
         // add the app state 
         .add_state::<AppState>()
@@ -98,6 +85,6 @@ fn main() {
         .add_plugin(BlockStatesPlugin)
         
         // Asset loading.rs
-        .add_plugin(AssetPlugin)
+        .add_plugin(AssetPlugin)*/
         .run();
 }

@@ -1,8 +1,9 @@
+use bevy::reflect::TypePath;
 use bevy::reflect::TypeUuid;
 use nalgebra::Vector3;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Deserialize, Serialize, TypeUuid)]
+#[derive(Debug, Clone, Deserialize, Serialize, TypeUuid, TypePath)]
 #[uuid = "7b14806a-672b-423b-8d16-4f18abefa463"]
 pub struct BlockStatesFile {
     pub states: Vec<DeserialisedBlock>,

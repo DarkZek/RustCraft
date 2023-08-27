@@ -18,7 +18,7 @@ impl Plugin for AssetPlugin {
         app.insert_resource(AtlasLoadingStage::AwaitingIndex)
             .add_startup_system(create_asset_service)
             .add_system(load_resource_zips)
-            .add_system(build_texture_atlas.in_set(OnUpdate(AppState::Loading)));
+            .add_system(build_texture_atlas.run_if(in_state(AppState::Loading)));
     }
 }
 
