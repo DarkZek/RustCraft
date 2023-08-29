@@ -1,7 +1,4 @@
 use crate::systems::networking::chunk::network_chunk_sync;
-use crate::systems::networking::events::authorization::AuthorizationEvent;
-use crate::systems::networking::events::connection::ConnectionEvent;
-use crate::systems::networking::events::disconnect::DisconnectionEvent;
 use crate::systems::networking::location_sync::{
     network_location_sync, LastNetworkRotationSync, LastNetworkTranslationSync,
 };
@@ -15,30 +12,25 @@ use rc_networking::constants::EntityId;
 use crate::state::AppState;
 use rc_networking::*;
 
+use rc_networking::client::{NetworkingClient, QuinnClientPlugin};
 use rc_networking::types::{ReceivePacket, SendPacket};
 use std::collections::HashMap;
 use std::net::{SocketAddr, UdpSocket};
 use std::time::SystemTime;
 
 mod chunk;
-mod events;
 mod location_sync;
 mod messages;
 
-pub struct NetworkingPlugin;
+pub struct ClientNetworkingPlugin;
 
-impl Plugin for NetworkingPlugin {
+impl Plugin for ClientNetworkingPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(RenetClientPlugin)
+        app.add_plugins(QuinnClientPlugin)
             // Once the game is in the Main Menu connect to server as we have no main screen yet
             .add_systems(OnEnter(AppState::Connecting), connect_to_server)
             .add_systems(Update, messages_update)
             .add_systems(Update, network_location_sync)
-            .add_event::<ReceivePacket>()
-            .add_event::<SendPacket>()
-            .add_event::<ConnectionEvent>()
-            .add_event::<DisconnectionEvent>()
-            .add_event::<AuthorizationEvent>()
             .add_systems(Update, network_chunk_sync)
             .insert_resource(LastNetworkTranslationSync(Vec3::default()))
             .insert_resource(LastNetworkRotationSync(Quat::default()))
@@ -46,17 +38,10 @@ impl Plugin for NetworkingPlugin {
     }
 }
 
-pub fn connect_to_server(mut commands: Commands) {
-    let bind_addr: SocketAddr = ([127, 0, 0, 1], 0).into();
+pub fn connect_to_server(mut client: ResMut<NetworkingClient>) {
     let server_addr: SocketAddr = ([127, 0, 0, 1], 25568).into();
-    let current_time = SystemTime::now()
-        .duration_since(SystemTime::UNIX_EPOCH)
-        .unwrap();
-    let socket = UdpSocket::bind(bind_addr).unwrap();
-    let user_id = current_time.as_millis() as u64;
-    let client = 0;
 
-    commands.insert_resource(Client(client));
+    client.connect(server_addr);
 
     info!("Connecting to server on {}", server_addr);
 }

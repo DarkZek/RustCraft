@@ -1,8 +1,5 @@
 mod connection;
 
-use crate::events::authorization::AuthorizationEvent;
-use crate::events::connection::ConnectionEvent;
-use crate::events::disconnect::DisconnectionEvent;
 use crate::systems::authorization::GameUser;
 use crate::transport::connection::accept_connections;
 use bevy::app::{App, Plugin};
@@ -16,6 +13,8 @@ use std::str::FromStr;
 use crate::ServerConfig;
 use bevy::ecs::prelude::Resource;
 use bevy::prelude::{info, Update};
+use bevy::utils::default;
+use rc_networking::server::{NetworkingServerConfig, QuinnServerPlugin};
 use rc_networking::*;
 use std::time::SystemTime;
 
@@ -46,19 +45,19 @@ impl Plugin for TransportPlugin {
         let current_time = SystemTime::now()
             .duration_since(SystemTime::UNIX_EPOCH)
             .unwrap();
-        let socket = UdpSocket::bind(bind_addr).unwrap();
         let server = 0;
 
         info!("Listening to connections on {:?}", bind_addr);
 
+        app.insert_resource(NetworkingServerConfig {
+            address: Some(bind_addr),
+            ..default()
+        });
+
         let transport_system = TransportSystem::default();
 
-        app.add_plugin(RenetServerPlugin)
-            .insert_resource(Server(server))
+        app.add_plugins(QuinnServerPlugin)
             .insert_resource(transport_system)
-            .add_systems(Update, accept_connections)
-            .add_event::<ConnectionEvent>()
-            .add_event::<AuthorizationEvent>()
-            .add_event::<DisconnectionEvent>();
+            .add_systems(Update, accept_connections);
     }
 }

@@ -1,4 +1,3 @@
-use crate::events::authorization::AuthorizationEvent;
 use crate::game::transform::Transform;
 use bevy::ecs::change_detection::ResMut;
 use bevy::ecs::event::EventReader;
@@ -7,8 +6,10 @@ use bevy::ecs::system::Query;
 use bevy::log::info;
 use bevy::prelude::Entity;
 use nalgebra::Vector3;
+use rc_networking::connection::NetworkConnectionEvent;
 use std::sync::atomic::Ordering;
 
+use crate::events::authorize::AuthorizationEvent;
 use crate::game::world::data::ENTITY_ID_COUNT;
 use crate::helpers::global_to_local_position;
 use crate::systems::chunk::ChunkSystem;
@@ -45,6 +46,8 @@ pub fn authorization_event(
     mut chunk_system: ResMut<ChunkSystem>,
 ) {
     for client in event_reader.iter() {
+        info!("Player {:?} logged in. Sending chunks.", client.user_id);
+
         // Spawn other entities for new player
         for (id, entity) in &global.entities {
             let transform = transforms.get(*entity).unwrap();
@@ -57,7 +60,7 @@ pub fn authorization_event(
                 ],
                 rot: transform.rotation.coords.into(),
             });
-            send_packet.send(SendPacket(packet, client.client));
+            send_packet.send(SendPacket(packet, client.user_id));
         }
 
         let transform = Transform::default();
@@ -66,7 +69,11 @@ pub fn authorization_event(
         let entity_id = EntityId(ENTITY_ID_COUNT.fetch_add(1, Ordering::Acquire));
 
         // Store player entity
-        transport.clients.get_mut(&client.client).unwrap().entity_id = entity_id;
+        transport
+            .clients
+            .get_mut(&client.user_id)
+            .unwrap()
+            .entity_id = entity_id;
 
         let packet = Protocol::SpawnEntity(SpawnEntity {
             id: entity_id,
@@ -81,7 +88,7 @@ pub fn authorization_event(
         // Spawn new player for other players
         for (id, _) in &transport.clients {
             // Don't spawn new client for itself
-            if *id == client.client {
+            if *id == client.user_id {
                 continue;
             }
             send_packet.send(SendPacket(packet.clone(), *id));
@@ -91,7 +98,7 @@ pub fn authorization_event(
 
         let entity = commands.spawn(transform).id();
         global.entities.insert(entity_id, entity.clone());
-        transport.clients.get_mut(&client.client).unwrap().entity = Some(entity);
+        transport.clients.get_mut(&client.user_id).unwrap().entity = Some(entity);
 
         let mut chunks = global.chunks.keys();
 
@@ -101,7 +108,7 @@ pub fn authorization_event(
             player_pos.z as i32,
         ));
 
-        let chunk_load_radius = 3;
+        let chunk_load_radius = 1;
 
         // Load chunks around player
         for x in (player_chunk.x - chunk_load_radius)..(player_chunk.x + chunk_load_radius) {
@@ -110,7 +117,7 @@ pub fn authorization_event(
                 {
                     chunk_system
                         .requesting_chunks
-                        .entry(client.client)
+                        .entry(client.user_id)
                         .or_insert_with(|| vec![])
                         .push(Vector3::new(x, y, z));
                 }
@@ -118,6 +125,6 @@ pub fn authorization_event(
         }
 
         // List this user as still loading in content, so we know to send them a packet to close the loading screen once chunks have been sent
-        transport.initialising_clients.insert(client.client);
+        transport.initialising_clients.insert(client.user_id);
     }
 }

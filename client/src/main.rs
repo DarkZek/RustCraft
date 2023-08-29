@@ -19,7 +19,7 @@ use crate::systems::asset::AssetPlugin;
 use crate::systems::camera::CameraPlugin;
 use crate::systems::chunk::ChunkPlugin;
 use crate::systems::input::InputPlugin;
-use crate::systems::networking::NetworkingPlugin;
+use crate::systems::networking::ClientNetworkingPlugin;
 use crate::systems::physics::PhysicsPlugin;
 use crate::systems::ui::UIPlugin;
 use bevy::asset::ChangeWatcher;
@@ -50,10 +50,10 @@ fn main() {
         // add the app state 
         .add_state::<AppState>()
         
-        .add_plugin(DebugLinesPlugin::default())
+        .add_plugins(DebugLinesPlugin::default())
 
         // Networking
-        .add_plugins(NetworkingPlugin)
+        .add_plugins(ClientNetworkingPlugin)
         
         // Interaction
         .add_systems(Update, mouse_interaction)

@@ -12,6 +12,7 @@ mod systems;
 pub mod transport;
 
 use crate::config::{load_config, ServerConfig};
+use crate::events::authorize::AuthorizationEvent;
 use crate::game::world::data::WorldData;
 use crate::game::world::WorldPlugin;
 use crate::systems::chunk::ChunkPlugin;
@@ -38,20 +39,20 @@ fn main() {
         .insert_resource(load_config())
         .add_plugins(MinimalPlugins)
         // Plugins
-        .add_plugin(LogPlugin {
+        .add_plugins(LogPlugin {
             filter: "rechannel=warn".into(),
             level: Level::TRACE,
         })
-        .add_plugin(WorldPlugin)
-        .add_plugin(TransportPlugin)
-        .add_plugin(ChunkPlugin)
+        .add_plugins(WorldPlugin)
+        .add_plugins(TransportPlugin)
+        .add_plugins(ChunkPlugin)
         // Startup System
         .insert_resource(WorldData::load_spawn_chunks())
         .add_event::<ReceivePacket>()
         .add_event::<SendPacket>()
+        .add_event::<AuthorizationEvent>()
         // Receive Server Events
         .add_systems(Update, systems::authorization::authorization_event)
-        .add_systems(Update, systems::connection::connection_event)
         .add_systems(Update, systems::disconnect::disconnection_event)
         .add_systems(Update, systems::message::receive_message_event)
         .add_systems(Update, systems::finish_join::detect_finish_join)
