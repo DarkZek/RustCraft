@@ -7,11 +7,11 @@ use crate::*;
 use bevy::app::AppExit;
 use bevy::prelude::KeyCode::Apps;
 use bevy::prelude::*;
-use crossbeam_channel::{unbounded, Receiver};
 use quinn::{ClientConfig, Connection, Endpoint, RecvStream, SendStream};
 use std::ops::{Deref, DerefMut};
 use std::sync::Arc;
 use tokio::runtime::Runtime;
+use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver};
 
 pub struct QuinnClientPlugin;
 
@@ -82,15 +82,15 @@ fn detect_shutdown_system(
 
 /// Take packets from Receivers and add it to ECS EventWriter
 fn send_packets_system(mut client: ResMut<NetworkingClient>, mut recv: EventWriter<ReceivePacket>) {
-    if let Some(conn) = &client.connection {
-        let mut recieve_from_channel = |channel: &BiStream| {
+    if let Some(conn) = &mut client.connection {
+        let mut recieve_from_channel = |channel: &mut BiStream| {
             while let Ok(packet) = channel.in_recv.try_recv() {
                 recv.send(ReceivePacket(packet, UserId(0)));
             }
         };
-        recieve_from_channel(&conn.unreliable);
-        recieve_from_channel(&conn.reliable);
-        recieve_from_channel(&conn.chunk);
+        recieve_from_channel(&mut conn.unreliable);
+        recieve_from_channel(&mut conn.reliable);
+        recieve_from_channel(&mut conn.chunk);
     }
 }
 
@@ -99,7 +99,7 @@ struct ServerConnection {
     unreliable: BiStream,
     reliable: BiStream,
     chunk: BiStream,
-    err_recv: Receiver<StreamError>,
+    err_recv: UnboundedReceiver<StreamError>,
 }
 
 #[derive(Resource)]
@@ -163,7 +163,7 @@ impl NetworkingClient {
             verify_stream(&mut reliable.1, "Test2").await;
             verify_stream(&mut chunk.1, "Test3").await;
 
-            let (send_err, err_recv) = unbounded();
+            let (send_err, err_recv) = unbounded_channel();
 
             let unreliable = BiStream::from_stream(unreliable.0, unreliable.1, send_err.clone());
             let reliable = BiStream::from_stream(reliable.0, reliable.1, send_err.clone());

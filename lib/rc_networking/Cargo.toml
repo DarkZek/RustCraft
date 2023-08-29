@@ -11,9 +11,8 @@ thiserror = "1.0.37"
 rcgen = "*"
 quinn = { version = "0.10.2"  }
 rustls = { version = "0.21.0", default-features = false, features = ["quic", "dangerous_configuration"] }
-tokio = { version = "*", features = ["rt", "rt-multi-thread"]}
+tokio = { version = "*", features = ["rt", "rt-multi-thread", "sync"]}
 futures = "*"
-crossbeam-channel = "0.5"
 
 [dependencies.bevy]
 workspace = true

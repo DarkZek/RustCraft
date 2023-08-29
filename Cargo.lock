@@ -3425,7 +3425,6 @@ dependencies = [
  "bevy",
  "bincode",
  "byteorder",
- "crossbeam-channel",
  "futures",
  "quinn",
  "rcgen",

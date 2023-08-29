@@ -8,7 +8,6 @@ use crate::*;
 use bevy::app::AppExit;
 use bevy::prelude::*;
 use bevy::utils::tracing::Instrument;
-use crossbeam_channel::{unbounded, Receiver, Sender};
 use futures::{AsyncWriteExt, FutureExt};
 use quinn::{Connection, Endpoint, RecvStream, SendStream, ServerConfig};
 use std::collections::HashMap;
@@ -17,6 +16,7 @@ use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 use std::time::Instant;
 use tokio::runtime::Runtime;
+use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver};
 use tokio::task::JoinHandle;
 
 const USERID_COUNTER: AtomicU64 = AtomicU64::new(0);
@@ -83,7 +83,7 @@ struct UserConnection {
     pub unreliable: BiStream,
     pub reliable: BiStream,
     pub chunk: BiStream,
-    pub recv_err: Receiver<StreamError>,
+    pub recv_err: UnboundedReceiver<StreamError>,
 }
 
 /// Accepts new connections then creates network channels
@@ -108,7 +108,7 @@ async fn open_new_conn(endpoint: Endpoint) -> UserConnection {
         .unwrap();
     chunk.0.write_all("Test3".as_bytes().into()).await.unwrap();
 
-    let (send_err, recv_err) = unbounded();
+    let (send_err, recv_err) = unbounded_channel();
 
     let unreliable = BiStream::from_stream(unreliable.0, unreliable.1, send_err.clone());
     let reliable = BiStream::from_stream(reliable.0, reliable.1, send_err.clone());
@@ -125,16 +125,16 @@ async fn open_new_conn(endpoint: Endpoint) -> UserConnection {
 
 /// Detect shutdowns and close networking client
 fn read_packets_system(mut server: ResMut<NetworkingServer>, mut recv: EventWriter<ReceivePacket>) {
-    for (userId, client) in server.connections.iter() {
-        let mut recieve_from_channel = |channel: &BiStream| {
+    for (userId, client) in server.connections.iter_mut() {
+        let mut recieve_from_channel = |channel: &mut BiStream| {
             while let Ok(packet) = channel.in_recv.try_recv() {
                 info!("{:?} => {:?}", userId, packet);
                 recv.send(ReceivePacket(packet, *userId));
             }
         };
-        recieve_from_channel(&client.unreliable);
-        recieve_from_channel(&client.reliable);
-        recieve_from_channel(&client.chunk);
+        recieve_from_channel(&mut client.unreliable);
+        recieve_from_channel(&mut client.reliable);
+        recieve_from_channel(&mut client.chunk);
     }
 }
 
