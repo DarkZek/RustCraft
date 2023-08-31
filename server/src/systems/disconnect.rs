@@ -2,7 +2,7 @@ use crate::{TransportSystem, WorldData};
 use bevy::ecs::event::EventReader;
 use bevy::ecs::prelude::{Commands, EventWriter, Res};
 use bevy::ecs::system::ResMut;
-use rc_networking::disconnect::NetworkDisconnectionEvent;
+use rc_networking::events::disconnect::NetworkDisconnectionEvent;
 use rc_networking::protocol::clientbound::despawn_entity::DespawnEntity;
 
 use rc_networking::protocol::Protocol;

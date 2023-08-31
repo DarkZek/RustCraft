@@ -23,6 +23,7 @@ use crate::systems::networking::ClientNetworkingPlugin;
 use crate::systems::physics::PhysicsPlugin;
 use crate::systems::ui::UIPlugin;
 use bevy::asset::ChangeWatcher;
+use bevy::core_pipeline::experimental::taa::TemporalAntiAliasPlugin;
 use bevy::log::{Level, LogPlugin};
 use bevy::prelude::*;
 use bevy::window::{WindowResizeConstraints, WindowResolution};
@@ -38,7 +39,7 @@ fn main() {
             DefaultPlugins
             .set(LogPlugin {
                 filter: "wgpu=error,rustcraft=debug,naga=error,bevy_app=info".into(),
-                level: Level::TRACE,
+                level: Level::INFO,
             })
             .set(bevy::prelude::AssetPlugin {
                 watch_for_changes: ChangeWatcher::with_delay(Duration::from_millis(200)),
@@ -46,6 +47,12 @@ fn main() {
             })
             .set(ImagePlugin::default_nearest()))
         .add_plugins(WorldInspectorPlugin::new())
+        .add_plugins(TemporalAntiAliasPlugin)
+
+        .insert_resource(AmbientLight {
+            brightness: 5.0,
+            ..default()
+        })
         
         // add the app state 
         .add_state::<AppState>()

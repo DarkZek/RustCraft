@@ -18,12 +18,13 @@ use crate::game::world::WorldPlugin;
 use crate::systems::chunk::ChunkPlugin;
 use crate::systems::tick::tick;
 use crate::transport::{TransportPlugin, TransportSystem};
-use bevy::app::{App, AppExit};
+use bevy::app::{App, AppExit, ScheduleRunnerPlugin};
 use bevy::log::{info, Level, LogPlugin};
-use bevy::prelude::{EventWriter, PreUpdate, Update};
+use bevy::prelude::{EventWriter, PluginGroup, PreUpdate, Update};
 use bevy::MinimalPlugins;
 use rc_networking::types::{ReceivePacket, SendPacket};
 use std::sync::atomic::{AtomicBool, Ordering};
+use std::time::Duration;
 
 static SHUTDOWN_BIT: AtomicBool = AtomicBool::new(false);
 
@@ -37,11 +38,15 @@ fn main() {
     // Build App
     App::default()
         .insert_resource(load_config())
-        .add_plugins(MinimalPlugins)
+        .add_plugins(
+            MinimalPlugins.set(ScheduleRunnerPlugin::run_loop(Duration::from_secs_f64(
+                1.0 / 200.0,
+            ))),
+        )
         // Plugins
         .add_plugins(LogPlugin {
             filter: "rechannel=warn".into(),
-            level: Level::TRACE,
+            level: Level::INFO,
         })
         .add_plugins(WorldPlugin)
         .add_plugins(TransportPlugin)

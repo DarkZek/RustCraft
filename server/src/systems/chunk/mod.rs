@@ -2,6 +2,7 @@ use crate::game::chunk::ChunkData;
 use crate::{App, TransportSystem, WorldData};
 use bevy::ecs::system;
 use bevy::prelude::*;
+use bevy::time::common_conditions::on_timer;
 use nalgebra::Vector3;
 use rayon::iter::ParallelIterator;
 use rayon::prelude::IntoParallelRefIterator;
@@ -12,6 +13,8 @@ use rc_networking::protocol::clientbound::chunk_update::FullChunkUpdate;
 use rc_networking::protocol::Protocol;
 use rc_networking::types::{ReceivePacket, SendPacket};
 use std::collections::HashMap;
+use std::thread;
+use std::time::Duration;
 
 const CHUNK_REQUEST_TIMESTEP: f64 = 1.0 / 60.0;
 
@@ -65,20 +68,16 @@ pub fn request_chunks(
         // Check if chunk exists
         if world.chunks.contains_key(&chunk_pos) {
             let chunk = world.chunks.get(&chunk_pos).unwrap();
-            let partial_updates = FullChunkUpdate::new(
-                chunk.world,
-                chunk.position.x,
-                chunk.position.y,
-                chunk.position.z,
-            )
-            .to_partial();
             // Send to user
-            for partial in partial_updates.iter() {
-                send_packets.send(SendPacket(
-                    Protocol::PartialChunkUpdate(partial.clone()),
-                    *user,
-                ));
-            }
+            send_packets.send(SendPacket(
+                Protocol::FullChunkUpdate(FullChunkUpdate::new(
+                    chunk.world,
+                    chunk.position.x,
+                    chunk.position.y,
+                    chunk.position.z,
+                )),
+                *user,
+            ));
         } else {
             if !to_generate.contains(&chunk_pos) {
                 to_generate.push(chunk_pos);

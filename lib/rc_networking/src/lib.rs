@@ -1,8 +1,7 @@
 pub mod bistream;
 pub mod client;
-pub mod connection;
 pub mod constants;
-pub mod disconnect;
+pub mod events;
 pub mod protocol;
 pub mod server;
 pub mod types;
@@ -43,7 +42,8 @@ fn get_channel(protocol: &Protocol) -> Channel {
         | Protocol::DespawnEntity(_)
         | Protocol::SpawnEntity(_)
         | Protocol::UpdateLoading(_)
-        | Protocol::RequestChunk(_) => Channel::Reliable,
+        | Protocol::RequestChunk(_)
+        | Protocol::ServerState(_) => Channel::Reliable,
 
         Protocol::FullChunkUpdate(_) | Protocol::PartialChunkUpdate(_) => Channel::Chunk,
     }

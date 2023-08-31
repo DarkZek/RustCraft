@@ -6,7 +6,6 @@ use bevy::ecs::system::Query;
 use bevy::log::info;
 use bevy::prelude::Entity;
 use nalgebra::Vector3;
-use rc_networking::connection::NetworkConnectionEvent;
 use std::sync::atomic::Ordering;
 
 use crate::events::authorize::AuthorizationEvent;
@@ -108,7 +107,7 @@ pub fn authorization_event(
             player_pos.z as i32,
         ));
 
-        let chunk_load_radius = 1;
+        let chunk_load_radius = 3;
 
         // Load chunks around player
         for x in (player_chunk.x - chunk_load_radius)..(player_chunk.x + chunk_load_radius) {

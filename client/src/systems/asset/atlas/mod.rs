@@ -107,7 +107,7 @@ pub fn build_texture_atlas(
             color_texture: Some(
                 images.get_handle(service.texture_atlas.as_ref().unwrap().get_image()),
             ),
-            alpha_mode: AlphaMode::Opaque,
+            alpha_mode: AlphaMode::Mask(0.2),
         },
     );
 
@@ -118,7 +118,7 @@ pub fn build_texture_atlas(
             color_texture: Some(
                 images.get_handle(service.texture_atlas.as_ref().unwrap().get_image()),
             ),
-            alpha_mode: AlphaMode::Opaque, // Culling happens in custom shader
+            alpha_mode: AlphaMode::Mask(0.2), // Culling happens in custom shader
         },
     );
 

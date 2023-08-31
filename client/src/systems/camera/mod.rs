@@ -4,6 +4,8 @@ use crate::systems::physics::aabb::Aabb;
 use crate::systems::physics::PhysicsObject;
 use bevy::core_pipeline::clear_color::ClearColorConfig;
 use bevy::core_pipeline::core_3d::{Camera3dDepthLoadOp, Camera3dDepthTextureUsage};
+use bevy::core_pipeline::experimental::taa::TemporalAntiAliasBundle;
+use bevy::pbr::ScreenSpaceAmbientOcclusionBundle;
 use bevy::prelude::*;
 use bevy::render::render_resource::TextureUsages;
 use nalgebra::Vector3;
@@ -36,22 +38,25 @@ fn setup_camera(mut commands: Commands) {
     ));
 
     // Spawn camera
-    commands.spawn(Camera3dBundle {
-        transform: start_transform,
-        camera_3d: Camera3d {
-            /// The clear color operation to perform for the main 3d pass.
-            clear_color: ClearColorConfig::Custom(Color::rgba(0.7137, 0.7803, 0.8784, 1.0)),
-            depth_load_op: Camera3dDepthLoadOp::Clear(0.0),
-            depth_texture_usages: TextureUsages::RENDER_ATTACHMENT.into(),
-        },
-        projection: Projection::Perspective(PerspectiveProjection {
-            fov: std::f32::consts::PI / 3.0,
-            near: 0.1,
-            far: 1000.0,
-            aspect_ratio: 1.0,
-        }),
-        ..default()
-    });
+    commands
+        .spawn(Camera3dBundle {
+            transform: start_transform,
+            camera_3d: Camera3d {
+                /// The clear color operation to perform for the main 3d pass.
+                clear_color: ClearColorConfig::Custom(Color::rgba(0.7137, 0.7803, 0.8784, 1.0)),
+                depth_load_op: Camera3dDepthLoadOp::Clear(0.0),
+                depth_texture_usages: TextureUsages::RENDER_ATTACHMENT.into(),
+            },
+            projection: Projection::Perspective(PerspectiveProjection {
+                fov: std::f32::consts::PI / 3.0,
+                near: 0.1,
+                far: 1000.0,
+                aspect_ratio: 1.0,
+            }),
+            ..default()
+        })
+        .insert(ScreenSpaceAmbientOcclusionBundle::default())
+        .insert(TemporalAntiAliasBundle::default());
 
     // Spawn player
     // Todo: Move this elsewhere

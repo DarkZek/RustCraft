@@ -1,6 +1,6 @@
 use crate::protocol::clientbound::update_loading::UpdateLoading;
 use crate::Protocol;
-use bevy::prelude::info;
+use bevy::prelude::{info, trace};
 use futures::task::SpawnExt;
 use quinn::{RecvStream, SendStream};
 use std::mem::size_of;
@@ -36,15 +36,27 @@ impl BiStream {
         let out_handle = tokio::spawn(async move {
             while let Some(packet) = out_recv.recv().await {
                 let packet_data = bincode::serialize(&packet).unwrap();
-                send.write_all(&bincode::serialize(&(packet_data.len() as u32)).unwrap())
+                if let Err(e) = send
+                    .write_all(&bincode::serialize(&(packet_data.len() as u32)).unwrap())
                     .await
-                    .unwrap();
-                send.write_all(&packet_data).await.unwrap();
-                info!("<= {:?}", packet);
+                {
+                    info!("Network write stream failed: {:?}", e);
+                    // Exiting
+                    err2.send(StreamError::Error);
+                    return send;
+                }
+
+                if let Err(e) = send.write_all(&packet_data).await {
+                    info!("Network write stream failed: {:?}", e);
+                    // Exiting
+                    err2.send(StreamError::Error);
+                    return send;
+                }
+
+                trace!("<= {:?}", packet);
             }
 
-            // Exiting
-            err2.send(StreamError::Error);
+            info!("Network stream exited");
 
             send
         });
@@ -54,21 +66,25 @@ impl BiStream {
         let in_handle = tokio::spawn(async move {
             loop {
                 let mut len_data = vec![0; size_of::<u32>()];
-                recv.read_exact(&mut len_data).await.unwrap();
+                if let Err(e) = recv.read_exact(&mut len_data).await {
+                    err.send(StreamError::Error);
+                    info!("Network stream exited: {:?}", e);
+                    return recv;
+                }
 
                 let len = bincode::deserialize::<u32>(&len_data).unwrap();
-                println!("Length {}", len);
 
                 let mut chunk_data = vec![0; len as usize];
 
-                if recv.read_exact(&mut chunk_data).await.is_err() {
+                if let Err(e) = recv.read_exact(&mut chunk_data).await {
                     err.send(StreamError::Error);
+                    info!("Network read stream failed: {:?}", e);
                     return recv;
                 }
 
                 let data = bincode::deserialize::<Protocol>(&chunk_data).unwrap();
-                info!("=> {:?}", data);
-                in_send.send(data);
+                trace!("=> {:?}", data);
+                in_send.send(data).unwrap();
             }
         });
 
