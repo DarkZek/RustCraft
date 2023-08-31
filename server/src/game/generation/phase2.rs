@@ -11,6 +11,8 @@ pub fn generate_greybox_chunk(
     environment: &ChunkEnvironment,
 ) -> (RawChunkData, [[i32; CHUNK_SIZE]; CHUNK_SIZE]) {
     let ground_noise = SimplexNoise::new(0).with_scale(30.0);
+    let ground_noise_2 = SimplexNoise::new(100).with_scale(50.0);
+    let ground_noise_3 = SimplexNoise::new(200).with_scale(100.0);
 
     let mut heightmap = [[0; CHUNK_SIZE]; CHUNK_SIZE];
 
@@ -20,15 +22,21 @@ pub fn generate_greybox_chunk(
 
             let mut base_height = 35;
 
-            if environment.terrain == Terrain::Hills {
-                base_height = 45;
-            }
+            let environment_entry = &environment[x][0][z];
 
-            let ground_level = base_height
-                + ground_noise
-                    .sample_2d(absolute.x, absolute.y)
-                    .mul(6.0)
-                    .floor() as i32;
+            // Hilly
+            let height_multiplier = if environment_entry.terrain > 0.5 {
+                14.0
+            } else {
+                8.0
+            };
+
+            let ground_level = (ground_noise_3.sample_2d(absolute.x, absolute.y)
+                * height_multiplier
+                + environment_entry.terrain * 10.0
+                + ground_noise_2.sample_2d(absolute.x, absolute.y) * 5.0
+                + ground_noise.sample_2d(absolute.x, absolute.y) * 2.0)
+                .floor() as i32;
 
             heightmap[x][z] = ground_level;
         }

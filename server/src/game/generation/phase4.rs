@@ -2,7 +2,7 @@ use crate::game::chunk::RawChunkData;
 use crate::game::generation::noise::SimplexNoise;
 use crate::helpers::global_to_local_position;
 use nalgebra::Vector3;
-use rc_client::systems::chunk::biome::{ChunkEnvironment, Vegetation};
+use rc_client::systems::chunk::biome::{ChunkEnvironment, EnvironmentEntry, Vegetation};
 use rc_networking::constants::CHUNK_SIZE;
 
 pub fn add_structures_to_chunk(
@@ -10,7 +10,7 @@ pub fn add_structures_to_chunk(
     pos: Vector3<i32>,
     world: &mut RawChunkData,
     heightmap: &[[i32; CHUNK_SIZE]; CHUNK_SIZE],
-    environment: &ChunkEnvironment,
+    environment_map: &ChunkEnvironment,
 ) {
     let tree_noise = SimplexNoise::new(seed + 10).with_scale(2.0);
 
@@ -25,10 +25,13 @@ pub fn add_structures_to_chunk(
 
                 let ground_level = heightmap[x][z];
 
+                let environment = &environment_map[x][y][z];
+
                 // Trees
                 if absolute.y == ground_level + 1
-                    && environment.vegetation == Vegetation::Trees
-                    && tree_noise.sample_2d(absolute.x, absolute.z) > 0.67
+                    && environment.vegetation > 0.5
+                    && tree_noise.sample_2d(absolute.x, absolute.z)
+                        > 1.0 - ((environment.vegetation - 0.5) * 0.8)
                 {
                     spawn_tree(seed, pos, absolute, world, heightmap, environment);
                 }
@@ -59,7 +62,7 @@ fn spawn_tree(
     pos: Vector3<i32>,
     world: &mut RawChunkData,
     heightmap: &[[i32; CHUNK_SIZE]; CHUNK_SIZE],
-    environment: &ChunkEnvironment,
+    environment: &EnvironmentEntry,
 ) {
     try_place_block(chunk_pos, world, pos, 4);
     try_place_block(chunk_pos, world, pos + Vector3::new(0, 1, 0), 4);

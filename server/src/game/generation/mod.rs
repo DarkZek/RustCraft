@@ -5,7 +5,7 @@ mod phase3;
 mod phase4;
 
 use crate::game::chunk::ChunkData;
-use crate::game::generation::phase1::generate_biome;
+use crate::game::generation::phase1::{generate_biome, generate_biome_map};
 use crate::game::generation::phase2::generate_greybox_chunk;
 use crate::game::generation::phase3::decorate_chunk;
 use crate::game::generation::phase4::add_structures_to_chunk;
@@ -25,7 +25,7 @@ impl ChunkData {
     ///     Structures are generated in this step such as trees
     pub fn generate(position: Vector3<i32>) -> ChunkData {
         let seed = 0;
-        let environment = generate_biome(
+        let environment = generate_biome_map(
             seed,
             Vector3::new(
                 position.x * CHUNK_SIZE as i32,

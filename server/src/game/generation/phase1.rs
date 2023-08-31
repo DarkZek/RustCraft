@@ -1,30 +1,41 @@
 use crate::game::generation::noise::SimplexNoise;
 use nalgebra::Vector3;
-use rc_client::systems::chunk::biome::{ChunkEnvironment, Climate, Terrain, Vegetation};
+use rc_client::systems::chunk::biome::{
+    ChunkEnvironment, Climate, EnvironmentEntry, Terrain, Vegetation,
+};
 
-pub fn generate_biome(seed: u32, pos: Vector3<i32>) -> ChunkEnvironment {
-    let climate_noise = SimplexNoise::new(seed).with_scale(180.0);
-    let mut climate = Climate::Temperate;
+pub fn generate_biome_map(seed: u32, pos: Vector3<i32>) -> ChunkEnvironment {
+    let mut map = [[[EnvironmentEntry {
+        climate: 0.0,
+        terrain: 0.0,
+        vegetation: 0.0,
+    }; 16]; 16]; 16];
 
-    if climate_noise.sample_2d(pos.x, pos.z) > 0.7 {
-        climate = Climate::Tropic;
+    for x in 0..16 {
+        for y in 0..16 {
+            for z in 0..16 {
+                map[x][y][z] = generate_biome(seed, pos + Vector3::new(x, y, z).cast::<i32>());
+            }
+        }
     }
 
-    let terrain_noise = SimplexNoise::new(seed + 1).with_scale(180.0);
-    let mut terrain = Terrain::Plain;
+    return map;
+}
 
-    if terrain_noise.sample_2d(pos.x, pos.z) > 0.7 {
-        terrain = Terrain::Hills;
-    }
+pub fn generate_biome(seed: u32, pos: Vector3<i32>) -> EnvironmentEntry {
+    let climate_noise = SimplexNoise::new(seed).with_scale(180.0 * 16.0);
 
-    let vegetation_noise = SimplexNoise::new(seed + 2);
-    let mut vegetation = Vegetation::Grass;
+    let climate = climate_noise.sample_2d(pos.x, pos.z);
 
-    if vegetation_noise.sample_2d(pos.x, pos.z) > 0.5 {
-        vegetation = Vegetation::Trees;
-    }
+    let terrain = SimplexNoise::new(seed + 1)
+        .with_scale(180.0 * 16.0)
+        .sample_2d(pos.x, pos.z);
 
-    return ChunkEnvironment {
+    let mut vegetation = SimplexNoise::new(seed + 2)
+        .with_scale(16.0)
+        .sample_2d(pos.x, pos.z);
+
+    return EnvironmentEntry {
         climate,
         terrain,
         vegetation,

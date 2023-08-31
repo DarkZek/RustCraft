@@ -1,8 +1,10 @@
-#[derive(Eq, PartialEq, Debug)]
-pub struct ChunkEnvironment {
-    pub climate: Climate,
-    pub terrain: Terrain,
-    pub vegetation: Vegetation,
+pub type ChunkEnvironment = [[[EnvironmentEntry; 16]; 16]; 16];
+
+#[derive(PartialEq, Debug, Copy, Clone)]
+pub struct EnvironmentEntry {
+    pub climate: f64,
+    pub terrain: f64,
+    pub vegetation: f64,
 }
 
 #[derive(Eq, PartialEq, Debug)]
