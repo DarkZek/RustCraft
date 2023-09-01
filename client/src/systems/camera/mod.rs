@@ -55,8 +55,8 @@ fn setup_camera(mut commands: Commands) {
             }),
             ..default()
         })
-        .insert(ScreenSpaceAmbientOcclusionBundle::default());
-    //.insert(TemporalAntiAliasBundle::default());
+        .insert(ScreenSpaceAmbientOcclusionBundle::default())
+        .insert(TemporalAntiAliasBundle::default());
 
     // Spawn player
     // Todo: Move this elsewhere
