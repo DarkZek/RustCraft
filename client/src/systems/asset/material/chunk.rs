@@ -29,6 +29,13 @@ impl Material for ChunkMaterial {
         "shaders/chunk_material.wgsl".into()
     }
 
+    fn prepass_vertex_shader() -> ShaderRef {
+        "shaders/chunk_material_depth.wgsl".into()
+    }
+    fn prepass_fragment_shader() -> ShaderRef {
+        "shaders/chunk_material_depth.wgsl".into()
+    }
+
     fn alpha_mode(&self) -> AlphaMode {
         self.alpha_mode
     }

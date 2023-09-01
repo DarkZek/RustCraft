@@ -7,7 +7,7 @@ use crate::systems::input::look::update_input_look;
 use crate::systems::input::movement::update_input_movement;
 use bevy::app::{App, Plugin};
 use bevy::prelude::*;
-use bevy::window::{CursorGrabMode, PrimaryWindow};
+use bevy::window::{CursorGrabMode, PresentMode, PrimaryWindow};
 use nalgebra::Vector3;
 
 pub struct InputPlugin;
@@ -41,6 +41,10 @@ fn grab_mouse(
     let Ok(mut window) = primary_query.get_single_mut() else {
         return;
     };
+
+    // No vsync
+    window.present_mode = PresentMode::AutoNoVsync;
+
     if mouse.just_pressed(MouseButton::Left) {
         window.cursor.visible = false;
         window.cursor.grab_mode = CursorGrabMode::Confined;

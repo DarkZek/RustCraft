@@ -25,6 +25,7 @@ use crate::systems::ui::UIPlugin;
 use bevy::asset::ChangeWatcher;
 use bevy::core_pipeline::experimental::taa::TemporalAntiAliasPlugin;
 use bevy::log::{Level, LogPlugin};
+use bevy::pbr::PrepassPlugin;
 use bevy::prelude::*;
 use bevy::window::{WindowResizeConstraints, WindowResolution};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;

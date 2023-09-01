@@ -5,7 +5,7 @@ use crate::helpers::{get_chunk_coords, global_to_local_position};
 use crate::systems::chunk::data::{ChunkData, LightingColor, RawLightingData};
 use crate::systems::chunk::nearby_cache::NearbyChunkCache;
 use bevy::prelude::system_adapter::new;
-use bevy::prelude::Entity;
+use bevy::prelude::{info, Entity};
 use nalgebra::{max, Vector3, Vector4};
 use rc_networking::constants::CHUNK_SIZE;
 use std::collections::VecDeque;
@@ -144,7 +144,7 @@ impl ChunkData {
             }
         }
 
-        println!(
+        info!(
             "Took {}ns to render {:?} with {} lights with flood fill",
             start.elapsed().as_nanos(),
             self.position,
@@ -285,7 +285,7 @@ impl ChunkData {
             }
         }
 
-        println!(
+        info!(
             "Took {}ns to render {:?} with with blur",
             start.elapsed().as_nanos(),
             self.position,

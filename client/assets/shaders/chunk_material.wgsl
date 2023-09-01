@@ -1,4 +1,4 @@
-#import bevy_pbr::mesh_view_bindings    view
+#import bevy_pbr::mesh_view_bindings    view, screen_space_ambient_occlusion_texture
 #import bevy_pbr::mesh_bindings         mesh
 
 #import bevy_pbr::pbr_types as pbr_types
@@ -6,6 +6,9 @@
 #import bevy_pbr::clustered_forward
 #import bevy_pbr::lighting
 #import bevy_pbr::shadows
+
+#import bevy_pbr::gtao_utils gtao_multibounce
+#import bevy_pbr::prepass_utils
 #import bevy_pbr::pbr_functions as pbr_functions
 
 struct ChunkMaterial {
@@ -85,15 +88,14 @@ fn fragment(in: FragmentInput) -> @location(0) vec4<f32> {
     );
     input.is_orthographic = false;
 
-    input.N = pbr_functions::apply_normal_mapping(
-        input.material.flags,
-        input.world_normal,
-        in.uv,
-        view.mip_bias
-    );
+    let ssao = textureLoad(screen_space_ambient_occlusion_texture, vec2<i32>(in.frag_coord.xy), 0i).r;
+    let ssao_multibounce = gtao_multibounce(ssao, input.material.base_color.rgb);
+    input.occlusion = min(vec3(1.0), ssao_multibounce);
+
+    input.N = bevy_pbr::prepass_utils::prepass_normal(in.frag_coord, 0u);
     input.V = pbr_functions::calculate_view(in.world_position, false);
 
-    var pbr_color = (pbr_functions::pbr(input) * 0.5) + vec4(0.5);
+    var pbr_color = pbr_functions::pbr(input);
 
-    return pbr_color * in.lighting * output_color;
+    return pbr_color * in.lighting * output_color * vec4(min(vec3(1.0), ssao_multibounce), 1.0);
 }

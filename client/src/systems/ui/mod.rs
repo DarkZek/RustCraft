@@ -1,10 +1,12 @@
 pub mod connecting;
+mod fps;
 mod inventory;
 pub mod loading;
 pub mod main_menu;
 
 use crate::state::AppState;
 use crate::systems::ui::connecting::ConnectingData;
+use crate::systems::ui::fps::{setup_fps_ui, update_fps_ui, FpsData};
 use crate::systems::ui::inventory::hotbar::{setup_hotbar_ui, update_hotbar_ui};
 use crate::systems::ui::inventory::InventoryUI;
 use crate::systems::ui::loading::{
@@ -28,6 +30,10 @@ impl Plugin for UIPlugin {
             .add_systems(Update, set_loading.run_if(in_state(AppState::Preloading)))
             .add_systems(Update, check_loading.run_if(in_state(AppState::Loading)))
             .add_systems(OnExit(AppState::Loading), remove_loading_ui)
+            // Fps
+            .insert_resource(FpsData::default())
+            .add_systems(Startup, setup_fps_ui)
+            .add_systems(Update, update_fps_ui)
             // Inventory
             .insert_resource(InventoryUI::default())
             .add_systems(OnEnter(AppState::InGame), setup_hotbar_ui)

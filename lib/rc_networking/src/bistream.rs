@@ -40,14 +40,14 @@ impl BiStream {
                     .write_all(&bincode::serialize(&(packet_data.len() as u32)).unwrap())
                     .await
                 {
-                    info!("Network write stream failed: {:?}", e);
+                    trace!("Network write stream failed: {:?}", e);
                     // Exiting
                     err2.send(StreamError::Error);
                     return send;
                 }
 
                 if let Err(e) = send.write_all(&packet_data).await {
-                    info!("Network write stream failed: {:?}", e);
+                    trace!("Network write stream failed: {:?}", e);
                     // Exiting
                     err2.send(StreamError::Error);
                     return send;
@@ -56,7 +56,7 @@ impl BiStream {
                 trace!("<= {:?}", packet);
             }
 
-            info!("Network stream exited");
+            trace!("Network stream exited");
 
             send
         });
@@ -68,7 +68,7 @@ impl BiStream {
                 let mut len_data = vec![0; size_of::<u32>()];
                 if let Err(e) = recv.read_exact(&mut len_data).await {
                     err.send(StreamError::Error);
-                    info!("Network stream exited: {:?}", e);
+                    trace!("Network stream exited: {:?}", e);
                     return recv;
                 }
 
@@ -78,7 +78,7 @@ impl BiStream {
 
                 if let Err(e) = recv.read_exact(&mut chunk_data).await {
                     err.send(StreamError::Error);
-                    info!("Network read stream failed: {:?}", e);
+                    trace!("Network read stream failed: {:?}", e);
                     return recv;
                 }
 
