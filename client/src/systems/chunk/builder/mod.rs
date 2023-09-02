@@ -7,6 +7,7 @@ use crate::helpers::from_bevy_vec3;
 use crate::systems::chunk::builder::entry::{MeshBuildEntry, PLAYER_POS};
 use crate::systems::chunk::builder::generate_mesh::UpdateChunkMesh;
 use crate::systems::chunk::builder::lighting::LightingUpdateData;
+use crate::systems::chunk::data::ChunkData;
 use crate::systems::chunk::nearby_cache::NearbyChunkCache;
 use crate::systems::chunk::ChunkSystem;
 use bevy::prelude::*;
@@ -48,7 +49,6 @@ pub fn mesh_builder(
     camera: Query<&Transform, With<Camera>>,
     block_states: Res<BlockStates>,
     mut builder_data: Local<MeshBuilderCache>,
-    mut commands: Commands,
 ) {
     // Update player location
     let pos = from_bevy_vec3(camera.single().translation);
@@ -150,22 +150,21 @@ pub fn mesh_builder(
                 // Generate mesh & gpu buffers
                 Some((
                     chunk.build_mesh(&chunks, &block_states, true, &cache),
-                    &chunk.opaque_mesh,
-                    &chunk.translucent_mesh,
+                    chunk,
                 ))
             } else {
                 warn!("Chunk data doesn't exist when trying to build chunk");
                 None
             }
         })
-        .collect::<Vec<Option<(UpdateChunkMesh, &Handle<Mesh>, &Handle<Mesh>)>>>();
+        .collect::<Vec<Option<(UpdateChunkMesh, &ChunkData)>>>();
 
     for update in updates {
-        if let Some((val, opaque_mesh, translucent_mesh)) = update {
-            // TODO: Remove mesh component when chunk is entirely transparent
-            val.opaque.apply_mesh(meshes.get_mut(opaque_mesh).unwrap());
+        if let Some((val, chunk)) = update {
+            val.opaque
+                .apply_mesh(meshes.get_mut(&chunk.opaque_mesh).unwrap());
             val.translucent
-                .apply_mesh(meshes.get_mut(translucent_mesh).unwrap());
+                .apply_mesh(meshes.get_mut(&chunk.translucent_mesh).unwrap());
         }
     }
 }

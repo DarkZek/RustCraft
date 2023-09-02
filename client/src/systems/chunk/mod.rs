@@ -1,5 +1,7 @@
 use crate::systems::asset::AssetService;
-use crate::systems::chunk::builder::{mesh_builder, RerenderChunkFlag, RerenderChunkFlagContext};
+use crate::systems::chunk::builder::{
+    mesh_builder, RerenderChunkFlag, RerenderChunkFlagContext, ATTRIBUTE_LIGHTING_COLOR,
+};
 use crate::systems::chunk::data::{ChunkData, RawChunkData};
 use crate::systems::chunk::request::request_chunks;
 use bevy::prelude::*;
@@ -53,12 +55,20 @@ impl ChunkSystem {
         rerender_chunk: &mut EventWriter<RerenderChunkFlag>,
         meshes: &mut Assets<Mesh>,
     ) {
-        let opaque = meshes.add(Mesh::new(PrimitiveTopology::TriangleList));
-        let translucent = meshes.add(Mesh::new(PrimitiveTopology::TriangleList));
+        let mut mesh = Mesh::new(PrimitiveTopology::TriangleList);
 
+        mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, vec![] as Vec<[f32; 3]>);
+        mesh.insert_attribute(Mesh::ATTRIBUTE_NORMAL, vec![] as Vec<[f32; 3]>);
+        mesh.insert_attribute(Mesh::ATTRIBUTE_UV_0, vec![] as Vec<[f32; 2]>);
+        mesh.insert_attribute(ATTRIBUTE_LIGHTING_COLOR, vec![] as Vec<[f32; 4]>);
+
+        let opaque = meshes.add(mesh.clone());
+        let translucent = meshes.add(mesh);
+
+        let mut opaque_entity = None;
+        let mut transparent_entity = None;
         let entity = commands
-            .spawn(asset_service.opaque_texture_atlas_material.clone())
-            .insert(Transform::from_translation(Vec3::new(
+            .spawn(Transform::from_translation(Vec3::new(
                 (position.x * CHUNK_SIZE as i32) as f32,
                 (position.y * CHUNK_SIZE as i32) as f32,
                 (position.z * CHUNK_SIZE as i32) as f32,
@@ -66,26 +76,45 @@ impl ChunkSystem {
             .insert(GlobalTransform::default())
             .insert(Visibility::default())
             .insert(ComputedVisibility::default())
-            .insert(Aabb::from_min_max(
-                Vec3::new(0.0, 0.0, 0.0),
-                Vec3::new(16.0, 16.0, 16.0),
-            ))
-            .insert(opaque.clone())
             .with_children(|c| {
-                c.spawn(asset_service.translucent_texture_atlas_material.clone())
-                    .insert(Transform::default())
-                    .insert(GlobalTransform::default())
-                    .insert(Visibility::default())
-                    .insert(ComputedVisibility::default())
-                    .insert(Aabb::from_min_max(
-                        Vec3::new(0.0, 0.0, 0.0),
-                        Vec3::new(16.0, 16.0, 16.0),
-                    ))
-                    .insert(translucent.clone());
+                opaque_entity = Some(
+                    c.spawn(asset_service.opaque_texture_atlas_material.clone())
+                        .insert(Transform::default())
+                        .insert(GlobalTransform::default())
+                        .insert(Visibility::default())
+                        .insert(ComputedVisibility::default())
+                        .insert(Aabb::from_min_max(
+                            Vec3::new(0.0, 0.0, 0.0),
+                            Vec3::new(16.0, 16.0, 16.0),
+                        ))
+                        .insert(opaque.clone())
+                        .id(),
+                );
+                transparent_entity = Some(
+                    c.spawn(asset_service.translucent_texture_atlas_material.clone())
+                        .insert(Transform::default())
+                        .insert(GlobalTransform::default())
+                        .insert(Visibility::default())
+                        .insert(ComputedVisibility::default())
+                        .insert(Aabb::from_min_max(
+                            Vec3::new(0.0, 0.0, 0.0),
+                            Vec3::new(16.0, 16.0, 16.0),
+                        ))
+                        .insert(translucent.clone())
+                        .id(),
+                );
             })
             .id();
 
-        let chunk = ChunkData::new(data, entity, position, opaque, translucent);
+        let chunk = ChunkData::new(
+            data,
+            entity,
+            opaque_entity.unwrap(),
+            transparent_entity.unwrap(),
+            position,
+            opaque,
+            translucent,
+        );
 
         self.chunks.insert(position, chunk);
 

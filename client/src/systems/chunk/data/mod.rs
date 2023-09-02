@@ -12,6 +12,8 @@ pub struct ChunkData {
     pub position: Vector3<i32>,
 
     pub entity: Entity,
+    pub opaque_entity: Entity,
+    pub transparent_entity: Entity,
 
     pub opaque_mesh: Handle<Mesh>,
     pub translucent_mesh: Handle<Mesh>,
@@ -28,6 +30,8 @@ impl ChunkData {
     pub fn new(
         data: RawChunkData,
         entity: Entity,
+        opaque_entity: Entity,
+        transparent_entity: Entity,
         position: Vector3<i32>,
         opaque_mesh: Handle<Mesh>,
         translucent_mesh: Handle<Mesh>,
@@ -38,6 +42,8 @@ impl ChunkData {
             position,
             light_levels: [[[[255, 255, 255, 255]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE],
             entity,
+            opaque_entity,
+            transparent_entity,
             opaque_mesh,
             translucent_mesh,
         }

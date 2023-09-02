@@ -4,6 +4,7 @@ use crate::error::ServerError;
 use bevy::ecs::entity::Entity;
 use bevy::ecs::prelude::Resource;
 use bevy::log::error;
+use bevy::prelude::info;
 use nalgebra::Vector3;
 use rc_networking::constants::EntityId;
 use std::collections::HashMap;
@@ -43,6 +44,8 @@ impl WorldData {
                 }
             }
         }
+
+        info!("Loaded spawn chunks");
 
         WorldData {
             chunks,
