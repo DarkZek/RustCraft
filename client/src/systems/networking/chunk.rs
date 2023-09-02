@@ -7,12 +7,13 @@ use bevy::utils::hashbrown::HashMap;
 
 use crate::systems::chunk::builder::{RerenderChunkFlag, RerenderChunkFlagContext};
 use nalgebra::Vector3;
-use rc_networking::constants::CHUNK_SIZE;
+use rc_networking::constants::{UserId, CHUNK_SIZE};
 use rc_networking::protocol::clientbound::chunk_update::{
     FullChunkUpdate, PartialChunkUpdate, PARTIAL_CHUNK_UPDATE_SIZE,
 };
+use rc_networking::protocol::serverbound::acknowledge_chunk::AcknowledgeChunk;
 use rc_networking::protocol::Protocol;
-use rc_networking::types::ReceivePacket;
+use rc_networking::types::{ReceivePacket, SendPacket};
 
 #[derive(Default)]
 pub struct ChunkSync {
@@ -27,6 +28,7 @@ pub fn network_chunk_sync(
     mut chunk_service: ResMut<ChunkSystem>,
     mut rerender_chunks: EventWriter<RerenderChunkFlag>,
     mut chunk_cache: Local<ChunkSync>,
+    mut send_response: EventWriter<SendPacket>,
 ) {
     for event in event_reader.iter() {
         match &event.0 {
@@ -41,6 +43,12 @@ pub fn network_chunk_sync(
                     &mut rerender_chunks,
                     &mut meshes,
                 );
+
+                // Acknowledge
+                send_response.send(SendPacket(
+                    Protocol::AcknowledgeChunk(AcknowledgeChunk::new(update.x, update.y, update.z)),
+                    UserId(0),
+                ));
             }
             Protocol::PartialChunkUpdate(update) => {
                 if !chunk_cache.partial_chunks.contains_key(&update.id) {

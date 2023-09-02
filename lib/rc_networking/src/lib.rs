@@ -43,7 +43,8 @@ fn get_channel(protocol: &Protocol) -> Channel {
         | Protocol::SpawnEntity(_)
         | Protocol::UpdateLoading(_)
         | Protocol::RequestChunk(_)
-        | Protocol::ServerState(_) => Channel::Reliable,
+        | Protocol::ServerState(_)
+        | Protocol::AcknowledgeChunk(_) => Channel::Reliable,
 
         Protocol::FullChunkUpdate(_) | Protocol::PartialChunkUpdate(_) => Channel::Chunk,
     }

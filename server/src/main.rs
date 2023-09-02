@@ -1,4 +1,5 @@
 #![feature(fs_try_exists)]
+#![feature(let_else)]
 #![allow(unused_variables)]
 #![allow(dead_code)]
 

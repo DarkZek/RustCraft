@@ -123,6 +123,10 @@ pub fn authorization_event(
             }
         }
 
+        chunk_system
+            .chunk_outstanding_requests
+            .insert(client.user_id, 0);
+
         // List this user as still loading in content, so we know to send them a packet to close the loading screen once chunks have been sent
         transport.initialising_clients.insert(client.user_id);
     }

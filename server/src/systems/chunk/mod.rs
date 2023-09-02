@@ -1,8 +1,10 @@
 use crate::game::chunk::ChunkData;
 use crate::{App, TransportSystem, WorldData};
 use bevy::ecs::system;
+use bevy::prelude::KeyCode::Sysrq;
 use bevy::prelude::*;
 use bevy::time::common_conditions::on_timer;
+use bevy::utils::petgraph::visit::Walker;
 use nalgebra::Vector3;
 use rayon::iter::ParallelIterator;
 use rayon::prelude::IntoParallelRefIterator;
@@ -16,7 +18,7 @@ use std::collections::HashMap;
 use std::thread;
 use std::time::Duration;
 
-const CHUNK_REQUEST_TIMESTEP: f64 = 1.0 / 60.0;
+const MAX_OUTSTANDING_CHUNK_REQUESTS: usize = 20;
 
 pub struct ChunkPlugin;
 
@@ -25,6 +27,7 @@ impl Plugin for ChunkPlugin {
         app.insert_resource(ChunkSystem {
             generating_chunks: Default::default(),
             requesting_chunks: Default::default(),
+            chunk_outstanding_requests: Default::default(),
         })
         .add_systems(Update, get_chunk_requests)
         .add_systems(Update, request_chunks)
@@ -36,21 +39,36 @@ impl Plugin for ChunkPlugin {
 pub struct ChunkSystem {
     pub generating_chunks: Vec<Vector3<i32>>,
     pub requesting_chunks: HashMap<UserId, Vec<Vector3<i32>>>,
+    // How many chunk requests have been send and are waiting acknowledgement
+    pub chunk_outstanding_requests: HashMap<UserId, usize>,
 }
 
 pub fn request_chunks(
     mut system: ResMut<ChunkSystem>,
     mut world: ResMut<WorldData>,
     mut send_packets: EventWriter<SendPacket>,
+    mut receive_packets: EventReader<ReceivePacket>,
     transport: Res<TransportSystem>,
     mut transforms: Query<&mut Transform>,
 ) {
-    let mut to_generate = Vec::new();
-    for (user, chunks) in &mut system.requesting_chunks {
-        if chunks.len() == 0 {
-            continue;
-        }
+    // Manually split because ResMut removes default borrow splitting
+    let ChunkSystem {
+        requesting_chunks,
+        chunk_outstanding_requests,
+        generating_chunks,
+    } = &mut *system;
 
+    // Remove packets received
+    for packet in receive_packets.iter() {
+        if let Protocol::AcknowledgeChunk(data) = packet.0 {
+            // Remove one
+            *chunk_outstanding_requests.get_mut(&packet.1).unwrap() =
+                (chunk_outstanding_requests.get(&packet.1).unwrap() - 1).max(0);
+        }
+    }
+
+    let mut to_generate = Vec::new();
+    for (user, chunks) in requesting_chunks {
         if let Some(Some(entity)) = transport.clients.get(&user).map(|v| v.entity) {
             if let Ok(transform) = transforms.get(entity) {
                 let pos = from_bevy_vec3(transform.translation);
@@ -63,26 +81,37 @@ pub fn request_chunks(
             }
         }
 
-        let chunk_pos = chunks.pop().unwrap();
+        while chunk_outstanding_requests.get(user).unwrap() < &MAX_OUTSTANDING_CHUNK_REQUESTS {
+            // If no chunks left
+            let Some(chunk_pos) = chunks.pop() else {
+                break;
+            };
 
-        // Check if chunk exists
-        if world.chunks.contains_key(&chunk_pos) {
-            let chunk = world.chunks.get(&chunk_pos).unwrap();
-            // Send to user
-            send_packets.send(SendPacket(
-                Protocol::FullChunkUpdate(FullChunkUpdate::new(
-                    chunk.world,
-                    chunk.position.x,
-                    chunk.position.y,
-                    chunk.position.z,
-                )),
-                *user,
-            ));
-        } else {
-            if !to_generate.contains(&chunk_pos) {
-                to_generate.push(chunk_pos);
+            // Check if chunk exists
+            if world.chunks.contains_key(&chunk_pos) {
+                let chunk = world.chunks.get(&chunk_pos).unwrap();
+                // Send to user
+                send_packets.send(SendPacket(
+                    Protocol::FullChunkUpdate(FullChunkUpdate::new(
+                        chunk.world,
+                        chunk.position.x,
+                        chunk.position.y,
+                        chunk.position.z,
+                    )),
+                    *user,
+                ));
+
+                println!("Sending chunk");
+
+                // Increase outstanding requests
+                *chunk_outstanding_requests.get_mut(user).unwrap() += 1;
+            } else {
+                if !to_generate.contains(&chunk_pos) {
+                    to_generate.push(chunk_pos);
+                }
+                chunks.push(chunk_pos);
+                break;
             }
-            chunks.push(chunk_pos);
         }
     }
     system.generating_chunks.append(&mut to_generate);
