@@ -4,7 +4,7 @@ use rc_client::systems::chunk::biome::{
     ChunkEnvironment, Climate, EnvironmentEntry, Terrain, Vegetation,
 };
 
-pub fn generate_biome_map(seed: u32, pos: Vector3<i32>) -> ChunkEnvironment {
+pub fn generate_environment_map(seed: u32, pos: Vector3<i32>) -> ChunkEnvironment {
     let mut map = [[[EnvironmentEntry {
         climate: 0.0,
         terrain: 0.0,
