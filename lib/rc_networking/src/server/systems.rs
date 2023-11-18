@@ -1,6 +1,7 @@
 use crate::bistream::BiStream;
 use crate::constants::UserId;
 use crate::events::connection::NetworkConnectionEvent;
+use crate::events::disconnect::NetworkDisconnectionEvent;
 use crate::protocol::clientbound::server_state::ServerState;
 use crate::server::user_connection::UserConnection;
 use crate::server::{NetworkingServer, USERID_COUNTER};
@@ -21,6 +22,7 @@ use tokio::sync::mpsc::unbounded_channel;
 pub fn update_system(
     mut server: ResMut<NetworkingServer>,
     mut connection_event: EventWriter<NetworkConnectionEvent>,
+    mut disconnection_event: EventWriter<NetworkDisconnectionEvent>,
 ) {
     // If there is a currently running task to connect a new user
     if server.new_conn_task.is_some() {
@@ -53,6 +55,7 @@ pub fn update_system(
         } else {
             // Either the writer was disconnected, or an error was given. Either way it's disconnected
             warn!("Unexpected disconnect from server {:?}", userid);
+            disconnection_event.send(NetworkDisconnectionEvent { client: *userid });
             false
         };
     });

@@ -16,9 +16,9 @@ impl Plugin for WorldPlugin {
 }
 
 fn save_world(
-    mut world: Res<WorldData>,
+    world: Res<WorldData>,
     config: Res<ServerConfig>,
-    mut bevy_shutdown: EventReader<AppExit>,
+    bevy_shutdown: EventReader<AppExit>,
 ) {
     if bevy_shutdown.is_empty() || !config.save_world {
         return;

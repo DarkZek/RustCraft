@@ -6,7 +6,7 @@ use crate::game::viewable_direction::ViewableDirectionBitMap;
 use crate::systems::asset::AssetService;
 use crate::systems::chunk::ChunkSystem;
 use crate::systems::physics::aabb::Aabb;
-use crate::systems::ui::loading::LoadingData;
+use crate::systems::ui::loading::LoadingUIData;
 
 use crate::systems::chunk::builder::{RerenderChunkFlag, RerenderChunkFlagContext};
 use crate::systems::chunk::mesh::face::Face;
@@ -50,7 +50,7 @@ pub fn track_blockstate_changes(
     atlas: Res<AssetService>,
     chunks: ResMut<ChunkSystem>,
     mut commands: Commands,
-    mut loading: ResMut<LoadingData>,
+    mut loading: ResMut<LoadingUIData>,
     mut rerender_chunks: EventWriter<RerenderChunkFlag>,
 ) {
     for event in events.iter() {

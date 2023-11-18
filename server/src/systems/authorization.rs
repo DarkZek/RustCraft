@@ -99,7 +99,7 @@ pub fn authorization_event(
         global.entities.insert(entity_id, entity.clone());
         transport.clients.get_mut(&client.user_id).unwrap().entity = Some(entity);
 
-        let mut chunks = global.chunks.keys();
+        let chunks = global.chunks.keys();
 
         let (player_chunk, _) = global_to_local_position(Vector3::new(
             player_pos.x as i32,

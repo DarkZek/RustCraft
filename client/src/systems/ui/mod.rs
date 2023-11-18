@@ -4,13 +4,16 @@ mod inventory;
 pub mod loading;
 pub mod main_menu;
 
+pub mod debugging;
+
 use crate::state::AppState;
 use crate::systems::ui::connecting::ConnectingData;
-use crate::systems::ui::fps::{setup_fps_ui, update_fps_ui, FpsData};
+use crate::systems::ui::debugging::{setup_debugging_ui, update_debugging_ui, DebuggingUIData};
+use crate::systems::ui::fps::{setup_fps_ui, update_fps_ui, FpsUIData};
 use crate::systems::ui::inventory::hotbar::{setup_hotbar_ui, update_hotbar_ui};
 use crate::systems::ui::inventory::InventoryUI;
 use crate::systems::ui::loading::{
-    check_loading, remove_loading_ui, set_loading, setup_loading_ui, LoadingData,
+    check_loading, remove_loading_ui, set_loading, setup_loading_ui, LoadingUIData,
 };
 use crate::systems::ui::main_menu::{button_system, destroy_main_menu, setup_main_menu};
 use bevy::prelude::*;
@@ -25,19 +28,23 @@ impl Plugin for UIPlugin {
             .add_systems(Update, button_system.run_if(in_state(AppState::MainMenu)))
             .add_systems(OnExit(AppState::MainMenu), destroy_main_menu)
             // Loading
-            .insert_resource(LoadingData::default())
+            .insert_resource(LoadingUIData::default())
             .add_systems(Startup, setup_loading_ui)
             .add_systems(Update, set_loading.run_if(in_state(AppState::Preloading)))
             .add_systems(Update, check_loading.run_if(in_state(AppState::Loading)))
             .add_systems(OnExit(AppState::Loading), remove_loading_ui)
             // Fps
-            .insert_resource(FpsData::default())
+            .insert_resource(FpsUIData::default())
             .add_systems(Startup, setup_fps_ui)
             .add_systems(Update, update_fps_ui)
             // Inventory
             .insert_resource(InventoryUI::default())
             .add_systems(OnEnter(AppState::InGame), setup_hotbar_ui)
             .add_systems(Update, update_hotbar_ui)
+            // Debugging
+            .insert_resource(DebuggingUIData::default())
+            .add_systems(Startup, setup_debugging_ui)
+            .add_systems(Update, update_debugging_ui)
             // Connecting
             .insert_resource(ConnectingData::default())
             .add_systems(

@@ -6,13 +6,13 @@ pub fn set_loading(mut app_state: ResMut<NextState<AppState>>) {
 }
 
 #[derive(Resource, Default, Debug)]
-pub struct LoadingData {
+pub struct LoadingUIData {
     pub texture_atlas: bool,
     pub block_states: bool,
     pub ui: Option<Entity>,
 }
 
-pub fn setup_loading_ui(mut commands: Commands, mut data: ResMut<LoadingData>) {
+pub fn setup_loading_ui(mut commands: Commands, mut data: ResMut<LoadingUIData>) {
     let ui = commands
         .spawn(NodeBundle {
             style: Style {
@@ -31,15 +31,15 @@ pub fn setup_loading_ui(mut commands: Commands, mut data: ResMut<LoadingData>) {
     data.ui = Some(ui);
 }
 
-pub fn remove_loading_ui(mut commands: Commands, data: ResMut<LoadingData>) {
+pub fn remove_loading_ui(mut commands: Commands, data: ResMut<LoadingUIData>) {
     if let Some(ui) = data.ui {
         commands.entity(ui).despawn();
     }
-    commands.remove_resource::<LoadingData>();
+    commands.remove_resource::<LoadingUIData>();
 }
 
 pub fn check_loading(
-    data: Res<LoadingData>,
+    data: Res<LoadingUIData>,
     mut app_state: ResMut<State<AppState>>,
     mut set_app_state: ResMut<NextState<AppState>>,
 ) {

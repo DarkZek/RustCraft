@@ -65,7 +65,7 @@ fn fragment(in: FragmentInput) -> FragmentOutput {
        discard;
     }
 
-    out.normal = vec4(in.world_normal * 0.5 + vec3(0.5), 1.0);
+    out.normal = vec4(in.world_normal, 1.0);
 
     return out;
 }

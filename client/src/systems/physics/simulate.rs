@@ -4,6 +4,7 @@ use crate::systems::chunk::data::ChunkData;
 use crate::systems::chunk::ChunkSystem;
 use crate::systems::physics::aabb::Aabb;
 use crate::systems::physics::PhysicsObject;
+use crate::systems::ui::debugging::DebuggingUIData;
 use bevy::prelude::*;
 use bevy_prototype_debug_lines::DebugLines;
 use nalgebra::{clamp, Vector3};
@@ -11,7 +12,7 @@ use nalgebra::{clamp, Vector3};
 const MAX_TOUCHING_GROUND_DIST: f32 = 0.05;
 const GRAVITY_STRENGTH: f32 = 50.0;
 
-const GROUND_FRICTION: f32 = 6.0;
+const GROUND_FRICTION: f32 = 8.0;
 const AIR_FRICTION: f32 = 0.4;
 
 pub fn physics_tick(
@@ -20,7 +21,11 @@ pub fn physics_tick(
     block_states: Res<BlockStates>,
     time: Res<Time>,
     mut draw_lines: ResMut<DebugLines>,
+    mut debugging_uidata: ResMut<DebuggingUIData>,
 ) {
+    // Debug how many ticks per second
+    debugging_uidata.physics_ticks += 1;
+
     for mut object in query.iter_mut() {
         object.previous_position = object.position;
 
@@ -28,7 +33,7 @@ pub fn physics_tick(
             object.velocity.y -= GRAVITY_STRENGTH * time.delta_seconds();
         }
 
-        let mut proposed_delta = object.velocity * time.delta_seconds();
+        let proposed_delta = object.velocity * time.delta_seconds();
         let mut current_aabb: Aabb = object.collider.offset(object.position);
         current_aabb.draw(&mut draw_lines, 0.0, Color::GREEN);
 
@@ -51,6 +56,7 @@ pub fn physics_tick(
 
         let potential_collisions =
             current_aabb.get_surrounding_voxel_collision_colliders(&chunks, &block_states);
+
         object.touching_ground = current_aabb
             .try_translate(
                 Vector3::new(0.0, -MAX_TOUCHING_GROUND_DIST, 0.0),

@@ -9,16 +9,15 @@ use nalgebra::Vector3;
 use rayon::iter::ParallelIterator;
 use rayon::prelude::IntoParallelRefIterator;
 use rc_client::helpers::from_bevy_vec3;
-use rc_client::helpers::TextureSubdivisionMethod::Full;
 use rc_networking::constants::{UserId, CHUNK_SIZE};
+use rc_networking::events::disconnect::NetworkDisconnectionEvent;
 use rc_networking::protocol::clientbound::chunk_update::FullChunkUpdate;
 use rc_networking::protocol::Protocol;
 use rc_networking::types::{ReceivePacket, SendPacket};
-use std::collections::HashMap;
-use std::thread;
-use std::time::Duration;
+use std::collections::{HashMap, HashSet};
 
-const MAX_OUTSTANDING_CHUNK_REQUESTS: usize = 20;
+const MAX_OUTSTANDING_CHUNK_REQUESTS: usize = 80;
+const CHUNKS_GENERATED_PER_TICK: usize = 40;
 
 pub struct ChunkPlugin;
 
@@ -29,6 +28,7 @@ impl Plugin for ChunkPlugin {
             requesting_chunks: Default::default(),
             chunk_outstanding_requests: Default::default(),
         })
+        .add_systems(Update, handle_disconnections)
         .add_systems(Update, get_chunk_requests)
         .add_systems(Update, request_chunks)
         .add_systems(Update, generate_chunks);
@@ -37,7 +37,7 @@ impl Plugin for ChunkPlugin {
 
 #[derive(Resource)]
 pub struct ChunkSystem {
-    pub generating_chunks: Vec<Vector3<i32>>,
+    pub generating_chunks: HashSet<Vector3<i32>>,
     pub requesting_chunks: HashMap<UserId, Vec<Vector3<i32>>>,
     // How many chunk requests have been send and are waiting acknowledgement
     pub chunk_outstanding_requests: HashMap<UserId, usize>,
@@ -45,11 +45,11 @@ pub struct ChunkSystem {
 
 pub fn request_chunks(
     mut system: ResMut<ChunkSystem>,
-    mut world: ResMut<WorldData>,
+    world: ResMut<WorldData>,
     mut send_packets: EventWriter<SendPacket>,
     mut receive_packets: EventReader<ReceivePacket>,
     transport: Res<TransportSystem>,
-    mut transforms: Query<&mut Transform>,
+    transforms: Query<&mut Transform>,
 ) {
     // Manually split because ResMut removes default borrow splitting
     let ChunkSystem {
@@ -67,7 +67,6 @@ pub fn request_chunks(
         }
     }
 
-    let mut to_generate = Vec::new();
     for (user, chunks) in requesting_chunks {
         if let Some(Some(entity)) = transport.clients.get(&user).map(|v| v.entity) {
             if let Ok(transform) = transforms.get(entity) {
@@ -81,6 +80,9 @@ pub fn request_chunks(
             }
         }
 
+        // Chunks being held until next send cycle
+        let mut holding_chunks = Vec::new();
+
         while chunk_outstanding_requests.get(user).unwrap() < &MAX_OUTSTANDING_CHUNK_REQUESTS {
             // If no chunks left
             let Some(chunk_pos) = chunks.pop() else {
@@ -90,6 +92,7 @@ pub fn request_chunks(
             // Check if chunk exists
             if world.chunks.contains_key(&chunk_pos) {
                 let chunk = world.chunks.get(&chunk_pos).unwrap();
+
                 // Send to user
                 send_packets.send(SendPacket(
                     Protocol::FullChunkUpdate(FullChunkUpdate::new(
@@ -101,33 +104,33 @@ pub fn request_chunks(
                     *user,
                 ));
 
-                println!("Sending chunk");
-
                 // Increase outstanding requests
                 *chunk_outstanding_requests.get_mut(user).unwrap() += 1;
             } else {
-                if !to_generate.contains(&chunk_pos) {
-                    to_generate.push(chunk_pos);
+                if !generating_chunks.contains(&chunk_pos) {
+                    generating_chunks.insert(chunk_pos);
                 }
-                chunks.push(chunk_pos);
-                break;
+
+                holding_chunks.push(chunk_pos);
+                continue;
             }
         }
+
+        chunks.append(&mut holding_chunks);
     }
-    system.generating_chunks.append(&mut to_generate);
 }
 
-pub fn generate_chunks(
-    mut system: ResMut<ChunkSystem>,
-    mut world: ResMut<WorldData>,
-    mut send_packets: EventWriter<SendPacket>,
-) {
+pub fn generate_chunks(mut system: ResMut<ChunkSystem>, mut world: ResMut<WorldData>) {
     // Generate X chunks per loop
-    let chunks_per_loop = system.generating_chunks.len().min(5 as usize);
+    let chunks_per_loop = system
+        .generating_chunks
+        .len()
+        .min(CHUNKS_GENERATED_PER_TICK);
 
     let build_chunks = system
         .generating_chunks
-        .drain(0..chunks_per_loop)
+        .drain()
+        .take(chunks_per_loop)
         .collect::<Vec<(Vector3<i32>)>>();
 
     #[cfg(not(target_arch = "wasm32"))]
@@ -159,5 +162,18 @@ pub fn get_chunk_requests(
                 .or_insert_with(|| vec![])
                 .push(pos);
         }
+    }
+}
+
+fn handle_disconnections(
+    mut network_disconnection_events: EventReader<NetworkDisconnectionEvent>,
+    mut system: ResMut<ChunkSystem>,
+) {
+    for disconnection in network_disconnection_events.iter() {
+        debug!(
+            "Removed user {:?} from requesting chunks list",
+            disconnection.client
+        );
+        system.requesting_chunks.remove(&disconnection.client);
     }
 }

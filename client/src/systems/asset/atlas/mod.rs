@@ -6,7 +6,7 @@ use crate::systems::asset::AssetService;
 use bevy::prelude::*;
 use bevy::reflect::TypeUuid;
 
-use crate::systems::ui::loading::LoadingData;
+use crate::systems::ui::loading::LoadingUIData;
 use bevy::reflect::TypePath;
 use fnv::FnvBuildHasher;
 use image::{DynamicImage, GenericImage};
@@ -75,7 +75,7 @@ pub fn build_texture_atlas(
     mut stage: ResMut<AtlasLoadingStage>,
     mut images: ResMut<Assets<Image>>,
     mut materials: ResMut<Assets<ChunkMaterial>>,
-    mut loading: ResMut<LoadingData>,
+    mut loading: ResMut<LoadingUIData>,
 ) {
     if *stage != AtlasLoadingStage::AwaitingPack
         || data.len() == 0

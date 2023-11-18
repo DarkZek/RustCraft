@@ -3,25 +3,25 @@ use bevy::prelude::*;
 use std::time::{Duration, Instant};
 
 #[derive(Resource, Debug)]
-pub struct FpsUIData {
-    pub entity: Option<Entity>,
+pub struct DebuggingUIData {
+    pub physics_tick_entity: Option<Entity>,
     last_update: Instant,
-    frames: u32,
+    pub physics_ticks: u32,
 }
 
-impl Default for FpsUIData {
+impl Default for DebuggingUIData {
     fn default() -> Self {
-        FpsUIData {
-            entity: None,
+        DebuggingUIData {
+            physics_tick_entity: None,
             last_update: Instant::now(),
-            frames: 0,
+            physics_ticks: 0,
         }
     }
 }
 
-pub fn setup_fps_ui(
+pub fn setup_debugging_ui(
     mut commands: Commands,
-    mut data: ResMut<FpsUIData>,
+    mut data: ResMut<DebuggingUIData>,
     asset_server: Res<AssetServer>,
 ) {
     let _ = commands
@@ -33,14 +33,18 @@ pub fn setup_fps_ui(
                 justify_content: JustifyContent::End,
                 position_type: PositionType::Absolute,
                 align_items: AlignItems::FlexEnd,
+                padding: UiRect {
+                    bottom: Val::Px(50.),
+                    ..default()
+                },
                 ..default()
             },
             ..default()
         })
         .with_children(|c| {
-            data.entity = Some(
+            data.physics_tick_entity = Some(
                 c.spawn(TextBundle::from_section(
-                    "FPS: 000",
+                    "Phy/s: 000",
                     TextStyle {
                         font: asset_server.load("fonts/FiraSans-Bold.ttf"),
                         font_size: 40.0,
@@ -53,25 +57,25 @@ pub fn setup_fps_ui(
         .id();
 }
 
-pub fn update_fps_ui(mut query: Query<&mut Text>, mut data: ResMut<FpsUIData>, time: Res<Time>) {
-    data.frames += 1;
-
+pub fn update_debugging_ui(mut query: Query<&mut Text>, mut data: ResMut<DebuggingUIData>) {
     if data.last_update.elapsed() < Duration::from_secs(1) {
         // No update
         return;
     }
 
+    println!("Update");
+
     query
-        .get_mut(*data.entity.as_ref().unwrap())
+        .get_mut(*data.physics_tick_entity.as_ref().unwrap())
         .unwrap()
         .sections
         .get_mut(0)
         .unwrap()
         .value = format!(
-        "FPS: {:.00}",
-        data.frames as f32 / data.last_update.elapsed().as_secs_f32()
+        "Phy/s: {:.00}",
+        data.physics_ticks as f32 / data.last_update.elapsed().as_secs_f32()
     );
 
     data.last_update = Instant::now();
-    data.frames = 0;
+    data.physics_ticks = 0;
 }

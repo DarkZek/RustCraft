@@ -55,8 +55,6 @@ impl ChunkSystem {
         rerender_chunk: &mut EventWriter<RerenderChunkFlag>,
         meshes: &mut Assets<Mesh>,
     ) {
-        println!("Building chunk {}", self.chunks.len());
-
         let mut mesh = Mesh::new(PrimitiveTopology::TriangleList);
 
         mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, vec![] as Vec<[f32; 3]>);

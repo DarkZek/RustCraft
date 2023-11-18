@@ -27,6 +27,8 @@ use bevy::core_pipeline::experimental::taa::TemporalAntiAliasPlugin;
 use bevy::log::{Level, LogPlugin};
 use bevy::pbr::PrepassPlugin;
 use bevy::prelude::*;
+use bevy::render::settings::{Backends, WgpuSettings};
+use bevy::render::RenderPlugin;
 use bevy::window::{WindowResizeConstraints, WindowResolution};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_prototype_debug_lines::DebugLinesPlugin;
@@ -41,6 +43,13 @@ fn main() {
             .set(LogPlugin {
                 filter: "wgpu=error,rustcraft=debug,naga=error,bevy_app=info".into(),
                 level: Level::INFO,
+            })
+            .set(RenderPlugin {
+                wgpu_settings: WgpuSettings {
+                    backends: Some(Backends::VULKAN),
+                    ..default()
+                },
+                ..default()
             })
             .set(bevy::prelude::AssetPlugin {
                 watch_for_changes: ChangeWatcher::with_delay(Duration::from_millis(200)),

@@ -42,8 +42,8 @@ fn grab_mouse(
         return;
     };
 
-    // No vsync
-    window.present_mode = PresentMode::AutoNoVsync;
+    // vsync
+    window.present_mode = PresentMode::AutoVsync;
 
     if mouse.just_pressed(MouseButton::Left) {
         window.cursor.visible = false;
