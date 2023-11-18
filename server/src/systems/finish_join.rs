@@ -1,6 +1,6 @@
 use crate::systems::chunk::ChunkSystem;
 use crate::{EventWriter, TransportSystem};
-use bevy::prelude::{Res, ResMut, Time};
+use bevy::prelude::{Res, ResMut};
 use rc_networking::protocol::clientbound::update_loading::UpdateLoading;
 use rc_networking::protocol::Protocol;
 use rc_networking::types::SendPacket;

@@ -40,7 +40,7 @@ pub fn remove_loading_ui(mut commands: Commands, data: ResMut<LoadingUIData>) {
 
 pub fn check_loading(
     data: Res<LoadingUIData>,
-    mut app_state: ResMut<State<AppState>>,
+    app_state: ResMut<State<AppState>>,
     mut set_app_state: ResMut<NextState<AppState>>,
 ) {
     if !data.is_changed() {

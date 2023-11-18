@@ -1,5 +1,5 @@
 use crate::constants::{RawChunkData, CHUNK_SIZE};
-use std::mem;
+
 use std::sync::atomic::{AtomicU64, Ordering};
 
 /// How many blocks are sent per partial update packet

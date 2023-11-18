@@ -9,7 +9,7 @@ use bevy::prelude::*;
 use crate::game::blocks::states::BlockStates;
 use crate::game::inventory::Inventory;
 use crate::game::item::states::ItemStates;
-use crate::game::item::{ItemStack, ItemType};
+use crate::game::item::{ItemStack};
 use crate::systems::chunk::builder::{RerenderChunkFlag, RerenderChunkFlagContext};
 use rc_networking::constants::{UserId, CHUNK_SIZE};
 use rc_networking::protocol::clientbound::block_update::BlockUpdate;
@@ -27,7 +27,7 @@ pub fn mouse_interaction(
     blocks: Res<BlockStates>,
     mut rerender_chunks: EventWriter<RerenderChunkFlag>,
     mut meshes: ResMut<Assets<Mesh>>,
-    mut items: Res<ItemStates>,
+    items: Res<ItemStates>,
 ) {
     let camera_pos = camera.get_single().unwrap();
 
@@ -51,9 +51,9 @@ pub fn mouse_interaction(
     let (chunk_loc, inner_loc) = global_to_local_position(ray.block);
 
     // Try find chunk
-    if let Some(mut chunk) = chunks.chunks.get_mut(&chunk_loc) {
+    if let Some(chunk) = chunks.chunks.get_mut(&chunk_loc) {
         // Highlight selected block
-        let block = blocks.get_block(chunk.world[inner_loc.x][inner_loc.y][inner_loc.z] as usize);
+        let _block = blocks.get_block(chunk.world[inner_loc.x][inner_loc.y][inner_loc.z] as usize);
 
         if mouse_button_input.just_pressed(MouseButton::Left) {
             let block_id = chunk.world[inner_loc.x][inner_loc.y][inner_loc.z];
@@ -97,7 +97,7 @@ pub fn mouse_interaction(
             let (chunk_loc, inner_loc) = global_to_local_position(pos);
 
             // Try find chunk
-            if let Some(mut chunk) = chunks.chunks.get_mut(&chunk_loc) {
+            if let Some(chunk) = chunks.chunks.get_mut(&chunk_loc) {
                 // Found chunk! Update block
                 chunk.world[inner_loc.x][inner_loc.y][inner_loc.z] = block_type;
 

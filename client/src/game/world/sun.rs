@@ -1,11 +1,11 @@
-use crate::game::player::Player;
+
 use bevy::prelude::shape::Quad;
 use bevy::prelude::*;
-use bevy::utils::Instant;
-use nalgebra::Vector3;
+
+
 use std::f32::consts::PI;
 use std::time::{SystemTime, UNIX_EPOCH};
-use zip::DateTime;
+
 
 #[derive(Resource)]
 pub struct SunData {
@@ -18,7 +18,7 @@ pub fn setup_sun(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
-    mut assets: Res<AssetServer>,
+    assets: Res<AssetServer>,
 ) {
     // TODO: Spawn this attached to the camera so it moves around with it
     let sun_sprite = commands
@@ -36,7 +36,7 @@ pub fn setup_sun(
             visibility: Default::default(),
             computed_visibility: Default::default(),
         })
-        .with_children(|c| {})
+        .with_children(|_c| {})
         .id();
 
     let moon_sprite = commands
@@ -81,18 +81,18 @@ pub fn setup_sun(
     });
 }
 
-pub fn update_sun(mut sundata: ResMut<SunData>, mut query: Query<&mut Transform>) {
+pub fn update_sun(sundata: ResMut<SunData>, mut query: Query<&mut Transform>) {
     let day_len_ms = 1000 * 60;
 
     let sun_distance = 600.0;
 
-    let mut time = SystemTime::now()
+    let time = SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .unwrap()
         .as_millis()
         % day_len_ms;
 
-    let mut day_progress = (time as f32 / day_len_ms as f32);
+    let mut day_progress = time as f32 / day_len_ms as f32;
 
     day_progress = 0.05;
 

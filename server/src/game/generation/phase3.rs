@@ -1,9 +1,9 @@
 use crate::game::chunk::RawChunkData;
 use crate::game::generation::noise::SimplexNoise;
 use nalgebra::Vector3;
-use rc_client::systems::chunk::biome::{ChunkEnvironment, Terrain};
+use rc_client::systems::chunk::biome::{ChunkEnvironment};
 use rc_networking::constants::CHUNK_SIZE;
-use std::ops::Mul;
+
 
 pub fn decorate_chunk(
     seed: u32,

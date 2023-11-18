@@ -54,7 +54,7 @@ impl Block {
         pos: Vector3<f32>,
         visible_map: ViewableDirection,
         light_color: [LightingColor; 6],
-        mut kit: &mut DrawKit,
+        kit: &mut DrawKit,
     ) {
         for face in &self.faces {
             if !visible_map.has_flag(face.direction) && face.edge {

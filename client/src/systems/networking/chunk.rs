@@ -95,7 +95,7 @@ pub fn network_chunk_sync(
                 let (chunk_loc, inner_loc) = global_to_local_position(location);
 
                 // Try find chunk
-                if let Some(mut chunk) = chunk_service.chunks.get_mut(&chunk_loc) {
+                if let Some(chunk) = chunk_service.chunks.get_mut(&chunk_loc) {
                     // Found chunk! Update block
                     chunk.world[inner_loc.x][inner_loc.y][inner_loc.z] = update.id;
 

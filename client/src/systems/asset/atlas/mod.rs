@@ -9,7 +9,7 @@ use bevy::reflect::TypeUuid;
 use crate::systems::ui::loading::LoadingUIData;
 use bevy::reflect::TypePath;
 use fnv::FnvBuildHasher;
-use image::{DynamicImage, GenericImage};
+use image::{DynamicImage};
 use std::collections::HashMap;
 use std::ffi::OsString;
 

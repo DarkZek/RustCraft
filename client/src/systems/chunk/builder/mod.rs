@@ -11,7 +11,7 @@ use crate::systems::chunk::data::ChunkData;
 use crate::systems::chunk::nearby_cache::NearbyChunkCache;
 use crate::systems::chunk::ChunkSystem;
 use bevy::prelude::*;
-use bevy::render::mesh::{Indices, MeshVertexAttribute, PrimitiveTopology, VertexAttributeValues};
+use bevy::render::mesh::{MeshVertexAttribute};
 use bevy::render::render_resource::VertexFormat;
 use nalgebra::Vector3;
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};

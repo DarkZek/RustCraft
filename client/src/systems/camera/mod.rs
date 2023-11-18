@@ -3,7 +3,7 @@ use crate::game::player::Player;
 use crate::systems::physics::aabb::Aabb;
 use crate::systems::physics::PhysicsObject;
 use bevy::core_pipeline::clear_color::ClearColorConfig;
-use bevy::core_pipeline::core_3d::{Camera3dDepthLoadOp, Camera3dDepthTextureUsage};
+use bevy::core_pipeline::core_3d::{Camera3dDepthLoadOp};
 use bevy::core_pipeline::experimental::taa::TemporalAntiAliasBundle;
 use bevy::pbr::ScreenSpaceAmbientOcclusionBundle;
 use bevy::prelude::*;

@@ -2,7 +2,7 @@ use crate::systems::chunk::builder::ATTRIBUTE_LIGHTING_COLOR;
 use crate::systems::chunk::data::LightingColor;
 use crate::systems::chunk::mesh::face::Face;
 use bevy::prelude::Mesh;
-use bevy::render::mesh::{Indices, MeshVertexAttribute, VertexAttributeValues};
+use bevy::render::mesh::{Indices, VertexAttributeValues};
 use nalgebra::Vector3;
 
 /// Stores all objects allowing for more ergonomic drawing of objects
@@ -32,7 +32,7 @@ impl DrawKit {
 
         let indices_index = self.positions.len() as u32;
 
-        let mut pos = [
+        let pos = [
             position + face.top_left,
             position + face.top_right,
             position + face.bottom_left,

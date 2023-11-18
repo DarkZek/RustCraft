@@ -28,11 +28,11 @@ use crate::systems::ui::UIPlugin;
 use bevy::asset::ChangeWatcher;
 use bevy::core_pipeline::experimental::taa::TemporalAntiAliasPlugin;
 use bevy::log::{Level, LogPlugin};
-use bevy::pbr::PrepassPlugin;
+
 use bevy::prelude::*;
 use bevy::render::settings::{Backends, WgpuSettings};
 use bevy::render::RenderPlugin;
-use bevy::window::{WindowResizeConstraints, WindowResolution};
+
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_polyline::PolylinePlugin;
 use bevy_prototype_debug_lines::DebugLinesPlugin;

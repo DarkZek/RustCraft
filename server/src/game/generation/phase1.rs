@@ -1,7 +1,7 @@
 use crate::game::generation::noise::SimplexNoise;
 use nalgebra::Vector3;
 use rc_client::systems::chunk::biome::{
-    ChunkEnvironment, Climate, EnvironmentEntry, Terrain, Vegetation,
+    ChunkEnvironment, EnvironmentEntry,
 };
 
 pub fn generate_environment_map(seed: u32, pos: Vector3<i32>) -> ChunkEnvironment {
@@ -31,7 +31,7 @@ pub fn generate_biome(seed: u32, pos: Vector3<i32>) -> EnvironmentEntry {
         .with_scale(180.0 * 16.0)
         .sample_2d(pos.x, pos.z);
 
-    let mut vegetation = SimplexNoise::new(seed + 2)
+    let vegetation = SimplexNoise::new(seed + 2)
         .with_scale(16.0)
         .sample_2d(pos.x, pos.z);
 

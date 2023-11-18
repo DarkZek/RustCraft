@@ -1,10 +1,10 @@
 use crate::game::blocks::states::BlockStates;
-use crate::helpers::{get_chunk_coords, global_to_local_position};
+use crate::helpers::{global_to_local_position};
 use crate::systems::chunk::data::ChunkData;
 use crate::systems::chunk::ChunkSystem;
 use bevy::prelude::{Color, ResMut, Vec3};
 use bevy_prototype_debug_lines::DebugLines;
-use nalgebra::{clamp, Vector3};
+use nalgebra::{Vector3};
 use serde::{Deserialize, Serialize};
 
 #[inline(always)]
@@ -316,7 +316,7 @@ impl Aabb {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use bevy_inspector_egui::egui::Shape::Vec;
+    
 
     #[test]
     fn aabb_vs_aabb_move_test_x() {

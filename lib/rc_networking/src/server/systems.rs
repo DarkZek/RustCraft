@@ -4,7 +4,7 @@ use crate::events::connection::NetworkConnectionEvent;
 use crate::events::disconnect::NetworkDisconnectionEvent;
 use crate::protocol::clientbound::server_state::ServerState;
 use crate::server::user_connection::UserConnection;
-use crate::server::{NetworkingServer, USERID_COUNTER};
+use crate::server::{NetworkingServer};
 use crate::types::{ReceivePacket, SendPacket};
 use crate::{get_channel, Channel, Protocol};
 use bevy::app::AppExit;
@@ -14,7 +14,7 @@ use futures::FutureExt;
 use quinn::Endpoint;
 use std::collections::HashMap;
 use std::mem;
-use std::sync::atomic::Ordering;
+
 use tokio::sync::mpsc::error::TryRecvError;
 use tokio::sync::mpsc::unbounded_channel;
 
@@ -29,7 +29,7 @@ pub fn update_system(
         // Check if task is completed
         if let Some(new_connection) = server.new_conn_task.as_mut().unwrap().now_or_never() {
             // If the connection succeeded
-            if let Ok(mut new_conn) = new_connection {
+            if let Ok(new_conn) = new_connection {
                 server.all_time_users += 1;
 
                 // Send announcement
@@ -118,7 +118,7 @@ pub fn read_packets_system(
 
 /// Take packets from ECS EventReader and add it to Writer to write to stream in other thread
 pub fn write_packets_system(
-    mut server: ResMut<NetworkingServer>,
+    server: ResMut<NetworkingServer>,
     mut to_send: EventReader<SendPacket>,
 ) {
     to_send.iter().for_each(|v| {

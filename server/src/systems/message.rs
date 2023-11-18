@@ -94,7 +94,7 @@ pub fn receive_message_event(
                     global_to_local_position(Vector3::new(packet.x, packet.y, packet.z));
 
                 // Store
-                if let Some(mut chunk) = global.chunks.get_mut(&chunk_loc) {
+                if let Some(chunk) = global.chunks.get_mut(&chunk_loc) {
                     // Found chunk! Update block
                     chunk.world[inner_loc.x][inner_loc.y][inner_loc.z] = packet.id;
                 } else {

@@ -49,7 +49,7 @@ pub fn track_blockstate_changes(
     mut states: ResMut<BlockStates>,
     atlas: Res<AssetService>,
     chunks: ResMut<ChunkSystem>,
-    mut commands: Commands,
+    _commands: Commands,
     mut loading: ResMut<LoadingUIData>,
     mut rerender_chunks: EventWriter<RerenderChunkFlag>,
 ) {
@@ -145,7 +145,7 @@ pub fn track_blockstate_changes(
         info!("Built block states");
 
         // Rerender all chunks with new block states
-        for (pos, chunk) in &chunks.chunks {
+        for (pos, _chunk) in &chunks.chunks {
             rerender_chunks.send(RerenderChunkFlag {
                 chunk: *pos,
                 context: RerenderChunkFlagContext::None,

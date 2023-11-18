@@ -1,7 +1,7 @@
 use crate::systems::chunk::data::ChunkData;
 use crate::systems::chunk::ChunkSystem;
 use nalgebra::Vector3;
-use std::mem::MaybeUninit;
+
 
 /// By using this lookup index using relative chunk positions from the first chunk we can lookup chunks with O(1) speed
 const NEARBY_CHUNK_LOOKUP_INDEX: [[[usize; 3]; 3]; 3] = [

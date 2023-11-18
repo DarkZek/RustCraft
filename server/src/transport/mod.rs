@@ -7,7 +7,7 @@ use bevy::app::{App, Plugin};
 use rc_networking::constants::UserId;
 use std::collections::{HashMap, HashSet};
 
-use std::net::{IpAddr, SocketAddr, UdpSocket};
+use std::net::{IpAddr, SocketAddr};
 use std::str::FromStr;
 
 use crate::ServerConfig;
@@ -15,7 +15,7 @@ use bevy::ecs::prelude::Resource;
 use bevy::prelude::{info, Update};
 use bevy::utils::default;
 use rc_networking::server::{NetworkingServerConfig, QuinnServerPlugin};
-use rc_networking::*;
+
 use std::time::SystemTime;
 
 pub struct TransportPlugin;

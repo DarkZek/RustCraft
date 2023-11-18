@@ -1,13 +1,13 @@
 use crate::game::blocks::states::BlockStates;
-use crate::helpers::global_to_local_position;
-use crate::systems::chunk::data::ChunkData;
+
+
 use crate::systems::chunk::ChunkSystem;
 use crate::systems::physics::aabb::Aabb;
 use crate::systems::physics::PhysicsObject;
 use crate::systems::ui::debugging::DebuggingUIData;
 use bevy::prelude::*;
 use bevy_prototype_debug_lines::DebugLines;
-use nalgebra::{clamp, Vector3};
+use nalgebra::{Vector3};
 
 const MAX_TOUCHING_GROUND_DIST: f32 = 0.05;
 const GRAVITY_STRENGTH: f32 = 50.0;

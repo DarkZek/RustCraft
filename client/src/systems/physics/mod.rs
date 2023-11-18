@@ -6,7 +6,7 @@ use crate::systems::physics::simulate::physics_tick;
 use crate::systems::physics::sync::physics_sync;
 use bevy::ecs::component::Component;
 use bevy::prelude::{in_state, FixedUpdate, IntoSystemConfigs};
-use bevy::prelude::{App, Plugin, SystemSet, Update};
+use bevy::prelude::{App, Plugin};
 use nalgebra::Vector3;
 
 pub mod aabb;

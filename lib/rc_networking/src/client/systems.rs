@@ -47,7 +47,7 @@ pub fn update_system(
 
 /// Take packets from ECS EventReader and add it to Writer to write to stream in other thread
 pub fn write_packets_system(
-    mut client: ResMut<NetworkingClient>,
+    client: ResMut<NetworkingClient>,
     mut to_send: EventReader<SendPacket>,
 ) {
     if to_send.len() == 0 {

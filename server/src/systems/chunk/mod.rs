@@ -1,9 +1,9 @@
 use crate::game::chunk::ChunkData;
 use crate::{App, TransportSystem, WorldData};
-use bevy::ecs::system;
-use bevy::prelude::KeyCode::Sysrq;
+
+
 use bevy::prelude::*;
-use bevy::time::common_conditions::on_timer;
+
 use bevy::utils::petgraph::visit::Walker;
 use nalgebra::Vector3;
 use rayon::iter::ParallelIterator;
@@ -131,7 +131,7 @@ pub fn generate_chunks(mut system: ResMut<ChunkSystem>, mut world: ResMut<WorldD
         .generating_chunks
         .drain()
         .take(chunks_per_loop)
-        .collect::<Vec<(Vector3<i32>)>>();
+        .collect::<Vec<Vector3<i32>>>();
 
     #[cfg(not(target_arch = "wasm32"))]
     let iterator = build_chunks.par_iter();

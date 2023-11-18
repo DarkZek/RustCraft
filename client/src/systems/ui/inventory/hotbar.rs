@@ -1,6 +1,6 @@
 use crate::game::inventory::Inventory;
-use crate::game::item::states::ItemStates;
-use crate::game::item::ItemStack;
+
+
 use crate::systems::ui::inventory::InventoryUI;
 use bevy::prelude::*;
 
@@ -123,7 +123,7 @@ pub fn setup_hotbar_ui(
 
 pub fn update_hotbar_ui(
     mut inventory: ResMut<Inventory>,
-    mut inventory_ui: ResMut<InventoryUI>,
+    inventory_ui: ResMut<InventoryUI>,
     keys: Res<Input<KeyCode>>,
     mut style: Query<&mut Style>,
     mut images: Query<&mut UiImage>,

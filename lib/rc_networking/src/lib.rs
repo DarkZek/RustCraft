@@ -9,7 +9,7 @@ pub mod types;
 use bevy::prelude::{Res, Resource};
 use protocol::Protocol;
 use std::net::SocketAddr;
-use std::time::{Duration, SystemTime};
+use std::time::{Duration};
 
 pub use rustls;
 

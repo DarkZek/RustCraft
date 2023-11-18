@@ -1,6 +1,6 @@
-use nalgebra::Vector2;
+
 use noise::{NoiseFn, OpenSimplex};
-use std::sync::RwLock;
+
 
 pub struct SimplexNoise {
     simplex: OpenSimplex,

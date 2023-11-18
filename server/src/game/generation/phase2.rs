@@ -1,9 +1,9 @@
 use crate::game::chunk::RawChunkData;
 use crate::game::generation::noise::SimplexNoise;
 use nalgebra::{Vector2, Vector3};
-use rc_client::systems::chunk::biome::{ChunkEnvironment, Terrain};
+use rc_client::systems::chunk::biome::{ChunkEnvironment};
 use rc_networking::constants::CHUNK_SIZE;
-use std::ops::Mul;
+
 
 pub fn generate_greybox_chunk(
     seed: u32,
@@ -20,7 +20,7 @@ pub fn generate_greybox_chunk(
         for z in 0..CHUNK_SIZE {
             let absolute = Vector2::new((pos.x * 16) + x as i32, (pos.z * 16) + z as i32);
 
-            let mut base_height = 35;
+            let base_height = 35;
 
             let environment_entry = &environment[x][0][z];
 

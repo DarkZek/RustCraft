@@ -13,8 +13,8 @@ use crate::game::world::data::ENTITY_ID_COUNT;
 use crate::helpers::global_to_local_position;
 use crate::systems::chunk::ChunkSystem;
 use crate::{TransportSystem, WorldData};
-use rc_networking::constants::{EntityId, UserId, CHUNK_SIZE};
-use rc_networking::protocol::clientbound::chunk_update::FullChunkUpdate;
+use rc_networking::constants::{EntityId, UserId};
+
 use rc_networking::protocol::clientbound::spawn_entity::SpawnEntity;
 use rc_networking::protocol::Protocol;
 use rc_networking::types::SendPacket;

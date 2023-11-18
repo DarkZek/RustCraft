@@ -3,9 +3,9 @@ use crate::game::generation::noise::SimplexNoise;
 use crate::game::generation::phase1::generate_environment_map;
 use crate::game::generation::phase2::generate_greybox_chunk;
 use crate::helpers::global_to_local_position;
-use bevy::prelude::info;
+
 use nalgebra::Vector3;
-use rc_client::systems::chunk::biome::{ChunkEnvironment, EnvironmentEntry, Vegetation};
+use rc_client::systems::chunk::biome::{ChunkEnvironment};
 use rc_networking::constants::CHUNK_SIZE;
 
 pub fn add_structures(seed: u32, pos: Vector3<i32>, world: &mut RawChunkData) {

@@ -1,7 +1,7 @@
 use crate::game::world::sun::{setup_sun, update_sun};
 use crate::state::AppState;
 use bevy::app::App;
-use bevy::prelude::{in_state, IntoSystemConfigs, OnEnter, Plugin, SystemSet, Update};
+use bevy::prelude::{in_state, IntoSystemConfigs, OnEnter, Plugin, Update};
 
 pub mod sun;
 

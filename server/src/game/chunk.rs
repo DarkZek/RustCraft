@@ -2,7 +2,7 @@ use bevy::ecs::prelude::Component;
 use nalgebra::Vector3;
 use rc_networking::constants::CHUNK_SIZE;
 use serde::{Deserialize, Serialize};
-use std::ops::Mul;
+
 
 #[derive(Debug, Component, Serialize, Deserialize)]
 pub struct ChunkData {

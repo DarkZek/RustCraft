@@ -52,7 +52,7 @@ pub struct NetworkingClient {
 
 impl NetworkingClient {
     pub fn new() -> NetworkingClient {
-        let mut client_config = ClientConfig::new(Arc::new(
+        let client_config = ClientConfig::new(Arc::new(
             rustls::ClientConfig::builder()
                 .with_safe_defaults()
                 .with_custom_certificate_verifier(SkipServerVerification::new())
