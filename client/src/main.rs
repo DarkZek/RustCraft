@@ -25,17 +25,15 @@ use crate::systems::input::InputPlugin;
 use crate::systems::networking::ClientNetworkingPlugin;
 use crate::systems::physics::PhysicsPlugin;
 use crate::systems::ui::UIPlugin;
-use bevy::asset::ChangeWatcher;
 use bevy::core_pipeline::experimental::taa::TemporalAntiAliasPlugin;
 use bevy::log::{Level, LogPlugin};
 
 use bevy::prelude::*;
-use bevy::render::settings::{Backends, WgpuSettings};
+use bevy::render::settings::{Backends, RenderCreation, WgpuSettings};
 use bevy::render::RenderPlugin;
 
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_polyline::PolylinePlugin;
-use bevy_prototype_debug_lines::DebugLinesPlugin;
 use std::time::Duration;
 
 #[rustfmt::skip]
@@ -49,14 +47,13 @@ fn main() {
                 level: Level::INFO,
             })
             .set(RenderPlugin {
-                wgpu_settings: WgpuSettings {
+                render_creation: RenderCreation::Automatic(WgpuSettings {
                     backends: Some(Backends::VULKAN),
                     ..default()
-                },
-                ..default()
+                })
             })
             .set(bevy::prelude::AssetPlugin {
-                watch_for_changes: ChangeWatcher::with_delay(Duration::from_millis(200)),
+                watch_for_changes_override: Some(true),
                 ..default()
             })
             .set(ImagePlugin::default_nearest()))
@@ -71,7 +68,6 @@ fn main() {
         // add the app state 
         .add_state::<AppState>()
         
-        .add_plugins(DebugLinesPlugin::default())
         .add_plugins(PolylinePlugin)
 
         // Networking
@@ -101,8 +97,8 @@ fn main() {
         .insert_resource(ItemStates::new())
         
         // Asset Loaders
-        .add_asset::<ResourcePacks>()
-        .add_asset::<ResourcePackData>()
+        .init_asset::<ResourcePacks>()
+        .init_asset::<ResourcePackData>()
         .add_plugins(MaterialPlugin::<ChunkMaterial>::default())
         .init_asset_loader::<JsonAssetLoader<ResourcePacks>>()
         .init_asset_loader::<ResourcePackAssetLoader>()

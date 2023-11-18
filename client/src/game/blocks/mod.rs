@@ -21,7 +21,7 @@ pub struct BlockStatesPlugin;
 
 impl Plugin for BlockStatesPlugin {
     fn build(&self, app: &mut App) {
-        app.add_asset::<BlockStatesFile>()
+        app.init_asset::<BlockStatesFile>()
             .init_asset_loader::<BlockStateAssetLoader>()
             .add_systems(Startup, create_block_states)
             .insert_resource(BlockStates::new())

@@ -1,11 +1,8 @@
-
 use bevy::prelude::shape::Quad;
 use bevy::prelude::*;
 
-
 use std::f32::consts::PI;
 use std::time::{SystemTime, UNIX_EPOCH};
-
 
 #[derive(Resource)]
 pub struct SunData {
@@ -32,9 +29,7 @@ pub fn setup_sun(
                 ..default()
             }),
             transform: Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),
-            global_transform: Default::default(),
-            visibility: Default::default(),
-            computed_visibility: Default::default(),
+            ..default()
         })
         .with_children(|_c| {})
         .id();
@@ -50,9 +45,7 @@ pub fn setup_sun(
                 ..default()
             }),
             transform: Transform::from_translation(Vec3::new(PI / 2.0, 0.0, 0.0)),
-            global_transform: Default::default(),
-            visibility: Default::default(),
-            computed_visibility: Default::default(),
+            ..default()
         })
         .id();
 

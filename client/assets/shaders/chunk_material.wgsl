@@ -97,5 +97,7 @@ fn fragment(in: FragmentInput) -> @location(0) vec4<f32> {
 
     var pbr_color = pbr_functions::pbr(input);
 
+    return rgba(1,1,1,1);
+
     return pbr_color * in.lighting * output_color;
 }

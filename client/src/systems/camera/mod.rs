@@ -3,7 +3,7 @@ use crate::game::player::Player;
 use crate::systems::physics::aabb::Aabb;
 use crate::systems::physics::PhysicsObject;
 use bevy::core_pipeline::clear_color::ClearColorConfig;
-use bevy::core_pipeline::core_3d::{Camera3dDepthLoadOp};
+use bevy::core_pipeline::core_3d::Camera3dDepthLoadOp;
 use bevy::core_pipeline::experimental::taa::TemporalAntiAliasBundle;
 use bevy::pbr::ScreenSpaceAmbientOcclusionBundle;
 use bevy::prelude::*;
@@ -46,6 +46,7 @@ fn setup_camera(mut commands: Commands) {
                 clear_color: ClearColorConfig::Custom(Color::rgba(0.7137, 0.7803, 0.8784, 1.0)),
                 depth_load_op: Camera3dDepthLoadOp::Clear(0.0),
                 depth_texture_usages: TextureUsages::RENDER_ATTACHMENT.into(),
+                ..default()
             },
             projection: Projection::Perspective(PerspectiveProjection {
                 fov: std::f32::consts::PI / 3.0,

@@ -7,9 +7,10 @@ use bevy::prelude::*;
 use bevy::reflect::TypeUuid;
 
 use crate::systems::ui::loading::LoadingUIData;
+use bevy::asset::Asset;
 use bevy::reflect::TypePath;
 use fnv::FnvBuildHasher;
-use image::{DynamicImage};
+use image::DynamicImage;
 use std::collections::HashMap;
 use std::ffi::OsString;
 
@@ -25,7 +26,7 @@ pub enum AtlasLoadingStage {
 }
 
 /// The images that make up a resource pack
-#[derive(Debug, Clone, TypeUuid, TypePath)]
+#[derive(Asset, Debug, Clone, TypeUuid, TypePath)]
 #[uuid = "7b14806a-672b-423b-8d16-4f18afefa463"]
 pub struct ResourcePackData {
     images: HashMap<String, DynamicImage, FnvBuildHasher>,
@@ -100,24 +101,20 @@ pub fn build_texture_atlas(
     service.texture_atlas = Some(atlas);
 
     // Create a new material
-    let _ = materials.set(
+    let _ = materials.insert(
         &service.opaque_texture_atlas_material,
         ChunkMaterial {
             color: Color::WHITE,
-            color_texture: Some(
-                images.get_handle(service.texture_atlas.as_ref().unwrap().get_image()),
-            ),
+            color_texture: Some(service.texture_atlas.as_ref().unwrap().get_image().clone()),
             alpha_mode: AlphaMode::Mask(0.2),
         },
     );
 
-    let _ = materials.set(
+    let _ = materials.insert(
         &service.translucent_texture_atlas_material,
         ChunkMaterial {
             color: Color::WHITE,
-            color_texture: Some(
-                images.get_handle(service.texture_atlas.as_ref().unwrap().get_image()),
-            ),
+            color_texture: Some(service.texture_atlas.as_ref().unwrap().get_image().clone()),
             alpha_mode: AlphaMode::Mask(0.2), // Culling happens in custom shader
         },
     );

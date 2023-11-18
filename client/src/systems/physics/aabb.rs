@@ -1,10 +1,9 @@
 use crate::game::blocks::states::BlockStates;
-use crate::helpers::{global_to_local_position};
+use crate::helpers::global_to_local_position;
 use crate::systems::chunk::data::ChunkData;
 use crate::systems::chunk::ChunkSystem;
 use bevy::prelude::{Color, ResMut, Vec3};
-use bevy_prototype_debug_lines::DebugLines;
-use nalgebra::{Vector3};
+use nalgebra::Vector3;
 use serde::{Deserialize, Serialize};
 
 #[inline(always)]
@@ -40,108 +39,6 @@ impl Aabb {
         let mut new = self.clone();
         new.bottom_left += offset;
         new
-    }
-
-    /// Draws a `Aabb` outline with DebugLines
-    pub fn draw_lines(boxes: &Vec<Aabb>, position: Vector3<f32>, lines: &mut ResMut<DebugLines>) {
-        for val in boxes {
-            val.offset(position).draw(lines, 0.0, Color::WHITE);
-        }
-    }
-
-    /// Draw an outline of a Aabb collider using DebugLines
-    pub fn draw(&self, lines: &mut DebugLines, duration: f32, color: Color) {
-        let base = self.bottom_left;
-
-        // Bottom ring
-        lines.line_colored(
-            Vec3::new(base.x, base.y, base.z),
-            Vec3::new(base.x + self.size.x, base.y, base.z),
-            duration,
-            color,
-        );
-        lines.line_colored(
-            Vec3::new(base.x, base.y, base.z),
-            Vec3::new(base.x, base.y, base.z + self.size.z),
-            duration,
-            color,
-        );
-        lines.line_colored(
-            Vec3::new(base.x + self.size.x, base.y, base.z + self.size.z),
-            Vec3::new(base.x + self.size.x, base.y, base.z),
-            duration,
-            color,
-        );
-        lines.line_colored(
-            Vec3::new(base.x + self.size.x, base.y, base.z + self.size.z),
-            Vec3::new(base.x, base.y, base.z + self.size.z),
-            duration,
-            color,
-        );
-
-        // Top ring
-        lines.line_colored(
-            Vec3::new(base.x, base.y + self.size.y, base.z),
-            Vec3::new(base.x + self.size.x, base.y + self.size.y, base.z),
-            duration,
-            color,
-        );
-        lines.line_colored(
-            Vec3::new(base.x, base.y + self.size.y, base.z),
-            Vec3::new(base.x, base.y + self.size.y, base.z + self.size.z),
-            duration,
-            color,
-        );
-        lines.line_colored(
-            Vec3::new(
-                base.x + self.size.x,
-                base.y + self.size.y,
-                base.z + self.size.z,
-            ),
-            Vec3::new(base.x + self.size.x, base.y + self.size.y, base.z),
-            duration,
-            color,
-        );
-        lines.line_colored(
-            Vec3::new(
-                base.x + self.size.x,
-                base.y + self.size.y,
-                base.z + self.size.z,
-            ),
-            Vec3::new(base.x, base.y + self.size.y, base.z + self.size.z),
-            duration,
-            color,
-        );
-
-        // Vertical ring
-        lines.line_colored(
-            Vec3::new(base.x, base.y, base.z),
-            Vec3::new(base.x, base.y + self.size.y, base.z),
-            duration,
-            color,
-        );
-        lines.line_colored(
-            Vec3::new(base.x, base.y, base.z + self.size.z),
-            Vec3::new(base.x, base.y + self.size.y, base.z + self.size.z),
-            duration,
-            color,
-        );
-        lines.line_colored(
-            Vec3::new(base.x + self.size.x, base.y, base.z),
-            Vec3::new(base.x + self.size.x, base.y + self.size.y, base.z),
-            duration,
-            color,
-        );
-        lines.line_colored(
-            Vec3::new(base.x + self.size.x, base.y, base.z + self.size.z),
-            Vec3::new(
-                base.x + self.size.x,
-                base.y + self.size.y,
-                base.z + self.size.z,
-            ),
-            duration,
-            color,
-        );
     }
 
     /// Detect if a ray collides with this Aabb
@@ -316,7 +213,6 @@ impl Aabb {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
 
     #[test]
     fn aabb_vs_aabb_move_test_x() {

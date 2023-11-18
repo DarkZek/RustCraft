@@ -1,4 +1,5 @@
-use bevy::asset::{Asset, AssetLoader, BoxedFuture, LoadContext, LoadedAsset};
+use bevy::asset::io::Reader;
+use bevy::asset::{Asset, AssetLoader, AsyncReadExt, BoxedFuture, LoadContext, LoadedAsset};
 use std::marker::PhantomData;
 
 #[derive(Default)]
@@ -10,15 +11,21 @@ impl<T> AssetLoader for JsonAssetLoader<T>
 where
     for<'a> T: serde::Deserialize<'a> + Asset,
 {
+    type Asset = T;
+    type Settings = ();
+    type Error = serde_json::Error;
+
     fn load<'a>(
         &'a self,
-        bytes: &'a [u8],
+        reader: &'a mut Reader,
+        _settings: &'a Self::Settings,
         load_context: &'a mut LoadContext,
-    ) -> BoxedFuture<'a, Result<(), anyhow::Error>> {
+    ) -> BoxedFuture<'a, Result<T, serde_json::Error>> {
         Box::pin(async move {
-            let custom_asset: T = serde_json::from_slice::<T>(bytes)?;
-            load_context.set_default_asset(LoadedAsset::new(custom_asset));
-            Ok(())
+            let mut data = Vec::new();
+            reader.read_to_end(&mut data).await;
+            let custom_asset: T = serde_json::from_slice::<T>(&data)?;
+            Ok(custom_asset)
         })
     }
 

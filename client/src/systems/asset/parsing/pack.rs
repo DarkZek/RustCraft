@@ -1,10 +1,11 @@
 use crate::systems::asset::atlas::ResourcePackData;
-use bevy::asset::{AssetLoader, BoxedFuture, LoadContext, LoadedAsset};
+use bevy::asset::{AssetLoader, AsyncReadExt, BoxedFuture, LoadContext, LoadedAsset};
 use fnv::{FnvBuildHasher, FnvHashMap};
 use image::{DynamicImage, ImageFormat};
 
 use std::collections::HashMap;
 
+use bevy::asset::io::Reader;
 use bevy::prelude::error;
 use std::io::{Cursor, Read};
 
@@ -14,19 +15,24 @@ use zip::ZipArchive;
 pub struct ResourcePackAssetLoader;
 
 impl AssetLoader for ResourcePackAssetLoader {
+    type Asset = ResourcePackData;
+    type Settings = ();
+    type Error = serde_json::Error; // TODO: Come and fix these error types
+
     fn load<'a>(
         &'a self,
-        bytes: &'a [u8],
+        reader: &'a mut Reader,
+        _settings: &'a Self::Settings,
         load_context: &'a mut LoadContext,
-    ) -> BoxedFuture<'a, Result<(), anyhow::Error>> {
+    ) -> BoxedFuture<'a, Result<ResourcePackData, serde_json::Error>> {
         Box::pin(async move {
-            let mut archive = ZipArchive::new(Cursor::new(bytes))?;
+            let mut data = Vec::new();
+            reader.read_to_end(&mut data).await;
+            let mut archive = ZipArchive::new(Cursor::new(data.as_slice())).unwrap();
 
             let data = load_resources(&mut archive);
 
-            load_context.set_default_asset(LoadedAsset::new(ResourcePackData::new(data)));
-
-            Ok(())
+            Ok(ResourcePackData::new(data))
         })
     }
 

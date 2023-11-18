@@ -10,7 +10,8 @@ use crate::systems::ui::loading::LoadingUIData;
 
 use crate::systems::chunk::builder::{RerenderChunkFlag, RerenderChunkFlagContext};
 use crate::systems::chunk::mesh::face::Face;
-use bevy::asset::{AssetLoader, BoxedFuture, LoadContext, LoadedAsset};
+use bevy::asset::io::Reader;
+use bevy::asset::{AssetLoader, AsyncReadExt, BoxedFuture, LoadContext, LoadedAsset};
 use bevy::prelude::*;
 use nalgebra::Vector3;
 
@@ -18,20 +19,26 @@ use nalgebra::Vector3;
 pub struct BlockStateAssetLoader;
 
 impl AssetLoader for BlockStateAssetLoader {
+    type Asset = BlockStatesFile;
+    type Settings = ();
+    type Error = serde_json::Error;
+
     fn load<'a>(
         &'a self,
-        bytes: &'a [u8],
+        reader: &'a mut Reader,
+        settings: &'a Self::Settings,
         load_context: &'a mut LoadContext,
-    ) -> BoxedFuture<'a, Result<(), anyhow::Error>> {
+    ) -> BoxedFuture<'a, Result<Self::Asset, serde_json::Error>> {
         Box::pin(async move {
-            let states = match serde_json::from_slice::<BlockStatesFile>(bytes) {
+            let mut bytes = Vec::new();
+            reader.read_to_end(&mut bytes).await;
+
+            let states = match serde_json::from_slice(&bytes) {
                 Ok(val) => val,
                 Err(e) => panic!("Invalid block states json {:?}", e), // TODO: Handle this better
             };
 
-            load_context.set_default_asset(LoadedAsset::new(states));
-
-            Ok(())
+            Ok(states)
         })
     }
 
@@ -55,13 +62,13 @@ pub fn track_blockstate_changes(
 ) {
     for event in events.iter() {
         match event {
-            AssetEvent::Created { .. } => {
+            AssetEvent::Added { .. } => {
                 states.recalculate = true;
             }
             AssetEvent::Modified { .. } => {
                 states.recalculate = true;
             }
-            AssetEvent::Removed { .. } => {}
+            _ => {}
         }
     }
 

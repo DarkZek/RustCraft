@@ -1,13 +1,11 @@
 use crate::game::blocks::states::BlockStates;
 
-
 use crate::systems::chunk::ChunkSystem;
 use crate::systems::physics::aabb::Aabb;
 use crate::systems::physics::PhysicsObject;
 use crate::systems::ui::debugging::DebuggingUIData;
 use bevy::prelude::*;
-use bevy_prototype_debug_lines::DebugLines;
-use nalgebra::{Vector3};
+use nalgebra::Vector3;
 
 const MAX_TOUCHING_GROUND_DIST: f32 = 0.05;
 const GRAVITY_STRENGTH: f32 = 50.0;
@@ -20,7 +18,6 @@ pub fn physics_tick(
     chunks: Res<ChunkSystem>,
     block_states: Res<BlockStates>,
     time: Res<Time>,
-    mut draw_lines: ResMut<DebugLines>,
     mut debugging_uidata: ResMut<DebuggingUIData>,
 ) {
     // Debug how many ticks per second
@@ -35,7 +32,6 @@ pub fn physics_tick(
 
         let proposed_delta = object.velocity * time.delta_seconds();
         let mut current_aabb: Aabb = object.collider.offset(object.position);
-        current_aabb.draw(&mut draw_lines, 0.0, Color::GREEN);
 
         object.translate(proposed_delta, &chunks, &block_states);
 

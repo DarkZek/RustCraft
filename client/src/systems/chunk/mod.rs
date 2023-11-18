@@ -75,14 +75,12 @@ impl ChunkSystem {
             )))
             .insert(GlobalTransform::default())
             .insert(Visibility::default())
-            .insert(ComputedVisibility::default())
             .with_children(|c| {
                 opaque_entity = Some(
                     c.spawn(asset_service.opaque_texture_atlas_material.clone())
                         .insert(Transform::default())
                         .insert(GlobalTransform::default())
                         .insert(Visibility::default())
-                        .insert(ComputedVisibility::default())
                         .insert(Aabb::from_min_max(
                             Vec3::new(0.0, 0.0, 0.0),
                             Vec3::new(16.0, 16.0, 16.0),
@@ -95,7 +93,6 @@ impl ChunkSystem {
                         .insert(Transform::default())
                         .insert(GlobalTransform::default())
                         .insert(Visibility::default())
-                        .insert(ComputedVisibility::default())
                         .insert(Aabb::from_min_max(
                             Vec3::new(0.0, 0.0, 0.0),
                             Vec3::new(16.0, 16.0, 16.0),
