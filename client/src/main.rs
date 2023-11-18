@@ -5,6 +5,9 @@ pub mod state;
 pub mod systems;
 
 use crate::game::blocks::BlockStatesPlugin;
+use crate::game::interaction::highlight::{
+    mouse_highlight_interaction, setup_highlights, HighlightData,
+};
 use crate::game::interaction::mouse_interaction;
 use crate::game::inventory::InventoryPlugin;
 use crate::game::item::states::ItemStates;
@@ -31,6 +34,7 @@ use bevy::render::settings::{Backends, WgpuSettings};
 use bevy::render::RenderPlugin;
 use bevy::window::{WindowResizeConstraints, WindowResolution};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
+use bevy_polyline::PolylinePlugin;
 use bevy_prototype_debug_lines::DebugLinesPlugin;
 use std::time::Duration;
 
@@ -68,12 +72,16 @@ fn main() {
         .add_state::<AppState>()
         
         .add_plugins(DebugLinesPlugin::default())
+        .add_plugins(PolylinePlugin)
 
         // Networking
         .add_plugins(ClientNetworkingPlugin)
         
         // Interaction
         .add_systems(Update, mouse_interaction)
+        .insert_resource(HighlightData::default())
+        .add_systems(Startup, setup_highlights)
+        .add_systems(Update, mouse_highlight_interaction)
         
         // Chunk loading.rs
         .add_plugins(ChunkPlugin)

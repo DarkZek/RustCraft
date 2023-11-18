@@ -1,16 +1,16 @@
+pub mod highlight;
+
 use crate::helpers::{from_bevy_vec3, global_to_local_position};
 use crate::systems::asset::AssetService;
 use crate::systems::chunk::ChunkSystem;
 use crate::systems::physics::raycasts::do_raycast;
 use bevy::prelude::*;
-use bevy_prototype_debug_lines::DebugLines;
 
 use crate::game::blocks::states::BlockStates;
 use crate::game::inventory::Inventory;
 use crate::game::item::states::ItemStates;
 use crate::game::item::{ItemStack, ItemType};
 use crate::systems::chunk::builder::{RerenderChunkFlag, RerenderChunkFlagContext};
-use crate::systems::physics::aabb::Aabb;
 use rc_networking::constants::{UserId, CHUNK_SIZE};
 use rc_networking::protocol::clientbound::block_update::BlockUpdate;
 use rc_networking::protocol::Protocol;
@@ -24,7 +24,6 @@ pub fn mouse_interaction(
     mut assets: ResMut<AssetService>,
     mut networking: EventWriter<SendPacket>,
     mut inventory: ResMut<Inventory>,
-    mut lines: ResMut<DebugLines>,
     blocks: Res<BlockStates>,
     mut rerender_chunks: EventWriter<RerenderChunkFlag>,
     mut meshes: ResMut<Assets<Mesh>>,
@@ -55,8 +54,6 @@ pub fn mouse_interaction(
     if let Some(mut chunk) = chunks.chunks.get_mut(&chunk_loc) {
         // Highlight selected block
         let block = blocks.get_block(chunk.world[inner_loc.x][inner_loc.y][inner_loc.z] as usize);
-
-        Aabb::draw_lines(&block.collision_boxes, ray.block.cast::<f32>(), &mut lines);
 
         if mouse_button_input.just_pressed(MouseButton::Left) {
             let block_id = chunk.world[inner_loc.x][inner_loc.y][inner_loc.z];

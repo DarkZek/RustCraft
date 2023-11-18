@@ -63,8 +63,6 @@ pub fn update_debugging_ui(mut query: Query<&mut Text>, mut data: ResMut<Debuggi
         return;
     }
 
-    println!("Update");
-
     query
         .get_mut(*data.physics_tick_entity.as_ref().unwrap())
         .unwrap()
