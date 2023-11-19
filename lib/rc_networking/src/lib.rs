@@ -6,10 +6,9 @@ pub mod protocol;
 pub mod server;
 pub mod types;
 
-use bevy::prelude::{Res, Resource};
 use protocol::Protocol;
 use std::net::SocketAddr;
-use std::time::{Duration};
+use std::time::Duration;
 
 pub use rustls;
 
@@ -47,12 +46,5 @@ fn get_channel(protocol: &Protocol) -> Channel {
         | Protocol::AcknowledgeChunk(_) => Channel::Reliable,
 
         Protocol::FullChunkUpdate(_) | Protocol::PartialChunkUpdate(_) => Channel::Chunk,
-    }
-}
-
-fn has_resource<T: Resource>(resource: Option<Res<T>>) -> bool {
-    match resource.is_some() {
-        true => true,
-        false => false,
     }
 }

@@ -2,18 +2,14 @@ use crate::bistream::BiStream;
 use crate::constants::UserId;
 use crate::events::connection::NetworkConnectionEvent;
 use crate::events::disconnect::NetworkDisconnectionEvent;
-use crate::protocol::clientbound::server_state::ServerState;
 use crate::server::user_connection::UserConnection;
-use crate::server::{NetworkingServer};
+use crate::server::NetworkingServer;
 use crate::types::{ReceivePacket, SendPacket};
-use crate::{get_channel, Channel, Protocol};
-use bevy::app::AppExit;
-use bevy::log::trace;
-use bevy::prelude::{info, warn, EventReader, EventWriter, ResMut};
+use crate::{get_channel, Channel};
+use bevy::log::{info, trace, warn};
+use bevy::prelude::{EventReader, EventWriter, ResMut};
 use futures::FutureExt;
 use quinn::Endpoint;
-use std::collections::HashMap;
-use std::mem;
 
 use tokio::sync::mpsc::error::TryRecvError;
 use tokio::sync::mpsc::unbounded_channel;
@@ -103,11 +99,11 @@ pub fn read_packets_system(
     mut server: ResMut<NetworkingServer>,
     mut recv: EventWriter<ReceivePacket>,
 ) {
-    for (userId, client) in server.connections.iter_mut() {
+    for (user_id, client) in server.connections.iter_mut() {
         let mut recieve_from_channel = |channel: &mut BiStream| {
             while let Ok(packet) = channel.in_recv.try_recv() {
-                trace!("{:?} => {:?}", userId, packet);
-                recv.send(ReceivePacket(packet, *userId));
+                trace!("{:?} => {:?}", user_id, packet);
+                recv.send(ReceivePacket(packet, *user_id));
             }
         };
         recieve_from_channel(&mut client.unreliable);
@@ -121,7 +117,7 @@ pub fn write_packets_system(
     server: ResMut<NetworkingServer>,
     mut to_send: EventReader<SendPacket>,
 ) {
-    to_send.iter().for_each(|v| {
+    to_send.read().for_each(|v| {
         if let Some(conn) = server.connections.get(&v.1) {
             trace!("{:?} <= {:?} {:?}", v.1, get_channel(&v.0), v.0);
 
@@ -135,25 +131,4 @@ pub fn write_packets_system(
             trace!("Tried to send packet to disconnected client {:?}", v.1);
         }
     });
-}
-
-pub fn detect_shutdown_system(
-    mut server: ResMut<NetworkingServer>,
-    mut bevy_shutdown: EventReader<AppExit>,
-) {
-    for _ in bevy_shutdown.iter() {
-        info!("Shutting down server");
-        let mut connections = HashMap::new();
-        mem::swap(&mut server.connections, &mut connections);
-
-        for (_, client) in connections {
-            client
-                .reliable
-                .out_send
-                .send(Protocol::ServerState(ServerState::Disconnecting));
-            client
-                .connection
-                .close(0_u8.into(), "Shutting Down".as_bytes())
-        }
-    }
 }

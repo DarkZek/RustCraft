@@ -1,4 +1,3 @@
-pub mod error;
 pub mod game;
 pub mod helpers;
 pub mod state;
@@ -34,7 +33,6 @@ use bevy::render::RenderPlugin;
 
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_polyline::PolylinePlugin;
-use std::time::Duration;
 
 #[rustfmt::skip]
 fn main() {

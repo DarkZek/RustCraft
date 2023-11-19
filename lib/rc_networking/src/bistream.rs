@@ -1,14 +1,11 @@
-
 use crate::Protocol;
-use bevy::prelude::{trace};
+use bevy::prelude::trace;
 
 use quinn::{RecvStream, SendStream};
 use std::mem::size_of;
 
 use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender};
 use tokio::task::JoinHandle;
-
-const MAX_CHUNK_SIZE: usize = 1024 * 32;
 
 pub enum StreamError {
     Error,
@@ -42,14 +39,14 @@ impl BiStream {
                 {
                     trace!("Network write stream failed: {:?}", e);
                     // Exiting
-                    err2.send(StreamError::Error);
+                    err2.send(StreamError::Error).unwrap();
                     return send;
                 }
 
                 if let Err(e) = send.write_all(&packet_data).await {
                     trace!("Network write stream failed: {:?}", e);
                     // Exiting
-                    err2.send(StreamError::Error);
+                    err2.send(StreamError::Error).unwrap();
                     return send;
                 }
 
@@ -67,7 +64,7 @@ impl BiStream {
             loop {
                 let mut len_data = vec![0; size_of::<u32>()];
                 if let Err(e) = recv.read_exact(&mut len_data).await {
-                    err.send(StreamError::Error);
+                    err.send(StreamError::Error).unwrap();
                     trace!("Network stream exited: {:?}", e);
                     return recv;
                 }
@@ -77,7 +74,7 @@ impl BiStream {
                 let mut chunk_data = vec![0; len as usize];
 
                 if let Err(e) = recv.read_exact(&mut chunk_data).await {
-                    err.send(StreamError::Error);
+                    err.send(StreamError::Error).unwrap();
                     trace!("Network read stream failed: {:?}", e);
                     return recv;
                 }

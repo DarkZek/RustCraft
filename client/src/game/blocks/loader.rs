@@ -12,7 +12,7 @@ use crate::game::item::states::ItemStates;
 use crate::systems::chunk::builder::{RerenderChunkFlag, RerenderChunkFlagContext};
 use crate::systems::chunk::mesh::face::Face;
 use bevy::asset::io::Reader;
-use bevy::asset::{AssetLoader, AsyncReadExt, BoxedFuture, LoadContext, LoadedAsset};
+use bevy::asset::{AssetLoader, AsyncReadExt, BoxedFuture, LoadContext};
 use bevy::prelude::*;
 use nalgebra::Vector3;
 
@@ -27,12 +27,12 @@ impl AssetLoader for BlockStateAssetLoader {
     fn load<'a>(
         &'a self,
         reader: &'a mut Reader,
-        settings: &'a Self::Settings,
-        load_context: &'a mut LoadContext,
+        _settings: &'a Self::Settings,
+        _load_context: &'a mut LoadContext,
     ) -> BoxedFuture<'a, Result<Self::Asset, serde_json::Error>> {
         Box::pin(async move {
             let mut bytes = Vec::new();
-            reader.read_to_end(&mut bytes).await;
+            reader.read_to_end(&mut bytes).await.unwrap();
 
             let states = match serde_json::from_slice(&bytes) {
                 Ok(val) => val,
@@ -62,7 +62,7 @@ pub fn track_blockstate_changes(
     mut rerender_chunks: EventWriter<RerenderChunkFlag>,
     item_states: Res<ItemStates>,
 ) {
-    for event in events.iter() {
+    for event in events.read() {
         match event {
             AssetEvent::Added { .. } => {
                 states.recalculate = true;
@@ -152,7 +152,7 @@ pub fn track_blockstate_changes(
             let mut loot_data = Vec::new();
 
             for drop in &block.loot_table {
-                if let Some((item_id, item)) = item_states
+                if let Some((item_id, _)) = item_states
                     .states
                     .iter()
                     .enumerate()

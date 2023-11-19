@@ -1,5 +1,5 @@
 use bevy::asset::io::Reader;
-use bevy::asset::{Asset, AssetLoader, AsyncReadExt, BoxedFuture, LoadContext, LoadedAsset};
+use bevy::asset::{Asset, AssetLoader, AsyncReadExt, BoxedFuture, LoadContext};
 use std::marker::PhantomData;
 
 #[derive(Default)]
@@ -19,11 +19,11 @@ where
         &'a self,
         reader: &'a mut Reader,
         _settings: &'a Self::Settings,
-        load_context: &'a mut LoadContext,
+        _load_context: &'a mut LoadContext,
     ) -> BoxedFuture<'a, Result<T, serde_json::Error>> {
         Box::pin(async move {
             let mut data = Vec::new();
-            reader.read_to_end(&mut data).await;
+            reader.read_to_end(&mut data).await.unwrap();
             let custom_asset: T = serde_json::from_slice::<T>(&data)?;
             Ok(custom_asset)
         })

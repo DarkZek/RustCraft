@@ -1,4 +1,3 @@
-
 use crate::constants::UserId;
 use crate::events::connection::NetworkConnectionEvent;
 use crate::events::disconnect::NetworkDisconnectionEvent;
@@ -9,25 +8,15 @@ use crate::server::systems::{
 use crate::server::user_connection::UserConnection;
 use crate::types::{ReceivePacket, SendPacket};
 use crate::*;
-
 use bevy::prelude::*;
-
-
-
 use quinn::{Endpoint, ServerConfig};
 use std::collections::HashMap;
-
-use std::sync::atomic::{AtomicU64};
 use std::sync::Arc;
-
 use tokio::runtime::Runtime;
-
 use tokio::task::JoinHandle;
 
 mod systems;
 mod user_connection;
-
-const USERID_COUNTER: AtomicU64 = AtomicU64::new(0);
 
 pub struct QuinnServerPlugin;
 

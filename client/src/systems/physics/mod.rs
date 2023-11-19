@@ -27,6 +27,7 @@ impl Plugin for PhysicsPlugin {
     }
 }
 
+/// Stores physics related properties of an object in the world
 #[derive(Component)]
 pub struct PhysicsObject {
     pub position: Vector3<f32>,
@@ -38,6 +39,7 @@ pub struct PhysicsObject {
 }
 
 impl PhysicsObject {
+    /// Creates a new physics object
     pub fn new(position: Vector3<f32>, collider: Aabb) -> PhysicsObject {
         PhysicsObject {
             position,
@@ -49,7 +51,8 @@ impl PhysicsObject {
         }
     }
 
-    pub fn translate(
+    /// Translates a physics object by a delta, with delta position collision detection
+    pub fn translate_with_collision_detection(
         &mut self,
         delta: Vector3<f32>,
         chunks: &ChunkSystem,

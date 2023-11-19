@@ -11,7 +11,7 @@ use crate::systems::chunk::data::ChunkData;
 use crate::systems::chunk::nearby_cache::NearbyChunkCache;
 use crate::systems::chunk::ChunkSystem;
 use bevy::prelude::*;
-use bevy::render::mesh::{MeshVertexAttribute};
+use bevy::render::mesh::MeshVertexAttribute;
 use bevy::render::render_resource::VertexFormat;
 use nalgebra::Vector3;
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
@@ -59,7 +59,7 @@ pub fn mesh_builder(
     let mut rerender_chunks = Vec::new();
 
     // Add all new flags to rerender list
-    for flag in flags.iter() {
+    for flag in flags.read() {
         rerender_chunks.push(flag.chunk);
 
         // If rerendering adjacent chunks add them too

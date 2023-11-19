@@ -30,7 +30,7 @@ pub fn network_chunk_sync(
     mut chunk_cache: Local<ChunkSync>,
     mut send_response: EventWriter<SendPacket>,
 ) {
-    for event in event_reader.iter() {
+    for event in event_reader.read() {
         match &event.0 {
             Protocol::FullChunkUpdate(update) => {
                 let location = Vector3::new(update.x, update.y, update.z);

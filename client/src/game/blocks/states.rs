@@ -1,7 +1,8 @@
 use crate::game::blocks::loading::BlockStatesFile;
 use crate::game::blocks::{Block, LootTableEntry};
+use bevy::log::warn;
+use bevy::prelude::Handle;
 use bevy::prelude::Resource;
-use bevy::prelude::{warn, Handle};
 use bevy::reflect::TypeUuid;
 
 #[derive(Debug, Clone, TypeUuid, Resource)]

@@ -1,15 +1,12 @@
 use crate::game::blocks::states::BlockStates;
-
 use crate::game::viewable_direction::BLOCK_SIDES;
-use crate::helpers::{global_to_local_position};
+use crate::helpers::global_to_local_position;
 use crate::systems::chunk::data::{ChunkData, RawLightingData};
 use crate::systems::chunk::nearby_cache::NearbyChunkCache;
-
-use bevy::prelude::{info};
+use bevy::log::info;
 use nalgebra::{Vector3, Vector4};
 use rc_networking::constants::CHUNK_SIZE;
 use std::collections::VecDeque;
-
 use std::time::Instant;
 
 const MAX_LIGHT_VALUE: usize = 16;

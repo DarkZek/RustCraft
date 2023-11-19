@@ -24,7 +24,7 @@ pub fn update_input_look(
 
     let (mut transform, mut player) = player.single_mut();
 
-    for motion in mouse.iter() {
+    for motion in mouse.read() {
         player.pitch -= (MOUSE_SENSITIVITY * motion.delta.y * window_scale).to_radians();
         player.yaw -= (MOUSE_SENSITIVITY * motion.delta.x * window_scale).to_radians();
 

@@ -1,4 +1,4 @@
-use bevy::prelude::warn;
+use bevy::log::warn;
 use std::sync::Arc;
 
 pub struct SkipServerVerification;

@@ -2,10 +2,11 @@ use crate::game::blocks::states::BlockStates;
 use crate::helpers::global_to_local_position;
 use crate::systems::chunk::data::ChunkData;
 use crate::systems::chunk::ChunkSystem;
-use bevy::prelude::{Color, ResMut, Vec3};
 use nalgebra::Vector3;
 use serde::{Deserialize, Serialize};
 
+/// Returns the maximum value of two values `x` and `y`
+/// Note: Not using f32::max for readability purposes
 #[inline(always)]
 fn max(x: f32, y: f32) -> f32 {
     if x > y {
@@ -14,6 +15,9 @@ fn max(x: f32, y: f32) -> f32 {
         y
     }
 }
+
+/// Returns the minimum value of two values `x` and `y`
+/// Note: Not using f32::min for readability purposes
 #[inline(always)]
 fn min(x: f32, y: f32) -> f32 {
     if x < y {

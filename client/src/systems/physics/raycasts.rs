@@ -2,10 +2,8 @@ use crate::helpers::global_to_local_position;
 use crate::systems::chunk::ChunkSystem;
 use bevy::prelude::*;
 
-
 use crate::game::blocks::states::BlockStates;
 use crate::systems::chunk::data::ChunkData;
-
 
 use nalgebra::Vector3;
 
@@ -15,6 +13,7 @@ pub struct RaycastResult {
     pub distance: f32,
 }
 
+/// Attempts a raycast of the terrain
 pub fn do_raycast(
     starting_position: Vector3<f32>,
     mut direction: Vector3<f32>,

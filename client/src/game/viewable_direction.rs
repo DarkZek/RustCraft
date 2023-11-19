@@ -2,7 +2,7 @@ use crate::game::blocks::states::BlockStates;
 use crate::game::blocks::Block;
 use crate::systems::asset::atlas::index::Rotate;
 use crate::systems::chunk::data::{ChunkData, RawChunkData};
-use bevy::prelude::warn;
+use bevy::log::warn;
 use nalgebra::Vector3;
 use serde::{Deserialize, Serialize};
 

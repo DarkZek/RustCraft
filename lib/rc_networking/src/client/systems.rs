@@ -5,7 +5,8 @@ use crate::protocol::clientbound::server_state::ServerState;
 use crate::types::{ReceivePacket, SendPacket};
 use crate::{get_channel, Channel, Protocol};
 use bevy::app::AppExit;
-use bevy::prelude::{info, warn, EventReader, EventWriter, ResMut};
+use bevy::log::{info, warn};
+use bevy::prelude::{EventReader, EventWriter, ResMut};
 use futures::FutureExt;
 use tokio::sync::mpsc::error::TryRecvError;
 
@@ -36,7 +37,7 @@ pub fn update_system(
         }
     }
 
-    for packet in packets.iter() {
+    for packet in packets.read() {
         if let Protocol::ServerState(ServerState::Disconnecting) = packet.0 {
             // Disconnect
             client.connection = None;
@@ -54,7 +55,7 @@ pub fn write_packets_system(
         return;
     }
     if let Some(conn) = &client.connection {
-        for packet in to_send.iter() {
+        for packet in to_send.read() {
             let res = match get_channel(&packet.0) {
                 Channel::Reliable => conn.reliable.out_send.send(packet.0.clone()),
                 Channel::Unreliable => conn.unreliable.out_send.send(packet.0.clone()),
@@ -69,7 +70,7 @@ pub fn write_packets_system(
     } else {
         warn!(
             "Tried to send packet when disconnected {:?}",
-            to_send.iter().collect::<Vec<&SendPacket>>()
+            to_send.read().collect::<Vec<&SendPacket>>()
         );
     }
 }
@@ -79,7 +80,7 @@ pub fn detect_shutdown_system(
     mut client: ResMut<NetworkingClient>,
     mut bevy_shutdown: EventReader<AppExit>,
 ) {
-    for _ in bevy_shutdown.iter() {
+    for _ in bevy_shutdown.read() {
         info!("Shutting down server");
         if let Some(connection) = client.connection.take() {
             connection

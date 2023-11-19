@@ -66,5 +66,5 @@ pub fn update_input_movement(
             right * time.delta_seconds() * MOVEMENT_SPEED_VELOCITY * flying_multiplier;
     }
 
-    player_physics.translate(proposed_delta, &chunks, &block_states);
+    player_physics.translate_with_collision_detection(proposed_delta, &chunks, &block_states);
 }

@@ -21,7 +21,7 @@ pub fn messages_update(
     mut system: ResMut<NetworkingSystem>,
     mut app_state: ResMut<NextState<AppState>>,
 ) {
-    for event in event_reader.iter() {
+    for event in event_reader.read() {
         match &event.0 {
             Protocol::UpdateLoading(update) => {
                 if update.loading {

@@ -28,6 +28,7 @@ pub fn format_u32(mut count: u32) -> String {
 }
 
 pub trait Lerp {
+    /// Linearly interpolates between `self` and `b` by `t`
     fn lerp(self, b: Self, t: f32) -> Self;
 }
 
@@ -43,6 +44,7 @@ impl Lerp for u8 {
     }
 }
 
+/// Linearly interpolates between two colours by `t` within the range 0-1
 pub fn lerp_color(c1: LightingColor, c2: LightingColor, t: f32) -> LightingColor {
     if t == 0.0 {
         return c1;
@@ -71,6 +73,7 @@ pub fn lerp_color(c1: LightingColor, c2: LightingColor, t: f32) -> LightingColor
     ]
 }
 
+/// Calculate the distance between two `Point3` points
 pub fn distance(p1: &Point3<usize>, p2: &Point3<usize>) -> u32 {
     ((p1.x as isize - p2.x as isize).abs()
         + (p1.y as isize - p2.y as isize).abs()
@@ -79,6 +82,7 @@ pub fn distance(p1: &Point3<usize>, p2: &Point3<usize>) -> u32 {
 }
 
 pub trait Clamp {
+    /// Clamp `self` value between `min` and `max`
     fn clamp_val(self, min: Self, max: f32) -> f32;
 }
 
@@ -112,6 +116,7 @@ pub fn to_bevy_vec3(vector: Vector3<f32>) -> Vec3 {
     Vec3::new(vector.x, vector.y, vector.z)
 }
 
+/// Converts from global block position referencing any block in the entire world, to local array indexing position of 0-CHUNK_SIZE and a position of the chunk in the world
 #[inline]
 pub fn global_to_local_position(vector: Vector3<i32>) -> (Vector3<i32>, Vector3<usize>) {
     // Locate block
@@ -131,6 +136,7 @@ pub fn global_to_local_position(vector: Vector3<i32>) -> (Vector3<i32>, Vector3<
     (chunk_loc, inner_loc)
 }
 
+/// Converts from global block position referencing any block in the entire world, to local array indexing position of 0-CHUNK_SIZE and a position of the chunk in the world
 #[inline]
 pub fn global_f32_to_local_position(vector: Vector3<f32>) -> (Vector3<i32>, Vector3<usize>) {
     // Locate block
@@ -163,16 +169,4 @@ pub fn check_chunk_boundaries(pos: Vector3<usize>, dir: Vector3<i32>) -> bool {
 
         _ => panic!("Invalid direction"),
     }
-}
-
-pub enum TextureSubdivisionMethod {
-    TopLeft,
-    TopRight,
-    BottomLeft,
-    BottomRight,
-    Top,
-    Left,
-    Right,
-    Bottom,
-    Full,
 }

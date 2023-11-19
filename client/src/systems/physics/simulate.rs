@@ -1,7 +1,6 @@
 use crate::game::blocks::states::BlockStates;
 
 use crate::systems::chunk::ChunkSystem;
-use crate::systems::physics::aabb::Aabb;
 use crate::systems::physics::PhysicsObject;
 use crate::systems::ui::debugging::DebuggingUIData;
 use bevy::prelude::*;
@@ -31,9 +30,8 @@ pub fn physics_tick(
         }
 
         let proposed_delta = object.velocity * time.delta_seconds();
-        let mut current_aabb: Aabb = object.collider.offset(object.position);
 
-        object.translate(proposed_delta, &chunks, &block_states);
+        object.translate_with_collision_detection(proposed_delta, &chunks, &block_states);
 
         // Proposed delta is small so hit a wall, remove velocity
         if f32::abs(object.previous_position.x - object.position.x) < 0.001 {
@@ -48,7 +46,7 @@ pub fn physics_tick(
             object.velocity.z = 0.0;
         }
 
-        current_aabb = object.collider.offset(object.position);
+        let current_aabb = object.collider.offset(object.position);
 
         let potential_collisions =
             current_aabb.get_surrounding_voxel_collision_colliders(&chunks, &block_states);

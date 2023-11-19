@@ -8,7 +8,6 @@ use crate::systems::asset::atlas::index::TextureAtlasIndex;
 
 use crate::game::blocks::loader::{track_blockstate_changes, BlockStateAssetLoader};
 use crate::game::blocks::loading::BlockStatesFile;
-use crate::state::AppState;
 use crate::systems::chunk::data::LightingColor;
 use crate::systems::chunk::mesh::draw_kit::DrawKit;
 use crate::systems::chunk::mesh::face::Face;

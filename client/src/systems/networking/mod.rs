@@ -1,22 +1,16 @@
+use crate::state::AppState;
 use crate::systems::networking::chunk::network_chunk_sync;
 use crate::systems::networking::location_sync::{
     network_location_sync, LastNetworkRotationSync, LastNetworkTranslationSync,
 };
 use crate::systems::networking::messages::messages_update;
-
+use bevy::log::info;
 use bevy::prelude::*;
-use bevy::prelude::{info, Entity, Vec3};
-
-use rc_networking::constants::EntityId;
-
-use crate::state::AppState;
-
-
+use bevy::prelude::{Entity, Vec3};
 use rc_networking::client::{NetworkingClient, QuinnClientPlugin};
-
+use rc_networking::constants::EntityId;
 use std::collections::HashMap;
-use std::net::{SocketAddr};
-
+use std::net::SocketAddr;
 
 mod chunk;
 mod location_sync;
@@ -38,6 +32,7 @@ impl Plugin for ClientNetworkingPlugin {
     }
 }
 
+/// Connects to the local server instance
 pub fn connect_to_server(mut client: ResMut<NetworkingClient>) {
     let server_addr: SocketAddr = ([127, 0, 0, 1], 25568).into();
 

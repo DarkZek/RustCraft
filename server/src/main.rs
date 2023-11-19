@@ -4,7 +4,6 @@
 #![allow(dead_code)]
 
 pub mod config;
-pub mod console;
 pub mod error;
 pub mod events;
 pub mod game;
@@ -24,6 +23,7 @@ use bevy::app::{App, AppExit, ScheduleRunnerPlugin};
 use bevy::log::{info, Level, LogPlugin};
 use bevy::prelude::{default, AssetPlugin, EventWriter, PluginGroup, PreUpdate, Update};
 use bevy::MinimalPlugins;
+use rc_networking::client::systems::detect_shutdown_system;
 use rc_networking::types::{ReceivePacket, SendPacket};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
@@ -71,6 +71,7 @@ fn main() {
         // Gameplay Loop on Tick
         .add_systems(Update, tick)
         .add_systems(PreUpdate, detect_shutdowns)
+        .add_systems(Update, detect_shutdown_system)
         // Run App
         .run();
 }
