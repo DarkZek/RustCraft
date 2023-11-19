@@ -3,13 +3,12 @@
 
 #import bevy_pbr::pbr_types as pbr_types
 #import bevy_pbr::utils
-#import bevy_pbr::clustered_forward
-#import bevy_pbr::lighting
 #import bevy_pbr::shadows
 
 #import bevy_pbr::gtao_utils gtao_multibounce
-#import bevy_pbr::prepass_utils
 #import bevy_pbr::pbr_functions as pbr_functions
+#import bevy_pbr::mesh_functions as mesh_functions
+#import bevy_pbr::mesh_functions::affine_to_square
 
 struct ChunkMaterial {
     color: vec4<f32>,
@@ -22,13 +21,12 @@ var base_color_texture: texture_2d<f32>;
 @group(1) @binding(2)
 var base_color_sampler: sampler;
 
-#import bevy_pbr::mesh_functions as mesh_functions
-
 struct VertexInput {
+    @builtin(instance_index) instance_index: u32,
     @location(0) position: vec4<f32>,
     @location(1) normal: vec3<f32>,
     @location(2) uv: vec2<f32>,
-    @location(3) lighting: vec4<f32>
+    @location(3) lighting: vec4<f32>,
 };
 
 struct VertexOutput {
@@ -36,16 +34,17 @@ struct VertexOutput {
     @location(0) world_position: vec4<f32>,
     @location(1) world_normal: vec3<f32>,
     @location(2) uv: vec2<f32>,
-    @location(3) lighting: vec4<f32>
+    @location(3) lighting: vec4<f32>,
 };
 
 @vertex
 fn vertex(vertex: VertexInput) -> VertexOutput {
     var out: VertexOutput;
 
-    out.world_position = mesh.model * vertex.position;
+    let model = mesh_functions::get_model_matrix(vertex.instance_index);
+    out.world_position = mesh_functions::mesh_position_local_to_world(model, vec4<f32>(vertex.position));
     out.clip_position = view.view_proj * out.world_position;
-    out.world_normal = mesh_functions::mesh_normal_local_to_world(vertex.normal);
+    out.world_normal = mesh_functions::mesh_normal_local_to_world(vertex.normal, vertex.instance_index);
     out.uv = vertex.uv;
 
     let ambient = 0.02;
@@ -72,7 +71,7 @@ fn fragment(in: FragmentInput) -> @location(0) vec4<f32> {
        discard;
     }
 
-    var input: pbr_functions::PbrInput = pbr_functions::pbr_input_new();
+    var input: pbr_types::PbrInput = pbr_types::pbr_input_new();
     input.material.base_color = vec4(1.0, 1.0, 1.0, 1.0);
     input.material.reflectance = 0.03;
     input.material.flags = pbr_types::STANDARD_MATERIAL_FLAGS_ALPHA_MODE_OPAQUE;
@@ -95,9 +94,7 @@ fn fragment(in: FragmentInput) -> @location(0) vec4<f32> {
     input.N = bevy_pbr::prepass_utils::prepass_normal(in.frag_coord, 0u);
     input.V = pbr_functions::calculate_view(in.world_position, false);
 
-    var pbr_color = pbr_functions::pbr(input);
-
-    return rgba(1,1,1,1);
+    var pbr_color = pbr_functions::apply_pbr_lighting(input);
 
     return pbr_color * in.lighting * output_color;
 }

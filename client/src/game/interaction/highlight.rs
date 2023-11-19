@@ -39,6 +39,7 @@ pub fn setup_highlights(
                         Vec3::new(1.0, 1.0, 1.0),
                         Vec3::new(1.0, 0.0, 1.0),
                         Vec3::new(0.0, 0.0, 1.0),
+                        Vec3::new(0.0, 0.0, 0.0),
                         Vec3::new(1.0, 0.0, 0.0),
                         Vec3::new(1.0, 1.0, 0.0),
                     ],
