@@ -1,6 +1,6 @@
 use crate::game::blocks::loading::BlockStatesFile;
 use crate::game::blocks::states::BlockStates;
-use crate::game::blocks::Block;
+use crate::game::blocks::{Block, LootTableEntry};
 use crate::game::viewable_direction::ViewableDirectionBitMap;
 
 use crate::systems::asset::AssetService;
@@ -8,6 +8,7 @@ use crate::systems::chunk::ChunkSystem;
 use crate::systems::physics::aabb::Aabb;
 use crate::systems::ui::loading::LoadingUIData;
 
+use crate::game::item::states::ItemStates;
 use crate::systems::chunk::builder::{RerenderChunkFlag, RerenderChunkFlagContext};
 use crate::systems::chunk::mesh::face::Face;
 use bevy::asset::io::Reader;
@@ -57,8 +58,9 @@ pub fn track_blockstate_changes(
     atlas: Res<AssetService>,
     chunks: ResMut<ChunkSystem>,
     _commands: Commands,
-    mut loading: ResMut<LoadingUIData>,
+    mut loading: Option<ResMut<LoadingUIData>>,
     mut rerender_chunks: EventWriter<RerenderChunkFlag>,
+    item_states: Res<ItemStates>,
 ) {
     for event in events.iter() {
         match event {
@@ -82,7 +84,8 @@ pub fn track_blockstate_changes(
         // Copy data over to blockstates, with full amount of data like normals and looking up texture atlas indexes
         let (_, asset) = assets.iter().next().unwrap();
 
-        let mut new_states = Vec::with_capacity(asset.states.len());
+        let mut new_block_states = Vec::with_capacity(asset.states.len());
+        let mut new_loot_table_states = Vec::with_capacity(asset.states.len());
 
         let error_texture = *atlas
             .texture_atlas
@@ -143,10 +146,35 @@ pub fn track_blockstate_changes(
                 })
             }
 
-            new_states.push(new_block);
+            new_block_states.push(new_block);
+
+            // Convert loot table
+            let mut loot_data = Vec::new();
+
+            for drop in &block.loot_table {
+                if let Some((item_id, item)) = item_states
+                    .states
+                    .iter()
+                    .enumerate()
+                    .find(|item| item.1.identifier.eq_ignore_ascii_case(&drop.item))
+                {
+                    loot_data.push(LootTableEntry {
+                        chance: drop.chance,
+                        item_id,
+                    });
+                } else {
+                    warn!(
+                        "Loot entry for identifier {} not found in item states",
+                        drop.item
+                    );
+                }
+            }
+
+            new_loot_table_states.push(loot_data)
         }
 
-        states.states = new_states;
+        states.states = new_block_states;
+        states.loot_tables = new_loot_table_states;
 
         states.recalculate = false;
         info!("Built block states");
@@ -159,6 +187,8 @@ pub fn track_blockstate_changes(
             });
         }
 
-        loading.block_states = true;
+        if let Some(loading) = &mut loading {
+            loading.block_states = true;
+        }
     }
 }

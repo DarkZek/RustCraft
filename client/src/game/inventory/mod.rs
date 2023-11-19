@@ -69,6 +69,7 @@ impl Inventory {
         for i in 0..10 {
             if self.hotbar[i].is_none() {
                 self.hotbar[i] = Some(item);
+                self.dirty = true;
                 return true;
             }
         }

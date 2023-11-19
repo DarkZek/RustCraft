@@ -9,7 +9,7 @@ use bevy::prelude::*;
 use crate::game::blocks::states::BlockStates;
 use crate::game::inventory::Inventory;
 use crate::game::item::states::ItemStates;
-use crate::game::item::{ItemStack};
+use crate::game::item::ItemStack;
 use crate::systems::chunk::builder::{RerenderChunkFlag, RerenderChunkFlagContext};
 use rc_networking::constants::{UserId, CHUNK_SIZE};
 use rc_networking::protocol::clientbound::block_update::BlockUpdate;
@@ -28,6 +28,7 @@ pub fn mouse_interaction(
     mut rerender_chunks: EventWriter<RerenderChunkFlag>,
     mut meshes: ResMut<Assets<Mesh>>,
     items: Res<ItemStates>,
+    block_states: Res<BlockStates>,
 ) {
     let camera_pos = camera.get_single().unwrap();
 
@@ -52,18 +53,14 @@ pub fn mouse_interaction(
 
     // Try find chunk
     if let Some(chunk) = chunks.chunks.get_mut(&chunk_loc) {
-        // Highlight selected block
-        let _block = blocks.get_block(chunk.world[inner_loc.x][inner_loc.y][inner_loc.z] as usize);
-
         if mouse_button_input.just_pressed(MouseButton::Left) {
             let block_id = chunk.world[inner_loc.x][inner_loc.y][inner_loc.z];
 
-            // Todo: Drop calculations
-            //blocks.get_block(block_id as usize).
-
-            if let Some(item) = items.states.get(block_id as usize) {
-                inventory.push_item(ItemStack::new(item.clone(), 1));
-                info!("Added 1 {} to inventory", item.name);
+            for drops in block_states.loot_tables.get(block_id as usize).unwrap() {
+                if let Some(item) = items.states.get(drops.item_id as usize) {
+                    inventory.push_item(ItemStack::new(item.clone(), 1));
+                    info!("Added 1 {} to inventory", item.name);
+                }
             }
 
             // Found chunk! Update block

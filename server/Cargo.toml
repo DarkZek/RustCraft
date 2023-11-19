@@ -20,4 +20,4 @@ rustls = "0.21.6"
 [dependencies.bevy]
 workspace = true
 default-features = false
-features = []
+features = ["bevy_asset"]

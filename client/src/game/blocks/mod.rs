@@ -25,10 +25,7 @@ impl Plugin for BlockStatesPlugin {
             .init_asset_loader::<BlockStateAssetLoader>()
             .add_systems(Startup, create_block_states)
             .insert_resource(BlockStates::new())
-            .add_systems(
-                Update,
-                track_blockstate_changes.run_if(in_state(AppState::Loading)),
-            );
+            .add_systems(Update, track_blockstate_changes);
     }
 }
 
@@ -72,4 +69,10 @@ impl Block {
 
 pub trait BlockGenerator {
     fn generate(texture_mapping: HashMap<String, TextureAtlasIndex>) -> Block;
+}
+
+#[derive(Clone, Debug)]
+pub struct LootTableEntry {
+    pub chance: f32,
+    pub item_id: usize,
 }

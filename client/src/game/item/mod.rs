@@ -15,6 +15,7 @@ impl ItemStack {
 
 #[derive(Debug, Clone)]
 pub struct ItemType {
+    pub identifier: String,
     pub name: String,
     pub icon: String,
 

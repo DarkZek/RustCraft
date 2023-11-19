@@ -1,5 +1,5 @@
 use crate::game::blocks::loading::BlockStatesFile;
-use crate::game::blocks::Block;
+use crate::game::blocks::{Block, LootTableEntry};
 use bevy::prelude::Resource;
 use bevy::prelude::{warn, Handle};
 use bevy::reflect::TypeUuid;
@@ -8,6 +8,7 @@ use bevy::reflect::TypeUuid;
 #[uuid = "97103fab-1e50-36b7-0c33-0938a62b0809"]
 pub struct BlockStates {
     pub states: Vec<Block>,
+    pub loot_tables: Vec<Vec<LootTableEntry>>,
     /// Used to tell the blockstates to recalculate, only used when the blockstates are ready but waiting on the texture atlas to finish loading.rs
     pub recalculate: bool,
     pub asset: Option<Handle<BlockStatesFile>>,
@@ -17,6 +18,7 @@ impl BlockStates {
     pub fn new() -> BlockStates {
         BlockStates {
             states: vec![],
+            loot_tables: vec![],
             recalculate: false,
             asset: None,
         }

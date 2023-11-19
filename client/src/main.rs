@@ -54,6 +54,7 @@ fn main() {
             })
             .set(bevy::prelude::AssetPlugin {
                 watch_for_changes_override: Some(true),
+                file_path: "../assets".to_string(),
                 ..default()
             })
             .set(ImagePlugin::default_nearest()))

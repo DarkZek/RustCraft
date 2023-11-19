@@ -14,6 +14,7 @@ pub mod transport;
 
 use crate::config::{load_config, ServerConfig};
 use crate::events::authorize::AuthorizationEvent;
+use crate::game::block_states::BlockStatesPlugin;
 use crate::game::world::data::WorldData;
 use crate::game::world::WorldPlugin;
 use crate::systems::chunk::ChunkPlugin;
@@ -21,7 +22,7 @@ use crate::systems::tick::tick;
 use crate::transport::{TransportPlugin, TransportSystem};
 use bevy::app::{App, AppExit, ScheduleRunnerPlugin};
 use bevy::log::{info, Level, LogPlugin};
-use bevy::prelude::{EventWriter, PluginGroup, PreUpdate, Update};
+use bevy::prelude::{default, AssetPlugin, EventWriter, PluginGroup, PreUpdate, Update};
 use bevy::MinimalPlugins;
 use rc_networking::types::{ReceivePacket, SendPacket};
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -44,6 +45,10 @@ fn main() {
                 1.0 / 200.0,
             ))),
         )
+        .add_plugins(AssetPlugin {
+            file_path: "../assets".to_string(),
+            ..default()
+        })
         // Plugins
         .add_plugins(LogPlugin {
             filter: "rechannel=warn".into(),
@@ -52,6 +57,7 @@ fn main() {
         .add_plugins(WorldPlugin)
         .add_plugins(TransportPlugin)
         .add_plugins(ChunkPlugin)
+        .add_plugins(BlockStatesPlugin)
         // Startup System
         .insert_resource(WorldData::load_spawn_chunks())
         .add_event::<ReceivePacket>()

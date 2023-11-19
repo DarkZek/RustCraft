@@ -19,6 +19,7 @@ pub struct DeserialisedBlock {
     pub faces: Vec<DeserialisedFace>,
     pub colliders: Vec<DeserialisedAabb>,
     pub emission: [u8; 4],
+    pub loot_table: Vec<DeserialisedLootTableEntry>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -37,4 +38,10 @@ pub struct DeserialisedAabb {
     pub bottom_left: Vector3<f32>,
     pub size: Vector3<f32>,
     pub collidable: bool,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct DeserialisedLootTableEntry {
+    pub chance: f32,
+    pub item: String,
 }
