@@ -20,3 +20,4 @@ thiserror = "1.0.37"
 bevy-inspector-egui = "0.21.0"
 bevy_polyline = { git="https://github.com/rszemplinski/bevy_polyline" }
 bitflags = "2.4.1"
+rand = "0.8.5"

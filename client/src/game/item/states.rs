@@ -52,6 +52,12 @@ impl ItemStates {
                     icon: "itemspawner".to_string(),
                     block_state: Some(9),
                 },
+                ItemType {
+                    identifier: "mcv3::PipeItem".to_string(),
+                    name: "Pipe".to_string(),
+                    icon: "tree_leaves".to_string(),
+                    block_state: Some(11),
+                },
             ],
         }
     }

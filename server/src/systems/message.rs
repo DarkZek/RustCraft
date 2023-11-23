@@ -1,5 +1,6 @@
 use crate::game::chunk::ChunkData;
 use crate::game::transform::Transform;
+use crate::game::update::BlockUpdateEvent;
 use crate::helpers::global_to_local_position;
 use crate::{TransportSystem, WorldData};
 use bevy::ecs::event::{EventReader, EventWriter};
@@ -7,6 +8,7 @@ use bevy::ecs::prelude::*;
 use bevy::ecs::system::ResMut;
 use bevy::log::info;
 use nalgebra::{Quaternion, Vector3};
+use rc_client::game::viewable_direction::BLOCK_SIDES;
 use rc_networking::constants::CHUNK_SIZE;
 use rc_networking::protocol::clientbound::block_update::BlockUpdate;
 use rc_networking::protocol::clientbound::entity_moved::EntityMoved;
@@ -20,6 +22,7 @@ pub fn receive_message_event(
     mut global: ResMut<WorldData>,
     system: Res<TransportSystem>,
     mut transforms: Query<&mut Transform>,
+    mut block_update_writer: EventWriter<BlockUpdateEvent>,
 ) {
     for event in event_reader.iter() {
         match &event.0 {
@@ -108,6 +111,16 @@ pub fn receive_message_event(
                     global
                         .chunks
                         .insert(chunk_loc, ChunkData::new(chunk_loc, chunk));
+                }
+
+                // Trigger block update for all surrounding blocks
+                block_update_writer.send(BlockUpdateEvent {
+                    pos: Vector3::new(packet.x, packet.y, packet.z),
+                });
+                for side in &BLOCK_SIDES {
+                    block_update_writer.send(BlockUpdateEvent {
+                        pos: Vector3::new(packet.x, packet.y, packet.z) + side,
+                    });
                 }
             }
             _ => {}

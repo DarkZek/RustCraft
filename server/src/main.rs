@@ -8,12 +8,13 @@ pub mod error;
 pub mod events;
 pub mod game;
 pub mod helpers;
-mod systems;
+pub mod systems;
 pub mod transport;
 
 use crate::config::{load_config, ServerConfig};
 use crate::events::authorize::AuthorizationEvent;
 use crate::game::block_states::BlockStatesPlugin;
+use crate::game::update::BlockUpdatePlugin;
 use crate::game::world::data::WorldData;
 use crate::game::world::WorldPlugin;
 use crate::systems::chunk::ChunkPlugin;
@@ -58,6 +59,7 @@ fn main() {
         .add_plugins(TransportPlugin)
         .add_plugins(ChunkPlugin)
         .add_plugins(BlockStatesPlugin)
+        .add_plugins(BlockUpdatePlugin)
         // Startup System
         .insert_resource(WorldData::load_spawn_chunks())
         .add_event::<ReceivePacket>()
@@ -71,7 +73,6 @@ fn main() {
         // Gameplay Loop on Tick
         .add_systems(Update, tick)
         .add_systems(PreUpdate, detect_shutdowns)
-        .add_systems(Update, detect_shutdown_system)
         // Run App
         .run();
 }

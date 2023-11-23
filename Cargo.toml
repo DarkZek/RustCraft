@@ -4,6 +4,7 @@ resolver = "2"
 members = [
     "client",
     "server",
+    "tools/block_states"
 ]
 
 [workspace.dependencies]
