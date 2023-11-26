@@ -14,7 +14,7 @@ pub const BLOCK_SIDES: [Vector3<i32>; 6] = [
     Vector3::new(0, 0, 1),
 ];
 
-pub fn pipe() {
+pub fn pipe() -> Vec<DeserialisedBlock> {
     let mut states = Vec::new();
 
     let block_placeholder = DeserialisedBlock {
@@ -87,6 +87,22 @@ pub fn pipe() {
                 direction: 8,
                 edge: false,
             },
+            DeserialisedFace {
+                top_left: Vector3::new(0.75, 0.75, 0.25),
+                top_right: Vector3::new(0.75, 0.75, 0.75),
+                bottom_left: Vector3::new(0.25, 0.75, 0.25),
+                texture: "game/pipe_end".to_string(),
+                direction: 1,
+                edge: false,
+            },
+            DeserialisedFace {
+                top_left: Vector3::new(0.75, 0.75, 0.25),
+                top_right: Vector3::new(0.75, 0.75, 0.75),
+                bottom_left: Vector3::new(0.25, 0.75, 0.25),
+                texture: "game/pipe_end".to_string(),
+                direction: 2,
+                edge: false,
+            },
         ],
         colliders: vec![DeserialisedAabb {
             bottom_left: Vector3::new(0.25, 0.25, 0.0),
@@ -126,11 +142,7 @@ pub fn pipe() {
         states.push(working_copy);
     }
 
-    fs::write(
-        "./output.json".to_string(),
-        serde_json::to_string_pretty(&BlockStatesFile { states }).unwrap(),
-    )
-    .unwrap();
+    states
 }
 
 fn data<'a>() -> Vec<[DeserialisedFace; 8]> {

@@ -33,13 +33,10 @@ fn update_block(
     for event in update_event.read() {
         let block_id = world_data.get_block_id(event.pos).unwrap();
 
-        println!("Updating");
-
         // Pipe check (TEMP)
-        if block_id < 11 {
+        if block_id < 10 {
             continue;
         }
-        println!("hmmm");
 
         // Get surrounding blocks
         let mut val = 0;
@@ -48,12 +45,11 @@ fn update_block(
                 .get_block_id(event.pos + BLOCK_SIDES[dir])
                 .unwrap();
 
-            if block_id >= 11 {
-                println!("Setting");
+            if block_id >= 9 {
+                // Also include item spawner
                 val |= 0b100000 >> dir;
             }
         }
-        println!("{}", val);
 
         world_data.set_block_id(event.pos, val + 11);
 
@@ -62,7 +58,7 @@ fn update_block(
             send_packet.send(SendPacket(
                 Protocol::BlockUpdate(
                     rc_networking::protocol::clientbound::block_update::BlockUpdate::new(
-                        val + 11,
+                        val + 10,
                         event.pos.x,
                         event.pos.y,
                         event.pos.z,
