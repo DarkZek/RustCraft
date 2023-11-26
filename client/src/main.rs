@@ -3,13 +3,13 @@ pub mod helpers;
 pub mod state;
 pub mod systems;
 
-use crate::game::blocks::BlockStatesPlugin;
 use crate::game::interaction::highlight::{
     mouse_highlight_interaction, setup_highlights, HighlightData,
 };
 use crate::game::interaction::mouse_interaction;
 use crate::game::inventory::InventoryPlugin;
-use crate::game::item::states::ItemStates;
+use crate::game::state::block::BlockStatesPlugin;
+use crate::game::state::item::{ItemStates, ItemStatesPlugin};
 use crate::game::world::WorldPlugin;
 use crate::state::AppState;
 use crate::systems::asset::atlas::resource_packs::ResourcePacks;
@@ -26,11 +26,9 @@ use crate::systems::physics::PhysicsPlugin;
 use crate::systems::ui::UIPlugin;
 use bevy::core_pipeline::experimental::taa::TemporalAntiAliasPlugin;
 use bevy::log::{Level, LogPlugin};
-
 use bevy::prelude::*;
 use bevy::render::settings::{Backends, RenderCreation, WgpuSettings};
 use bevy::render::RenderPlugin;
-
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_polyline::PolylinePlugin;
 
@@ -78,7 +76,7 @@ fn main() {
         .add_systems(Startup, setup_highlights)
         .add_systems(Update, mouse_highlight_interaction)
         
-        // Chunk loading.rs
+        // Chunk deserialisation
         .add_plugins(ChunkPlugin)
 
         .add_plugins(InputPlugin)
@@ -103,8 +101,9 @@ fn main() {
         .init_asset_loader::<ResourcePackAssetLoader>()
 
         .add_plugins(BlockStatesPlugin)
+        .add_plugins(ItemStatesPlugin)
         
-        // Asset loading.rs
+        // Asset deserialisation
         .add_plugins(AssetPlugin)
         .run();
 }

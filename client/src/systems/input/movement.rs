@@ -1,5 +1,5 @@
-use crate::game::blocks::states::BlockStates;
 use crate::game::player::Player;
+use crate::game::state::block::BlockStates;
 use crate::systems::chunk::ChunkSystem;
 use crate::systems::input::InputSystem;
 use crate::systems::physics::PhysicsObject;

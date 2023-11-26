@@ -7,10 +7,10 @@ use crate::systems::physics::raycasts::do_raycast;
 use bevy::prelude::*;
 use rand::Rng;
 
-use crate::game::blocks::states::BlockStates;
 use crate::game::inventory::Inventory;
-use crate::game::item::states::ItemStates;
 use crate::game::item::ItemStack;
+use crate::game::state::block::BlockStates;
+use crate::game::state::item::ItemStates;
 use crate::systems::chunk::builder::{RerenderChunkFlag, RerenderChunkFlagContext};
 use rc_networking::constants::{UserId, CHUNK_SIZE};
 use rc_networking::protocol::clientbound::block_update::BlockUpdate;

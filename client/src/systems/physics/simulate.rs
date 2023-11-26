@@ -1,4 +1,4 @@
-use crate::game::blocks::states::BlockStates;
+use crate::game::state::block::BlockStates;
 
 use crate::systems::chunk::ChunkSystem;
 use crate::systems::physics::PhysicsObject;

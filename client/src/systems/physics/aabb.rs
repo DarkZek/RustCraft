@@ -1,4 +1,4 @@
-use crate::game::blocks::states::BlockStates;
+use crate::game::state::block::BlockStates;
 use crate::helpers::global_to_local_position;
 use crate::systems::chunk::data::ChunkData;
 use crate::systems::chunk::ChunkSystem;

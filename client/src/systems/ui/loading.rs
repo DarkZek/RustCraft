@@ -9,6 +9,7 @@ pub fn set_loading(mut app_state: ResMut<NextState<AppState>>) {
 pub struct LoadingUIData {
     pub texture_atlas: bool,
     pub block_states: bool,
+    pub item_states: bool,
     pub ui: Option<Entity>,
 }
 
@@ -47,9 +48,9 @@ pub fn check_loading(
         return;
     }
 
-    // Once every part is done loading.rs, show the main menu
-    if data.texture_atlas && data.block_states {
-        // If we're still in loading.rs mode, the block states being loaded means we're ready for the main menu. This may be changed in the future
+    // Once every part is done deserialisation, show the main menu
+    if data.texture_atlas && data.block_states && data.item_states {
+        // If we're still in deserialisation mode, the block states being loaded means we're ready for the main menu. This may be changed in the future
         if *app_state == AppState::Loading {
             set_app_state.set(AppState::MainMenu);
         }

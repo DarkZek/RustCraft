@@ -1,6 +1,6 @@
 use bevy::prelude::*;
+use rc_client::game::blocks::deserialisation::BlockStatesFile;
 use rc_client::game::blocks::loader::BlockStateAssetLoader;
-use rc_client::game::blocks::loading::BlockStatesFile;
 use rc_client::game::blocks::states::BlockStates;
 
 pub struct BlockStatesPlugin;
@@ -15,5 +15,5 @@ impl Plugin for BlockStatesPlugin {
 }
 
 pub fn create_block_states(server: Res<AssetServer>, mut states: ResMut<BlockStates>) {
-    states.asset = Some(server.load("game/block_states.blocks"));
+    states.asset = Some(server.load("game/state.blocks"));
 }

@@ -1,13 +1,6 @@
-pub mod loader;
-pub mod loading;
-pub mod states;
-
-use crate::game::blocks::states::BlockStates;
 use crate::game::viewable_direction::{AxisAlignedDirection, ViewableDirection};
 use crate::systems::asset::atlas::index::TextureAtlasIndex;
 
-use crate::game::blocks::loader::{track_blockstate_changes, BlockStateAssetLoader};
-use crate::game::blocks::loading::BlockStatesFile;
 use crate::systems::chunk::data::LightingColor;
 use crate::systems::chunk::mesh::draw_kit::DrawKit;
 use crate::systems::chunk::mesh::face::Face;
@@ -15,22 +8,6 @@ use crate::systems::physics::aabb::Aabb;
 use bevy::prelude::*;
 use nalgebra::Vector3;
 use std::collections::HashMap;
-
-pub struct BlockStatesPlugin;
-
-impl Plugin for BlockStatesPlugin {
-    fn build(&self, app: &mut App) {
-        app.init_asset::<BlockStatesFile>()
-            .init_asset_loader::<BlockStateAssetLoader>()
-            .add_systems(Startup, create_block_states)
-            .insert_resource(BlockStates::new())
-            .add_systems(Update, track_blockstate_changes);
-    }
-}
-
-pub fn create_block_states(server: Res<AssetServer>, mut states: ResMut<BlockStates>) {
-    states.asset = Some(server.load("game/block_states.blocks"));
-}
 
 #[derive(Debug, Clone)]
 pub struct Block {

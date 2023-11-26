@@ -264,7 +264,7 @@ fn main() {
             emission: [0, 0, 0, 0],
             loot_table: vec![DeserialisedLootTableEntry {
                 chance: 1.0,
-                item: "mcv3::WoodBlockItem".to_string(),
+                item: "mcv3::WoodItem".to_string(),
             }],
         },
         DeserialisedBlock {
@@ -393,7 +393,7 @@ fn main() {
             emission: [0, 0, 0, 0],
             loot_table: vec![DeserialisedLootTableEntry {
                 chance: 1.0,
-                item: "mcv3::StoneBlockItem".to_string(),
+                item: "mcv3::StoneItem".to_string(),
             }],
         },
         DeserialisedBlock {
@@ -596,7 +596,7 @@ fn main() {
     states.append(&mut pipe());
 
     fs::write(
-        "./assets/game/block_states.blocks".to_string(),
+        "./assets/game/state.blocks".to_string(),
         serde_json::to_string_pretty(&BlockStatesFile { states }).unwrap(),
     )
     .unwrap();

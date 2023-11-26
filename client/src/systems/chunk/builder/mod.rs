@@ -2,7 +2,7 @@ mod entry;
 mod generate_mesh;
 mod lighting;
 
-use crate::game::blocks::states::BlockStates;
+use crate::game::state::block::BlockStates;
 use crate::helpers::from_bevy_vec3;
 use crate::systems::chunk::builder::entry::{MeshBuildEntry, PLAYER_POS};
 use crate::systems::chunk::builder::generate_mesh::UpdateChunkMesh;

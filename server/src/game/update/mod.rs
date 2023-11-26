@@ -51,7 +51,7 @@ fn update_block(
             }
         }
 
-        world_data.set_block_id(event.pos, val + 11);
+        world_data.set_block_id(event.pos, val + 10);
 
         // Notify all clients
         for (uid, _) in &clients.clients {

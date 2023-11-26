@@ -1,9 +1,6 @@
-pub mod states;
-
 #[derive(Debug)]
 pub struct ItemStack {
     pub item: ItemType,
-
     pub amount: u32,
 }
 

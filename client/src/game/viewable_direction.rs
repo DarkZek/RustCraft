@@ -1,5 +1,5 @@
-use crate::game::blocks::states::BlockStates;
 use crate::game::blocks::Block;
+use crate::game::state::block::BlockStates;
 use crate::systems::asset::atlas::index::Rotate;
 use crate::systems::chunk::data::{ChunkData, RawChunkData};
 use bevy::log::warn;
