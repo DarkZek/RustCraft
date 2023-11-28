@@ -1,9 +1,8 @@
-use crate::game::chunk::RawChunkData;
 use crate::game::generation::noise::SimplexNoise;
 use nalgebra::{Vector2, Vector3};
-use rc_client::systems::chunk::biome::{ChunkEnvironment};
-use rc_networking::constants::CHUNK_SIZE;
-
+use rc_client::systems::chunk::biome::ChunkEnvironment;
+use rc_shared::chunk::RawChunkData;
+use rc_shared::CHUNK_SIZE;
 
 pub fn generate_greybox_chunk(
     seed: u32,

@@ -1,17 +1,13 @@
-// TODO: Set the block states files contents to nothing after copying to save RAM
-
-use crate::game::blocks::{Block, LootTableEntry};
-use crate::game::state::block::deserialisation::BlockStatesFile;
-use crate::game::state::block::BlockStates;
-use crate::game::state::item::deserialisation::ItemStatesFile;
-use crate::game::state::item::ItemStates;
-use crate::game::viewable_direction::ViewableDirectionBitMap;
-use crate::systems::asset::AssetService;
-use crate::systems::chunk::builder::{RerenderChunkFlag, RerenderChunkFlagContext};
-use crate::systems::chunk::mesh::face::Face;
-use crate::systems::chunk::ChunkSystem;
-use crate::systems::physics::aabb::Aabb;
-use crate::systems::ui::loading::LoadingUIData;
+use crate::aabb::Aabb;
+use crate::block::deserialisation::BlockStatesFile;
+use crate::block::event::BlockStatesUpdatedEvent;
+use crate::block::face::Face;
+use crate::block::types::{Block, LootTableEntry};
+use crate::block::{BlockStates, TEXTURE_ATLAS};
+use crate::item::deserialisation::ItemStatesFile;
+use crate::item::event::ItemStatesUpdatedEvent;
+use crate::item::ItemStates;
+use crate::viewable_direction::ViewableDirectionBitMap;
 use bevy::prelude::{info, warn, AssetEvent, Assets, EventReader, EventWriter, Res, ResMut};
 use bevy::utils::petgraph::visit::Walker;
 use nalgebra::Vector3;
@@ -21,9 +17,7 @@ pub fn track_blockstate_changes(
     mut events: EventReader<AssetEvent<BlockStatesFile>>,
     assets: ResMut<Assets<BlockStatesFile>>,
     mut states: ResMut<BlockStates>,
-    atlas: Res<AssetService>,
-    chunks: ResMut<ChunkSystem>,
-    mut rerender_chunks: EventWriter<RerenderChunkFlag>,
+    mut event_writer: EventWriter<BlockStatesUpdatedEvent>,
 ) {
     for event in events.read() {
         match event {
@@ -40,7 +34,7 @@ pub fn track_blockstate_changes(
     }
 
     // If there's no atlas we can't calculate blockstates yet. Put it off until next time
-    if atlas.texture_atlas.is_none() {
+    if TEXTURE_ATLAS.get().is_some() && !TEXTURE_ATLAS.get().unwrap().exists() {
         return;
     }
 
@@ -51,12 +45,10 @@ pub fn track_blockstate_changes(
 
         let mut new_block_states = Vec::with_capacity(asset.states.len());
 
-        let error_texture = *atlas
-            .texture_atlas
-            .as_ref()
+        let error_texture = TEXTURE_ATLAS
+            .get()
             .unwrap()
-            .index
-            .get("game/error")
+            .get_entry("game/error")
             .unwrap();
 
         for block in &asset.states {
@@ -80,13 +72,11 @@ pub fn track_blockstate_changes(
 
             for face in &block.faces {
                 // Lookup atlas index, or display glitch texture
-                let texture = *atlas
-                    .texture_atlas
-                    .as_ref()
+                let texture = TEXTURE_ATLAS
+                    .get()
                     .unwrap()
-                    .index
-                    .get(&face.texture)
-                    .unwrap_or(&error_texture);
+                    .get_entry(&face.texture)
+                    .unwrap_or(error_texture);
 
                 let direction = ViewableDirectionBitMap::from_code(face.direction).unwrap();
 
@@ -119,34 +109,19 @@ pub fn track_blockstate_changes(
 
         info!("Built block states");
 
-        // Rerender all chunks with new block states
-        for (pos, _chunk) in &chunks.chunks {
-            rerender_chunks.send(RerenderChunkFlag {
-                chunk: *pos,
-                context: RerenderChunkFlagContext::None,
-            });
-        }
+        event_writer.send(BlockStatesUpdatedEvent);
     }
 }
 
 /// Copies the items index to the Block data
 pub fn track_itemstate_changes(
-    mut events: EventReader<AssetEvent<ItemStatesFile>>,
+    mut events: EventReader<ItemStatesUpdatedEvent>,
     assets: ResMut<Assets<BlockStatesFile>>,
     mut states: ResMut<BlockStates>,
-    mut loading: Option<ResMut<LoadingUIData>>,
     item_states: Res<ItemStates>,
 ) {
-    for event in events.read() {
-        match event {
-            AssetEvent::Added { .. } => {
-                states.recalculate_items = true;
-            }
-            AssetEvent::Modified { .. } => {
-                states.recalculate_items = true;
-            }
-            _ => {}
-        }
+    for _ in events.read() {
+        states.recalculate_items = true;
     }
 
     // If there's no blocks we can't calculate blockstates yet. Put it off until next time
@@ -178,7 +153,7 @@ pub fn track_itemstate_changes(
                     });
                 } else {
                     warn!(
-                        "Block {} contains invalid loot table identifier {} - Not found in item states",
+                        "Block {} contains invalid loot table identifier {} - Not found in type states",
                         block.identifier,
                         drop.item
                     );
@@ -191,9 +166,5 @@ pub fn track_itemstate_changes(
         states.loot_tables = new_loot_table_states;
 
         states.recalculate_items = false;
-
-        if let Some(loading) = &mut loading {
-            loading.block_states = true;
-        }
     }
 }

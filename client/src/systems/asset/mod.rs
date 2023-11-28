@@ -1,9 +1,9 @@
 use crate::state::AppState;
 use crate::systems::asset::atlas::atlas::TextureAtlas;
-use crate::systems::asset::atlas::resource_packs::ResourcePacks;
-use crate::systems::asset::atlas::{
-    build_texture_atlas, load_resource_zips, AtlasLoadingStage, ResourcePackData,
+use crate::systems::asset::atlas::resource_packs::{
+    load_resource_zips, ResourcePackData, ResourcePacks,
 };
+use crate::systems::asset::atlas::{build_texture_atlas, AtlasLoadingStage};
 use crate::systems::asset::material::chunk::ChunkMaterial;
 use bevy::prelude::*;
 
@@ -28,7 +28,6 @@ impl Plugin for AssetPlugin {
 #[derive(Resource)]
 pub struct AssetService {
     resource_packs: Handle<ResourcePacks>,
-    pub texture_atlas: Option<TextureAtlas>,
     pack: Option<Handle<ResourcePackData>>,
     pub opaque_texture_atlas_material: Handle<ChunkMaterial>,
     pub translucent_texture_atlas_material: Handle<ChunkMaterial>,
@@ -49,7 +48,6 @@ impl AssetService {
 
         AssetService {
             resource_packs: server.load("resources.json"),
-            texture_atlas: None,
             pack: None,
             opaque_texture_atlas_material,
             translucent_texture_atlas_material,

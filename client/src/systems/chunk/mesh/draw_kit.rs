@@ -1,9 +1,9 @@
 use crate::systems::chunk::builder::ATTRIBUTE_LIGHTING_COLOR;
-use crate::systems::chunk::data::LightingColor;
-use crate::systems::chunk::mesh::face::Face;
 use bevy::prelude::Mesh;
 use bevy::render::mesh::{Indices, VertexAttributeValues};
 use nalgebra::Vector3;
+use rc_shared::block::face::Face;
+use rc_shared::chunk::LightingColor;
 
 /// Stores all objects allowing for more ergonomic drawing of objects
 pub struct DrawKit {

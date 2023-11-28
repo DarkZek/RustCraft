@@ -1,11 +1,9 @@
-use crate::helpers::global_to_local_position;
+use crate::systems::chunk::data::ChunkData;
 use crate::systems::chunk::ChunkSystem;
 use bevy::prelude::*;
-
-use crate::game::state::block::BlockStates;
-use crate::systems::chunk::data::ChunkData;
-
 use nalgebra::Vector3;
+use rc_shared::block::BlockStates;
+use rc_shared::helpers::global_to_local_position;
 
 pub struct RaycastResult {
     pub block: Vector3<i32>,

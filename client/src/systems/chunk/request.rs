@@ -1,5 +1,4 @@
 use crate::game::player::Player;
-use crate::helpers::{global_f32_to_local_position};
 use crate::systems::chunk::ChunkSystem;
 use crate::systems::physics::PhysicsObject;
 use bevy::prelude::{EventWriter, Query, ResMut, With};
@@ -8,6 +7,7 @@ use rc_networking::constants::UserId;
 use rc_networking::protocol::serverbound::request_chunk::RequestChunk;
 use rc_networking::protocol::Protocol;
 use rc_networking::types::SendPacket;
+use rc_shared::helpers::global_f32_to_local_position;
 
 /// Requests chunks when we move between chunks
 pub fn request_chunks(

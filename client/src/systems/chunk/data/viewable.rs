@@ -1,11 +1,11 @@
-use crate::game::state::block::BlockStates;
-use crate::game::viewable_direction::{
-    calculate_viewable, ViewableDirection, ViewableDirectionBitMap,
-};
 use crate::systems::chunk::data::ChunkData;
 use fnv::FnvBuildHasher;
 use nalgebra::Vector3;
-use rc_networking::constants::CHUNK_SIZE;
+use rc_shared::block::BlockStates;
+use rc_shared::viewable_direction::{
+    calculate_viewable, ViewableDirection, ViewableDirectionBitMap,
+};
+use rc_shared::CHUNK_SIZE;
 use std::collections::HashMap;
 
 impl<'a> ChunkData {
@@ -54,7 +54,8 @@ impl<'a> ChunkData {
                 for y in 0..self.world[0].len() {
                     let block = block_states.get_block(self.world[x][y][z] as usize);
 
-                    let mut viewable = calculate_viewable(block_states, &self, &block, [x, y, z]);
+                    let mut viewable =
+                        calculate_viewable(block_states, &self.world, &block, [x, y, z]);
 
                     for direction in directions.iter() {
                         // Calculates if block is bordering on this direction

@@ -2,8 +2,6 @@ mod entry;
 mod generate_mesh;
 mod lighting;
 
-use crate::game::state::block::BlockStates;
-use crate::helpers::from_bevy_vec3;
 use crate::systems::chunk::builder::entry::{MeshBuildEntry, PLAYER_POS};
 use crate::systems::chunk::builder::generate_mesh::UpdateChunkMesh;
 use crate::systems::chunk::builder::lighting::LightingUpdateData;
@@ -15,6 +13,8 @@ use bevy::render::mesh::MeshVertexAttribute;
 use bevy::render::render_resource::VertexFormat;
 use nalgebra::Vector3;
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
+use rc_shared::block::BlockStates;
+use rc_shared::helpers::from_bevy_vec3;
 use std::collections::BinaryHeap;
 use std::sync::atomic::Ordering;
 

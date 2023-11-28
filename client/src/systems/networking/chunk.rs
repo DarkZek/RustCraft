@@ -1,19 +1,18 @@
-use crate::helpers::global_to_local_position;
-
 use crate::systems::asset::AssetService;
+use crate::systems::chunk::builder::{RerenderChunkFlag, RerenderChunkFlagContext};
 use crate::systems::chunk::ChunkSystem;
 use bevy::prelude::*;
 use bevy::utils::hashbrown::HashMap;
-
-use crate::systems::chunk::builder::{RerenderChunkFlag, RerenderChunkFlagContext};
 use nalgebra::Vector3;
-use rc_networking::constants::{UserId, CHUNK_SIZE};
+use rc_networking::constants::UserId;
 use rc_networking::protocol::clientbound::chunk_update::{
     FullChunkUpdate, PartialChunkUpdate, PARTIAL_CHUNK_UPDATE_SIZE,
 };
 use rc_networking::protocol::serverbound::acknowledge_chunk::AcknowledgeChunk;
 use rc_networking::protocol::Protocol;
 use rc_networking::types::{ReceivePacket, SendPacket};
+use rc_shared::helpers::global_to_local_position;
+use rc_shared::CHUNK_SIZE;
 
 #[derive(Default)]
 pub struct ChunkSync {

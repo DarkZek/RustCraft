@@ -4,9 +4,9 @@ use crate::transport::TransportSystem;
 use bevy::app::App;
 use bevy::prelude::{Event, EventReader, EventWriter, Plugin, Res, ResMut, Update};
 use nalgebra::Vector3;
-use rc_client::game::viewable_direction::BLOCK_SIDES;
 use rc_networking::protocol::Protocol;
 use rc_networking::types::SendPacket;
+use rc_shared::viewable_direction::BLOCK_SIDES;
 
 /// Eventually turn this into a modular block update system
 
@@ -46,7 +46,7 @@ fn update_block(
                 .unwrap();
 
             if block_id >= 9 {
-                // Also include item spawner
+                // Also include type spawner
                 val |= 0b100000 >> dir;
             }
         }

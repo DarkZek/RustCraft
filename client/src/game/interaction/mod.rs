@@ -1,6 +1,5 @@
 pub mod highlight;
 
-use crate::helpers::{from_bevy_vec3, global_to_local_position};
 use crate::systems::asset::AssetService;
 use crate::systems::chunk::ChunkSystem;
 use crate::systems::physics::raycasts::do_raycast;
@@ -8,14 +7,16 @@ use bevy::prelude::*;
 use rand::Rng;
 
 use crate::game::inventory::Inventory;
-use crate::game::item::ItemStack;
-use crate::game::state::block::BlockStates;
-use crate::game::state::item::ItemStates;
 use crate::systems::chunk::builder::{RerenderChunkFlag, RerenderChunkFlagContext};
-use rc_networking::constants::{UserId, CHUNK_SIZE};
+use rc_networking::constants::UserId;
 use rc_networking::protocol::clientbound::block_update::BlockUpdate;
 use rc_networking::protocol::Protocol;
 use rc_networking::types::SendPacket;
+use rc_shared::block::BlockStates;
+use rc_shared::helpers::{from_bevy_vec3, global_to_local_position};
+use rc_shared::item::types::ItemStack;
+use rc_shared::item::ItemStates;
+use rc_shared::CHUNK_SIZE;
 
 pub fn mouse_interaction(
     mouse_button_input: Res<Input<MouseButton>>,

@@ -2,14 +2,15 @@ use crate::systems::asset::AssetService;
 use crate::systems::chunk::builder::{
     mesh_builder, RerenderChunkFlag, RerenderChunkFlagContext, ATTRIBUTE_LIGHTING_COLOR,
 };
-use crate::systems::chunk::data::{ChunkData, RawChunkData};
+use crate::systems::chunk::data::ChunkData;
 use crate::systems::chunk::request::request_chunks;
 use bevy::prelude::*;
 use bevy::render::mesh::PrimitiveTopology;
 use bevy::render::primitives::Aabb;
 use fnv::{FnvBuildHasher, FnvHashMap};
 use nalgebra::Vector3;
-use rc_networking::constants::CHUNK_SIZE;
+use rc_shared::chunk::{ChunkSystemTrait, RawChunkData};
+use rc_shared::CHUNK_SIZE;
 use std::collections::HashMap;
 
 pub mod biome;
@@ -119,5 +120,11 @@ impl ChunkSystem {
             chunk: position,
             context: RerenderChunkFlagContext::Surrounding,
         });
+    }
+}
+
+impl ChunkSystemTrait for ChunkSystem {
+    fn get_raw_chunk<'a>(&'a self, pos: &Vector3<i32>) -> Option<&'a RawChunkData> {
+        self.chunks.get(pos).map(|v| &v.world)
     }
 }

@@ -1,5 +1,6 @@
-use crate::constants::{RawChunkData, CHUNK_SIZE};
-
+use rc_shared::chunk::RawChunkData;
+use rc_shared::CHUNK_SIZE;
+use serde::{Deserialize, Serialize};
 use std::sync::atomic::{AtomicU64, Ordering};
 
 /// How many blocks are sent per partial update packet
@@ -8,8 +9,6 @@ pub const CHUNK_UPDATE_BLOCKS_PER_PACKET: usize = 256;
 /// How many partial chunks it takes to make up a full chunk
 pub const CHUNK_UPDATE_PARTIAL_CHUNKS: usize =
     (CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE) / CHUNK_UPDATE_BLOCKS_PER_PACKET;
-
-use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Copy, Clone)]
 #[repr(C)]

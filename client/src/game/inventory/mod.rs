@@ -1,7 +1,6 @@
-use crate::game::item::ItemStack;
-
 use bevy::app::{App, Plugin};
 use bevy::prelude::*;
+use rc_shared::item::types::ItemStack;
 
 pub struct InventoryPlugin;
 
@@ -36,7 +35,7 @@ impl Inventory {
             // Reduce amount
             val.amount -= 1;
 
-            // Delete item if none left
+            // Delete type if none left
             if val.amount == 0 {
                 self.hotbar[self.hotbar_slot as usize] = None;
             }
@@ -49,16 +48,16 @@ impl Inventory {
         }
     }
 
-    /// Pushes an item into the inventory. Returns true if inserted, false if no space
+    /// Pushes an type into the inventory. Returns true if inserted, false if no space
     pub fn push_item(&mut self, item: ItemStack) -> bool {
-        // Find existing itemstack and try add item to it
+        // Find existing itemstack and try add type to it
         for i in 0..10 {
             let common_itemstack = self.hotbar[i]
                 .as_ref()
                 .map(|i| i.item.name == item.item.name)
                 .unwrap_or(false);
             if common_itemstack {
-                // Matching item, increase amount
+                // Matching type, increase amount
                 self.hotbar[i].as_mut().unwrap().amount += item.amount;
                 self.dirty = true;
                 return true;

@@ -1,11 +1,14 @@
 mod changes;
 pub mod deserialisation;
+pub mod event;
 mod loader;
+pub mod types;
 
-use crate::game::item::ItemType;
-use crate::game::state::item::changes::{track_blockstate_changes, track_itemstate_changes};
-use crate::game::state::item::deserialisation::ItemStatesFile;
-use crate::game::state::item::loader::ItemStateAssetLoader;
+use crate::item::changes::{track_blockstate_changes, track_itemstate_changes};
+use crate::item::deserialisation::ItemStatesFile;
+use crate::item::event::ItemStatesUpdatedEvent;
+use crate::item::loader::ItemStateAssetLoader;
+use crate::item::types::ItemType;
 use bevy::prelude::{
     App, AssetApp, AssetServer, Handle, Plugin, Res, ResMut, Resource, Startup, Update,
 };
@@ -16,21 +19,17 @@ impl Plugin for ItemStatesPlugin {
     fn build(&self, app: &mut App) {
         app.init_asset::<ItemStatesFile>()
             .init_asset_loader::<ItemStateAssetLoader>()
-            .add_systems(Startup, create_block_states)
+            .add_event::<ItemStatesUpdatedEvent>()
             .insert_resource(ItemStates::new())
             .add_systems(Update, track_itemstate_changes)
             .add_systems(Update, track_blockstate_changes);
     }
 }
 
-pub fn create_block_states(server: Res<AssetServer>, mut states: ResMut<ItemStates>) {
-    states.asset = Some(server.load("game/state.items"));
-}
-
 #[derive(Resource)]
 pub struct ItemStates {
     pub states: Vec<ItemType>,
-    /// Recalculate all item types from source asset
+    /// Recalculate all type types from source asset
     pub recalculate_full: bool,
     /// Recalculate block id's from identifiers
     pub recalculate_blocks: bool,
@@ -45,5 +44,9 @@ impl ItemStates {
             recalculate_blocks: false,
             asset: None,
         }
+    }
+
+    pub fn load_states(&mut self, path: String, asset_server: &AssetServer) {
+        self.asset = Some(asset_server.load(path));
     }
 }

@@ -1,14 +1,14 @@
-use crate::systems::chunk::data::LightingColor;
+use crate::chunk::LightingColor;
+use crate::CHUNK_SIZE;
 use bevy::prelude::Vec3;
 use nalgebra::{Point3, Vector3};
-use rc_networking::constants::CHUNK_SIZE;
 use std::ops::Add;
 
 /// Formats a u32 with American comma placement.
 ///
 /// # Example
 /// ```rust
-/// use rc_client::helpers::format_u32;
+/// use rc_shared::helpers::format_u32;
 /// assert_eq!(String::from("9,000,000"), format_u32(9000000).to_string());
 /// ```
 pub fn format_u32(mut count: u32) -> String {

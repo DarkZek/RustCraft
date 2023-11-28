@@ -1,4 +1,3 @@
-use crate::systems::asset::atlas::ResourcePackData;
 use bevy::asset::{AssetLoader, AsyncReadExt, BoxedFuture, LoadContext};
 use fnv::{FnvBuildHasher, FnvHashMap};
 use image::{DynamicImage, ImageFormat};
@@ -9,6 +8,7 @@ use bevy::asset::io::Reader;
 use bevy::log::error;
 use std::io::{Cursor, Read};
 
+use crate::systems::asset::atlas::resource_packs::ResourcePackData;
 use zip::ZipArchive;
 
 #[derive(Default)]

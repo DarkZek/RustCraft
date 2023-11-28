@@ -1,17 +1,14 @@
 use bevy::ecs::prelude::Component;
 use nalgebra::Vector3;
-use rc_networking::constants::CHUNK_SIZE;
+use rc_shared::chunk::RawChunkData;
+use rc_shared::CHUNK_SIZE;
 use serde::{Deserialize, Serialize};
-
 
 #[derive(Debug, Component, Serialize, Deserialize)]
 pub struct ChunkData {
     pub position: Vector3<i32>,
-
     pub world: RawChunkData,
 }
-
-pub type RawChunkData = [[[u32; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
 
 impl ChunkData {
     pub fn new(position: Vector3<i32>, world: RawChunkData) -> ChunkData {

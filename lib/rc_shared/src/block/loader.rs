@@ -1,4 +1,4 @@
-use crate::game::state::block::deserialisation::BlockStatesFile;
+use crate::block::deserialisation::BlockStatesFile;
 use bevy::asset::io::Reader;
 use bevy::asset::{AssetLoader, AsyncReadExt, BoxedFuture, LoadContext};
 

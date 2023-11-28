@@ -1,5 +1,3 @@
-use crate::game::state::block::BlockStates;
-use crate::helpers::{from_bevy_vec3, to_bevy_vec3};
 use crate::systems::chunk::ChunkSystem;
 use crate::systems::physics::raycasts::do_raycast;
 use bevy::math::Vec3;
@@ -8,6 +6,8 @@ use bevy::prelude::{
     With, Without,
 };
 use bevy_polyline::prelude::{Polyline, PolylineBundle, PolylineMaterial};
+use rc_shared::block::BlockStates;
+use rc_shared::helpers::{from_bevy_vec3, to_bevy_vec3};
 
 #[derive(Resource, Default)]
 pub struct HighlightData {

@@ -1,11 +1,12 @@
-use crate::game::state::block::BlockStates;
-use crate::game::viewable_direction::BLOCK_SIDES;
-use crate::helpers::global_to_local_position;
-use crate::systems::chunk::data::{ChunkData, RawLightingData};
+use crate::systems::chunk::data::ChunkData;
 use crate::systems::chunk::nearby_cache::NearbyChunkCache;
 use bevy::log::info;
 use nalgebra::{Vector3, Vector4};
-use rc_networking::constants::CHUNK_SIZE;
+use rc_shared::block::BlockStates;
+use rc_shared::chunk::RawLightingData;
+use rc_shared::helpers::global_to_local_position;
+use rc_shared::viewable_direction::BLOCK_SIDES;
+use rc_shared::CHUNK_SIZE;
 use std::collections::VecDeque;
 use std::time::Instant;
 

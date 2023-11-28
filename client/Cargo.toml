@@ -9,13 +9,14 @@ edition = "2021"
 bevy = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+nalgebra = { workspace = true }
 fnv = "1.0.3"
 rayon = "1.5.1"
-nalgebra = { version = "0.31.4", features=["serde-serialize"] }
 anyhow = "1.0.57"
 image = "0.23.14"
 zip = { version = "0.5.5", default-features = false, features = ["deflate"] }
 rc_networking = { path = "../lib/rc_networking" }
+rc_shared = { path = "../lib/rc_shared" }
 thiserror = "1.0.37"
 bevy-inspector-egui = "0.21.0"
 bevy_polyline = { git="https://github.com/rszemplinski/bevy_polyline" }

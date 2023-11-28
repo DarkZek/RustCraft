@@ -1,15 +1,15 @@
-use crate::game::state::block::BlockStates;
 use crate::state::AppState;
 use crate::systems::chunk::ChunkSystem;
-use crate::systems::physics::aabb::Aabb;
 use crate::systems::physics::simulate::physics_tick;
 use crate::systems::physics::sync::physics_sync;
 use bevy::ecs::component::Component;
 use bevy::prelude::{in_state, FixedUpdate, IntoSystemConfigs};
 use bevy::prelude::{App, Plugin};
 use nalgebra::Vector3;
+use rc_shared::aabb::Aabb;
+use rc_shared::block::BlockStates;
+use std::ops::Deref;
 
-pub mod aabb;
 pub mod raycasts;
 mod simulate;
 mod sync;
@@ -64,7 +64,7 @@ impl PhysicsObject {
 
         let mut current_aabb = self.collider.offset(self.position);
         let potential_collisions =
-            current_aabb.get_surrounding_voxel_collision_colliders(&chunks, &block_states);
+            current_aabb.get_surrounding_voxel_collision_colliders(chunks.deref(), &block_states);
 
         if delta.x != 0.0 {
             self.position +=

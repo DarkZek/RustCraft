@@ -1,0 +1,12 @@
+[package]
+name = "rc_shared"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+bevy = { workspace = true, features = ["file_watcher"] }
+serde = { workspace = true }
+serde_json = { workspace = true }
+nalgebra = { workspace = true }

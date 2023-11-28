@@ -1,5 +1,5 @@
-use crate::game::viewable_direction::ViewableDirectionBitMap;
-use crate::systems::asset::atlas::index::TextureAtlasIndex;
+use crate::atlas::TextureAtlasIndex;
+use crate::viewable_direction::ViewableDirectionBitMap;
 use nalgebra::Vector3;
 
 #[derive(Debug, Clone)]

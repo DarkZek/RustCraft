@@ -1,10 +1,10 @@
-use crate::game::state::block::BlockStates;
-
 use crate::systems::chunk::ChunkSystem;
 use crate::systems::physics::PhysicsObject;
 use crate::systems::ui::debugging::DebuggingUIData;
 use bevy::prelude::*;
 use nalgebra::Vector3;
+use rc_shared::block::BlockStates;
+use std::ops::Deref;
 
 const MAX_TOUCHING_GROUND_DIST: f32 = 0.05;
 const GRAVITY_STRENGTH: f32 = 50.0;
@@ -49,7 +49,7 @@ pub fn physics_tick(
         let current_aabb = object.collider.offset(object.position);
 
         let potential_collisions =
-            current_aabb.get_surrounding_voxel_collision_colliders(&chunks, &block_states);
+            current_aabb.get_surrounding_voxel_collision_colliders(chunks.deref(), &block_states);
 
         object.touching_ground = current_aabb
             .try_translate(

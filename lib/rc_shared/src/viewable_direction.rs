@@ -1,7 +1,7 @@
-use crate::game::blocks::Block;
-use crate::game::state::block::BlockStates;
-use crate::systems::asset::atlas::index::Rotate;
-use crate::systems::chunk::data::{ChunkData, RawChunkData};
+use crate::atlas::Rotate;
+use crate::block::types::Block;
+use crate::block::BlockStates;
+use crate::chunk::RawChunkData;
 use bevy::log::warn;
 use nalgebra::Vector3;
 use serde::{Deserialize, Serialize};
@@ -134,12 +134,10 @@ impl From<ViewableDirectionBitMap> for AxisAlignedDirection {
 
 pub fn calculate_viewable(
     block_states: &BlockStates,
-    chunk: &ChunkData,
+    world: &RawChunkData,
     block: &Block,
     pos: [usize; 3],
 ) -> ViewableDirection {
-    let world = &chunk.world;
-
     let mut direction: u8 = 0;
 
     if pos[1] != world[0].len() - 1

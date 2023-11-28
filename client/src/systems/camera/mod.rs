@@ -1,6 +1,5 @@
 use crate::game::entity::Entity;
 use crate::game::player::Player;
-use crate::systems::physics::aabb::Aabb;
 use crate::systems::physics::PhysicsObject;
 use bevy::core_pipeline::clear_color::ClearColorConfig;
 use bevy::core_pipeline::core_3d::Camera3dDepthLoadOp;
@@ -9,6 +8,7 @@ use bevy::pbr::ScreenSpaceAmbientOcclusionBundle;
 use bevy::prelude::*;
 use bevy::render::render_resource::TextureUsages;
 use nalgebra::Vector3;
+use rc_shared::aabb::Aabb;
 
 pub struct CameraPlugin;
 

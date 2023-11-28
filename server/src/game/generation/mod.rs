@@ -5,13 +5,12 @@ mod phase3;
 mod phase4;
 
 use crate::game::chunk::ChunkData;
-use crate::game::generation::phase1::{generate_environment_map};
+use crate::game::generation::phase1::generate_environment_map;
 use crate::game::generation::phase2::generate_greybox_chunk;
 use crate::game::generation::phase3::decorate_chunk;
-use crate::game::generation::phase4::{add_structures};
+use crate::game::generation::phase4::add_structures;
 use nalgebra::Vector3;
-use rc_networking::constants::CHUNK_SIZE;
-
+use rc_shared::CHUNK_SIZE;
 
 impl ChunkData {
     /// Works in 4 phases

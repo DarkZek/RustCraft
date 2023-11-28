@@ -1,5 +1,5 @@
-use rc_networking::constants::CHUNK_SIZE;
 use nalgebra::Vector3;
+use rc_shared::CHUNK_SIZE;
 
 #[inline]
 pub fn global_to_local_position(vector: Vector3<i32>) -> (Vector3<i32>, Vector3<usize>) {

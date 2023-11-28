@@ -1,7 +1,6 @@
-use crate::game::state::block::BlockStates;
+use crate::block::BlockStates;
+use crate::chunk::ChunkSystemTrait;
 use crate::helpers::global_to_local_position;
-use crate::systems::chunk::data::ChunkData;
-use crate::systems::chunk::ChunkSystem;
 use nalgebra::Vector3;
 use serde::{Deserialize, Serialize};
 
@@ -115,12 +114,11 @@ impl Aabb {
     /// Get the colliders of all blocks that could come in contact with an `Aabb`
     pub fn get_surrounding_voxel_collision_colliders(
         &self,
-        chunks: &ChunkSystem,
+        chunks: &dyn ChunkSystemTrait,
         blocks: &BlockStates,
     ) -> Vec<Aabb> {
         let mut matches = Vec::new();
 
-        let mut previous_chunk: Option<&ChunkData> = None;
         // Loop over all potential blocks
         for x in (f32::floor(self.bottom_left.x) as i32 - 1)
             ..(f32::ceil(self.bottom_left.x + self.size.x) as i32 + 1)
@@ -134,14 +132,9 @@ impl Aabb {
                     let block: Vector3<i32> = Vector3::new(x, y, z);
                     let (chunk_pos, block_pos) = global_to_local_position(block);
 
-                    // Chunk caching to speed things up
-                    if previous_chunk.is_none() || previous_chunk.unwrap().position != chunk_pos {
-                        previous_chunk = chunks.chunks.get(&chunk_pos);
-                    }
-
-                    if let Some(chunk_data) = previous_chunk {
+                    if let Some(chunk_data) = chunks.get_raw_chunk(&chunk_pos) {
                         // Fetch block id
-                        let block_id = chunk_data.world[block_pos.x][block_pos.y][block_pos.z];
+                        let block_id = chunk_data[block_pos.x][block_pos.y][block_pos.z];
 
                         // Fetch block information
                         let block_data = blocks.get_block(block_id as usize);

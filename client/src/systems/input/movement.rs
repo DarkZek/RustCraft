@@ -1,10 +1,10 @@
 use crate::game::player::Player;
-use crate::game::state::block::BlockStates;
 use crate::systems::chunk::ChunkSystem;
 use crate::systems::input::InputSystem;
 use crate::systems::physics::PhysicsObject;
 use bevy::prelude::*;
 use nalgebra::Vector3;
+use rc_shared::block::BlockStates;
 
 const MOVEMENT_SPEED_POSITION: f32 = 2.0;
 const MOVEMENT_SPEED_VELOCITY: f32 = 15.0;

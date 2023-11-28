@@ -1,12 +1,12 @@
-use crate::game::chunk::RawChunkData;
 use crate::game::generation::noise::SimplexNoise;
 use crate::game::generation::phase1::generate_environment_map;
 use crate::game::generation::phase2::generate_greybox_chunk;
 use crate::helpers::global_to_local_position;
 
 use nalgebra::Vector3;
-use rc_client::systems::chunk::biome::{ChunkEnvironment};
-use rc_networking::constants::CHUNK_SIZE;
+use rc_client::systems::chunk::biome::ChunkEnvironment;
+use rc_shared::chunk::RawChunkData;
+use rc_shared::CHUNK_SIZE;
 
 pub fn add_structures(seed: u32, pos: Vector3<i32>, world: &mut RawChunkData) {
     // 3x3 of surrounding chunks as no structures generate more than a 1 chunk radius away

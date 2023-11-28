@@ -1,19 +1,19 @@
 use crate::game::chunk::ChunkData;
 use crate::{App, TransportSystem, WorldData};
 
-
 use bevy::prelude::*;
 
 use bevy::utils::petgraph::visit::Walker;
 use nalgebra::Vector3;
 use rayon::iter::ParallelIterator;
 use rayon::prelude::IntoParallelRefIterator;
-use rc_client::helpers::from_bevy_vec3;
-use rc_networking::constants::{UserId, CHUNK_SIZE};
+use rc_networking::constants::UserId;
 use rc_networking::events::disconnect::NetworkDisconnectionEvent;
 use rc_networking::protocol::clientbound::chunk_update::FullChunkUpdate;
 use rc_networking::protocol::Protocol;
 use rc_networking::types::{ReceivePacket, SendPacket};
+use rc_shared::helpers::from_bevy_vec3;
+use rc_shared::CHUNK_SIZE;
 use std::collections::{HashMap, HashSet};
 
 const MAX_OUTSTANDING_CHUNK_REQUESTS: usize = 80;

@@ -4,6 +4,7 @@
 #![allow(dead_code)]
 
 pub mod config;
+pub mod dummy_atlas;
 pub mod error;
 pub mod events;
 pub mod game;
@@ -12,8 +13,8 @@ pub mod systems;
 pub mod transport;
 
 use crate::config::{load_config, ServerConfig};
+use crate::dummy_atlas::DummyAtlas;
 use crate::events::authorize::AuthorizationEvent;
-use crate::game::block_states::BlockStatesPlugin;
 use crate::game::update::BlockUpdatePlugin;
 use crate::game::world::data::WorldData;
 use crate::game::world::WorldPlugin;
@@ -26,10 +27,13 @@ use bevy::prelude::{default, AssetPlugin, EventWriter, PluginGroup, PreUpdate, U
 use bevy::MinimalPlugins;
 use rc_networking::client::systems::detect_shutdown_system;
 use rc_networking::types::{ReceivePacket, SendPacket};
+use rc_shared::block::BlockStatesPlugin;
+use rc_shared::item::ItemStatesPlugin;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
 
 static SHUTDOWN_BIT: AtomicBool = AtomicBool::new(false);
+static DUMMY_ATLAS: DummyAtlas = DummyAtlas;
 
 fn main() {
     let _ = ctrlc::set_handler(move || {
@@ -58,7 +62,10 @@ fn main() {
         .add_plugins(WorldPlugin)
         .add_plugins(TransportPlugin)
         .add_plugins(ChunkPlugin)
-        .add_plugins(BlockStatesPlugin)
+        .add_plugins(BlockStatesPlugin {
+            texture_atlas: &DUMMY_ATLAS,
+        })
+        .add_plugins(ItemStatesPlugin)
         .add_plugins(BlockUpdatePlugin)
         // Startup System
         .insert_resource(WorldData::load_spawn_chunks())

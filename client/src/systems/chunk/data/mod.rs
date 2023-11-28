@@ -1,9 +1,9 @@
-use crate::game::viewable_direction::ViewableDirection;
 use bevy::ecs::component::Component;
 use bevy::prelude::{Entity, Handle, Mesh};
-
 use nalgebra::Vector3;
-use rc_networking::constants::CHUNK_SIZE;
+use rc_shared::chunk::{RawChunkData, RawLightingData};
+use rc_shared::viewable_direction::ViewableDirection;
+use rc_shared::CHUNK_SIZE;
 
 pub mod viewable;
 
@@ -49,8 +49,3 @@ impl ChunkData {
         }
     }
 }
-
-pub type RawChunkData = [[[u32; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
-pub type RawLightingData = [[[LightingColor; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
-
-pub type LightingColor = [u8; 4];

@@ -1,13 +1,53 @@
-use crate::systems::asset::atlas::index::TextureAtlasIndex;
 use crate::systems::asset::atlas::resource_packs::ResourcePack;
 use bevy::prelude::*;
 use bevy::render::render_resource::{Extent3d, TextureDimension, TextureFormat};
 use fnv::{FnvBuildHasher, FnvHashMap};
 use image::{DynamicImage, GenericImageView, ImageBuffer, Rgba};
+use rc_shared::atlas::{TextureAtlasIndex, TextureAtlasTrait};
+use std::cell::OnceCell;
 use std::collections::HashMap;
+use std::ops::Deref;
+use std::sync::{OnceLock, RwLock, RwLockReadGuard};
 
 pub const ATLAS_WIDTH: u32 = 4096 / 8;
 pub const ATLAS_HEIGHT: u32 = 4096 / 8;
+
+pub static TEXTURE_ATLAS: AtlasWrapper = AtlasWrapper::new();
+
+pub struct AtlasWrapper(OnceLock<RwLock<TextureAtlas>>);
+
+impl AtlasWrapper {
+    pub const fn new() -> AtlasWrapper {
+        AtlasWrapper(OnceLock::new())
+    }
+}
+
+impl AtlasWrapper {
+    pub fn get<'a>(&'a self) -> RwLockReadGuard<'_, TextureAtlas> {
+        self.0.get().unwrap().read().unwrap()
+    }
+
+    pub fn set(&self, value: TextureAtlas) {
+        let _ = TEXTURE_ATLAS.0.set(RwLock::new(value));
+    }
+}
+
+impl TextureAtlasTrait for AtlasWrapper {
+    fn exists(&self) -> bool {
+        self.0.get().is_some()
+    }
+
+    fn get_entry(&self, name: &str) -> Option<TextureAtlasIndex> {
+        self.0
+            .get()
+            .unwrap()
+            .read()
+            .unwrap()
+            .index
+            .get(name)
+            .map(|v| *v)
+    }
+}
 
 pub struct TextureAtlas {
     image: Handle<Image>,
@@ -48,7 +88,7 @@ impl TextureAtlas {
             //         &atlas,
             //         resource_pack,
             //     );
-            //}
+            // }
 
             atlas_img = Some(DynamicImage::ImageRgba8(atlas));
         }

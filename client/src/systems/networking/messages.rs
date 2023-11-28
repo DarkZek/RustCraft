@@ -7,9 +7,9 @@ use bevy::prelude::*;
 use nalgebra::Vector3;
 
 use crate::state::AppState;
-use crate::systems::physics::aabb::Aabb;
 use rc_networking::protocol::Protocol;
 use rc_networking::types::ReceivePacket;
+use rc_shared::aabb::Aabb;
 
 pub fn messages_update(
     mut event_reader: EventReader<ReceivePacket>,

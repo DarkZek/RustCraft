@@ -1,8 +1,13 @@
 use crate::helpers::Lerp;
 use nalgebra::Vector2;
+use serde::{Deserialize, Serialize};
 use std::f32::consts::PI;
 use std::ops::Mul;
-use serde::{Serialize, Deserialize};
+
+pub trait TextureAtlasTrait {
+    fn exists(&self) -> bool;
+    fn get_entry(&self, name: &str) -> Option<TextureAtlasIndex>;
+}
 
 #[derive(Copy, Clone, PartialEq)]
 pub enum Rotate {

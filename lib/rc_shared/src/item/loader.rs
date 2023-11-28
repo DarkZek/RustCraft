@@ -1,4 +1,4 @@
-use crate::game::state::item::deserialisation::ItemStatesFile;
+use crate::item::deserialisation::ItemStatesFile;
 use bevy::asset::io::Reader;
 use bevy::asset::{AssetLoader, AsyncReadExt, BoxedFuture, LoadContext};
 
@@ -22,7 +22,7 @@ impl AssetLoader for ItemStateAssetLoader {
 
             let states = match serde_json::from_slice(&bytes) {
                 Ok(val) => val,
-                Err(e) => panic!("Invalid item states json {:?}", e), // TODO: Handle this better
+                Err(e) => panic!("Invalid type states json {:?}", e), // TODO: Handle this better
             };
 
             Ok(states)
