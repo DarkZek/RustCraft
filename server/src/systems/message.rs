@@ -24,7 +24,7 @@ pub fn receive_message_event(
     mut transforms: Query<&mut Transform>,
     mut block_update_writer: EventWriter<BlockUpdateEvent>,
 ) {
-    for event in event_reader.iter() {
+    for event in event_reader.read() {
         match &event.0 {
             Protocol::PlayerMove(packet) => {
                 // Update all other clients

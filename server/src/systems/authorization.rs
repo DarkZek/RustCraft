@@ -44,7 +44,7 @@ pub fn authorization_event(
     transforms: Query<&Transform>,
     mut chunk_system: ResMut<ChunkSystem>,
 ) {
-    for client in event_reader.iter() {
+    for client in event_reader.read() {
         info!("Player {:?} logged in. Sending chunks.", client.user_id);
 
         // Spawn other entities for new player

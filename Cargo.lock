@@ -3678,7 +3678,6 @@ dependencies = [
  "nalgebra",
  "noise",
  "rayon",
- "rc_client",
  "rc_networking",
  "rc_shared",
  "rustls",

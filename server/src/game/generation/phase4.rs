@@ -4,7 +4,7 @@ use crate::game::generation::phase2::generate_greybox_chunk;
 use crate::helpers::global_to_local_position;
 
 use nalgebra::Vector3;
-use rc_client::systems::chunk::biome::ChunkEnvironment;
+use rc_shared::biome::ChunkEnvironment;
 use rc_shared::chunk::RawChunkData;
 use rc_shared::CHUNK_SIZE;
 

@@ -15,7 +15,7 @@ pub fn disconnection_event(
     mut writer: EventWriter<SendPacket>,
     mut clients: ResMut<TransportSystem>,
 ) {
-    for event in event_reader.iter() {
+    for event in event_reader.read() {
         let entry = clients.clients.remove(&event.client).unwrap();
 
         if let Some(eid) = world.entities.remove(&entry.entity_id) {

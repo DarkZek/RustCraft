@@ -1,8 +1,6 @@
 use crate::game::generation::noise::SimplexNoise;
 use nalgebra::Vector3;
-use rc_client::systems::chunk::biome::{
-    ChunkEnvironment, EnvironmentEntry,
-};
+use rc_shared::biome::{ChunkEnvironment, EnvironmentEntry};
 
 pub fn generate_environment_map(seed: u32, pos: Vector3<i32>) -> ChunkEnvironment {
     let mut map = [[[EnvironmentEntry {

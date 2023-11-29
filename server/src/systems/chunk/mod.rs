@@ -59,7 +59,7 @@ pub fn request_chunks(
     } = &mut *system;
 
     // Remove packets received
-    for packet in receive_packets.iter() {
+    for packet in receive_packets.read() {
         if let Protocol::AcknowledgeChunk(data) = packet.0 {
             // Remove one
             *chunk_outstanding_requests.get_mut(&packet.1).unwrap() =
@@ -152,7 +152,7 @@ pub fn get_chunk_requests(
     mut request: EventReader<ReceivePacket>,
     mut system: ResMut<ChunkSystem>,
 ) {
-    for packet in request.iter() {
+    for packet in request.read() {
         if let Protocol::RequestChunk(request) = packet.0 {
             let pos = Vector3::new(request.x, request.y, request.z);
 
@@ -169,7 +169,7 @@ fn handle_disconnections(
     mut network_disconnection_events: EventReader<NetworkDisconnectionEvent>,
     mut system: ResMut<ChunkSystem>,
 ) {
-    for disconnection in network_disconnection_events.iter() {
+    for disconnection in network_disconnection_events.read() {
         debug!(
             "Removed user {:?} from requesting chunks list",
             disconnection.client

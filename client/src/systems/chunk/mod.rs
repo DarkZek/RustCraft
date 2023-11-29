@@ -13,7 +13,6 @@ use rc_shared::chunk::{ChunkSystemTrait, RawChunkData};
 use rc_shared::CHUNK_SIZE;
 use std::collections::HashMap;
 
-pub mod biome;
 pub mod builder;
 pub mod data;
 pub mod lookup;
