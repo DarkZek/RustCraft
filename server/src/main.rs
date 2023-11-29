@@ -19,6 +19,8 @@ use crate::game::update::BlockUpdatePlugin;
 use crate::game::world::data::WorldData;
 use crate::game::world::WorldPlugin;
 use crate::systems::chunk::ChunkPlugin;
+use crate::systems::connection::ConnectionPlugin;
+use crate::systems::game_object::GameObjectPlugin;
 use crate::systems::tick::tick;
 use crate::transport::{TransportPlugin, TransportSystem};
 use bevy::app::{App, AppExit, ScheduleRunnerPlugin};
@@ -62,6 +64,8 @@ fn main() {
         .add_plugins(WorldPlugin)
         .add_plugins(TransportPlugin)
         .add_plugins(ChunkPlugin)
+        .add_plugins(GameObjectPlugin)
+        .add_plugins(ConnectionPlugin)
         .add_plugins(BlockStatesPlugin {
             texture_atlas: &DUMMY_ATLAS,
         })
@@ -72,11 +76,6 @@ fn main() {
         .add_event::<ReceivePacket>()
         .add_event::<SendPacket>()
         .add_event::<AuthorizationEvent>()
-        // Receive Server Events
-        .add_systems(Update, systems::authorization::authorization_event)
-        .add_systems(Update, systems::disconnect::disconnection_event)
-        .add_systems(Update, systems::message::receive_message_event)
-        .add_systems(Update, systems::finish_join::detect_finish_join)
         // Gameplay Loop on Tick
         .add_systems(Update, tick)
         .add_systems(PreUpdate, detect_shutdowns)

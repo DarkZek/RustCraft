@@ -3,7 +3,7 @@ use bevy::ecs::event::EventReader;
 use bevy::ecs::prelude::{Commands, EventWriter};
 use bevy::ecs::system::ResMut;
 use rc_networking::events::disconnect::NetworkDisconnectionEvent;
-use rc_networking::protocol::clientbound::despawn_entity::DespawnEntity;
+use rc_networking::protocol::clientbound::despawn_game_object::DespawnGameObject;
 
 use rc_networking::protocol::Protocol;
 use rc_networking::types::SendPacket;
@@ -19,13 +19,13 @@ pub fn disconnection_event(
         let entry = clients.clients.remove(&event.client).unwrap();
 
         if let Some(eid) = world.entities.remove(&entry.entity_id) {
-            // Delete entity
+            // Delete game_object
             commands.entity(eid).despawn();
 
             // Send all other players a disconnection event
             for (uid, _) in &clients.clients {
                 writer.send(SendPacket(
-                    Protocol::DespawnEntity(DespawnEntity::new(entry.entity_id)),
+                    Protocol::DespawnGameObject(DespawnGameObject::new(entry.entity_id)),
                     *uid,
                 ));
             }

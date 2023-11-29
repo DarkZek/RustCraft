@@ -40,7 +40,7 @@ pub fn messages_update(
                     transform.position.y = update.y;
                     transform.position.z = update.z;
                 } else {
-                    error!("Move event received before entity created");
+                    error!("Move event received before game_object created");
                 }
             }
             Protocol::EntityRotated(update) => {
@@ -51,10 +51,11 @@ pub fn messages_update(
                 {
                     transform.rotation = Quat::from_xyzw(update.x, update.y, update.z, update.w);
                 } else {
-                    error!("Rotate event received before entity created");
+                    error!("Rotate event received before game_object created");
                 }
             }
-            Protocol::SpawnEntity(entity) => {
+            Protocol::SpawnGameObject(entity) => {
+                let size = if entity.object_type == 0 { 1.0 } else { 0.2 };
                 let entity_id = commands
                     .spawn(Transform::from_rotation(Quat::from_xyzw(
                         entity.rot[0],
@@ -64,11 +65,11 @@ pub fn messages_update(
                     )))
                     .insert(PhysicsObject::new(
                         Vector3::new(entity.loc[0], entity.loc[1], entity.loc[2]),
-                        Aabb::new(Vector3::new(0.0, 1.0, 0.0), Vector3::new(1.0, 1.0, 1.0)),
+                        Aabb::new(Vector3::new(0.0, 0.0, 0.0), Vector3::new(size, size, size)),
                     ))
                     .insert(Entity)
                     .insert(PbrBundle {
-                        mesh: meshes.add(Mesh::from(shape::Cube { size: 1.0 })),
+                        mesh: meshes.add(Mesh::from(shape::Cube { size: size })),
                         material: materials.add(Color::rgb(0.3, 0.8, 0.3).into()),
                         ..default()
                     })
@@ -80,7 +81,7 @@ pub fn messages_update(
             }
             Protocol::FullChunkUpdate(_) => {}
             Protocol::PartialChunkUpdate(_) => {}
-            Protocol::DespawnEntity(packet) => {
+            Protocol::DespawnGameObject(packet) => {
                 if let Some(entity) = system.entity_mapping.remove(&packet.entity) {
                     commands.entity(entity).despawn();
                 }

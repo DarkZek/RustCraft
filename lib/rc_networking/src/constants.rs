@@ -5,4 +5,4 @@ use std::fmt;
 pub struct UserId(pub u64);
 
 #[derive(fmt::Debug, Hash, PartialEq, Eq, Copy, Clone, Serialize, Deserialize)]
-pub struct EntityId(pub u64);
+pub struct GameObjectId(pub u64);

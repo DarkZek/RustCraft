@@ -12,6 +12,7 @@ pub fn detect_finish_join(
     mut event_writer: EventWriter<SendPacket>,
 ) {
     let mut remove_clients = Vec::new();
+
     for user_id in &transport.initialising_clients {
         // If they have no chunks requested, they're ready
         if chunk_system
@@ -28,6 +29,7 @@ pub fn detect_finish_join(
             remove_clients.push(*user_id);
         }
     }
+
     for client in remove_clients {
         transport.initialising_clients.remove(&client);
     }

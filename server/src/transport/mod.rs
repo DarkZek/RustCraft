@@ -1,6 +1,5 @@
 mod connection;
 
-use crate::systems::authorization::GameUser;
 use crate::transport::connection::accept_connections;
 use bevy::app::{App, Plugin};
 
@@ -16,6 +15,7 @@ use bevy::prelude::{info, Update};
 use bevy::utils::default;
 use rc_networking::server::{NetworkingServerConfig, QuinnServerPlugin};
 
+use crate::systems::connection::GameUser;
 use std::time::SystemTime;
 
 pub struct TransportPlugin;

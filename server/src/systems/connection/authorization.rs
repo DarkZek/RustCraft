@@ -13,27 +13,12 @@ use crate::game::world::data::ENTITY_ID_COUNT;
 use crate::helpers::global_to_local_position;
 use crate::systems::chunk::ChunkSystem;
 use crate::{TransportSystem, WorldData};
-use rc_networking::constants::{EntityId, UserId};
+use rc_networking::constants::{GameObjectId, UserId};
 
-use rc_networking::protocol::clientbound::spawn_entity::SpawnEntity;
+use crate::game::game_object::GameObject;
+use rc_networking::protocol::clientbound::spawn_game_object::SpawnGameObject;
 use rc_networking::protocol::Protocol;
 use rc_networking::types::SendPacket;
-
-/// A user who is yet to be authorized
-pub struct GameUser {
-    pub name: Option<String>,
-
-    pub user_id: UserId,
-    pub entity_id: EntityId,
-    pub entity: Option<Entity>,
-    pub loading: bool,
-}
-
-impl GameUser {
-    pub fn set_name(&mut self, name: String) {
-        self.name = Some(name);
-    }
-}
 
 pub fn authorization_event(
     mut event_reader: EventReader<AuthorizationEvent>,
@@ -50,7 +35,7 @@ pub fn authorization_event(
         // Spawn other entities for new player
         for (id, entity) in &global.entities {
             let transform = transforms.get(*entity).unwrap();
-            let packet = Protocol::SpawnEntity(SpawnEntity {
+            let packet = Protocol::SpawnGameObject(SpawnGameObject {
                 id: *id,
                 loc: [
                     transform.position.x,
@@ -58,23 +43,24 @@ pub fn authorization_event(
                     transform.position.z,
                 ],
                 rot: transform.rotation.coords.into(),
+                object_type: 0,
             });
             send_packet.send(SendPacket(packet, client.user_id));
         }
 
         let transform = Transform::default();
 
-        // Create new entity for player
-        let entity_id = EntityId(ENTITY_ID_COUNT.fetch_add(1, Ordering::Acquire));
+        // Create new game_object for player
+        let entity_id = GameObjectId(ENTITY_ID_COUNT.fetch_add(1, Ordering::Acquire));
 
-        // Store player entity
+        // Store player game_object
         transport
             .clients
             .get_mut(&client.user_id)
             .unwrap()
             .entity_id = entity_id;
 
-        let packet = Protocol::SpawnEntity(SpawnEntity {
+        let packet = Protocol::SpawnGameObject(SpawnGameObject {
             id: entity_id,
             loc: [
                 transform.position.x,
@@ -82,6 +68,7 @@ pub fn authorization_event(
                 transform.position.z,
             ],
             rot: [0.0; 4],
+            object_type: 0,
         });
 
         // Spawn new player for other players
@@ -95,7 +82,7 @@ pub fn authorization_event(
 
         let player_pos = transform.position.clone();
 
-        let entity = commands.spawn(transform).id();
+        let entity = commands.spawn(transform).insert(GameObject).id();
         global.entities.insert(entity_id, entity.clone());
         transport.clients.get_mut(&client.user_id).unwrap().entity = Some(entity);
 

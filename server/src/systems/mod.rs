@@ -1,6 +1,4 @@
-pub mod authorization;
 pub mod chunk;
-pub mod disconnect;
-pub mod finish_join;
-pub mod message;
+pub mod connection;
+pub mod game_object;
 pub mod tick;

@@ -2,6 +2,7 @@ use crate::game::chunk::ChunkData;
 use crate::game::transform::Transform;
 use crate::game::update::BlockUpdateEvent;
 use crate::helpers::global_to_local_position;
+use crate::systems::game_object::spawn::SpawnGameObjectRequest;
 use crate::{TransportSystem, WorldData};
 use bevy::ecs::event::{EventReader, EventWriter};
 use bevy::ecs::prelude::*;
@@ -23,6 +24,7 @@ pub fn receive_message_event(
     system: Res<TransportSystem>,
     mut transforms: Query<&mut Transform>,
     mut block_update_writer: EventWriter<BlockUpdateEvent>,
+    mut ew: EventWriter<SpawnGameObjectRequest>,
 ) {
     for event in event_reader.read() {
         match &event.0 {
@@ -45,6 +47,8 @@ pub fn receive_message_event(
                     }
                     event_writer.send(SendPacket(send_packet.clone(), *client));
                 }
+
+                println!("Trying to getch {:?}", entity);
 
                 if let Some(val) = global.entities.get(&entity) {
                     // Move player in ecs
@@ -122,6 +126,15 @@ pub fn receive_message_event(
                         pos: Vector3::new(packet.x, packet.y, packet.z) + side,
                     });
                 }
+
+                ew.send(SpawnGameObjectRequest {
+                    position: Vector3::new(
+                        packet.x as f32 + 0.5,
+                        packet.y as f32 + 0.5,
+                        packet.z as f32 + 0.5,
+                    ),
+                    object_type: 1,
+                });
             }
             _ => {}
         }

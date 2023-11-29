@@ -38,8 +38,8 @@ fn get_channel(protocol: &Protocol) -> Channel {
 
         Protocol::BlockUpdate(_)
         | Protocol::ChatSent(_)
-        | Protocol::DespawnEntity(_)
-        | Protocol::SpawnEntity(_)
+        | Protocol::DespawnGameObject(_)
+        | Protocol::SpawnGameObject(_)
         | Protocol::UpdateLoading(_)
         | Protocol::RequestChunk(_)
         | Protocol::ServerState(_)

@@ -7,7 +7,7 @@ use bevy::ecs::prelude::Resource;
 use bevy::log::error;
 use bevy::prelude::info;
 use nalgebra::Vector3;
-use rc_networking::constants::EntityId;
+use rc_networking::constants::GameObjectId;
 use std::collections::HashMap;
 use std::fs;
 use std::fs::File;
@@ -19,7 +19,7 @@ pub const ENTITY_ID_COUNT: AtomicU64 = AtomicU64::new(0);
 #[derive(Resource)]
 pub struct WorldData {
     pub chunks: HashMap<Vector3<i32>, ChunkData>,
-    pub entities: HashMap<EntityId, Entity>,
+    pub entities: HashMap<GameObjectId, Entity>,
 }
 
 impl WorldData {

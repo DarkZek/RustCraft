@@ -1,5 +1,5 @@
 pub mod chunk;
-pub mod entity;
+pub mod game_object;
 pub mod generation;
 pub mod player;
 pub mod transform;

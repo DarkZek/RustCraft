@@ -1,9 +1,9 @@
 use crate::events::authorize::AuthorizationEvent;
-use crate::systems::authorization::GameUser;
+use crate::systems::connection::GameUser;
 use crate::TransportSystem;
 use bevy::ecs::event::{EventReader, EventWriter};
 use bevy::ecs::system::ResMut;
-use rc_networking::constants::EntityId;
+use rc_networking::constants::GameObjectId;
 use rc_networking::events::connection::NetworkConnectionEvent;
 
 const MAX_PING_TIMEOUT_SECONDS: u64 = 10;
@@ -19,7 +19,7 @@ pub fn accept_connections(
         let user = GameUser {
             name: None,
             user_id: connection_event.client,
-            entity_id: EntityId(connection_event.client.0),
+            entity_id: GameObjectId(connection_event.client.0),
             entity: None,
             loading: true,
         };

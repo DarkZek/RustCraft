@@ -8,7 +8,7 @@ use bevy::log::info;
 use bevy::prelude::*;
 use bevy::prelude::{Entity, Vec3};
 use rc_networking::client::{NetworkingClient, QuinnClientPlugin};
-use rc_networking::constants::EntityId;
+use rc_networking::constants::GameObjectId;
 use std::collections::HashMap;
 use std::net::SocketAddr;
 
@@ -43,7 +43,7 @@ pub fn connect_to_server(mut client: ResMut<NetworkingClient>) {
 
 #[derive(Resource)]
 pub struct NetworkingSystem {
-    entity_mapping: HashMap<EntityId, Entity>,
+    entity_mapping: HashMap<GameObjectId, Entity>,
 }
 
 impl Default for NetworkingSystem {

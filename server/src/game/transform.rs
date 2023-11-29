@@ -1,7 +1,6 @@
 use bevy::ecs::prelude::*;
 use nalgebra::{Quaternion, Vector3};
 
-
 #[derive(Component)]
 pub struct Transform {
     pub position: Vector3<f32>,
@@ -13,6 +12,15 @@ impl Default for Transform {
         Transform {
             position: Vector3::zeros(),
             rotation: Quaternion::default(),
+        }
+    }
+}
+
+impl Transform {
+    pub fn from_translation(position: Vector3<f32>) -> Transform {
+        Transform {
+            position,
+            rotation: Default::default(),
         }
     }
 }
