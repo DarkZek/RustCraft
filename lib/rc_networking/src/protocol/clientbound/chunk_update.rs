@@ -32,7 +32,7 @@ pub struct PartialChunkUpdate {
     pub number: u8,
 }
 
-const PARTIAL_CHUNK_UPDATE_ID: AtomicU64 = AtomicU64::new(0);
+static PARTIAL_CHUNK_UPDATE_ID: AtomicU64 = AtomicU64::new(0);
 
 impl FullChunkUpdate {
     pub fn new(data: RawChunkData, x: i32, y: i32, z: i32) -> Self {
@@ -44,7 +44,7 @@ impl FullChunkUpdate {
 
         let mut current_update = vec![0; PARTIAL_CHUNK_UPDATE_SIZE];
 
-        let id = PARTIAL_CHUNK_UPDATE_ID.fetch_add(1, Ordering::Acquire);
+        let id = PARTIAL_CHUNK_UPDATE_ID.fetch_add(1, Ordering::SeqCst);
         let mut number = 0;
 
         let mut i = 0;

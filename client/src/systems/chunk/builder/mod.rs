@@ -52,9 +52,9 @@ pub fn mesh_builder(
 ) {
     // Update player location
     let pos = from_bevy_vec3(camera.single().translation);
-    PLAYER_POS[0].store(pos.x as i32, Ordering::Relaxed);
-    PLAYER_POS[1].store(pos.y as i32, Ordering::Relaxed);
-    PLAYER_POS[2].store(pos.z as i32, Ordering::Relaxed);
+    PLAYER_POS[0].store(pos.x as i32, Ordering::SeqCst);
+    PLAYER_POS[1].store(pos.y as i32, Ordering::SeqCst);
+    PLAYER_POS[2].store(pos.z as i32, Ordering::SeqCst);
 
     let mut rerender_chunks = Vec::new();
 

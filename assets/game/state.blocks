@@ -586,7 +586,7 @@
       "loot_table": [
         {
           "chance": 1.0,
-          "item": "mcv3::WoodBlockItem"
+          "item": "mcv3::WoodLogItem"
         }
       ]
     },
@@ -888,12 +888,7 @@
         0,
         0
       ],
-      "loot_table": [
-        {
-          "chance": 1.0,
-          "item": "mcv3::StoneBlockItem"
-        }
-      ]
+      "loot_table": []
     },
     {
       "identifier": "mcv3::Lamp",

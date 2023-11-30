@@ -17,8 +17,8 @@ pub fn create_states(
 }
 
 pub fn track_blockstate_changes(
-    mut event: EventReader<BlockStatesUpdatedEvent>,
-    mut loading: Option<ResMut<LoadingUIData>>,
+    event: EventReader<BlockStatesUpdatedEvent>,
+    loading: Option<ResMut<LoadingUIData>>,
     chunks: ResMut<ChunkSystem>,
     mut rerender_chunks: EventWriter<RerenderChunkFlag>,
 ) {
@@ -40,8 +40,8 @@ pub fn track_blockstate_changes(
 }
 
 pub fn track_itemstate_changes(
-    mut event: EventReader<ItemStatesUpdatedEvent>,
-    mut loading: Option<ResMut<LoadingUIData>>,
+    event: EventReader<ItemStatesUpdatedEvent>,
+    loading: Option<ResMut<LoadingUIData>>,
 ) {
     if event.is_empty() {
         return;

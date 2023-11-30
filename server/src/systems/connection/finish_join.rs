@@ -1,5 +1,5 @@
 use crate::systems::chunk::ChunkSystem;
-use crate::{EventWriter, TransportSystem};
+use crate::{EventWriter, PlayerSpawnEvent, TransportSystem};
 use bevy::prelude::{Res, ResMut};
 use rc_networking::protocol::clientbound::update_loading::UpdateLoading;
 use rc_networking::protocol::Protocol;
@@ -10,6 +10,7 @@ pub fn detect_finish_join(
     mut transport: ResMut<TransportSystem>,
     chunk_system: Res<ChunkSystem>,
     mut event_writer: EventWriter<SendPacket>,
+    mut join_writer: EventWriter<PlayerSpawnEvent>,
 ) {
     let mut remove_clients = Vec::new();
 
@@ -27,6 +28,8 @@ pub fn detect_finish_join(
                 *user_id,
             ));
             remove_clients.push(*user_id);
+
+            join_writer.send(PlayerSpawnEvent { id: *user_id });
         }
     }
 

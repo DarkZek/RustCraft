@@ -28,8 +28,7 @@ pub struct GameUser {
     pub name: Option<String>,
 
     pub user_id: UserId,
-    pub entity_id: GameObjectId,
-    pub entity: Option<Entity>,
+    pub game_object_id: GameObjectId,
     pub loading: bool,
 }
 

@@ -13,10 +13,10 @@ use crate::block::loader::BlockStateAssetLoader;
 use crate::block::types::{Block, LootTableEntry};
 use bevy::log::warn;
 use bevy::prelude::{
-    App, AssetApp, AssetServer, Handle, Plugin, Res, ResMut, Resource, Startup, Update,
+    App, AssetApp, AssetServer, Handle, Plugin, Resource, Update,
 };
 use bevy::reflect::TypeUuid;
-use std::mem::MaybeUninit;
+
 use std::sync::OnceLock;
 
 static TEXTURE_ATLAS: OnceLock<&'static (dyn TextureAtlasTrait + Sync)> = OnceLock::new();

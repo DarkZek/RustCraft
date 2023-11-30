@@ -4,9 +4,9 @@ use bevy::render::render_resource::{Extent3d, TextureDimension, TextureFormat};
 use fnv::{FnvBuildHasher, FnvHashMap};
 use image::{DynamicImage, GenericImageView, ImageBuffer, Rgba};
 use rc_shared::atlas::{TextureAtlasIndex, TextureAtlasTrait};
-use std::cell::OnceCell;
+
 use std::collections::HashMap;
-use std::ops::Deref;
+
 use std::sync::{OnceLock, RwLock, RwLockReadGuard};
 
 pub const ATLAS_WIDTH: u32 = 4096 / 8;

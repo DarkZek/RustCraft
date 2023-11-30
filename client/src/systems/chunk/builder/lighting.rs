@@ -1,6 +1,6 @@
 use crate::systems::chunk::data::ChunkData;
 use crate::systems::chunk::nearby_cache::NearbyChunkCache;
-use bevy::log::info;
+use bevy::log::{debug, info};
 use nalgebra::{Vector3, Vector4};
 use rc_shared::block::BlockStates;
 use rc_shared::chunk::RawLightingData;
@@ -142,7 +142,7 @@ impl ChunkData {
             }
         }
 
-        info!(
+        debug!(
             "Took {}ns to render {:?} with {} lights with flood fill",
             start.elapsed().as_nanos(),
             self.position,
@@ -283,7 +283,7 @@ impl ChunkData {
             }
         }
 
-        info!(
+        debug!(
             "Took {}ns to render {:?} with with blur",
             start.elapsed().as_nanos(),
             self.position,

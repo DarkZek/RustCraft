@@ -20,9 +20,9 @@ impl PartialEq<Self> for MeshBuildEntry {
 impl PartialOrd<Self> for MeshBuildEntry {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         let player = Vector3::new(
-            PLAYER_POS[0].load(Ordering::Relaxed),
-            PLAYER_POS[1].load(Ordering::Relaxed),
-            PLAYER_POS[2].load(Ordering::Relaxed),
+            PLAYER_POS[0].load(Ordering::SeqCst),
+            PLAYER_POS[1].load(Ordering::SeqCst),
+            PLAYER_POS[2].load(Ordering::SeqCst),
         )
         .cast::<f32>();
 
@@ -37,9 +37,9 @@ impl PartialOrd<Self> for MeshBuildEntry {
 impl Ord for MeshBuildEntry {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         let player = Vector3::new(
-            PLAYER_POS[0].load(Ordering::Relaxed),
-            PLAYER_POS[1].load(Ordering::Relaxed),
-            PLAYER_POS[2].load(Ordering::Relaxed),
+            PLAYER_POS[0].load(Ordering::SeqCst),
+            PLAYER_POS[1].load(Ordering::SeqCst),
+            PLAYER_POS[2].load(Ordering::SeqCst),
         )
         .cast::<f32>();
 

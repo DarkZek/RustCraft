@@ -1,4 +1,4 @@
-use crate::block::deserialisation::BlockStatesFile;
+
 use crate::block::event::BlockStatesUpdatedEvent;
 use crate::block::BlockStates;
 use crate::item::deserialisation::ItemStatesFile;
@@ -61,7 +61,7 @@ pub fn track_blockstate_changes(
     mut events: EventReader<BlockStatesUpdatedEvent>,
     assets: ResMut<Assets<ItemStatesFile>>,
     mut states: ResMut<ItemStates>,
-    mut block_states: ResMut<BlockStates>,
+    block_states: ResMut<BlockStates>,
 ) {
     for _ in events.read() {
         states.recalculate_blocks = true;

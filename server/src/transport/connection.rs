@@ -19,8 +19,7 @@ pub fn accept_connections(
         let user = GameUser {
             name: None,
             user_id: connection_event.client,
-            entity_id: GameObjectId(connection_event.client.0),
-            entity: None,
+            game_object_id: GameObjectId(connection_event.client.0),
             loading: true,
         };
 

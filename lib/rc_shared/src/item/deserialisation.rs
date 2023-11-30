@@ -1,7 +1,7 @@
 use bevy::asset::Asset;
 use bevy::reflect::TypePath;
 use bevy::reflect::TypeUuid;
-use nalgebra::Vector3;
+
 use serde::{Deserialize, Serialize};
 
 #[derive(Asset, Debug, Clone, Deserialize, Serialize, TypeUuid, TypePath)]

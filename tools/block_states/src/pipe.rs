@@ -1,9 +1,9 @@
 use crate::loading::{
-    BlockStatesFile, DeserialisedAabb, DeserialisedBlock, DeserialisedFace,
+    DeserialisedAabb, DeserialisedBlock, DeserialisedFace,
     DeserialisedLootTableEntry,
 };
 use nalgebra::Vector3;
-use std::fs;
+
 
 pub const BLOCK_SIDES: [Vector3<i32>; 6] = [
     Vector3::new(0, 1, 0),

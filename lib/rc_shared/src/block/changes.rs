@@ -4,7 +4,7 @@ use crate::block::event::BlockStatesUpdatedEvent;
 use crate::block::face::Face;
 use crate::block::types::{Block, LootTableEntry};
 use crate::block::{BlockStates, TEXTURE_ATLAS};
-use crate::item::deserialisation::ItemStatesFile;
+
 use crate::item::event::ItemStatesUpdatedEvent;
 use crate::item::ItemStates;
 use crate::viewable_direction::ViewableDirectionBitMap;

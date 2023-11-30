@@ -45,7 +45,7 @@ pub struct ChunkSystem {
 
 pub fn request_chunks(
     mut system: ResMut<ChunkSystem>,
-    world: ResMut<WorldData>,
+    world: Res<WorldData>,
     mut send_packets: EventWriter<SendPacket>,
     mut receive_packets: EventReader<ReceivePacket>,
     transport: Res<TransportSystem>,
@@ -68,8 +68,11 @@ pub fn request_chunks(
     }
 
     for (user, chunks) in requesting_chunks {
-        if let Some(Some(entity)) = transport.clients.get(&user).map(|v| v.entity) {
-            if let Ok(transform) = transforms.get(entity) {
+        if let Some(game_object_id) = transport.clients.get(&user).map(|v| v.game_object_id) {
+            if let Some(transform) = world
+                .get_game_object(&game_object_id)
+                .and_then(|entity| transforms.get(entity).ok())
+            {
                 let pos = from_bevy_vec3(transform.translation);
 
                 chunks.sort_by(|a, b| {

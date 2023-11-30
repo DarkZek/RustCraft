@@ -4,7 +4,7 @@ use rc_shared::chunk::RawChunkData;
 use rc_shared::CHUNK_SIZE;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Component, Serialize, Deserialize)]
+#[derive(Debug, Component, Serialize, Deserialize, PartialEq, Clone)]
 pub struct ChunkData {
     pub position: Vector3<i32>,
     pub world: RawChunkData,

@@ -4,18 +4,19 @@ use bevy::ecs::event::EventReader;
 use bevy::ecs::prelude::{Commands, EventWriter};
 use bevy::ecs::system::Query;
 use bevy::log::info;
-use bevy::prelude::Entity;
+
 use nalgebra::Vector3;
 use std::sync::atomic::Ordering;
 
 use crate::events::authorize::AuthorizationEvent;
-use crate::game::world::data::ENTITY_ID_COUNT;
+use crate::game::world::data::GAME_OBJECT_ID_COUNTER;
 use crate::helpers::global_to_local_position;
 use crate::systems::chunk::ChunkSystem;
 use crate::{TransportSystem, WorldData};
-use rc_networking::constants::{GameObjectId, UserId};
+use rc_networking::constants::GameObjectId;
 
 use crate::game::game_object::GameObject;
+use crate::systems::game_object::spawn::SpawnGameObjectRequest;
 use rc_networking::protocol::clientbound::spawn_game_object::SpawnGameObject;
 use rc_networking::protocol::Protocol;
 use rc_networking::types::SendPacket;
@@ -28,70 +29,35 @@ pub fn authorization_event(
     mut commands: Commands,
     transforms: Query<&Transform>,
     mut chunk_system: ResMut<ChunkSystem>,
+    mut spawn_game_object: EventWriter<SpawnGameObjectRequest>,
 ) {
     for client in event_reader.read() {
         info!("Player {:?} logged in. Sending chunks.", client.user_id);
 
-        // Spawn other entities for new player
-        for (id, entity) in &global.entities {
-            let transform = transforms.get(*entity).unwrap();
-            let packet = Protocol::SpawnGameObject(SpawnGameObject {
-                id: *id,
-                loc: [
-                    transform.position.x,
-                    transform.position.y,
-                    transform.position.z,
-                ],
-                rot: transform.rotation.coords.into(),
-                object_type: 0,
-            });
-            send_packet.send(SendPacket(packet, client.user_id));
-        }
-
         let transform = Transform::default();
 
         // Create new game_object for player
-        let entity_id = GameObjectId(ENTITY_ID_COUNT.fetch_add(1, Ordering::Acquire));
+        let game_object_id = GameObjectId(GAME_OBJECT_ID_COUNTER.fetch_add(1, Ordering::SeqCst));
 
         // Store player game_object
         transport
             .clients
             .get_mut(&client.user_id)
             .unwrap()
-            .entity_id = entity_id;
+            .game_object_id = game_object_id;
 
-        let packet = Protocol::SpawnGameObject(SpawnGameObject {
-            id: entity_id,
-            loc: [
-                transform.position.x,
-                transform.position.y,
-                transform.position.z,
-            ],
-            rot: [0.0; 4],
+        spawn_game_object.send(SpawnGameObjectRequest {
+            transform,
+            id: Some(game_object_id),
             object_type: 0,
         });
-
-        // Spawn new player for other players
-        for (id, _) in &transport.clients {
-            // Don't spawn new client for itself
-            if *id == client.user_id {
-                continue;
-            }
-            send_packet.send(SendPacket(packet.clone(), *id));
-        }
-
-        let player_pos = transform.position.clone();
-
-        let entity = commands.spawn(transform).insert(GameObject).id();
-        global.entities.insert(entity_id, entity.clone());
-        transport.clients.get_mut(&client.user_id).unwrap().entity = Some(entity);
 
         let chunks = global.chunks.keys();
 
         let (player_chunk, _) = global_to_local_position(Vector3::new(
-            player_pos.x as i32,
-            player_pos.y as i32,
-            player_pos.z as i32,
+            transform.position.x as i32,
+            transform.position.y as i32,
+            transform.position.z as i32,
         ));
 
         let chunk_load_radius = 3;

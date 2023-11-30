@@ -3,14 +3,14 @@ use crate::systems::asset::atlas::resource_packs::{ResourcePackData, ResourcePac
 use crate::systems::asset::material::chunk::ChunkMaterial;
 use crate::systems::asset::AssetService;
 use crate::systems::ui::loading::LoadingUIData;
-use bevy::asset::Asset;
+
 use bevy::prelude::*;
-use bevy::reflect::TypePath;
-use bevy::reflect::TypeUuid;
-use fnv::FnvBuildHasher;
-use image::DynamicImage;
-use std::collections::HashMap;
-use std::ffi::OsString;
+
+
+
+
+
+
 
 pub mod atlas;
 pub mod resource_packs;
@@ -25,7 +25,7 @@ pub enum AtlasLoadingStage {
 pub fn build_texture_atlas(
     packs: Res<Assets<ResourcePacks>>,
     mut data: ResMut<Assets<ResourcePackData>>,
-    mut service: ResMut<AssetService>,
+    service: ResMut<AssetService>,
     mut stage: ResMut<AtlasLoadingStage>,
     mut images: ResMut<Assets<Image>>,
     mut materials: ResMut<Assets<ChunkMaterial>>,

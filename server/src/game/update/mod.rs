@@ -1,5 +1,5 @@
 use crate::game::world::data::WorldData;
-use crate::systems::chunk::ChunkSystem;
+
 use crate::transport::TransportSystem;
 use bevy::app::App;
 use bevy::prelude::{Event, EventReader, EventWriter, Plugin, Res, ResMut, Update};

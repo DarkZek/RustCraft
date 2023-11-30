@@ -5,7 +5,6 @@ use crate::loading::{
 use crate::pipe::pipe;
 use nalgebra::Vector3;
 use std::fs;
-use std::ops::Add;
 
 pub mod loading;
 mod pipe;
@@ -264,7 +263,7 @@ fn main() {
             emission: [0, 0, 0, 0],
             loot_table: vec![DeserialisedLootTableEntry {
                 chance: 1.0,
-                item: "mcv3::WoodItem".to_string(),
+                item: "mcv3::WoodLogItem".to_string(),
             }],
         },
         DeserialisedBlock {
@@ -391,10 +390,7 @@ fn main() {
                 collidable: true,
             }],
             emission: [0, 0, 0, 0],
-            loot_table: vec![DeserialisedLootTableEntry {
-                chance: 1.0,
-                item: "mcv3::StoneItem".to_string(),
-            }],
+            loot_table: vec![],
         },
         DeserialisedBlock {
             identifier: "mcv3::Lamp".to_string(),

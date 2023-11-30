@@ -25,9 +25,10 @@ use crate::systems::tick::tick;
 use crate::transport::{TransportPlugin, TransportSystem};
 use bevy::app::{App, AppExit, ScheduleRunnerPlugin};
 use bevy::log::{info, Level, LogPlugin};
-use bevy::prelude::{default, AssetPlugin, EventWriter, PluginGroup, PreUpdate, Update};
+use bevy::prelude::{default, AssetPlugin, EventWriter, PluginGroup, PreUpdate, Startup, Update};
 use bevy::MinimalPlugins;
-use rc_networking::client::systems::detect_shutdown_system;
+
+use crate::events::join::PlayerSpawnEvent;
 use rc_networking::types::{ReceivePacket, SendPacket};
 use rc_shared::block::BlockStatesPlugin;
 use rc_shared::item::ItemStatesPlugin;
@@ -39,7 +40,7 @@ static DUMMY_ATLAS: DummyAtlas = DummyAtlas;
 
 fn main() {
     let _ = ctrlc::set_handler(move || {
-        let _ = SHUTDOWN_BIT.store(true, Ordering::Relaxed);
+        let _ = SHUTDOWN_BIT.store(true, Ordering::SeqCst);
     });
 
     info!("Rustcraft Server starting up");
@@ -71,11 +72,10 @@ fn main() {
         })
         .add_plugins(ItemStatesPlugin)
         .add_plugins(BlockUpdatePlugin)
-        // Startup System
-        .insert_resource(WorldData::load_spawn_chunks())
         .add_event::<ReceivePacket>()
         .add_event::<SendPacket>()
         .add_event::<AuthorizationEvent>()
+        .add_event::<PlayerSpawnEvent>()
         // Gameplay Loop on Tick
         .add_systems(Update, tick)
         .add_systems(PreUpdate, detect_shutdowns)
@@ -84,7 +84,7 @@ fn main() {
 }
 
 pub fn detect_shutdowns(mut shutdown: EventWriter<AppExit>) {
-    if SHUTDOWN_BIT.load(Ordering::Relaxed) {
+    if SHUTDOWN_BIT.load(Ordering::SeqCst) {
         shutdown.send(AppExit);
         info!("Shutting down server");
     }

@@ -10,7 +10,7 @@ use crate::item::event::ItemStatesUpdatedEvent;
 use crate::item::loader::ItemStateAssetLoader;
 use crate::item::types::ItemType;
 use bevy::prelude::{
-    App, AssetApp, AssetServer, Handle, Plugin, Res, ResMut, Resource, Startup, Update,
+    App, AssetApp, AssetServer, Handle, Plugin, Resource, Update,
 };
 
 pub struct ItemStatesPlugin;

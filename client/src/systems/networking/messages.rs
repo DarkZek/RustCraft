@@ -56,6 +56,12 @@ pub fn messages_update(
             }
             Protocol::SpawnGameObject(entity) => {
                 let size = if entity.object_type == 0 { 1.0 } else { 0.2 };
+
+                if system.entity_mapping.contains_key(&entity.id) {
+                    warn!("Duplicate entity attempted to spawn {:?}", entity.id);
+                    return;
+                }
+
                 let entity_id = commands
                     .spawn(Transform::from_rotation(Quat::from_xyzw(
                         entity.rot[0],

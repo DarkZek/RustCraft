@@ -30,7 +30,7 @@ pub fn receive_message_event(
         match &event.0 {
             Protocol::PlayerMove(packet) => {
                 // Update all other clients
-                let entity = system.clients.get(&event.1).unwrap().entity_id;
+                let entity = system.clients.get(&event.1).unwrap().game_object_id;
 
                 // TODO: Don't trust user input
 
@@ -48,17 +48,15 @@ pub fn receive_message_event(
                     event_writer.send(SendPacket(send_packet.clone(), *client));
                 }
 
-                println!("Trying to getch {:?}", entity);
-
-                if let Some(val) = global.entities.get(&entity) {
+                if let Some(val) = global.get_game_object(&entity) {
                     // Move player in ecs
-                    transforms.get_mut(*val).unwrap().position =
+                    transforms.get_mut(val).unwrap().position =
                         Vector3::new(packet.x, packet.y, packet.z);
                 }
             }
             Protocol::PlayerRotate(packet) => {
                 // Update all other clients
-                let entity = system.clients.get(&event.1).unwrap().entity_id;
+                let entity = system.clients.get(&event.1).unwrap().game_object_id;
 
                 // TODO: Don't trust user input
 
@@ -78,9 +76,9 @@ pub fn receive_message_event(
                     event_writer.send(SendPacket(send_packet.clone(), *client));
                 }
 
-                if let Some(val) = global.entities.get(&entity) {
+                if let Some(val) = global.get_game_object(&entity) {
                     // Rotate player in ecs
-                    transforms.get_mut(*val).unwrap().rotation =
+                    transforms.get_mut(val).unwrap().rotation =
                         Quaternion::new(packet.x, packet.y, packet.z, packet.w);
                 }
             }
@@ -128,12 +126,13 @@ pub fn receive_message_event(
                 }
 
                 ew.send(SpawnGameObjectRequest {
-                    position: Vector3::new(
+                    transform: Transform::from_translation(Vector3::new(
                         packet.x as f32 + 0.5,
                         packet.y as f32 + 0.5,
                         packet.z as f32 + 0.5,
-                    ),
+                    )),
                     object_type: 1,
+                    id: None,
                 });
             }
             _ => {}

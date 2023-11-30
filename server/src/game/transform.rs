@@ -1,7 +1,8 @@
 use bevy::ecs::prelude::*;
 use nalgebra::{Quaternion, Vector3};
+use serde::{Deserialize, Serialize};
 
-#[derive(Component)]
+#[derive(Component, Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
 pub struct Transform {
     pub position: Vector3<f32>,
     pub rotation: Quaternion<f32>,
