@@ -42,6 +42,8 @@ impl ChunkData {
         ChunkData {
             position,
             world: chunk_data,
+            block_metadata: Default::default(),
+            metadata: Default::default(),
         }
     }
 }

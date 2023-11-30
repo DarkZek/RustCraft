@@ -10,7 +10,7 @@
       "identifier": "mcv3::DirtBlockItem",
       "name": "Dirt Block",
       "icon": "dirt",
-      "block_state": "mcv3::ItemSpawnerBlock"
+      "block_state": "mcv3::Pipe"
     },
     {
       "identifier": "mcv3::LongGrassItem",
@@ -28,7 +28,7 @@
       "identifier": "mcv3::WoodLogItem",
       "name": "Wood Log",
       "icon": "wood_log",
-      "block_state": "mcv3::WoodLogBlock"
+      "block_state": "mcv3::Wood"
     },
     {
       "identifier": "mcv3::LampItem",
@@ -46,7 +46,7 @@
       "identifier": "mcv3::PipeItem",
       "name": "Pipe",
       "icon": "tree_leaves",
-      "block_state": "mcv3::ItemSpawner"
+      "block_state": "mcv3::Pipe"
     },
     {
       "identifier": "mcv3::ImprovisedFurnaceItem",

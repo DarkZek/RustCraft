@@ -30,6 +30,7 @@ use bevy::prelude::{
 use bevy::MinimalPlugins;
 
 use crate::events::join::PlayerSpawnEvent;
+use crate::game::pipes::generate_links;
 use rc_networking::types::{ReceivePacket, SendPacket};
 use rc_shared::block::{BlockStates, BlockStatesPlugin};
 use rc_shared::item::{ItemStates, ItemStatesPlugin};
@@ -81,6 +82,7 @@ fn main() {
         .add_systems(Update, tick)
         .add_systems(PreUpdate, detect_shutdowns)
         .add_systems(Startup, create_states)
+        .add_systems(Update, generate_links)
         // Run App
         .run();
 }

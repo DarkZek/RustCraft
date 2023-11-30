@@ -110,9 +110,10 @@ pub fn receive_message_event(
                     chunk[inner_loc.x][inner_loc.y][inner_loc.z] = packet.id;
 
                     // Create chunk
-                    global
-                        .chunks
-                        .insert(chunk_loc, ChunkData::new(chunk_loc, chunk));
+                    global.chunks.insert(
+                        chunk_loc,
+                        ChunkData::new(chunk_loc, chunk, Default::default(), Default::default()),
+                    );
                 }
 
                 // Trigger block update for all surrounding blocks

@@ -6,7 +6,6 @@ use crate::helpers::global_to_local_position;
 use bevy::ecs::entity::Entity;
 use bevy::ecs::prelude::Resource;
 
-
 use nalgebra::Vector3;
 use rc_networking::constants::GameObjectId;
 
@@ -45,10 +44,12 @@ impl WorldData {
         if !self.game_objects_chunks.contains_key(&chunk_pos) {
             self.game_objects_chunks.insert(chunk_pos, HashMap::new());
         }
+
         self.game_objects_chunks
             .get_mut(&chunk_pos)
             .unwrap()
             .insert(game_object_id, entity.clone());
+
         self.game_objects_mapping.insert(game_object_id, entity)
     }
 
@@ -64,6 +65,7 @@ impl WorldData {
         self.game_objects_chunks
             .get_mut(&chunk_pos)
             .and_then(|v| v.remove(&game_object_id));
+
         self.game_objects_mapping.remove(&game_object_id)
     }
 
