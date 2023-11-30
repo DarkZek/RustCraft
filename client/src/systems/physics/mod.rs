@@ -8,7 +8,6 @@ use bevy::prelude::{App, Plugin};
 use nalgebra::Vector3;
 use rc_shared::aabb::Aabb;
 use rc_shared::block::BlockStates;
-use std::ops::Deref;
 
 pub mod raycasts;
 mod simulate;
@@ -64,7 +63,7 @@ impl PhysicsObject {
 
         let mut current_aabb = self.collider.offset(self.position);
         let potential_collisions =
-            current_aabb.get_surrounding_voxel_collision_colliders(chunks.deref(), &block_states);
+            current_aabb.get_surrounding_voxel_collision_colliders(chunks, &block_states);
 
         if delta.x != 0.0 {
             self.position +=
