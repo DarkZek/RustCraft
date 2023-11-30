@@ -22,15 +22,17 @@ use crate::systems::connection::ConnectionPlugin;
 use crate::systems::game_object::GameObjectPlugin;
 use crate::systems::tick::tick;
 use crate::transport::{TransportPlugin, TransportSystem};
-use bevy::app::{App, AppExit, ScheduleRunnerPlugin};
+use bevy::app::{App, AppExit, ScheduleRunnerPlugin, Startup};
 use bevy::log::{info, Level, LogPlugin};
-use bevy::prelude::{default, AssetPlugin, EventWriter, PluginGroup, PreUpdate, Update};
+use bevy::prelude::{
+    default, AssetPlugin, AssetServer, EventWriter, PluginGroup, PreUpdate, Res, ResMut, Update,
+};
 use bevy::MinimalPlugins;
 
 use crate::events::join::PlayerSpawnEvent;
 use rc_networking::types::{ReceivePacket, SendPacket};
-use rc_shared::block::BlockStatesPlugin;
-use rc_shared::item::ItemStatesPlugin;
+use rc_shared::block::{BlockStates, BlockStatesPlugin};
+use rc_shared::item::{ItemStates, ItemStatesPlugin};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
 
@@ -78,6 +80,7 @@ fn main() {
         // Gameplay Loop on Tick
         .add_systems(Update, tick)
         .add_systems(PreUpdate, detect_shutdowns)
+        .add_systems(Startup, create_states)
         // Run App
         .run();
 }
@@ -87,4 +90,13 @@ pub fn detect_shutdowns(mut shutdown: EventWriter<AppExit>) {
         shutdown.send(AppExit);
         info!("Shutting down server");
     }
+}
+
+pub fn create_states(
+    server: Res<AssetServer>,
+    mut block_states: ResMut<BlockStates>,
+    mut item_states: ResMut<ItemStates>,
+) {
+    block_states.load_states("game/state.blocks".to_string(), &server);
+    item_states.load_states("game/state.items".to_string(), &server);
 }

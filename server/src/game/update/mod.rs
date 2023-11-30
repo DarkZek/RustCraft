@@ -6,6 +6,7 @@ use bevy::prelude::{Event, EventReader, EventWriter, Plugin, Res, ResMut, Update
 use nalgebra::Vector3;
 use rc_networking::protocol::Protocol;
 use rc_networking::types::SendPacket;
+use rc_shared::block::BlockStates;
 use rc_shared::viewable_direction::BLOCK_SIDES;
 
 /// Eventually turn this into a modular block update system
@@ -29,12 +30,15 @@ fn update_block(
     mut update_event: EventReader<BlockUpdateEvent>,
     mut send_packet: EventWriter<SendPacket>,
     clients: Res<TransportSystem>,
+    block_states: Res<BlockStates>,
 ) {
     for event in update_event.read() {
         let block_id = world_data.get_block_id(event.pos).unwrap();
 
+        let block = block_states.get_block(block_id as usize);
+
         // Pipe check (TEMP)
-        if block_id < 10 {
+        if block.identifier != "mcv3::Pipe" {
             continue;
         }
 

@@ -10,7 +10,7 @@
       "identifier": "mcv3::DirtBlockItem",
       "name": "Dirt Block",
       "icon": "dirt",
-      "block_state": "mcv3::Dirt"
+      "block_state": "mcv3::ItemSpawnerBlock"
     },
     {
       "identifier": "mcv3::LongGrassItem",
@@ -46,7 +46,13 @@
       "identifier": "mcv3::PipeItem",
       "name": "Pipe",
       "icon": "tree_leaves",
-      "block_state": "mcv3::Pipe"
+      "block_state": "mcv3::ItemSpawner"
+    },
+    {
+      "identifier": "mcv3::ImprovisedFurnaceItem",
+      "name": "Improvised Furnace",
+      "icon": "dirt",
+      "block_state": "mcv3::ImprovisedFurnace"
     }
   ]
 }

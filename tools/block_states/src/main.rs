@@ -591,6 +591,115 @@ fn main() {
 
     states.append(&mut pipe());
 
+    states.push(DeserialisedBlock {
+        identifier: "mcv3::ImprovisedFurnace".to_string(),
+        translucent: true,
+        full: false,
+        draw_betweens: false,
+        faces: vec![
+            DeserialisedFace {
+                top_left: Vector3::new(0.0, 0.9375, 0.0),
+                top_right: Vector3::new(1.0, 0.9375, 0.0),
+                bottom_left: Vector3::new(0.0, 0.9375, 1.0),
+                texture: "game/improvised_furnace_bottom".to_string(),
+                direction: 1,
+                edge: true,
+            },
+            DeserialisedFace {
+                top_left: Vector3::new(0.0, 0.0, 0.0),
+                top_right: Vector3::new(0.0, 0.0, 1.0),
+                bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                texture: "game/improvised_furnace_bottom".to_string(),
+                direction: 2,
+                edge: true,
+            },
+            DeserialisedFace {
+                top_left: Vector3::new(0.0, 0.0, 0.0),
+                top_right: Vector3::new(0.0, 0.9375, 0.0),
+                bottom_left: Vector3::new(0.0, 0.0, 1.0),
+                texture: "game/improvised_furnace_side".to_string(),
+                direction: 4,
+                edge: true,
+            },
+            DeserialisedFace {
+                top_left: Vector3::new(1.0, 0.0, 1.0),
+                top_right: Vector3::new(1.0, 0.9375, 1.0),
+                bottom_left: Vector3::new(1.0, 0.0, 0.0),
+                texture: "game/improvised_furnace_side".to_string(),
+                direction: 8,
+                edge: true,
+            },
+            DeserialisedFace {
+                top_left: Vector3::new(1.0, 0.0, 0.0),
+                top_right: Vector3::new(1.0, 0.9375, 0.0),
+                bottom_left: Vector3::new(0.0, 0.0, 0.0),
+                texture: "game/improvised_furnace_front".to_string(),
+                direction: 16,
+                edge: true,
+            },
+            DeserialisedFace {
+                top_left: Vector3::new(0.0, 0.0, 1.0),
+                top_right: Vector3::new(0.0, 0.9375, 1.0),
+                bottom_left: Vector3::new(1.0, 0.0, 1.0),
+                texture: "game/improvised_furnace_back".to_string(),
+                direction: 32,
+                edge: true,
+            },
+            // Chimney faces
+            DeserialisedFace {
+                top_left: Vector3::new(0.25, 0.9375, 0.25),
+                top_right: Vector3::new(0.25, 1.0, 0.25),
+                bottom_left: Vector3::new(0.25, 0.9375, 0.75),
+                texture: "game/improvised_furnace_chimney".to_string(),
+                direction: 4,
+                edge: true,
+            },
+            DeserialisedFace {
+                top_left: Vector3::new(0.75, 0.9375, 0.75),
+                top_right: Vector3::new(0.75, 1.0, 0.75),
+                bottom_left: Vector3::new(0.75, 0.9375, 0.25),
+                texture: "game/improvised_furnace_chimney".to_string(),
+                direction: 8,
+                edge: true,
+            },
+            DeserialisedFace {
+                top_left: Vector3::new(0.75, 0.9375, 0.25),
+                top_right: Vector3::new(0.75, 1.0, 0.25),
+                bottom_left: Vector3::new(0.25, 0.9375, 0.25),
+                texture: "game/improvised_furnace_chimney".to_string(),
+                direction: 16,
+                edge: true,
+            },
+            DeserialisedFace {
+                top_left: Vector3::new(0.25, 0.9375, 0.75),
+                top_right: Vector3::new(0.25, 1.0, 0.75),
+                bottom_left: Vector3::new(0.75, 0.9375, 0.75),
+                texture: "game/improvised_furnace_chimney".to_string(),
+                direction: 32,
+                edge: true,
+            },
+            // Chimney top
+            DeserialisedFace {
+                top_left: Vector3::new(0.25, 1.0, 0.25),
+                top_right: Vector3::new(0.75, 1.0, 0.25),
+                bottom_left: Vector3::new(0.25, 1.0, 0.75),
+                texture: "game/improvised_furnace_top".to_string(),
+                direction: 1,
+                edge: true,
+            },
+        ],
+        colliders: vec![DeserialisedAabb {
+            bottom_left: Vector3::new(0.0, 0.0, 0.0),
+            size: Vector3::new(1.0, 1.0, 1.0),
+            collidable: true,
+        }],
+        emission: [0, 0, 0, 0],
+        loot_table: vec![DeserialisedLootTableEntry {
+            chance: 1.0,
+            item: "mcv3::ImprovisedFurnaceItem".to_string(),
+        }],
+    });
+
     fs::write(
         "./assets/game/state.blocks".to_string(),
         serde_json::to_string_pretty(&BlockStatesFile { states }).unwrap(),

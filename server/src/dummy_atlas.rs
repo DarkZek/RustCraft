@@ -8,6 +8,6 @@ impl TextureAtlasTrait for DummyAtlas {
     }
 
     fn get_entry(&self, name: &str) -> Option<TextureAtlasIndex> {
-        None
+        Some(TextureAtlasIndex::default())
     }
 }

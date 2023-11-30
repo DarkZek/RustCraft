@@ -47109,6 +47109,261 @@
           "item": "mcv3::PipeItem"
         }
       ]
+    },
+    {
+      "identifier": "mcv3::ImprovisedFurnace",
+      "translucent": true,
+      "full": false,
+      "draw_betweens": false,
+      "faces": [
+        {
+          "top_left": [
+            0.0,
+            0.9375,
+            0.0
+          ],
+          "top_right": [
+            1.0,
+            0.9375,
+            0.0
+          ],
+          "bottom_left": [
+            0.0,
+            0.9375,
+            1.0
+          ],
+          "texture": "game/improvised_furnace_bottom",
+          "edge": true,
+          "direction": 1
+        },
+        {
+          "top_left": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "top_right": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "bottom_left": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "texture": "game/improvised_furnace_bottom",
+          "edge": true,
+          "direction": 2
+        },
+        {
+          "top_left": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "top_right": [
+            0.0,
+            0.9375,
+            0.0
+          ],
+          "bottom_left": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "texture": "game/improvised_furnace_side",
+          "edge": true,
+          "direction": 4
+        },
+        {
+          "top_left": [
+            1.0,
+            0.0,
+            1.0
+          ],
+          "top_right": [
+            1.0,
+            0.9375,
+            1.0
+          ],
+          "bottom_left": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "texture": "game/improvised_furnace_side",
+          "edge": true,
+          "direction": 8
+        },
+        {
+          "top_left": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "top_right": [
+            1.0,
+            0.9375,
+            0.0
+          ],
+          "bottom_left": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "texture": "game/improvised_furnace_front",
+          "edge": true,
+          "direction": 16
+        },
+        {
+          "top_left": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "top_right": [
+            0.0,
+            0.9375,
+            1.0
+          ],
+          "bottom_left": [
+            1.0,
+            0.0,
+            1.0
+          ],
+          "texture": "game/improvised_furnace_back",
+          "edge": true,
+          "direction": 32
+        },
+        {
+          "top_left": [
+            0.25,
+            0.9375,
+            0.25
+          ],
+          "top_right": [
+            0.25,
+            1.0,
+            0.25
+          ],
+          "bottom_left": [
+            0.25,
+            0.9375,
+            0.75
+          ],
+          "texture": "game/improvised_furnace_chimney",
+          "edge": true,
+          "direction": 4
+        },
+        {
+          "top_left": [
+            0.75,
+            0.9375,
+            0.75
+          ],
+          "top_right": [
+            0.75,
+            1.0,
+            0.75
+          ],
+          "bottom_left": [
+            0.75,
+            0.9375,
+            0.25
+          ],
+          "texture": "game/improvised_furnace_chimney",
+          "edge": true,
+          "direction": 8
+        },
+        {
+          "top_left": [
+            0.75,
+            0.9375,
+            0.25
+          ],
+          "top_right": [
+            0.75,
+            1.0,
+            0.25
+          ],
+          "bottom_left": [
+            0.25,
+            0.9375,
+            0.25
+          ],
+          "texture": "game/improvised_furnace_chimney",
+          "edge": true,
+          "direction": 16
+        },
+        {
+          "top_left": [
+            0.25,
+            0.9375,
+            0.75
+          ],
+          "top_right": [
+            0.25,
+            1.0,
+            0.75
+          ],
+          "bottom_left": [
+            0.75,
+            0.9375,
+            0.75
+          ],
+          "texture": "game/improvised_furnace_chimney",
+          "edge": true,
+          "direction": 32
+        },
+        {
+          "top_left": [
+            0.25,
+            1.0,
+            0.25
+          ],
+          "top_right": [
+            0.75,
+            1.0,
+            0.25
+          ],
+          "bottom_left": [
+            0.25,
+            1.0,
+            0.75
+          ],
+          "texture": "game/improvised_furnace_top",
+          "edge": true,
+          "direction": 1
+        }
+      ],
+      "colliders": [
+        {
+          "bottom_left": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "size": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "collidable": true
+        }
+      ],
+      "emission": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "loot_table": [
+        {
+          "chance": 1.0,
+          "item": "mcv3::ImprovisedFurnaceItem"
+        }
+      ]
     }
   ]
 }

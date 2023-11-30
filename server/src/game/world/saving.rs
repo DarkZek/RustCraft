@@ -1,6 +1,7 @@
 use crate::game::chunk::ChunkData;
 use crate::game::game_object::GameObject;
 use crate::game::transform::Transform;
+use crate::game::world::data::GAME_OBJECT_ID_COUNTER;
 use crate::game::world::serialized::DeserializedChunkData;
 use crate::ServerConfig;
 use crate::WorldData;
@@ -8,8 +9,11 @@ use bevy::log::{error, info};
 use bevy::prelude::{Commands, Query};
 use nalgebra::Vector3;
 use std::collections::HashMap;
+use std::fs;
 use std::fs::{create_dir_all, File};
 use std::io::BufWriter;
+use std::str::FromStr;
+use std::sync::atomic::Ordering;
 
 impl WorldData {
     pub fn load_spawn_chunks(&mut self, command: &mut Commands) {
@@ -53,6 +57,14 @@ impl WorldData {
             }
         }
 
+        // Load sequential object id counter
+        if fs::try_exists("./world/game_objects").unwrap() {
+            let entites = u64::from_str(&fs::read_to_string("./world/game_objects").unwrap())
+                .expect("'/world/game_objects' file corrupted");
+
+            GAME_OBJECT_ID_COUNTER.store(entites, Ordering::SeqCst);
+        }
+
         info!("Loaded spawn chunks");
     }
 
@@ -83,5 +95,11 @@ impl WorldData {
 
             serde_json::to_writer(&mut writer, &data).unwrap();
         }
+
+        fs::write(
+            "./world/game_objects",
+            GAME_OBJECT_ID_COUNTER.load(Ordering::SeqCst).to_string(),
+        )
+        .unwrap();
     }
 }
