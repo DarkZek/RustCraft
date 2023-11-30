@@ -1,11 +1,11 @@
-
 use crate::block::event::BlockStatesUpdatedEvent;
 use crate::block::BlockStates;
 use crate::item::deserialisation::ItemStatesFile;
 use crate::item::event::ItemStatesUpdatedEvent;
 use crate::item::types::ItemType;
 use crate::item::ItemStates;
-use bevy::prelude::{info, warn, AssetEvent, Assets, EventReader, EventWriter, ResMut};
+use bevy::log::{info, warn};
+use bevy::prelude::{AssetEvent, Assets, EventReader, EventWriter, ResMut};
 
 /// Copies the itemstate asset to the Resource
 pub fn track_itemstate_changes(

@@ -3,7 +3,6 @@ use crate::{App, TransportSystem, WorldData};
 
 use bevy::prelude::*;
 
-use bevy::utils::petgraph::visit::Walker;
 use nalgebra::Vector3;
 use rayon::iter::ParallelIterator;
 use rayon::prelude::IntoParallelRefIterator;

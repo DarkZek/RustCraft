@@ -15,18 +15,18 @@ use crate::systems::chunk::ChunkSystem;
 use crate::{TransportSystem, WorldData};
 use rc_networking::constants::GameObjectId;
 
-use crate::game::game_object::GameObject;
+
 use crate::systems::game_object::spawn::SpawnGameObjectRequest;
-use rc_networking::protocol::clientbound::spawn_game_object::SpawnGameObject;
-use rc_networking::protocol::Protocol;
+
+
 use rc_networking::types::SendPacket;
 
 pub fn authorization_event(
     mut event_reader: EventReader<AuthorizationEvent>,
-    mut global: ResMut<WorldData>,
+    global: ResMut<WorldData>,
     mut transport: ResMut<TransportSystem>,
-    mut send_packet: EventWriter<SendPacket>,
-    mut commands: Commands,
+    send_packet: EventWriter<SendPacket>,
+    commands: Commands,
     transforms: Query<&Transform>,
     mut chunk_system: ResMut<ChunkSystem>,
     mut spawn_game_object: EventWriter<SpawnGameObjectRequest>,

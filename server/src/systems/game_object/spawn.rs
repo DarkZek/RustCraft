@@ -3,7 +3,7 @@ use crate::game::transform::Transform;
 use crate::game::world::data::GAME_OBJECT_ID_COUNTER;
 use crate::{TransportSystem, WorldData};
 use bevy::prelude::{Commands, Entity, Event, EventReader, EventWriter, Res, ResMut};
-use nalgebra::Vector3;
+
 use rc_networking::constants::GameObjectId;
 use rc_networking::protocol::clientbound::spawn_game_object::SpawnGameObject;
 use rc_networking::protocol::Protocol;

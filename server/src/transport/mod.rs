@@ -11,11 +11,12 @@ use std::str::FromStr;
 
 use crate::ServerConfig;
 use bevy::ecs::prelude::Resource;
-use bevy::prelude::{info, Update};
+use bevy::prelude::Update;
 use bevy::utils::default;
 use rc_networking::server::{NetworkingServerConfig, QuinnServerPlugin};
 
 use crate::systems::connection::GameUser;
+use bevy::log::info;
 use std::time::SystemTime;
 
 pub struct TransportPlugin;
@@ -45,7 +46,6 @@ impl Plugin for TransportPlugin {
         let current_time = SystemTime::now()
             .duration_since(SystemTime::UNIX_EPOCH)
             .unwrap();
-        let server = 0;
 
         info!("Listening to connections on {:?}", bind_addr);
 

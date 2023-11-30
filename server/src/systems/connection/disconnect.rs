@@ -7,7 +7,7 @@ use rc_networking::events::disconnect::NetworkDisconnectionEvent;
 use rc_networking::protocol::clientbound::despawn_game_object::DespawnGameObject;
 
 use crate::game::transform::Transform;
-use crate::helpers::global_to_local_position;
+
 use rc_networking::protocol::Protocol;
 use rc_networking::types::SendPacket;
 use rc_shared::helpers::global_f32_to_local_position;

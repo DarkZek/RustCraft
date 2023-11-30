@@ -4,8 +4,8 @@ use crate::game::transform::Transform;
 use crate::game::world::serialized::DeserializedChunkData;
 use crate::ServerConfig;
 use crate::WorldData;
-use bevy::asset::AssetContainer;
-use bevy::prelude::{error, info, Commands, Query};
+use bevy::log::{error, info};
+use bevy::prelude::{Commands, Query};
 use nalgebra::Vector3;
 use std::collections::HashMap;
 use std::fs::{create_dir_all, File};
@@ -22,7 +22,7 @@ impl WorldData {
                     let DeserializedChunkData {
                         version,
                         data,
-                        mut game_objects,
+                        game_objects,
                     } = match Self::try_load_chunk(pos) {
                         Ok(Some(chunk)) => chunk,
                         Ok(None) => DeserializedChunkData {

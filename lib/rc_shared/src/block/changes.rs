@@ -4,12 +4,12 @@ use crate::block::event::BlockStatesUpdatedEvent;
 use crate::block::face::Face;
 use crate::block::types::{Block, LootTableEntry};
 use crate::block::{BlockStates, TEXTURE_ATLAS};
+use bevy::log::{info, warn};
 
 use crate::item::event::ItemStatesUpdatedEvent;
 use crate::item::ItemStates;
 use crate::viewable_direction::ViewableDirectionBitMap;
-use bevy::prelude::{info, warn, AssetEvent, Assets, EventReader, EventWriter, Res, ResMut};
-use bevy::utils::petgraph::visit::Walker;
+use bevy::prelude::{AssetEvent, Assets, EventReader, EventWriter, Res, ResMut};
 use nalgebra::Vector3;
 
 /// Copies the blockstate asset to the Resource

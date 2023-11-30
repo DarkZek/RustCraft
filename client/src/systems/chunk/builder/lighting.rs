@@ -1,6 +1,6 @@
 use crate::systems::chunk::data::ChunkData;
 use crate::systems::chunk::nearby_cache::NearbyChunkCache;
-use bevy::log::{debug, info};
+use bevy::log::{debug};
 use nalgebra::{Vector3, Vector4};
 use rc_shared::block::BlockStates;
 use rc_shared::chunk::RawLightingData;

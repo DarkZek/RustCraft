@@ -48,7 +48,7 @@ pub struct NetworkingServerConfig {
 
 #[derive(Resource)]
 pub struct NetworkingServer {
-    cert: Vec<u8>,
+    _cert: Vec<u8>,
     endpoint: Endpoint,
     runtime: Runtime,
     new_conn_task: Option<JoinHandle<UserConnection>>,
@@ -98,7 +98,7 @@ impl From<&NetworkingServerConfig> for NetworkingServer {
         info!("Bound listener to {:?}", bind_addr);
 
         NetworkingServer {
-            cert: cert_der,
+            _cert: cert_der,
             endpoint,
             runtime,
             new_conn_task: Some(new_conn_task),

@@ -1,5 +1,4 @@
 #![feature(fs_try_exists)]
-#![feature(let_else)]
 #![allow(unused_variables)]
 #![allow(dead_code)]
 
@@ -25,7 +24,7 @@ use crate::systems::tick::tick;
 use crate::transport::{TransportPlugin, TransportSystem};
 use bevy::app::{App, AppExit, ScheduleRunnerPlugin};
 use bevy::log::{info, Level, LogPlugin};
-use bevy::prelude::{default, AssetPlugin, EventWriter, PluginGroup, PreUpdate, Startup, Update};
+use bevy::prelude::{default, AssetPlugin, EventWriter, PluginGroup, PreUpdate, Update};
 use bevy::MinimalPlugins;
 
 use crate::events::join::PlayerSpawnEvent;
