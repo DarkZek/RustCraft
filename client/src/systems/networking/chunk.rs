@@ -39,9 +39,13 @@ pub fn network_chunk_sync(
                     update.data,
                     &mut commands,
                     &asset_service,
-                    &mut rerender_chunks,
                     &mut meshes,
                 );
+
+                rerender_chunks.send(RerenderChunkFlag {
+                    chunk: location,
+                    context: RerenderChunkFlagContext::Surrounding,
+                });
 
                 // Acknowledge
                 send_response.send(SendPacket(
@@ -80,9 +84,13 @@ pub fn network_chunk_sync(
                         chunk.data,
                         &mut commands,
                         &asset_service,
-                        &mut rerender_chunks,
                         &mut meshes,
                     );
+
+                    rerender_chunks.send(RerenderChunkFlag {
+                        chunk: location,
+                        context: RerenderChunkFlagContext::Surrounding,
+                    });
                 } else {
                     warn!("Partial chunk failed to build {:?}", location);
                 }
@@ -116,9 +124,13 @@ pub fn network_chunk_sync(
                         chunk,
                         &mut commands,
                         &mut asset_service,
-                        &mut rerender_chunks,
                         &mut meshes,
                     );
+
+                    rerender_chunks.send(RerenderChunkFlag {
+                        chunk: chunk_loc,
+                        context: RerenderChunkFlagContext::Surrounding,
+                    });
                 }
             }
             _ => {}

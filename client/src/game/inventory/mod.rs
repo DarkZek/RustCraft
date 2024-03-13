@@ -28,7 +28,7 @@ impl Inventory {
     }
 
     /// Takes one of the selected block and removes it from the inventory
-    pub fn take_selected_block_id(&mut self) -> Option<u32> {
+    pub fn take_selected_block(&mut self) -> Option<u32> {
         if let Some(val) = &mut self.hotbar[self.hotbar_slot as usize] {
             let block_state = val.item.block_state;
 

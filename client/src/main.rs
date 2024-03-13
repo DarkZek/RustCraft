@@ -2,6 +2,7 @@ pub mod game;
 pub mod state;
 pub mod systems;
 
+use crate::game::events::GameEventsPlugin;
 use crate::game::interaction::highlight::{
     mouse_highlight_interaction, setup_highlights, HighlightData,
 };
@@ -75,6 +76,8 @@ fn main() {
         .insert_resource(HighlightData::default())
         .add_systems(Startup, setup_highlights)
         .add_systems(Update, mouse_highlight_interaction)
+        
+        .add_plugins(GameEventsPlugin)
         
         // Chunk deserialisation
         .add_plugins(ChunkPlugin)

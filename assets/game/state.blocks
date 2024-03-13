@@ -47364,6 +47364,162 @@
           "item": "mcv3::ImprovisedFurnaceItem"
         }
       ]
+    },
+
+    {
+      "identifier": "mcv3::ConstructionTable",
+      "translucent": false,
+      "full": true,
+      "draw_betweens": false,
+      "faces": [
+        {
+          "top_left": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "top_right": [
+            1.0,
+            1.0,
+            0.0
+          ],
+          "bottom_left": [
+            0.0,
+            1.0,
+            1.0
+          ],
+          "texture": "game/assembly_table_top",
+          "edge": true,
+          "direction": 1
+        },
+        {
+          "top_left": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "top_right": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "bottom_left": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "texture": "game/assembly_table_side",
+          "edge": true,
+          "direction": 2
+        },
+        {
+          "top_left": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "top_right": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "bottom_left": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "texture": "game/assembly_table_side",
+          "edge": true,
+          "direction": 4
+        },
+        {
+          "top_left": [
+            1.0,
+            0.0,
+            1.0
+          ],
+          "top_right": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "bottom_left": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "texture": "game/assembly_table_side",
+          "edge": true,
+          "direction": 8
+        },
+        {
+          "top_left": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "top_right": [
+            1.0,
+            1.0,
+            0.0
+          ],
+          "bottom_left": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "texture": "game/assembly_table_side",
+          "edge": true,
+          "direction": 16
+        },
+        {
+          "top_left": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "top_right": [
+            0.0,
+            1.0,
+            1.0
+          ],
+          "bottom_left": [
+            1.0,
+            0.0,
+            1.0
+          ],
+          "texture": "game/assembly_table_side",
+          "edge": true,
+          "direction": 32
+        }
+      ],
+      "colliders": [
+        {
+          "bottom_left": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "size": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "collidable": true
+        }
+      ],
+      "emission": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "loot_table": [
+        {
+          "chance": 1.0,
+          "item": "mcv3::DirtBlockItem"
+        }
+      ]
     }
   ]
 }

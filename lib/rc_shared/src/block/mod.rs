@@ -12,9 +12,7 @@ use crate::block::event::BlockStatesUpdatedEvent;
 use crate::block::loader::BlockStateAssetLoader;
 use crate::block::types::{Block, LootTableEntry};
 use bevy::log::warn;
-use bevy::prelude::{
-    App, AssetApp, AssetServer, Handle, Plugin, Resource, Update,
-};
+use bevy::prelude::{App, AssetApp, AssetServer, Handle, Plugin, Resource, Update};
 use bevy::reflect::TypeUuid;
 
 use std::sync::OnceLock;
@@ -70,6 +68,16 @@ impl BlockStates {
             warn!("Invalid block state received: {}", i);
             self.states.get(0).unwrap()
         }
+    }
+
+    pub fn get_by_id(&self, name: &str) -> Option<(usize, &Block)> {
+        for (i, state) in self.states.iter().enumerate() {
+            if state.identifier == name {
+                return Some((i, state));
+            }
+        }
+
+        None
     }
 
     pub fn load_states(&mut self, path: String, asset_server: &AssetServer) {

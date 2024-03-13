@@ -52,7 +52,6 @@ impl ChunkSystem {
         data: RawChunkData,
         commands: &mut Commands,
         asset_service: &AssetService,
-        rerender_chunk: &mut EventWriter<RerenderChunkFlag>,
         meshes: &mut Assets<Mesh>,
     ) {
         let mut mesh = Mesh::new(PrimitiveTopology::TriangleList);
@@ -114,16 +113,14 @@ impl ChunkSystem {
         );
 
         self.chunks.insert(position, chunk);
-
-        rerender_chunk.send(RerenderChunkFlag {
-            chunk: position,
-            context: RerenderChunkFlagContext::Surrounding,
-        });
     }
 }
 
 impl ChunkSystemTrait for ChunkSystem {
-    fn get_raw_chunk<'a>(&'a self, pos: &Vector3<i32>) -> Option<&'a RawChunkData> {
+    fn get_raw_chunk(&self, pos: &Vector3<i32>) -> Option<&RawChunkData> {
         self.chunks.get(pos).map(|v| &v.world)
+    }
+    fn get_raw_chunk_mut(&mut self, pos: &Vector3<i32>) -> Option<&mut RawChunkData> {
+        self.chunks.get_mut(pos).map(|v| &mut v.world)
     }
 }
