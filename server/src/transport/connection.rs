@@ -3,7 +3,7 @@ use crate::systems::connection::GameUser;
 use crate::TransportSystem;
 use bevy::ecs::event::{EventReader, EventWriter};
 use bevy::ecs::system::ResMut;
-use rc_networking::constants::GameObjectId;
+use rc_shared::constants::GameObjectId;
 use rc_networking::events::connection::NetworkConnectionEvent;
 
 const MAX_PING_TIMEOUT_SECONDS: u64 = 10;

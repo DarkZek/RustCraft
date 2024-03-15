@@ -4,7 +4,7 @@ use crate::game::world::data::GAME_OBJECT_ID_COUNTER;
 use crate::{TransportSystem, WorldData};
 use bevy::prelude::{Commands, Entity, Event, EventReader, EventWriter, Res, ResMut};
 
-use rc_networking::constants::GameObjectId;
+use rc_shared::constants::GameObjectId;
 use rc_networking::protocol::clientbound::spawn_game_object::SpawnGameObject;
 use rc_networking::protocol::Protocol;
 use rc_networking::types::SendPacket;
@@ -23,7 +23,7 @@ pub struct SpawnGameObjectEvent {
 pub struct SpawnGameObjectRequest {
     pub transform: Transform,
     pub data: GameObjectData,
-    pub id: Option<GameObjectId>,
+    pub id: GameObjectId,
 }
 
 /// Spawns entities requested
@@ -40,12 +40,12 @@ pub fn spawn_entities(
             .spawn(Transform::from_translation(event.transform.position))
             .insert(GameObject {
                 data: event.data.clone(),
+                id: event.id,
             })
             .id();
 
         let id = event
-            .id
-            .unwrap_or_else(|| GameObjectId(GAME_OBJECT_ID_COUNTER.fetch_add(1, Ordering::SeqCst)));
+            .id;
 
         event_writer.send(SpawnGameObjectEvent {
             entity_id: entity.clone(),

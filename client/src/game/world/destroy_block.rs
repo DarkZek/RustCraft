@@ -7,7 +7,7 @@ use bevy::ecs::system::SystemState;
 use bevy::prelude::*;
 use nalgebra::Vector3;
 use rand::Rng;
-use rc_networking::constants::UserId;
+use rc_shared::constants::UserId;
 use rc_networking::protocol::clientbound::block_update::BlockUpdate;
 use rc_networking::protocol::Protocol;
 use rc_networking::types::SendPacket;
@@ -83,17 +83,6 @@ pub fn destroy_block_system(
                 chunk[inner_loc.x][inner_loc.y][inner_loc.z] = new_block_id;
             } else {
                 warn!("Attempted to destroy block in unloaded chunk {:?}", event)
-            }
-
-            // If block is destroyed, apply drops
-            if new_block_id == 0 {
-                let mut system_state: SystemState<(
-                    Res<BlockStates>,
-                    Res<ItemStates>,
-                    ResMut<Inventory>,
-                )> = SystemState::new(world);
-                let (block_states, item_states, mut inventory) = system_state.get_mut(world);
-                apply_drops(&block_states, &item_states, event.block_id, &mut inventory);
             }
         }
 

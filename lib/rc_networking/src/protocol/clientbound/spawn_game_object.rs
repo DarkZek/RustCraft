@@ -1,4 +1,4 @@
-use crate::constants::GameObjectId;
+use rc_shared::constants::GameObjectId;
 use rc_shared::game_objects::GameObjectData;
 use serde::{Deserialize, Serialize};
 

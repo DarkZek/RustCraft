@@ -7,3 +7,4 @@ pub mod entity_rotated;
 pub mod server_state;
 pub mod spawn_game_object;
 pub mod update_loading;
+pub mod update_inventory_slot;

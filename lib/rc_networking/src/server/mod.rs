@@ -1,4 +1,4 @@
-use crate::constants::UserId;
+use rc_shared::constants::UserId;
 use crate::events::connection::NetworkConnectionEvent;
 use crate::events::disconnect::NetworkDisconnectionEvent;
 

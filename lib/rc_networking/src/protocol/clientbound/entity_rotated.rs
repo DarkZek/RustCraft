@@ -1,4 +1,4 @@
-use crate::constants::GameObjectId;
+use rc_shared::constants::GameObjectId;
 
 use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, PartialEq, Debug, Copy, Clone)]

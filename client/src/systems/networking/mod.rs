@@ -8,7 +8,7 @@ use bevy::log::info;
 use bevy::prelude::*;
 use bevy::prelude::{Entity, Vec3};
 use rc_networking::client::{NetworkingClient, QuinnClientPlugin};
-use rc_networking::constants::GameObjectId;
+use rc_shared::constants::GameObjectId;
 use std::collections::HashMap;
 use std::net::SocketAddr;
 

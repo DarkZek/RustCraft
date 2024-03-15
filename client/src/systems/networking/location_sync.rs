@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use rc_networking::constants::UserId;
+use rc_shared::constants::UserId;
 
 use rc_networking::protocol::serverbound::player_move::PlayerMove;
 use rc_networking::protocol::serverbound::player_rotate::PlayerRotate;

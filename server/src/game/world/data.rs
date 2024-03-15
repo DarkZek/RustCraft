@@ -7,7 +7,7 @@ use bevy::ecs::entity::Entity;
 use bevy::ecs::prelude::Resource;
 
 use nalgebra::Vector3;
-use rc_networking::constants::GameObjectId;
+use rc_shared::constants::GameObjectId;
 
 use std::collections::HashMap;
 use std::fs;

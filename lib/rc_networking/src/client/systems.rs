@@ -1,6 +1,5 @@
 use crate::bistream::BiStream;
 use crate::client::NetworkingClient;
-use crate::constants::UserId;
 use crate::protocol::clientbound::server_state::ServerState;
 use crate::types::{ReceivePacket, SendPacket};
 use crate::{get_channel, Channel, Protocol};
@@ -8,6 +7,7 @@ use bevy::app::AppExit;
 use bevy::log::{info, warn};
 use bevy::prelude::{EventReader, EventWriter, ResMut};
 use futures::FutureExt;
+use rc_shared::constants::UserId;
 use tokio::sync::mpsc::error::TryRecvError;
 
 pub fn update_system(

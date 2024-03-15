@@ -11,6 +11,7 @@ use crate::protocol::serverbound::acknowledge_chunk::AcknowledgeChunk;
 use crate::protocol::serverbound::player_move::PlayerMove;
 use crate::protocol::serverbound::player_rotate::PlayerRotate;
 use crate::protocol::serverbound::request_chunk::RequestChunk;
+use self::clientbound::update_inventory_slot::UpdateInventorySlot;
 use serde::{Deserialize, Serialize};
 
 pub mod clientbound;
@@ -34,4 +35,5 @@ pub enum Protocol {
     RequestChunk(RequestChunk),
     UpdateLoading(UpdateLoading),
     AcknowledgeChunk(AcknowledgeChunk),
+    UpdateInventorySlot(UpdateInventorySlot)
 }

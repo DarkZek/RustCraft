@@ -1,5 +1,5 @@
 use crate::bistream::BiStream;
-use crate::constants::UserId;
+use rc_shared::constants::UserId;
 use crate::events::connection::NetworkConnectionEvent;
 use crate::events::disconnect::NetworkDisconnectionEvent;
 use crate::server::user_connection::UserConnection;

@@ -1,6 +1,5 @@
 pub mod bistream;
 pub mod client;
-pub mod constants;
 pub mod events;
 pub mod protocol;
 pub mod server;
@@ -43,6 +42,7 @@ fn get_channel(protocol: &Protocol) -> Channel {
         | Protocol::UpdateLoading(_)
         | Protocol::RequestChunk(_)
         | Protocol::ServerState(_)
+        | Protocol::UpdateInventorySlot(_)
         | Protocol::AcknowledgeChunk(_) => Channel::Reliable,
 
         Protocol::FullChunkUpdate(_) | Protocol::PartialChunkUpdate(_) => Channel::Chunk,
