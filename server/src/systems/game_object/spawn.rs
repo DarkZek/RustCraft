@@ -8,6 +8,7 @@ use rc_networking::constants::GameObjectId;
 use rc_networking::protocol::clientbound::spawn_game_object::SpawnGameObject;
 use rc_networking::protocol::Protocol;
 use rc_networking::types::SendPacket;
+use rc_shared::game_objects::GameObjectData;
 use rc_shared::helpers::global_f32_to_local_position;
 use std::sync::atomic::Ordering;
 
@@ -15,13 +16,13 @@ use std::sync::atomic::Ordering;
 pub struct SpawnGameObjectEvent {
     pub entity_id: Entity,
     pub id: GameObjectId,
-    pub object_type: u32,
+    pub data: GameObjectData,
 }
 
 #[derive(Event)]
 pub struct SpawnGameObjectRequest {
     pub transform: Transform,
-    pub object_type: u32,
+    pub data: GameObjectData,
     pub id: Option<GameObjectId>,
 }
 
@@ -38,7 +39,7 @@ pub fn spawn_entities(
         let entity = command
             .spawn(Transform::from_translation(event.transform.position))
             .insert(GameObject {
-                object_type: event.object_type,
+                data: event.data.clone(),
             })
             .id();
 
@@ -48,7 +49,7 @@ pub fn spawn_entities(
 
         event_writer.send(SpawnGameObjectEvent {
             entity_id: entity.clone(),
-            object_type: event.object_type,
+            data: event.data.clone(),
             id,
         });
 
@@ -71,7 +72,7 @@ pub fn spawn_entities(
                         event.transform.rotation.as_vector().z,
                         event.transform.rotation.as_vector().w,
                     ],
-                    object_type: event.object_type,
+                    data: event.data.clone(),
                 }),
                 *user,
             ));
