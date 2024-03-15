@@ -4,11 +4,14 @@ mod phase2;
 mod phase3;
 mod phase4;
 
+use std::time::Instant;
+
 use crate::game::chunk::ChunkData;
-use crate::game::generation::phase1::generate_environment_map;
+use crate::game::generation::phase1::{generate_chunk_environment, generate_environment_map};
 use crate::game::generation::phase2::generate_greybox_chunk;
 use crate::game::generation::phase3::decorate_chunk;
 use crate::game::generation::phase4::add_structures;
+use bevy::log::info;
 use nalgebra::Vector3;
 use rc_shared::CHUNK_SIZE;
 
@@ -23,8 +26,11 @@ impl ChunkData {
     /// Phase 4: Structures
     ///     Structures are generated in this step such as trees
     pub fn generate(position: Vector3<i32>) -> ChunkData {
+
+        let started = Instant::now();
+
         let seed = 0;
-        let environment = generate_environment_map(
+        let environment_map = generate_environment_map(
             seed,
             Vector3::new(
                 position.x * CHUNK_SIZE as i32,
@@ -32,12 +38,15 @@ impl ChunkData {
                 position.z * CHUNK_SIZE as i32,
             ),
         );
+        let environment = generate_chunk_environment(&environment_map);
 
-        let (mut chunk_data, heightmap) = generate_greybox_chunk(seed, position, &environment);
+        let (mut chunk_data, heightmap) = generate_greybox_chunk(seed, position, &environment_map);
 
-        decorate_chunk(seed, position, &mut chunk_data, &heightmap, &environment);
+        decorate_chunk(seed, position, &mut chunk_data, &heightmap, &environment_map);
 
-        add_structures(seed, position, &mut chunk_data);
+        add_structures(seed, position, &mut chunk_data, &heightmap, environment);
+        
+        info!("Took {}ms to build chunk", started.elapsed().as_millis());
 
         ChunkData {
             position,

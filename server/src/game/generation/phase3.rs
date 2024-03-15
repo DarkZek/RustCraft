@@ -1,6 +1,6 @@
 use crate::game::generation::noise::SimplexNoise;
 use nalgebra::Vector3;
-use rc_shared::biome::ChunkEnvironment;
+use rc_shared::biome::{ChunkEnvironment, EnvironmentMap};
 use rc_shared::chunk::RawChunkData;
 use rc_shared::CHUNK_SIZE;
 
@@ -9,7 +9,7 @@ pub fn decorate_chunk(
     pos: Vector3<i32>,
     world: &mut RawChunkData,
     heightmap: &[[i32; CHUNK_SIZE]; CHUNK_SIZE],
-    environment: &ChunkEnvironment,
+    environment: &EnvironmentMap,
 ) {
     let ground_noise = SimplexNoise::new(seed);
     let tropic_noise = SimplexNoise::new(seed + 1).with_scale(24.0);
@@ -35,16 +35,17 @@ pub fn decorate_chunk(
                     world[x][y][z] = 2;
                 }
 
-                // Long grass
-                if absolute.y == ground_level + 1
-                    && grass_noise.sample_2d(absolute.x, absolute.z) > 0.7
-                {
-                    world[x][y][z] = 3;
-                }
-
                 let tropic_sand = tropic_noise.sample_2d(absolute.x, absolute.z);
                 if absolute.y == ground_level && tropic_sand > 0.8 {
                     world[x][y][z] = 8;
+                }
+
+                // Long grass
+                if absolute.y == ground_level + 1
+                    && grass_noise.sample_2d(absolute.x, absolute.z) > 0.7
+                    && !(absolute.y - 1 == ground_level && tropic_sand > 0.8) // No sand beneath
+                {
+                    world[x][y][z] = 3;
                 }
             }
         }

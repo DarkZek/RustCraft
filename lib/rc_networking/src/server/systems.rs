@@ -50,7 +50,7 @@ pub fn update_system(
             true
         } else {
             // Either the writer was disconnected, or an error was given. Either way it's disconnected
-            warn!("Unexpected disconnect from server {:?}", userid);
+            warn!("Unexpected disconnect from user {:?}", userid);
             disconnection_event.send(NetworkDisconnectionEvent { client: *userid });
             false
         };

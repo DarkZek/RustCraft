@@ -86,6 +86,13 @@ pub fn mesh_builder(
         }
     }
 
+    // How many chunks to render per frame
+    let max_chunks_per_frame = 40;
+
+    if (builder_data.chunks.len() >= max_chunks_per_frame) {
+        info!("Chunk Builder queue ({}) at maximum capacity for this frame. Just increased by {}", builder_data.chunks.len(), rerender_chunks.len());
+    }
+
     // Loop over all new chunks to render and add them to the list if the chunk exists and if its not already being rerendered
     for pos in rerender_chunks {
         // The chunk data exists
@@ -100,9 +107,6 @@ pub fn mesh_builder(
             }
         }
     }
-
-    // How many chunks to render per frame
-    let max_chunks_per_frame = 40;
 
     let build_chunks_count = builder_data.chunks.len().min(max_chunks_per_frame);
 

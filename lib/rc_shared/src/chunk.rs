@@ -1,7 +1,5 @@
 use crate::CHUNK_SIZE;
 use nalgebra::Vector3;
-use serde::{Deserialize, Serialize};
-use std::any::Any;
 use std::collections::HashMap;
 
 pub type RawChunkData = [[[u32; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
