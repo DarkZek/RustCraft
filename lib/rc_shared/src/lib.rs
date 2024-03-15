@@ -6,5 +6,6 @@ pub mod chunk;
 pub mod helpers;
 pub mod item;
 pub mod viewable_direction;
+pub mod game_objects;
 
 pub const CHUNK_SIZE: usize = 16;

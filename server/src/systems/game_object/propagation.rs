@@ -5,6 +5,7 @@ use bevy::prelude::{EventReader, Query, ResMut};
 use rc_networking::protocol::clientbound::spawn_game_object::SpawnGameObject;
 use rc_networking::protocol::Protocol;
 use rc_networking::types::SendPacket;
+use rc_shared::game_objects::GameObjectData;
 
 pub fn propagate_game_objects_to_new_clients(
     mut events: EventReader<PlayerSpawnEvent>,
@@ -25,7 +26,7 @@ pub fn propagate_game_objects_to_new_clients(
                         transform.position.z,
                     ],
                     rot: transform.rotation.coords.into(),
-                    object_type: game_object.object_type,
+                    data: game_object.data.clone(),
                 }),
                 event.id,
             ));

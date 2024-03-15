@@ -5,7 +5,6 @@ use nalgebra::{Vector2, Vector3};
 use rc_shared::biome::{ChunkEnvironment, EnvironmentMap};
 use rc_shared::chunk::RawChunkData;
 use rc_shared::CHUNK_SIZE;
-use image::*;
 use ::noise::{RidgedMulti, Perlin};
 use ::noise::{MultiFractal, NoiseFn, Seedable, Turbulence};
 

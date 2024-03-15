@@ -6,6 +6,7 @@ use bevy::ecs::system::Query;
 use bevy::log::info;
 
 use nalgebra::Vector3;
+use rc_shared::game_objects::GameObjectData;
 use std::sync::atomic::Ordering;
 
 use crate::events::authorize::AuthorizationEvent;
@@ -49,7 +50,7 @@ pub fn authorization_event(
         spawn_game_object.send(SpawnGameObjectRequest {
             transform,
             id: Some(game_object_id),
-            object_type: 0,
+            data: GameObjectData::Player
         });
 
         let chunks = global.chunks.keys();

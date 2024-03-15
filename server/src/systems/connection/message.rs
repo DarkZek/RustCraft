@@ -14,6 +14,7 @@ use rc_networking::protocol::clientbound::entity_moved::EntityMoved;
 use rc_networking::protocol::clientbound::entity_rotated::EntityRotated;
 use rc_networking::protocol::Protocol;
 use rc_networking::types::{ReceivePacket, SendPacket};
+use rc_shared::game_objects::GameObjectData;
 use rc_shared::viewable_direction::BLOCK_SIDES;
 use rc_shared::CHUNK_SIZE;
 
@@ -132,7 +133,7 @@ pub fn receive_message_event(
                         packet.y as f32 + 0.5,
                         packet.z as f32 + 0.5,
                     )),
-                    object_type: 1,
+                    data: GameObjectData::ItemDrop("mcv3::Wood".to_string()),
                     id: None,
                 });
             }

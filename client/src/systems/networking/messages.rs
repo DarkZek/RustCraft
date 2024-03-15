@@ -5,6 +5,7 @@ use crate::systems::physics::PhysicsObject;
 use bevy::prelude::*;
 
 use nalgebra::Vector3;
+use rc_shared::game_objects::GameObjectData;
 
 use crate::state::AppState;
 use rc_networking::protocol::Protocol;
@@ -55,12 +56,18 @@ pub fn messages_update(
                 }
             }
             Protocol::SpawnGameObject(entity) => {
-                let size = if entity.object_type == 0 { 1.0 } else { 0.2 };
+                let size = if entity.data == GameObjectData::Player { 1.0 } else { 0.2 };
 
                 if system.entity_mapping.contains_key(&entity.id) {
                     warn!("Duplicate entity attempted to spawn {:?}", entity.id);
                     return;
                 }
+
+                let color = if entity.data == GameObjectData::Debug {
+                    Color::rgb(0.3, 0.8, 0.3)
+                } else {
+                    Color::rgb(1.0, 0.3, 0.3)
+                };
 
                 let entity_id = commands
                     .spawn(Transform::from_rotation(Quat::from_xyzw(
@@ -76,7 +83,7 @@ pub fn messages_update(
                     .insert(Entity)
                     .insert(PbrBundle {
                         mesh: meshes.add(Mesh::from(shape::Cube { size: size })),
-                        material: materials.add(Color::rgb(0.3, 0.8, 0.3).into()),
+                        material: materials.add(color.into()),
                         ..default()
                     })
                     .id();
