@@ -1,8 +1,19 @@
 use crate::game::generation::noise::SimplexNoise;
 use nalgebra::Vector3;
-use rc_shared::biome::{ChunkEnvironment, EnvironmentEntry};
+use rc_shared::biome::{ChunkEnvironment, EnvironmentEntry, EnvironmentMap};
 
-pub fn generate_environment_map(seed: u32, pos: Vector3<i32>) -> ChunkEnvironment {
+pub fn generate_chunk_environment(environment: &EnvironmentMap) -> ChunkEnvironment {
+    // Get 'center'
+    let env = environment[8][8][8];
+
+    if env.vegetation > 0.5 {
+        ChunkEnvironment::FOREST
+    } else {
+        ChunkEnvironment::PLAIN
+    }
+}
+
+pub fn generate_environment_map(seed: u32, pos: Vector3<i32>) -> EnvironmentMap {
     let mut map = [[[EnvironmentEntry {
         climate: 0.0,
         terrain: 0.0,

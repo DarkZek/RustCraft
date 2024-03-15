@@ -8,19 +8,10 @@ use rc_shared::biome::ChunkEnvironment;
 use rc_shared::chunk::RawChunkData;
 use rc_shared::CHUNK_SIZE;
 
-pub fn add_structures(seed: u32, pos: Vector3<i32>, world: &mut RawChunkData) {
-    // 3x3 of surrounding chunks as no structures generate more than a 1 chunk radius away
-    for x in -1..=1 {
-        for y in -1..=1 {
-            for z in -1..=1 {
-                let gen_pos = pos + Vector3::new(x, y, z);
-                let env = generate_environment_map(seed, gen_pos);
-                let (_, heightmap) = generate_greybox_chunk(seed, gen_pos, &env);
+pub fn add_structures(seed: u32, pos: Vector3<i32>, world: &mut RawChunkData, heightmap: &[[i32; CHUNK_SIZE]; CHUNK_SIZE], environment: ChunkEnvironment) {
+    // TODO: Take in surrounding chunks `ChunkEnvironment`
 
-                add_structures_to_chunk(seed, gen_pos, pos, world, &heightmap, &env);
-            }
-        }
-    }
+    add_structures_to_chunk(seed, pos, pos, world, &heightmap, &environment);
 }
 
 /// Adds structures to chunk
@@ -32,7 +23,7 @@ pub fn add_structures_to_chunk(
     world_pos: Vector3<i32>,
     world: &mut RawChunkData,
     heightmap: &[[i32; CHUNK_SIZE]; CHUNK_SIZE],
-    environment_map: &ChunkEnvironment,
+    environment: &ChunkEnvironment,
 ) {
     let tree_noise = SimplexNoise::new(seed + 10).with_scale(2.0);
 
@@ -47,13 +38,11 @@ pub fn add_structures_to_chunk(
 
                 let ground_level = heightmap[x][z];
 
-                let environment = &environment_map[x][y][z];
-
                 // Trees in an falling off manner
                 if absolute_generation.y == ground_level + 1
-                    && environment.vegetation > 0.5
+                    && *environment == ChunkEnvironment::FOREST
                     && tree_noise.sample_2d(absolute_generation.x, absolute_generation.z)
-                        > 1.0 - ((environment.vegetation - 0.5) * 0.8)
+                        > 0.8
                 {
                     spawn_tree(seed, world_pos, absolute_generation, world);
                 }

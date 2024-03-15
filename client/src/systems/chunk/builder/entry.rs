@@ -1,5 +1,6 @@
 use bevy::prelude::Entity;
 use nalgebra::Vector3;
+use rc_shared::CHUNK_SIZE;
 use std::sync::atomic::{AtomicI32, Ordering};
 
 // Approximate player position used to load closer chunks
@@ -26,10 +27,12 @@ impl PartialOrd<Self> for MeshBuildEntry {
         )
         .cast::<f32>();
 
+        let self_player_dist = ((self.chunk.cast::<f32>() * CHUNK_SIZE as f32) - player).magnitude();
+        let other_player_dist = ((other.chunk.cast::<f32>() * CHUNK_SIZE as f32) - player).magnitude();
+
         Some(
-            (self.chunk.cast::<f32>() - player)
-                .magnitude()
-                .total_cmp(&(other.chunk.cast::<f32>() - player).magnitude()),
+            // Find chunk with smallest distance to player
+            self_player_dist.total_cmp(&other_player_dist).reverse()
         )
     }
 }
@@ -43,8 +46,12 @@ impl Ord for MeshBuildEntry {
         )
         .cast::<f32>();
 
-        (self.chunk.cast::<f32>() - player)
-            .magnitude()
-            .total_cmp(&(other.chunk.cast::<f32>() - player).magnitude())
+        let self_player_dist = ((self.chunk.cast::<f32>() * CHUNK_SIZE as f32) - player).magnitude();
+        let other_player_dist = ((other.chunk.cast::<f32>() * CHUNK_SIZE as f32) - player).magnitude();
+
+        (
+            // Find chunk with smallest distance to player
+            self_player_dist.total_cmp(&other_player_dist).reverse()
+        )
     }
 }

@@ -45,13 +45,12 @@ fn main() {
             })
             .set(RenderPlugin {
                 render_creation: RenderCreation::Automatic(WgpuSettings {
-                    backends: Some(Backends::VULKAN),
                     ..default()
                 })
             })
             .set(bevy::prelude::AssetPlugin {
                 watch_for_changes_override: Some(true),
-                file_path: "../assets".to_string(),
+                file_path: "../../assets".to_string(),
                 ..default()
             })
             .set(ImagePlugin::default_nearest()))

@@ -1,4 +1,10 @@
-pub type ChunkEnvironment = [[[EnvironmentEntry; 16]; 16]; 16];
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+pub enum ChunkEnvironment {
+    FOREST,
+    PLAIN
+}
+
+pub type EnvironmentMap = [[[EnvironmentEntry; 16]; 16]; 16];
 
 #[derive(PartialEq, Debug, Copy, Clone)]
 pub struct EnvironmentEntry {

@@ -56,7 +56,7 @@ fn main() {
             ))),
         )
         .add_plugins(AssetPlugin {
-            file_path: "../assets".to_string(),
+            file_path: "../../assets".to_string(),
             ..default()
         })
         // Plugins
