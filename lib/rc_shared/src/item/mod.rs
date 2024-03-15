@@ -49,4 +49,14 @@ impl ItemStates {
     pub fn load_states(&mut self, path: String, asset_server: &AssetServer) {
         self.asset = Some(asset_server.load(path));
     }
+
+    pub fn get_by_id(&self, name: &str) -> Option<(usize, &ItemType)> {
+        for (i, state) in self.states.iter().enumerate() {
+            if state.identifier == name {
+                return Some((i, state));
+            }
+        }
+
+        None
+    }
 }

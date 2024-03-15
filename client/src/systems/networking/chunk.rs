@@ -4,7 +4,7 @@ use crate::systems::chunk::ChunkSystem;
 use bevy::prelude::*;
 use bevy::utils::hashbrown::HashMap;
 use nalgebra::Vector3;
-use rc_networking::constants::UserId;
+use rc_shared::constants::UserId;
 use rc_networking::protocol::clientbound::chunk_update::{
     FullChunkUpdate, PartialChunkUpdate, PARTIAL_CHUNK_UPDATE_SIZE,
 };

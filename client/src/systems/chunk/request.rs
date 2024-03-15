@@ -3,7 +3,7 @@ use crate::systems::chunk::ChunkSystem;
 use crate::systems::physics::PhysicsObject;
 use bevy::prelude::{EventWriter, Query, ResMut, With};
 use nalgebra::Vector3;
-use rc_networking::constants::UserId;
+use rc_shared::constants::UserId;
 use rc_networking::protocol::serverbound::request_chunk::RequestChunk;
 use rc_networking::protocol::Protocol;
 use rc_networking::types::SendPacket;

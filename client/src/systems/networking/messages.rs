@@ -1,11 +1,14 @@
 use crate::game::entity::Entity;
 
+use crate::game::inventory::Inventory;
 use crate::systems::networking::NetworkingSystem;
 use crate::systems::physics::PhysicsObject;
 use bevy::prelude::*;
 
 use nalgebra::Vector3;
 use rc_shared::game_objects::GameObjectData;
+use rc_shared::item::types::ItemStack;
+use rc_shared::item::ItemStates;
 
 use crate::state::AppState;
 use rc_networking::protocol::Protocol;
@@ -21,6 +24,8 @@ pub fn messages_update(
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut system: ResMut<NetworkingSystem>,
     mut app_state: ResMut<NextState<AppState>>,
+    mut inventory: ResMut<Inventory>,
+    mut item_state: Res<ItemStates>
 ) {
     for event in event_reader.read() {
         match &event.0 {
@@ -56,7 +61,7 @@ pub fn messages_update(
                 }
             }
             Protocol::SpawnGameObject(entity) => {
-                let size = if entity.data == GameObjectData::Player { 1.0 } else { 0.2 };
+                let size = if let GameObjectData::Player(_) = entity.data { 1.0 } else { 0.2 };
 
                 if system.entity_mapping.contains_key(&entity.id) {
                     warn!("Duplicate entity attempted to spawn {:?}", entity.id);
@@ -97,6 +102,15 @@ pub fn messages_update(
             Protocol::DespawnGameObject(packet) => {
                 if let Some(entity) = system.entity_mapping.remove(&packet.entity) {
                     commands.entity(entity).despawn();
+                }
+            }
+            Protocol::UpdateInventorySlot(slot) => {
+                if slot.id == "" {
+                    inventory.put_slot(None, slot.slot as usize);
+                } else {
+                    let item_type = item_state.get_by_id(&slot.id).unwrap();
+                    let item = ItemStack::new(item_type.1.clone(), slot.amount);
+                    inventory.put_slot(Some(item), slot.slot as usize);
                 }
             }
             other => {

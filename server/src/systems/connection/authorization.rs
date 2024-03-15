@@ -14,7 +14,7 @@ use crate::game::world::data::GAME_OBJECT_ID_COUNTER;
 use crate::helpers::global_to_local_position;
 use crate::systems::chunk::ChunkSystem;
 use crate::{TransportSystem, WorldData};
-use rc_networking::constants::GameObjectId;
+use rc_shared::constants::GameObjectId;
 
 
 use crate::systems::game_object::spawn::SpawnGameObjectRequest;
@@ -49,8 +49,8 @@ pub fn authorization_event(
 
         spawn_game_object.send(SpawnGameObjectRequest {
             transform,
-            id: Some(game_object_id),
-            data: GameObjectData::Player
+            id: game_object_id,
+            data: GameObjectData::Player(client.user_id)
         });
 
         let chunks = global.chunks.keys();

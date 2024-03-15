@@ -4,7 +4,7 @@ use crate::systems::connection::finish_join::detect_finish_join;
 use crate::systems::connection::message::receive_message_event;
 use crate::{App, Update};
 use bevy::prelude::{Plugin};
-use rc_networking::constants::{GameObjectId, UserId};
+use rc_shared::constants::{GameObjectId, UserId};
 
 mod authorization;
 mod disconnect;

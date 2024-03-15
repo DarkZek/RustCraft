@@ -3,7 +3,7 @@ mod connection;
 use crate::transport::connection::accept_connections;
 use bevy::app::{App, Plugin};
 
-use rc_networking::constants::UserId;
+use rc_shared::constants::UserId;
 use std::collections::{HashMap, HashSet};
 
 use std::net::{IpAddr, SocketAddr};

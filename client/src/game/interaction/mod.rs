@@ -11,7 +11,7 @@ use rand::Rng;
 use crate::game::events::DestroyBlockEvent;
 use crate::game::inventory::Inventory;
 use crate::systems::chunk::builder::{RerenderChunkFlag, RerenderChunkFlagContext};
-use rc_networking::constants::UserId;
+use rc_shared::constants::UserId;
 use rc_networking::protocol::clientbound::block_update::BlockUpdate;
 use rc_networking::protocol::Protocol;
 use rc_networking::types::SendPacket;

@@ -1,6 +1,9 @@
+use std::sync::atomic::Ordering;
+
 use crate::game::chunk::ChunkData;
 use crate::game::transform::Transform;
 use crate::game::update::BlockUpdateEvent;
+use crate::game::world::data::GAME_OBJECT_ID_COUNTER;
 use crate::helpers::global_to_local_position;
 use crate::systems::game_object::spawn::SpawnGameObjectRequest;
 use crate::{TransportSystem, WorldData};
@@ -14,6 +17,7 @@ use rc_networking::protocol::clientbound::entity_moved::EntityMoved;
 use rc_networking::protocol::clientbound::entity_rotated::EntityRotated;
 use rc_networking::protocol::Protocol;
 use rc_networking::types::{ReceivePacket, SendPacket};
+use rc_shared::constants::GameObjectId;
 use rc_shared::game_objects::GameObjectData;
 use rc_shared::viewable_direction::BLOCK_SIDES;
 use rc_shared::CHUNK_SIZE;
@@ -133,8 +137,8 @@ pub fn receive_message_event(
                         packet.y as f32 + 0.5,
                         packet.z as f32 + 0.5,
                     )),
-                    data: GameObjectData::ItemDrop("mcv3::Wood".to_string()),
-                    id: None,
+                    data: GameObjectData::ItemDrop("mcv3::WoodLogItem".to_string()),
+                    id: GameObjectId(GAME_OBJECT_ID_COUNTER.fetch_add(1, Ordering::SeqCst)),
                 });
             }
             _ => {}

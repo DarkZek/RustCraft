@@ -1,5 +1,5 @@
 use bevy::prelude::Event;
-use rc_networking::constants::UserId;
+use rc_shared::constants::UserId;
 
 #[derive(Event)]
 pub struct AuthorizationEvent {

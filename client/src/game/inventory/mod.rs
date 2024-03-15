@@ -48,6 +48,11 @@ impl Inventory {
         }
     }
 
+    pub fn put_slot(&mut self, content: Option<ItemStack>, slot: usize) {
+        self.hotbar[slot] = content;
+        self.dirty = true;
+    }
+
     /// Pushes an type into the inventory. Returns true if inserted, false if no space
     pub fn push_item(&mut self, item: ItemStack) -> bool {
         // Find existing itemstack and try add type to it
