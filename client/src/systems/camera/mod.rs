@@ -1,4 +1,4 @@
-use crate::game::entity::Entity;
+use crate::game::entity::GameObject;
 use crate::game::player::Player;
 use crate::systems::physics::PhysicsObject;
 use bevy::core_pipeline::clear_color::ClearColorConfig;
@@ -9,6 +9,8 @@ use bevy::prelude::*;
 use bevy::render::render_resource::TextureUsages;
 use nalgebra::Vector3;
 use rc_shared::aabb::Aabb;
+use rc_shared::constants::UserId;
+use rc_shared::game_objects::GameObjectData;
 
 pub struct CameraPlugin;
 
@@ -64,7 +66,9 @@ fn setup_camera(mut commands: Commands) {
     commands
         .spawn(start_transform)
         .insert(player_physics)
-        .insert(Entity)
+        .insert(GameObject {
+            data: GameObjectData::Player(UserId(999))
+        })
         .insert(Player::new());
 }
 

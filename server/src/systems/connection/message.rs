@@ -1,6 +1,7 @@
 use std::sync::atomic::Ordering;
 
 use crate::game::chunk::ChunkData;
+use crate::game::inventory::Inventory;
 use crate::game::transform::Transform;
 use crate::game::update::BlockUpdateEvent;
 use crate::game::world::data::GAME_OBJECT_ID_COUNTER;
@@ -12,15 +13,19 @@ use bevy::ecs::prelude::*;
 use bevy::ecs::system::ResMut;
 use bevy::log::info;
 use nalgebra::{Quaternion, Vector3};
+use rand::Rng;
 use rc_networking::protocol::clientbound::block_update::BlockUpdate;
 use rc_networking::protocol::clientbound::entity_moved::EntityMoved;
 use rc_networking::protocol::clientbound::entity_rotated::EntityRotated;
 use rc_networking::protocol::Protocol;
 use rc_networking::types::{ReceivePacket, SendPacket};
+use rc_shared::block::BlockStates;
 use rc_shared::constants::GameObjectId;
 use rc_shared::game_objects::GameObjectData;
+use rc_shared::item::types::ItemStack;
+use rc_shared::item::ItemStates;
 use rc_shared::viewable_direction::BLOCK_SIDES;
-use rc_shared::CHUNK_SIZE;
+use bevy::log::warn;
 
 pub fn receive_message_event(
     mut event_reader: EventReader<ReceivePacket>,
@@ -30,6 +35,9 @@ pub fn receive_message_event(
     mut transforms: Query<&mut Transform>,
     mut block_update_writer: EventWriter<BlockUpdateEvent>,
     mut ew: EventWriter<SpawnGameObjectRequest>,
+    block_states: Res<BlockStates>,
+    item_states: Res<ItemStates>
+
 ) {
     for event in event_reader.read() {
         match &event.0 {
@@ -89,7 +97,6 @@ pub fn receive_message_event(
             }
             Protocol::BlockUpdate(packet) => {
                 // TODO: Don't trust user input
-
                 let packet = BlockUpdate::new(packet.id, packet.x, packet.y, packet.z);
 
                 for (client, _) in &system.clients {
@@ -104,22 +111,15 @@ pub fn receive_message_event(
                     global_to_local_position(Vector3::new(packet.x, packet.y, packet.z));
 
                 // Store
-                if let Some(chunk) = global.chunks.get_mut(&chunk_loc) {
+                let old_block_id = if let Some(chunk) = global.chunks.get_mut(&chunk_loc) {
+                    let block_id = chunk.world[inner_loc.x][inner_loc.y][inner_loc.z];
                     // Found chunk! Update block
                     chunk.world[inner_loc.x][inner_loc.y][inner_loc.z] = packet.id;
+                    block_id
                 } else {
-                    // Create chunk data
-                    let mut chunk = [[[0; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
-
-                    // Set block
-                    chunk[inner_loc.x][inner_loc.y][inner_loc.z] = packet.id;
-
-                    // Create chunk
-                    global.chunks.insert(
-                        chunk_loc,
-                        ChunkData::new(chunk_loc, chunk, Default::default(), Default::default()),
-                    );
-                }
+                    warn!("{:?} attempted to break block in unloaded chunk. Skipping {:?}", event.1, chunk_loc);
+                    continue;
+                };
 
                 // Trigger block update for all surrounding blocks
                 block_update_writer.send(BlockUpdateEvent {
@@ -131,17 +131,53 @@ pub fn receive_message_event(
                     });
                 }
 
-                ew.send(SpawnGameObjectRequest {
-                    transform: Transform::from_translation(Vector3::new(
-                        packet.x as f32 + 0.5,
-                        packet.y as f32 + 0.5,
-                        packet.z as f32 + 0.5,
-                    )),
-                    data: GameObjectData::ItemDrop("mcv3::WoodLogItem".to_string()),
-                    id: GameObjectId(GAME_OBJECT_ID_COUNTER.fetch_add(1, Ordering::SeqCst)),
-                });
+                // Spawn block drops after destroying
+                if packet.id == 0 {
+                    let drops = calculate_drops(&block_states, &item_states, old_block_id);
+
+                    for drop in drops {
+                        info!("Spawning item drop with item {:?}", drop);
+                        ew.send(SpawnGameObjectRequest {
+                            transform: Transform::from_translation(Vector3::new(
+                                packet.x as f32 + 0.5,
+                                packet.y as f32 + 0.5,
+                                packet.z as f32 + 0.5,
+                            )),
+                            data: GameObjectData::ItemDrop(drop),
+                            id: GameObjectId(GAME_OBJECT_ID_COUNTER.fetch_add(1, Ordering::SeqCst)),
+                            entity: None,
+                        });
+                    }
+                }
             }
             _ => {}
         }
     }
+}
+
+fn calculate_drops(
+    block_states: &BlockStates,
+    item_states: &ItemStates,
+    block_id: u32,
+) -> Vec<ItemStack> {
+    let mut drop = Vec::new();
+
+    for drops in block_states.loot_tables.get(block_id as usize).unwrap() {
+        if let Some(item) = item_states.states.get(drops.item_id) {
+            let mut amount = drops.chance.floor() as u32;
+
+            // Partial chance means partial chance to get the drop
+            if drops.chance % 1.0 > 0.0
+                && rand::thread_rng().gen_range(0.0..=1.0) <= drops.chance % 1.0
+            {
+                amount += 1;
+            }
+
+            if amount > 0 {
+                drop.push(ItemStack::new(item.clone(), amount));
+            }
+        }
+    }
+
+    drop
 }

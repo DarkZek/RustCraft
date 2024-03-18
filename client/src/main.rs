@@ -32,6 +32,7 @@ use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_polyline::PolylinePlugin;
 use rc_shared::block::BlockStatesPlugin;
 use rc_shared::item::{ItemStates, ItemStatesPlugin};
+use crate::game::game_object::GameObjectPlugin;
 
 #[rustfmt::skip]
 fn main() {
@@ -106,6 +107,7 @@ fn main() {
             texture_atlas: &TEXTURE_ATLAS
         })
         .add_plugins(ItemStatesPlugin)
+        .add_plugins(GameObjectPlugin)
         
         .add_systems(Startup, create_states)
         .add_systems(Update, track_blockstate_changes)

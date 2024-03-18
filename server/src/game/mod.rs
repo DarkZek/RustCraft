@@ -6,3 +6,4 @@ pub mod player;
 pub mod transform;
 pub mod update;
 pub mod world;
+pub mod inventory;

@@ -43,6 +43,7 @@ fn get_channel(protocol: &Protocol) -> Channel {
         | Protocol::RequestChunk(_)
         | Protocol::ServerState(_)
         | Protocol::UpdateInventorySlot(_)
+        | Protocol::UpdateInventory(_)
         | Protocol::AcknowledgeChunk(_) => Channel::Reliable,
 
         Protocol::FullChunkUpdate(_) | Protocol::PartialChunkUpdate(_) => Channel::Chunk,

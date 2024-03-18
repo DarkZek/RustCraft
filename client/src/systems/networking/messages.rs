@@ -1,4 +1,4 @@
-use crate::game::entity::Entity;
+use crate::game::entity::{GameObject};
 
 use crate::game::inventory::Inventory;
 use crate::systems::networking::NetworkingSystem;
@@ -85,7 +85,9 @@ pub fn messages_update(
                         Vector3::new(entity.loc[0], entity.loc[1], entity.loc[2]),
                         Aabb::new(Vector3::new(0.0, 0.0, 0.0), Vector3::new(size, size, size)),
                     ))
-                    .insert(Entity)
+                    .insert(GameObject {
+                        data: entity.data.clone()
+                    })
                     .insert(PbrBundle {
                         mesh: meshes.add(Mesh::from(shape::Cube { size: size })),
                         material: materials.add(color.into()),
@@ -112,6 +114,13 @@ pub fn messages_update(
                     let item = ItemStack::new(item_type.1.clone(), slot.amount);
                     inventory.put_slot(Some(item), slot.slot as usize);
                 }
+            }
+            Protocol::UpdateInventory(message) => {
+                inventory.hotbar = message.slots.clone();
+                if let Some(selected_slot) = message.hotbar_slot {
+                    inventory.hotbar_slot = selected_slot;
+                }
+                inventory.dirty = true;
             }
             other => {
                 info!("Other {:?}", other);
