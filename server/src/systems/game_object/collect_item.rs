@@ -1,13 +1,14 @@
 use bevy::{ecs::{event::EventWriter, system::{Commands, Query}}, log::info};
 use rc_networking::{protocol::{clientbound::{despawn_game_object::DespawnGameObject, update_inventory_slot::UpdateInventorySlot}, Protocol}, types::SendPacket};
 use rc_shared::game_objects::GameObjectData;
-use crate::game::{game_object::GameObject, player::Player, transform::Transform};
+use crate::game::{game_object::GameObject, inventory::Inventory, player::Player, transform::Transform};
 use bevy::ecs::entity::Entity;
 
 const ITEM_COLLECTION_RADIUS: f32 = 2.0;
 
 pub fn collect_items(
     mut query: Query<(Entity, &mut GameObject, &Transform)>,
+    mut inventory_query: Query<&mut Inventory>,
     mut command: Commands,
     mut send_packet: EventWriter<SendPacket>) {
 
@@ -20,9 +21,9 @@ pub fn collect_items(
     }
 
     for (entity, mut object, transform) in query.iter_mut() {
-        // Find all nearby items
-        for (user_id, _, player_pos) in &mut players {
-            if let GameObjectData::ItemDrop(item_name) = object.data.clone() {
+        if let GameObjectData::ItemDrop(item) = object.data.clone() {
+            // Find all nearby items
+            for (user_id, player_entity, player_pos) in &mut players {
                 // Get distance between item and player
                 let dist = (*player_pos - transform.position).magnitude();
 
@@ -32,8 +33,8 @@ pub fn collect_items(
                     command.get_entity(entity).unwrap().despawn();
 
                     // Add to user inventory
-                    let update = UpdateInventorySlot::new(item_name.clone(), 1, 1);
-                    send_packet.send(SendPacket(Protocol::UpdateInventorySlot(update), *user_id));
+                    let mut inventory = inventory_query.get_mut(*player_entity).unwrap();
+                    inventory.push_item(item.clone());
 
                     send_packet.send(SendPacket(Protocol::DespawnGameObject(DespawnGameObject::new(object.id)), *user_id));
                 }

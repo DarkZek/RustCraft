@@ -106,28 +106,3 @@ pub fn destroy_block_system(
         ))
     }
 }
-
-fn apply_drops(
-    block_states: &BlockStates,
-    item_states: &ItemStates,
-    block_id: u32,
-    inventory: &mut Inventory,
-) {
-    for drops in block_states.loot_tables.get(block_id as usize).unwrap() {
-        if let Some(item) = item_states.states.get(drops.item_id) {
-            let mut amount = drops.chance.floor() as u32;
-
-            // Partial chance means partial chance to get the drop
-            if drops.chance % 1.0 > 0.0
-                && rand::thread_rng().gen_range(0.0..=1.0) <= drops.chance % 1.0
-            {
-                amount += 1;
-            }
-
-            if amount > 0 {
-                inventory.push_item(ItemStack::new(item.clone(), amount));
-                info!("Added {} {} to inventory", amount, item.name);
-            }
-        }
-    }
-}

@@ -2,6 +2,9 @@ use crate::game::game_object::GameObject;
 use crate::game::transform::Transform;
 use crate::game::world::data::GAME_OBJECT_ID_COUNTER;
 use crate::{TransportSystem, WorldData};
+use bevy::ecs::component::Component;
+use bevy::ecs::system::EntityCommands;
+use bevy::log::info;
 use bevy::prelude::{Commands, Entity, Event, EventReader, EventWriter, Res, ResMut};
 
 use rc_shared::constants::GameObjectId;
@@ -23,7 +26,8 @@ pub struct SpawnGameObjectEvent {
 pub struct SpawnGameObjectRequest {
     pub transform: Transform,
     pub data: GameObjectData,
-    pub id: GameObjectId,
+    pub entity: Option<Entity>,
+    pub id: GameObjectId
 }
 
 /// Spawns entities requested
@@ -36,8 +40,15 @@ pub fn spawn_entities(
     mut global: ResMut<WorldData>,
 ) {
     for event in events.read() {
+        let entity = if let Some(entity) = event.entity {
+            entity
+        } else {
+            command.spawn_empty().id()
+        };
+
         let entity = command
-            .spawn(Transform::from_translation(event.transform.position))
+            .entity(entity)
+            .insert(Transform::from_translation(event.transform.position))
             .insert(GameObject {
                 data: event.data.clone(),
                 id: event.id,

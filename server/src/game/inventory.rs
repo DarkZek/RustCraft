@@ -1,16 +1,11 @@
-use bevy::app::{App, Plugin};
-use bevy::prelude::*;
-use rc_shared::item::types::ItemStack;
+use bevy::ecs::{component::Component, event::EventWriter, system::{Query, Resource}};
+use rc_networking::{protocol::{clientbound::update_inventory::UpdateInventory, Protocol}, types::SendPacket};
+use rc_shared::{constants::UserId, game_objects::GameObjectData, item::types::ItemStack};
 
-pub struct InventoryPlugin;
+use super::game_object::{self, GameObject};
 
-impl Plugin for InventoryPlugin {
-    fn build(&self, app: &mut App) {
-        app.insert_resource(Inventory::default());
-    }
-}
 
-#[derive(Resource)]
+#[derive(Component)]
 pub struct Inventory {
     pub hotbar: [Option<ItemStack>; 10],
     pub hotbar_slot: u8,
@@ -61,7 +56,6 @@ impl Inventory {
                 .as_ref()
                 .map(|i| i.item.name == item.item.name)
                 .unwrap_or(false);
-            
             if common_itemstack {
                 // Matching type, increase amount
                 self.hotbar[i].as_mut().unwrap().amount += item.amount;
@@ -90,6 +84,24 @@ impl Default for Inventory {
             hotbar: [None, None, None, None, None, None, None, None, None, None],
             hotbar_slot: 0,
             dirty: false,
+        }
+    }
+}
+
+pub fn propagate_inventories(
+    mut query: Query<(&mut Inventory, &GameObject)>,
+    mut send_packet: EventWriter<SendPacket>) {
+    for (mut inventory, game_object) in query.iter_mut() {
+        if !inventory.dirty {
+            continue;
+        }
+
+        if let GameObjectData::Player(user_id) = game_object.data {
+            inventory.dirty = false;
+
+            // Let client know new inventory status
+            let packet = UpdateInventory::new(inventory.hotbar.clone(), None);
+            send_packet.send(SendPacket(Protocol::UpdateInventory(packet), user_id));
         }
     }
 }

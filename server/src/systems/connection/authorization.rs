@@ -1,3 +1,4 @@
+use crate::game::inventory::Inventory;
 use crate::game::transform::Transform;
 use bevy::ecs::change_detection::ResMut;
 use bevy::ecs::event::EventReader;
@@ -27,7 +28,7 @@ pub fn authorization_event(
     global: ResMut<WorldData>,
     mut transport: ResMut<TransportSystem>,
     send_packet: EventWriter<SendPacket>,
-    commands: Commands,
+    mut commands: Commands,
     transforms: Query<&Transform>,
     mut chunk_system: ResMut<ChunkSystem>,
     mut spawn_game_object: EventWriter<SpawnGameObjectRequest>,
@@ -47,9 +48,12 @@ pub fn authorization_event(
             .unwrap()
             .game_object_id = game_object_id;
 
+        let entity = commands.spawn(Inventory::default()).id();
+
         spawn_game_object.send(SpawnGameObjectRequest {
             transform,
             id: game_object_id,
+            entity: Some(entity),
             data: GameObjectData::Player(client.user_id)
         });
 

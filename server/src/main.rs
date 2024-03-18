@@ -14,6 +14,7 @@ pub mod transport;
 use crate::config::{load_config, ServerConfig};
 use crate::dummy_atlas::DummyAtlas;
 use crate::events::authorize::AuthorizationEvent;
+use crate::game::inventory::propagate_inventories;
 use crate::game::update::BlockUpdatePlugin;
 use crate::game::world::data::WorldData;
 use crate::game::world::WorldPlugin;
@@ -83,6 +84,7 @@ fn main() {
         .add_systems(PreUpdate, detect_shutdowns)
         .add_systems(Startup, create_states)
         .add_systems(Update, generate_links)
+        .add_systems(Update, propagate_inventories)
         // Run App
         .run();
 }
