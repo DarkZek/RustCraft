@@ -2,7 +2,6 @@ use crate::game::world::destroy_block::destroy_block_system;
 use crate::game::world::sun::{setup_sun, update_sun};
 use crate::state::AppState;
 use bevy::app::App;
-use bevy::ecs::event::ManualEventReader;
 use bevy::prelude::{in_state, IntoSystemConfigs, OnEnter, Plugin, Update};
 
 mod destroy_block;

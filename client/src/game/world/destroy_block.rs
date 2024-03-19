@@ -2,11 +2,9 @@ use crate::game::events::DestroyBlockEvent;
 use crate::game::inventory::Inventory;
 use crate::systems::chunk::builder::{RerenderChunkFlag, RerenderChunkFlagContext};
 use crate::systems::chunk::ChunkSystem;
-use bevy::ecs::event::ManualEventReader;
 use bevy::ecs::system::SystemState;
 use bevy::prelude::*;
 use nalgebra::Vector3;
-use rand::Rng;
 use rc_shared::constants::UserId;
 use rc_networking::protocol::clientbound::block_update::BlockUpdate;
 use rc_networking::protocol::Protocol;
@@ -14,8 +12,6 @@ use rc_networking::types::SendPacket;
 use rc_shared::block::BlockStates;
 use rc_shared::chunk::ChunkSystemTrait;
 use rc_shared::helpers::global_to_local_position;
-use rc_shared::item::types::ItemStack;
-use rc_shared::item::ItemStates;
 
 enum DestroyBlockCommand {
     Skip,
@@ -44,8 +40,8 @@ fn get_destroy_block_providers(
 }
 
 pub fn destroy_block_system(
-    mut world: &mut World,
-    mut event_state: &mut SystemState<EventReader<DestroyBlockEvent>>,
+    world: &mut World,
+    event_state: &mut SystemState<EventReader<DestroyBlockEvent>>,
 ) {
     let events = {
         event_state

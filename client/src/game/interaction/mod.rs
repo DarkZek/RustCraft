@@ -3,10 +3,7 @@ pub mod highlight;
 use crate::systems::asset::AssetService;
 use crate::systems::chunk::ChunkSystem;
 use crate::systems::physics::raycasts::do_raycast;
-use bevy::ecs::system::SystemState;
 use bevy::prelude::*;
-use nalgebra::Vector3;
-use rand::Rng;
 
 use crate::game::events::DestroyBlockEvent;
 use crate::game::inventory::Inventory;
@@ -17,8 +14,6 @@ use rc_networking::protocol::Protocol;
 use rc_networking::types::SendPacket;
 use rc_shared::block::BlockStates;
 use rc_shared::helpers::{from_bevy_vec3, global_to_local_position};
-use rc_shared::item::types::ItemStack;
-use rc_shared::item::ItemStates;
 use rc_shared::CHUNK_SIZE;
 
 pub fn mouse_interaction(

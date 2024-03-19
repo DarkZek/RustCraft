@@ -49,9 +49,6 @@ impl Ord for MeshBuildEntry {
         let self_player_dist = ((self.chunk.cast::<f32>() * CHUNK_SIZE as f32) - player).magnitude();
         let other_player_dist = ((other.chunk.cast::<f32>() * CHUNK_SIZE as f32) - player).magnitude();
 
-        (
-            // Find chunk with smallest distance to player
-            self_player_dist.total_cmp(&other_player_dist).reverse()
-        )
+        self_player_dist.total_cmp(&other_player_dist).reverse()
     }
 }

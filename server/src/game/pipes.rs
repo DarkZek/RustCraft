@@ -3,7 +3,7 @@ use crate::helpers::global_to_local_position;
 use crate::WorldData;
 use bevy::prelude::{EventReader, ResMut};
 use nalgebra::Vector3;
-use rc_shared::viewable_direction::{ViewableDirection, ViewableDirectionBitMap};
+use rc_shared::viewable_direction::{ViewableDirection};
 use rc_shared::CHUNK_SIZE;
 
 pub fn generate_links(

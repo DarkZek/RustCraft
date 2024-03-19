@@ -5,7 +5,6 @@ use crate::state::AppState;
 
 use crate::systems::input::look::update_input_look;
 use crate::systems::input::movement::update_input_movement;
-use bevy::app::{App, Plugin};
 use bevy::prelude::*;
 use bevy::window::{CursorGrabMode, PresentMode, PrimaryWindow};
 

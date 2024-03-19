@@ -2,7 +2,7 @@ use std::ops::Range;
 
 use crate::game::generation::noise::SimplexNoise;
 use nalgebra::{Vector2, Vector3};
-use rc_shared::biome::{ChunkEnvironment, EnvironmentMap};
+use rc_shared::biome::{EnvironmentMap};
 use rc_shared::chunk::RawChunkData;
 use rc_shared::CHUNK_SIZE;
 use ::noise::{RidgedMulti, Perlin};

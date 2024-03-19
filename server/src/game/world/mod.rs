@@ -1,7 +1,7 @@
 use crate::game::game_object::GameObject;
 use crate::game::world::data::WorldData;
 
-use crate::{App, AppExit, ServerConfig};
+use crate::{AppExit, ServerConfig};
 use bevy::prelude::*;
 
 

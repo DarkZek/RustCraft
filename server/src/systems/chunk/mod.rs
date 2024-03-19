@@ -1,5 +1,5 @@
 use crate::game::chunk::ChunkData;
-use crate::{App, TransportSystem, WorldData};
+use crate::{TransportSystem, WorldData};
 
 use bevy::prelude::*;
 
