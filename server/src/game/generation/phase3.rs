@@ -1,6 +1,6 @@
 use crate::game::generation::noise::SimplexNoise;
 use nalgebra::Vector3;
-use rc_shared::biome::{ChunkEnvironment, EnvironmentMap};
+use rc_shared::biome::{EnvironmentMap};
 use rc_shared::chunk::RawChunkData;
 use rc_shared::CHUNK_SIZE;
 

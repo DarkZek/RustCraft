@@ -1,16 +1,12 @@
 use std::sync::atomic::Ordering;
 
-use crate::game::chunk::ChunkData;
-use crate::game::inventory::Inventory;
 use crate::game::transform::Transform;
 use crate::game::update::BlockUpdateEvent;
 use crate::game::world::data::GAME_OBJECT_ID_COUNTER;
 use crate::helpers::global_to_local_position;
 use crate::systems::game_object::spawn::SpawnGameObjectRequest;
 use crate::{TransportSystem, WorldData};
-use bevy::ecs::event::{EventReader, EventWriter};
 use bevy::ecs::prelude::*;
-use bevy::ecs::system::ResMut;
 use bevy::log::info;
 use nalgebra::{Quaternion, Vector3};
 use rand::Rng;

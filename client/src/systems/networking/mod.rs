@@ -6,7 +6,6 @@ use crate::systems::networking::location_sync::{
 use crate::systems::networking::messages::messages_update;
 use bevy::log::info;
 use bevy::prelude::*;
-use bevy::prelude::{Entity, Vec3};
 use rc_networking::client::{NetworkingClient, QuinnClientPlugin};
 use rc_shared::constants::GameObjectId;
 use std::collections::HashMap;

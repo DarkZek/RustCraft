@@ -25,7 +25,7 @@ pub fn messages_update(
     mut system: ResMut<NetworkingSystem>,
     mut app_state: ResMut<NextState<AppState>>,
     mut inventory: ResMut<Inventory>,
-    mut item_state: Res<ItemStates>
+    item_state: Res<ItemStates>
 ) {
     for event in event_reader.read() {
         match &event.0 {

@@ -1,8 +1,8 @@
-use bevy::ecs::{component::Component, event::EventWriter, system::{Query, Resource}};
+use bevy::ecs::{component::Component, event::EventWriter, system::{Query}};
 use rc_networking::{protocol::{clientbound::update_inventory::UpdateInventory, Protocol}, types::SendPacket};
-use rc_shared::{constants::UserId, game_objects::GameObjectData, item::types::ItemStack};
+use rc_shared::{game_objects::GameObjectData, item::types::ItemStack};
 
-use super::game_object::{self, GameObject};
+use super::game_object::{GameObject};
 
 
 #[derive(Component)]

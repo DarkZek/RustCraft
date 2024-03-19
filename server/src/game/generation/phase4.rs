@@ -1,6 +1,4 @@
 use crate::game::generation::noise::SimplexNoise;
-use crate::game::generation::phase1::generate_environment_map;
-use crate::game::generation::phase2::generate_greybox_chunk;
 use crate::helpers::global_to_local_position;
 
 use nalgebra::Vector3;

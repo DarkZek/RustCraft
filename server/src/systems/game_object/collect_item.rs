@@ -1,7 +1,7 @@
-use bevy::{ecs::{event::EventWriter, system::{Commands, Query}}, log::info};
-use rc_networking::{protocol::{clientbound::{despawn_game_object::DespawnGameObject, update_inventory_slot::UpdateInventorySlot}, Protocol}, types::SendPacket};
+use bevy::{ecs::{event::EventWriter, system::{Commands, Query}}};
+use rc_networking::{protocol::{clientbound::{despawn_game_object::DespawnGameObject}, Protocol}, types::SendPacket};
 use rc_shared::game_objects::GameObjectData;
-use crate::game::{game_object::GameObject, inventory::Inventory, player::Player, transform::Transform};
+use crate::game::{game_object::GameObject, inventory::Inventory, transform::Transform};
 use bevy::ecs::entity::Entity;
 
 const ITEM_COLLECTION_RADIUS: f32 = 2.0;

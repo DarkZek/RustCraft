@@ -1,6 +1,6 @@
 use crate::systems::asset::AssetService;
 use crate::systems::chunk::builder::{
-    mesh_builder, RerenderChunkFlag, RerenderChunkFlagContext, ATTRIBUTE_LIGHTING_COLOR,
+    mesh_builder, RerenderChunkFlag, ATTRIBUTE_LIGHTING_COLOR,
 };
 use crate::systems::chunk::data::ChunkData;
 use crate::systems::chunk::request::request_chunks;

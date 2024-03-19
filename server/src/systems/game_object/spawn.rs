@@ -1,10 +1,6 @@
 use crate::game::game_object::GameObject;
 use crate::game::transform::Transform;
-use crate::game::world::data::GAME_OBJECT_ID_COUNTER;
 use crate::{TransportSystem, WorldData};
-use bevy::ecs::component::Component;
-use bevy::ecs::system::EntityCommands;
-use bevy::log::info;
 use bevy::prelude::{Commands, Entity, Event, EventReader, EventWriter, Res, ResMut};
 
 use rc_shared::constants::GameObjectId;
@@ -13,7 +9,6 @@ use rc_networking::protocol::Protocol;
 use rc_networking::types::SendPacket;
 use rc_shared::game_objects::GameObjectData;
 use rc_shared::helpers::global_f32_to_local_position;
-use std::sync::atomic::Ordering;
 
 #[derive(Event)]
 pub struct SpawnGameObjectEvent {

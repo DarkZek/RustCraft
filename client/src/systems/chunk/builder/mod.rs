@@ -89,7 +89,7 @@ pub fn mesh_builder(
     // How many chunks to render per frame
     let max_chunks_per_frame = 40;
 
-    if (builder_data.chunks.len() >= max_chunks_per_frame) {
+    if builder_data.chunks.len() >= max_chunks_per_frame {
         info!("Chunk Builder queue ({}) at maximum capacity for this frame. Just increased by {}", builder_data.chunks.len(), rerender_chunks.len());
     }
 
