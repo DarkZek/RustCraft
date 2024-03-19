@@ -49,19 +49,21 @@ fn load_resources(
     for i in 0..archive.len() {
         let mut item = archive.by_index(i).unwrap();
 
-        if item.is_file() && item.name().ends_with(".png") {
+        let name = item.name().to_string();
+
+        if item.is_file() && name.ends_with(".png") && !name.contains("_MACOSX") {
             let mut data: Vec<u8> = Vec::new();
             if let Err(e) = item.read_to_end(&mut data) {
-                error!("Error reading resource {} - {}", item.name(), e);
+                error!("Error reading resource {} - {}", name, e);
                 continue;
             }
 
             match image::load_from_memory_with_format(data.as_slice(), ImageFormat::Png) {
                 Ok(img) => {
-                    out.insert(item.name().to_string(), img);
+                    out.insert(name.to_string(), img);
                 }
                 Err(e) => {
-                    error!("Error reading resource {} - {}", item.name(), e);
+                    error!("Error reading resource {} - {}", name, e);
                 }
             };
         }

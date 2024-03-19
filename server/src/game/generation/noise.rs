@@ -26,4 +26,11 @@ impl SimplexNoise {
             .get([x.into() / self.scale, y.into() / self.scale])
             + 0.5
     }
+
+    /// Returns an index with the range 0-1
+    pub fn sample_3d<T: Into<f64>>(&self, x: T, y: T, z: T) -> f64 {
+        self.simplex
+            .get([x.into() / self.scale, y.into() / self.scale, z.into() / self.scale])
+            + 0.5
+    }
 }
