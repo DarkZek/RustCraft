@@ -53,6 +53,12 @@
       "name": "Improvised Furnace",
       "icon": "dirt",
       "block_state": "mcv3::ImprovisedFurnace"
+    },
+    {
+      "identifier": "mcv3::RubyItem",
+      "name": "Ruby",
+      "icon": "ruby",
+      "block_state": "mcv3::RubyOre"
     }
   ]
 }

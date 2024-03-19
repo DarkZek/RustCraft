@@ -14,6 +14,7 @@ pub fn decorate_chunk(
     let ground_noise = SimplexNoise::new(seed);
     let tropic_noise = SimplexNoise::new(seed + 1).with_scale(24.0);
     let grass_noise = SimplexNoise::new(seed + 2).with_scale(1.0);
+    let ruby_noise = SimplexNoise::new(seed + 3).with_scale(3.0);
 
     for x in 0..CHUNK_SIZE {
         for y in 0..CHUNK_SIZE {
@@ -46,6 +47,11 @@ pub fn decorate_chunk(
                     && !(absolute.y - 1 == ground_level && tropic_sand > 0.8) // No sand beneath
                 {
                     world[x][y][z] = 3;
+                }
+
+                if world[x][y][z] == 6 &&
+                    ruby_noise.sample_3d(absolute.x, absolute.y, absolute.z) > 0.75 {
+                    world[x][y][z] = 76;
                 }
             }
         }
