@@ -14,7 +14,7 @@ pub fn decorate_chunk(
     let ground_noise = SimplexNoise::new(seed);
     let tropic_noise = SimplexNoise::new(seed + 1).with_scale(24.0);
     let grass_noise = SimplexNoise::new(seed + 2).with_scale(1.0);
-    let ruby_noise = SimplexNoise::new(seed + 3).with_scale(3.0);
+    let ruby_noise = SimplexNoise::new(seed + 3).with_scale(5.0);
 
     for x in 0..CHUNK_SIZE {
         for y in 0..CHUNK_SIZE {
