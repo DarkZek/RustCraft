@@ -1,5 +1,6 @@
 use crate::systems::asset::atlas::resource_packs::ResourcePack;
 use bevy::prelude::*;
+use bevy::render::render_asset::RenderAssetUsages;
 use bevy::render::render_resource::{Extent3d, TextureDimension, TextureFormat};
 use fnv::{FnvBuildHasher, FnvHashMap};
 use image::{DynamicImage, GenericImageView, ImageBuffer, Rgba};
@@ -104,6 +105,7 @@ impl TextureAtlas {
             TextureDimension::D2,
             atlas_img.into_bytes(),
             TextureFormat::Rgba8UnormSrgb,
+            RenderAssetUsages::all()
         );
 
         let image = assets.add(image);

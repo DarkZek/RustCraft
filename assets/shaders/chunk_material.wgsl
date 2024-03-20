@@ -9,16 +9,17 @@
 #import bevy_pbr::pbr_functions as pbr_functions
 #import bevy_pbr::mesh_functions as mesh_functions
 #import bevy_pbr::mesh_functions::affine_to_square
+#import bevy_pbr::view_transformations::position_world_to_clip
 
 struct ChunkMaterial {
     color: vec4<f32>,
 };
 
-@group(1) @binding(0)
+@group(2) @binding(0)
 var<uniform> material: ChunkMaterial;
-@group(1) @binding(1)
+@group(2) @binding(1)
 var base_color_texture: texture_2d<f32>;
-@group(1) @binding(2)
+@group(2) @binding(2)
 var base_color_sampler: sampler;
 
 struct VertexInput {
@@ -30,7 +31,7 @@ struct VertexInput {
 };
 
 struct VertexOutput {
-    @builtin(position) clip_position: vec4<f32>,
+    @builtin(position) position: vec4<f32>,
     @location(0) world_position: vec4<f32>,
     @location(1) world_normal: vec3<f32>,
     @location(2) uv: vec2<f32>,
@@ -41,16 +42,21 @@ struct VertexOutput {
 fn vertex(vertex: VertexInput) -> VertexOutput {
     var out: VertexOutput;
 
-    let model = mesh_functions::get_model_matrix(vertex.instance_index);
-    out.world_position = mesh_functions::mesh_position_local_to_world(model, vec4<f32>(vertex.position));
-    out.clip_position = view.view_proj * out.world_position;
     out.world_normal = mesh_functions::mesh_normal_local_to_world(vertex.normal, vertex.instance_index);
+
+    let model = mesh_functions::get_model_matrix(vertex.instance_index);
+    out.world_position = mesh_functions::mesh_position_local_to_world(model, vertex.position);
+
+    out.position = position_world_to_clip(out.world_position.xyz);
+
     out.uv = vertex.uv;
 
-    let ambient = 0.02;
+    let ambient = 0.06;
     out.lighting = vec4(vertex.lighting.xyz + ambient, 1.0);
 
     return out;
+
+    //out.clip_position = view.view_proj * out.world_position;
 }
 
 struct FragmentInput {
@@ -89,12 +95,13 @@ fn fragment(in: FragmentInput) -> @location(0) vec4<f32> {
 
     let ssao = textureLoad(screen_space_ambient_occlusion_texture, vec2<i32>(in.frag_coord.xy), 0i).r;
     let ssao_multibounce = gtao_multibounce(ssao, input.material.base_color.rgb);
-    input.occlusion = min(vec3(1.0), ssao_multibounce);
+    //input.occlusion = min(vec3(1.0), ssao_multibounce);
 
     input.N = bevy_pbr::prepass_utils::prepass_normal(in.frag_coord, 0u);
     input.V = pbr_functions::calculate_view(in.world_position, false);
 
-    var pbr_color = pbr_functions::apply_pbr_lighting(input);
+    //var pbr_color = pbr_functions::apply_pbr_lighting(input);
 
-    return pbr_color * in.lighting * output_color;
+    //return pbr_color * in.lighting * output_color;
+    return in.lighting * output_color;
 }

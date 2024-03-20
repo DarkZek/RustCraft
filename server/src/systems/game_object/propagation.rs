@@ -1,6 +1,7 @@
 use crate::game::game_object::GameObject;
 use crate::game::transform::Transform;
 use crate::{EventWriter, PlayerSpawnEvent, WorldData};
+use bevy::log::warn;
 use bevy::prelude::{EventReader, Query, ResMut};
 use rc_networking::protocol::clientbound::spawn_game_object::SpawnGameObject;
 use rc_networking::protocol::Protocol;
@@ -15,20 +16,23 @@ pub fn propagate_game_objects_to_new_clients(
     for event in events.read() {
         // Spawn other entities for new player
         for (id, entity) in &global.game_objects_mapping {
-            let (transform, game_object) = game_object_data.get(*entity).unwrap();
-            send_packet.send(SendPacket(
-                Protocol::SpawnGameObject(SpawnGameObject {
-                    id: *id,
-                    loc: [
-                        transform.position.x,
-                        transform.position.y,
-                        transform.position.z,
-                    ],
-                    rot: transform.rotation.coords.into(),
-                    data: game_object.data.clone(),
-                }),
-                event.id,
-            ));
+            if let Ok((transform, game_object)) = game_object_data.get(*entity) {
+                send_packet.send(SendPacket(
+                    Protocol::SpawnGameObject(SpawnGameObject {
+                        id: *id,
+                        loc: [
+                            transform.position.x,
+                            transform.position.y,
+                            transform.position.z,
+                        ],
+                        rot: transform.rotation.coords.into(),
+                        data: game_object.data.clone(),
+                    }),
+                    event.id,
+                ));
+            } else {
+                warn!("Tried to spawn object that does not exist");
+            }
         }
     }
 }

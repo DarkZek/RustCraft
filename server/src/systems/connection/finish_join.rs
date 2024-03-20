@@ -16,12 +16,14 @@ pub fn detect_finish_join(
 
     for user_id in &transport.initialising_clients {
         // If they have no chunks requested, they're ready
-        if chunk_system
+        if let Some(finished) = chunk_system
             .requesting_chunks
             .get(&user_id)
             .map(|v| v.len() == 0)
-            .unwrap()
         {
+            if !finished {
+                continue;
+            }
             // Send stop loading packet
             event_writer.send(SendPacket(
                 Protocol::UpdateLoading(UpdateLoading::new(false)),

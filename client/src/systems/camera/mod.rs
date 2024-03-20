@@ -1,7 +1,6 @@
 use crate::game::entity::GameObject;
 use crate::game::player::Player;
 use crate::systems::physics::PhysicsObject;
-use bevy::core_pipeline::clear_color::ClearColorConfig;
 use bevy::core_pipeline::core_3d::Camera3dDepthLoadOp;
 use bevy::core_pipeline::experimental::taa::TemporalAntiAliasBundle;
 use bevy::pbr::ScreenSpaceAmbientOcclusionBundle;
@@ -44,8 +43,6 @@ fn setup_camera(mut commands: Commands) {
         .spawn(Camera3dBundle {
             transform: start_transform,
             camera_3d: Camera3d {
-                /// The clear color operation to perform for the main 3d pass.
-                clear_color: ClearColorConfig::Custom(Color::rgba(0.7137, 0.7803, 0.8784, 1.0)),
                 depth_load_op: Camera3dDepthLoadOp::Clear(0.0),
                 depth_texture_usages: TextureUsages::RENDER_ATTACHMENT.into(),
                 ..default()
@@ -74,7 +71,7 @@ fn setup_camera(mut commands: Commands) {
 
 fn camera_player_sync(
     mut query: ParamSet<(
-        Query<&mut Transform, (With<Transform>, &Camera)>,
+        Query<&mut Transform, (With<Transform>, With<Camera>)>,
         Query<&Transform, (With<Player>, Changed<Transform>)>,
     )>,
 ) {

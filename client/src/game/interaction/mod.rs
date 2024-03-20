@@ -17,7 +17,7 @@ use rc_shared::helpers::{from_bevy_vec3, global_to_local_position};
 use rc_shared::CHUNK_SIZE;
 
 pub fn mouse_interaction(
-    mouse_button_input: Res<Input<MouseButton>>,
+    mouse_button_input: Res<ButtonInput<MouseButton>>,
     mut commands: Commands,
     camera: Query<&Transform, With<Camera>>,
     assets: Res<AssetService>,
@@ -104,7 +104,7 @@ pub fn mouse_interaction(
             send_packet.send(SendPacket(
                 Protocol::BlockUpdate(BlockUpdate::new(block_type, pos.x, pos.y, pos.z)),
                 UserId(0),
-            ))
+            ));
         }
     }
 }

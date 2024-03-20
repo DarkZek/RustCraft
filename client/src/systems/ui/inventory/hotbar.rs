@@ -124,7 +124,7 @@ pub fn setup_hotbar_ui(
 pub fn update_hotbar_ui(
     mut inventory: ResMut<Inventory>,
     inventory_ui: ResMut<InventoryUI>,
-    keys: Res<Input<KeyCode>>,
+    keys: Res<ButtonInput<KeyCode>>,
     mut style: Query<&mut Style>,
     mut images: Query<&mut UiImage>,
     mut texts: Query<&mut Text>,
@@ -188,35 +188,35 @@ pub fn update_hotbar_ui(
     }
 }
 
-fn get_hotbar_keypresses(keys: &Res<Input<KeyCode>>) -> (bool, u8) {
-    if keys.just_pressed(KeyCode::Key1) {
+fn get_hotbar_keypresses(keys: &Res<ButtonInput<KeyCode>>) -> (bool, u8) {
+    if keys.just_pressed(KeyCode::Digit1) {
         return (true, 0);
     }
-    if keys.just_pressed(KeyCode::Key2) {
+    if keys.just_pressed(KeyCode::Digit2) {
         return (true, 1);
     }
-    if keys.just_pressed(KeyCode::Key3) {
+    if keys.just_pressed(KeyCode::Digit3) {
         return (true, 2);
     }
-    if keys.just_pressed(KeyCode::Key4) {
+    if keys.just_pressed(KeyCode::Digit4) {
         return (true, 3);
     }
-    if keys.just_pressed(KeyCode::Key5) {
+    if keys.just_pressed(KeyCode::Digit5) {
         return (true, 4);
     }
-    if keys.just_pressed(KeyCode::Key6) {
+    if keys.just_pressed(KeyCode::Digit6) {
         return (true, 5);
     }
-    if keys.just_pressed(KeyCode::Key7) {
+    if keys.just_pressed(KeyCode::Digit7) {
         return (true, 6);
     }
-    if keys.just_pressed(KeyCode::Key8) {
+    if keys.just_pressed(KeyCode::Digit8) {
         return (true, 7);
     }
-    if keys.just_pressed(KeyCode::Key9) {
+    if keys.just_pressed(KeyCode::Digit9) {
         return (true, 8);
     }
-    if keys.just_pressed(KeyCode::Key0) {
+    if keys.just_pressed(KeyCode::Digit0) {
         return (true, 9);
     }
 

@@ -12,7 +12,7 @@ const MOVEMENT_SPEED_VELOCITY: f32 = 15.0;
 pub fn update_input_movement(
     service: Res<InputSystem>,
     mut player: Query<(&mut PhysicsObject, &Player)>,
-    keys: Res<Input<KeyCode>>,
+    keys: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,
     chunks: Res<ChunkSystem>,
     block_states: Res<BlockStates>,
@@ -37,28 +37,28 @@ pub fn update_input_movement(
     if keys.just_pressed(KeyCode::Space) && player_physics.touching_ground {
         player_physics.velocity.y += 12.0;
     }
-    if keys.pressed(KeyCode::W) {
+    if keys.pressed(KeyCode::KeyW) {
         // W is being held down
         proposed_delta +=
             forward * MOVEMENT_SPEED_POSITION * time.delta_seconds() * flying_multiplier;
         player_physics.velocity +=
             forward * time.delta_seconds() * MOVEMENT_SPEED_VELOCITY * flying_multiplier;
     }
-    if keys.pressed(KeyCode::S) {
+    if keys.pressed(KeyCode::KeyS) {
         // W is being held down
         proposed_delta -=
             forward * MOVEMENT_SPEED_POSITION * time.delta_seconds() * flying_multiplier;
         player_physics.velocity -=
             forward * time.delta_seconds() * MOVEMENT_SPEED_VELOCITY * flying_multiplier;
     }
-    if keys.pressed(KeyCode::A) {
+    if keys.pressed(KeyCode::KeyA) {
         // W is being held down
         proposed_delta -=
             right * MOVEMENT_SPEED_POSITION * time.delta_seconds() * flying_multiplier;
         player_physics.velocity -=
             right * time.delta_seconds() * MOVEMENT_SPEED_VELOCITY * flying_multiplier;
     }
-    if keys.pressed(KeyCode::D) {
+    if keys.pressed(KeyCode::KeyD) {
         // W is being held down
         proposed_delta +=
             right * MOVEMENT_SPEED_POSITION * time.delta_seconds() * flying_multiplier;

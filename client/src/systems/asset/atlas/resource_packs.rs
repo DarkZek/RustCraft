@@ -4,7 +4,6 @@ use bevy::asset::{Asset, Assets};
 use bevy::log::error;
 use bevy::prelude::{AssetServer, DetectChanges, Res, ResMut};
 use bevy::reflect::TypePath;
-use bevy::reflect::TypeUuid;
 use fnv::FnvBuildHasher;
 use image::DynamicImage;
 use serde::{Deserialize, Serialize};
@@ -13,8 +12,7 @@ use std::ffi::OsString;
 use std::path::PathBuf;
 
 /// A listing of all resource packs available to the program
-#[derive(Asset, Debug, Clone, TypeUuid, Deserialize, Serialize, TypePath)]
-#[uuid = "7b14806a-672b-443b-8d16-4f18afefa463"]
+#[derive(Asset, Debug, Clone, Deserialize, Serialize, TypePath)]
 pub struct ResourcePacks {
     list: Vec<ResourcePack>,
 }
@@ -41,16 +39,14 @@ impl Default for ResourcePacks {
 }
 
 // An type listing a resource packs name and path to its resources
-#[derive(Debug, Clone, TypeUuid, Deserialize, Serialize)]
-#[uuid = "7b14806a-632b-443b-8d16-4f18afefa463"]
+#[derive(Debug, Clone, TypePath, Deserialize, Serialize)]
 pub struct ResourcePack {
     pub name: String,
     pub path: PathBuf,
 }
 
 /// The images that make up a resource pack
-#[derive(Asset, Debug, Clone, TypeUuid, TypePath)]
-#[uuid = "7b14806a-672b-423b-8d16-4f18afefa463"]
+#[derive(Asset, Debug, Clone, TypePath)]
 pub struct ResourcePackData {
     pub images: HashMap<String, DynamicImage, FnvBuildHasher>,
 }
