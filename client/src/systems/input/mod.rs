@@ -33,8 +33,8 @@ pub struct InputSystem {
 // and releases it when the escape key is pressed
 fn grab_mouse(
     mut primary_query: Query<&mut Window, With<PrimaryWindow>>,
-    mouse: Res<Input<MouseButton>>,
-    key: Res<Input<KeyCode>>,
+    mouse: Res<ButtonInput<MouseButton>>,
+    key: Res<ButtonInput<KeyCode>>,
     mut service: ResMut<InputSystem>,
 ) {
     let Ok(mut window) = primary_query.get_single_mut() else {

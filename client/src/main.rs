@@ -43,11 +43,13 @@ fn main() {
             .set(LogPlugin {
                 filter: "wgpu=error,rustcraft=debug,naga=error,bevy_app=info".into(),
                 level: Level::INFO,
+                ..default()
             })
             .set(RenderPlugin {
                 render_creation: RenderCreation::Automatic(WgpuSettings {
                     ..default()
-                })
+                }),
+                synchronous_pipeline_compilation: false,
             })
             .set(bevy::prelude::AssetPlugin {
                 watch_for_changes_override: Some(true),
@@ -64,7 +66,7 @@ fn main() {
         })
         
         // add the app state 
-        .add_state::<AppState>()
+        .init_state::<AppState>()
         
         .add_plugins(PolylinePlugin)
 

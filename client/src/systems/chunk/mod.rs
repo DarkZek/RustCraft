@@ -7,6 +7,7 @@ use crate::systems::chunk::request::request_chunks;
 use bevy::prelude::*;
 use bevy::render::mesh::PrimitiveTopology;
 use bevy::render::primitives::Aabb;
+use bevy::render::render_asset::RenderAssetUsages;
 use fnv::{FnvBuildHasher, FnvHashMap};
 use nalgebra::Vector3;
 use rc_shared::chunk::{ChunkSystemTrait, RawChunkData};
@@ -54,7 +55,7 @@ impl ChunkSystem {
         asset_service: &AssetService,
         meshes: &mut Assets<Mesh>,
     ) {
-        let mut mesh = Mesh::new(PrimitiveTopology::TriangleList);
+        let mut mesh = Mesh::new(PrimitiveTopology::TriangleList, RenderAssetUsages::all());
 
         mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, vec![] as Vec<[f32; 3]>);
         mesh.insert_attribute(Mesh::ATTRIBUTE_NORMAL, vec![] as Vec<[f32; 3]>);

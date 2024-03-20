@@ -90,7 +90,7 @@ pub fn messages_update(
                     })
                     .insert(PbrBundle {
                         mesh: meshes.add(Mesh::from(shape::Cube { size: size })),
-                        material: materials.add(color.into()),
+                        material: materials.add(StandardMaterial::default()),
                         ..default()
                     })
                     .id();

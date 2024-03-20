@@ -13,7 +13,7 @@ use crate::block::loader::BlockStateAssetLoader;
 use crate::block::types::{Block, LootTableEntry};
 use bevy::log::warn;
 use bevy::prelude::{App, AssetApp, AssetServer, Handle, Plugin, Resource, Update};
-use bevy::reflect::TypeUuid;
+use bevy::reflect::TypePath;
 
 use std::sync::OnceLock;
 
@@ -37,8 +37,7 @@ impl Plugin for BlockStatesPlugin {
     }
 }
 
-#[derive(Debug, Clone, TypeUuid, Resource)]
-#[uuid = "97103fab-1e50-36b7-0c33-0938a62b0809"]
+#[derive(Debug, Clone, TypePath, Resource)]
 pub struct BlockStates {
     pub states: Vec<Block>,
     pub loot_tables: Vec<Vec<LootTableEntry>>,

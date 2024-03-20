@@ -99,6 +99,6 @@ pub fn destroy_block_system(
                 event.position.z,
             )),
             UserId(0),
-        ))
+        ));
     }
 }

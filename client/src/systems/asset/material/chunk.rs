@@ -6,13 +6,11 @@ use bevy::reflect::TypePath;
 use bevy::render::mesh::MeshVertexBufferLayout;
 use bevy::render::render_resource::{RenderPipelineDescriptor, SpecializedMeshPipelineError};
 use bevy::{
-    reflect::TypeUuid,
     render::render_resource::{AsBindGroup, ShaderRef},
 };
 
 // This is the struct that will be passed to your shader
-#[derive(Asset, AsBindGroup, TypeUuid, Debug, Clone, TypePath)]
-#[uuid = "f690fdae-d598-45ab-8225-97e2a3f056e0"]
+#[derive(Asset, AsBindGroup, Debug, Clone, TypePath)]
 pub struct ChunkMaterial {
     #[uniform(0)]
     pub color: Color,
@@ -35,6 +33,10 @@ impl Material for ChunkMaterial {
     }
     fn prepass_fragment_shader() -> ShaderRef {
         "shaders/chunk_material_depth.wgsl".into()
+    }
+
+    fn deferred_fragment_shader() -> ShaderRef {
+        "shaders/chunk_material.wgsl".into()
     }
 
     fn alpha_mode(&self) -> AlphaMode {
