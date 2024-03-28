@@ -3,6 +3,7 @@ pub mod state;
 pub mod systems;
 
 use crate::game::events::GameEventsPlugin;
+use crate::game::game_object::GameObjectPlugin;
 use crate::game::interaction::highlight::{
     mouse_highlight_interaction, setup_highlights, HighlightData,
 };
@@ -32,7 +33,7 @@ use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_polyline::PolylinePlugin;
 use rc_shared::block::BlockStatesPlugin;
 use rc_shared::item::{ItemStates, ItemStatesPlugin};
-use crate::game::game_object::GameObjectPlugin;
+use std::env;
 
 #[rustfmt::skip]
 fn main() {
@@ -61,8 +62,8 @@ fn main() {
         .add_plugins(TemporalAntiAliasPlugin)
 
         .insert_resource(AmbientLight {
-            brightness: 5.0,
-            ..default()
+            brightness: 175.0,
+            color: Color::rgb(0.95, 0.95, 1.0)
         })
         
         // add the app state 

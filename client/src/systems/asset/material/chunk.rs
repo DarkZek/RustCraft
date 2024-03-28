@@ -4,10 +4,8 @@ use bevy::pbr::{MaterialPipeline, MaterialPipelineKey};
 use bevy::prelude::*;
 use bevy::reflect::TypePath;
 use bevy::render::mesh::MeshVertexBufferLayout;
+use bevy::render::render_resource::{AsBindGroup, Face, ShaderRef};
 use bevy::render::render_resource::{RenderPipelineDescriptor, SpecializedMeshPipelineError};
-use bevy::{
-    render::render_resource::{AsBindGroup, ShaderRef},
-};
 
 // This is the struct that will be passed to your shader
 #[derive(Asset, AsBindGroup, Debug, Clone, TypePath)]
@@ -56,6 +54,7 @@ impl Material for ChunkMaterial {
             ATTRIBUTE_LIGHTING_COLOR.at_shader_location(3),
         ])?;
         descriptor.vertex.buffers = vec![vertex_layout];
+        descriptor.primitive.cull_mode = Some(Face::Back);
         Ok(())
     }
 }

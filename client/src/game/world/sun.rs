@@ -1,6 +1,7 @@
 use bevy::prelude::shape::Quad;
 use bevy::prelude::*;
 
+use bevy::pbr::CascadeShadowConfigBuilder;
 use std::f32::consts::PI;
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -53,16 +54,21 @@ pub fn setup_sun(
         .spawn(DirectionalLightBundle {
             directional_light: DirectionalLight {
                 color: Color::rgb(1., 1., 1.),
-                illuminance: 50000.0,
+                illuminance: 3000.0,
                 shadows_enabled: true,
                 ..default()
             },
-            transform: Transform::from_rotation(Quat::from_euler(
-                EulerRot::XYZ,
-                PI / 2.0,
-                0.0,
-                0.0,
-            )),
+            transform: Transform {
+                translation: Vec3::new(0.0, 0.0, 0.0),
+                rotation: Quat::from_rotation_x(3.),
+                ..default()
+            },
+            cascade_shadow_config: CascadeShadowConfigBuilder {
+                first_cascade_far_bound: 4.0,
+                maximum_distance: 100.0,
+                ..default()
+            }
+            .into(),
             ..default()
         })
         .id();
@@ -119,6 +125,6 @@ pub fn update_sun(sundata: ResMut<SunData>, mut query: Query<&mut Transform>) {
         (day_progress * -PI * 2.0) + (PI / 2.0) + PI,
     );
 
-    let mut transform = query.get_mut(sundata.directional_light).unwrap();
-    transform.rotation = rot;
+    //let mut transform = query.get_mut(sundata.directional_light).unwrap();
+    //transform.rotation = rot;
 }

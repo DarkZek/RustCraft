@@ -10,6 +10,8 @@
 #import bevy_pbr::mesh_functions as mesh_functions
 #import bevy_pbr::mesh_functions::affine_to_square
 #import bevy_pbr::view_transformations::position_world_to_clip
+#import bevy_pbr::pbr_deferred_functions::deferred_output
+#import bevy_pbr::pbr_functions::main_pass_post_lighting_processing
 
 struct ChunkMaterial {
     color: vec4<f32>,
@@ -77,31 +79,37 @@ fn fragment(in: FragmentInput) -> @location(0) vec4<f32> {
        discard;
     }
 
-    var input: pbr_types::PbrInput = pbr_types::pbr_input_new();
-    input.material.base_color = vec4(1.0, 1.0, 1.0, 1.0);
-    input.material.reflectance = 0.03;
-    input.material.flags = pbr_types::STANDARD_MATERIAL_FLAGS_ALPHA_MODE_OPAQUE;
-    input.material.perceptual_roughness = 1.0;
-    input.material.metallic = 0.01;
-    input.material.alpha_cutoff = 0.5;
-    input.frag_coord = in.frag_coord;
-    input.world_position = in.world_position;
-    input.world_normal = pbr_functions::prepare_world_normal(
+    var pbr_input: pbr_types::PbrInput = pbr_types::pbr_input_new();
+    pbr_input.material.base_color = output_color;
+    pbr_input.material.reflectance = 0.01;
+    pbr_input.material.flags = pbr_types::STANDARD_MATERIAL_FLAGS_ALPHA_MODE_OPAQUE;
+    pbr_input.material.perceptual_roughness = 1.0;
+    pbr_input.frag_coord = in.frag_coord;
+    pbr_input.world_position = in.world_position;
+    pbr_input.world_normal = pbr_functions::prepare_world_normal(
          in.world_normal,
          false,
          true,
     );
-    input.is_orthographic = false;
+    pbr_input.is_orthographic = false;
 
     let ssao = textureLoad(screen_space_ambient_occlusion_texture, vec2<i32>(in.frag_coord.xy), 0i).r;
-    let ssao_multibounce = gtao_multibounce(ssao, input.material.base_color.rgb);
-    //input.occlusion = min(vec3(1.0), ssao_multibounce);
+    let ssao_multibounce = gtao_multibounce(ssao, pbr_input.material.base_color.rgb);
+    pbr_input.specular_occlusion = min(1.0, ssao_multibounce);
 
-    input.N = bevy_pbr::prepass_utils::prepass_normal(in.frag_coord, 0u);
-    input.V = pbr_functions::calculate_view(in.world_position, false);
+    pbr_input.N = bevy_pbr::prepass_utils::prepass_normal(in.frag_coord, 0u);
+    pbr_input.V = pbr_functions::calculate_view(in.world_position, false);
 
-    //var pbr_color = pbr_functions::apply_pbr_lighting(input);
+    #ifdef PREPASS_PIPELINE
+        // write the gbuffer, lighting pass id, and optionally normal and motion_vector textures
+        return deferred_output(in, pbr_input);
+    #else
 
-    //return pbr_color * in.lighting * output_color;
-    return in.lighting * output_color;
+        var pbr_color = pbr_functions::apply_pbr_lighting(pbr_input);
+
+        var color = main_pass_post_lighting_processing(pbr_input, pbr_color);
+
+        return color;
+
+    #endif
 }
