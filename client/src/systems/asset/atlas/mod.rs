@@ -5,12 +5,7 @@ use crate::systems::asset::AssetService;
 use crate::systems::ui::loading::LoadingUIData;
 
 use bevy::prelude::*;
-
-
-
-
-
-
+use bevy::color::palettes::basic::WHITE;
 
 pub mod atlas;
 pub mod resource_packs;
@@ -57,7 +52,7 @@ pub fn build_texture_atlas(
     let _ = materials.insert(
         &service.opaque_texture_atlas_material,
         ChunkMaterial {
-            color: Color::WHITE,
+            color: LinearRgba::from(WHITE),
             color_texture: Some(TEXTURE_ATLAS.get().get_image().clone()),
             alpha_mode: AlphaMode::Mask(0.2),
         },
@@ -66,7 +61,7 @@ pub fn build_texture_atlas(
     let _ = materials.insert(
         &service.translucent_texture_atlas_material,
         ChunkMaterial {
-            color: Color::WHITE,
+            color: LinearRgba::from(WHITE),
             color_texture: Some(TEXTURE_ATLAS.get().get_image().clone()),
             alpha_mode: AlphaMode::Mask(0.2), // Culling happens in custom shader
         },

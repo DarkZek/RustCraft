@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 rc_shared = { path = "../lib/rc_shared" }
-nalgebra = "0.31.4"
+nalgebra = "0.33.0"
 thiserror = "1.0.37"
 serde = { workspace = true }
 serde_json = { workspace = true }

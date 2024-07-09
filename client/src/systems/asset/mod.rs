@@ -1,3 +1,4 @@
+use bevy::color::palettes::basic::GRAY;
 use crate::state::AppState;
 
 use crate::systems::asset::atlas::resource_packs::{
@@ -36,12 +37,12 @@ pub struct AssetService {
 impl AssetService {
     pub fn new(server: Res<AssetServer>, materials: &mut Assets<ChunkMaterial>) -> AssetService {
         let opaque_texture_atlas_material = materials.add(ChunkMaterial {
-            color: Color::GRAY,
+            color: LinearRgba::from(GRAY),
             color_texture: None,
             alpha_mode: Default::default(),
         });
         let translucent_texture_atlas_material = materials.add(ChunkMaterial {
-            color: Color::GRAY,
+            color: LinearRgba::from(GRAY),
             color_texture: None,
             alpha_mode: Default::default(),
         });

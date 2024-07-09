@@ -1,4 +1,4 @@
-use bevy::asset::{AssetLoader, AsyncReadExt, BoxedFuture, LoadContext};
+use bevy::asset::{AssetLoader, AsyncReadExt, LoadContext};
 use fnv::{FnvBuildHasher, FnvHashMap};
 use image::{DynamicImage, ImageFormat};
 
@@ -19,21 +19,19 @@ impl AssetLoader for ResourcePackAssetLoader {
     type Settings = ();
     type Error = serde_json::Error; // TODO: Come and fix these error types
 
-    fn load<'a>(
+    async fn load<'a>(
         &'a self,
-        reader: &'a mut Reader,
+        reader: &'a mut Reader<'_>,
         _settings: &'a Self::Settings,
-        _load_context: &'a mut LoadContext,
-    ) -> BoxedFuture<'a, Result<ResourcePackData, serde_json::Error>> {
-        Box::pin(async move {
-            let mut data = Vec::new();
-            reader.read_to_end(&mut data).await.unwrap();
-            let mut archive = ZipArchive::new(Cursor::new(data.as_slice())).unwrap();
+        _load_context: &'a mut LoadContext<'_>,
+    ) -> Result<ResourcePackData, serde_json::Error> {
+        let mut data = Vec::new();
+        reader.read_to_end(&mut data).await.unwrap();
+        let mut archive = ZipArchive::new(Cursor::new(data.as_slice())).unwrap();
 
-            let data = load_resources(&mut archive);
+        let data = load_resources(&mut archive);
 
-            Ok(ResourcePackData::new(data))
-        })
+        Ok(ResourcePackData::new(data))
     }
 
     fn extensions(&self) -> &[&str] {

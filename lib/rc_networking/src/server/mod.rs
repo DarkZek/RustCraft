@@ -34,7 +34,7 @@ impl Plugin for QuinnServerPlugin {
         app.init_resource::<NetworkingServerConfig>();
 
         // Read config
-        let config = app.world.get_resource::<NetworkingServerConfig>().unwrap();
+        let config = app.world().get_resource::<NetworkingServerConfig>().unwrap();
 
         app.insert_resource(NetworkingServer::from(config));
     }

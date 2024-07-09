@@ -18,7 +18,7 @@ zip = { version = "0.5.5", default-features = false, features = ["deflate"] }
 rc_networking = { path = "../lib/rc_networking" }
 rc_shared = { path = "../lib/rc_shared" }
 thiserror = "1.0.37"
-bevy-inspector-egui = "0.23.0"
-bevy_polyline = { git="https://github.com/Threadzless/bevy_polyline" }
+bevy-inspector-egui = "0.25.0"
+bevy_polyline = "0.10.0"
 bitflags = "2.4.1"
 rand = "0.8.5"

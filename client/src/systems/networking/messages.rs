@@ -4,6 +4,7 @@ use crate::game::inventory::Inventory;
 use crate::systems::networking::NetworkingSystem;
 use crate::systems::physics::PhysicsObject;
 use bevy::prelude::*;
+use bevy::math::prelude::Cuboid;
 
 use nalgebra::Vector3;
 use rc_shared::game_objects::GameObjectData;
@@ -89,7 +90,7 @@ pub fn messages_update(
                         data: entity.data.clone()
                     })
                     .insert(PbrBundle {
-                        mesh: meshes.add(Mesh::from(shape::Cube { size: size })),
+                        mesh: meshes.add(Mesh::from(Cuboid::from_length(size))),
                         material: materials.add(StandardMaterial::default()),
                         ..default()
                     })

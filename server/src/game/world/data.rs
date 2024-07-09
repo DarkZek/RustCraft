@@ -95,7 +95,7 @@ impl WorldData {
             "./world/{:08x}{:08x}{:08x}.chunk",
             location.x, location.y, location.z
         );
-        if !fs::try_exists(&path)? {
+        if !fs::exists(&path)? {
             return Ok(None);
         }
 

@@ -22,7 +22,7 @@ impl Default for ServerConfig {
 }
 
 pub fn load_config() -> ServerConfig {
-    if !fs::try_exists("settings.json").unwrap() {
+    if !fs::exists("settings.json").unwrap() {
         let file = File::create("settings.json").unwrap();
         let mut writer = BufWriter::new(file);
         serde_json::to_writer_pretty(&mut writer, &ServerConfig::default()).unwrap();

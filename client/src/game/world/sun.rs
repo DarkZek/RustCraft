@@ -1,4 +1,3 @@
-use bevy::prelude::shape::Quad;
 use bevy::prelude::*;
 
 use bevy::pbr::CascadeShadowConfigBuilder;
@@ -21,7 +20,7 @@ pub fn setup_sun(
     // TODO: Spawn this attached to the camera so it moves around with it
     let sun_sprite = commands
         .spawn(PbrBundle {
-            mesh: meshes.add(Mesh::from(Quad::new(Vec2::new(150.0, 150.0)))),
+            mesh: meshes.add(Mesh::from(Rectangle::new(150.0, 150.0))),
             material: materials.add(StandardMaterial {
                 base_color: Color::WHITE,
                 base_color_texture: Some(assets.load("textures/world/sun.png")),
@@ -37,7 +36,7 @@ pub fn setup_sun(
 
     let moon_sprite = commands
         .spawn(PbrBundle {
-            mesh: meshes.add(Mesh::from(Quad::new(Vec2::new(150.0, 150.0)))),
+            mesh: meshes.add(Mesh::from(Rectangle::new(150.0, 150.0))),
             material: materials.add(StandardMaterial {
                 base_color: Color::WHITE,
                 base_color_texture: Some(assets.load("textures/world/moon.png")),

@@ -58,7 +58,7 @@ impl WorldData {
         }
 
         // Load sequential object id counter
-        if fs::try_exists("./world/game_objects").unwrap() {
+        if fs::exists("./world/game_objects").unwrap() {
             let entites = u64::from_str(&fs::read_to_string("./world/game_objects").unwrap())
                 .expect("'/world/game_objects' file corrupted");
 

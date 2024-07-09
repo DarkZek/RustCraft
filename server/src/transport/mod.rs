@@ -38,7 +38,7 @@ impl Default for TransportPlugin {
 impl Plugin for TransportPlugin {
     fn build(&self, app: &mut App) {
         let bind_addr = {
-            let settings = app.world.get_resource::<ServerConfig>().unwrap();
+            let settings = app.world().get_resource::<ServerConfig>().unwrap();
 
             SocketAddr::new(IpAddr::from_str(&settings.ip).unwrap(), settings.port)
         };

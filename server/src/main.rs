@@ -57,7 +57,7 @@ fn main() {
             ))),
         )
         .add_plugins(AssetPlugin {
-            file_path: "../../assets".to_string(),
+            file_path: "../assets".to_string(),
             ..default()
         })
         // Plugins
@@ -92,7 +92,7 @@ fn main() {
 
 pub fn detect_shutdowns(mut shutdown: EventWriter<AppExit>) {
     if SHUTDOWN_BIT.load(Ordering::SeqCst) {
-        shutdown.send(AppExit);
+        shutdown.send(AppExit::Success);
         info!("Shutting down server");
     }
 }
