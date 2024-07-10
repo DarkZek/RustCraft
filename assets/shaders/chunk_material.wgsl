@@ -46,8 +46,8 @@ fn vertex(vertex: VertexInput) -> VertexOutput {
 
     out.world_normal = mesh_functions::mesh_normal_local_to_world(vertex.normal, vertex.instance_index);
 
-    let model = mesh_functions::get_model_matrix(vertex.instance_index);
-    out.world_position = mesh_functions::mesh_position_local_to_world(model, vertex.position);
+    let world_from_local = mesh_functions::get_world_from_local(vertex.instance_index);
+    out.world_position = mesh_functions::mesh_position_local_to_world(world_from_local, vertex.position);
 
     out.position = position_world_to_clip(out.world_position.xyz);
 
@@ -55,6 +55,7 @@ fn vertex(vertex: VertexInput) -> VertexOutput {
 
     let ambient = 0.06;
     out.lighting = vec4(vertex.lighting.xyz + ambient, 1.0);
+
 
     return out;
 
@@ -95,7 +96,7 @@ fn fragment(in: FragmentInput) -> @location(0) vec4<f32> {
 
     let ssao = textureLoad(screen_space_ambient_occlusion_texture, vec2<i32>(in.frag_coord.xy), 0i).r;
     let ssao_multibounce = gtao_multibounce(ssao, pbr_input.material.base_color.rgb);
-    pbr_input.specular_occlusion = min(1.0, ssao_multibounce);
+    //pbr_input.specular_occlusion = min(1.0, ssao_multibounce);
 
     pbr_input.N = bevy_pbr::prepass_utils::prepass_normal(in.frag_coord, 0u);
     pbr_input.V = pbr_functions::calculate_view(in.world_position, false);
