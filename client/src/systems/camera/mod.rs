@@ -1,3 +1,4 @@
+use bevy::color::palettes::tailwind::BLUE_300;
 use crate::game::entity::GameObject;
 use crate::game::player::Player;
 use crate::systems::physics::PhysicsObject;
@@ -42,6 +43,10 @@ fn setup_camera(mut commands: Commands) {
     commands
         .spawn(Camera3dBundle {
             transform: start_transform,
+            camera: Camera {
+                clear_color: ClearColorConfig::Custom(Color::from(BLUE_300)),
+                ..default()
+            },
             camera_3d: Camera3d {
                 depth_load_op: Camera3dDepthLoadOp::Clear(0.0),
                 depth_texture_usages: TextureUsages::RENDER_ATTACHMENT.into(),

@@ -14,7 +14,6 @@ use crate::game::world::WorldPlugin;
 use crate::state::AppState;
 use crate::systems::asset::atlas::atlas::TEXTURE_ATLAS;
 use crate::systems::asset::atlas::resource_packs::{ResourcePackData, ResourcePacks};
-use crate::systems::asset::material::chunk::ChunkMaterial;
 use crate::systems::asset::parsing::json::JsonAssetLoader;
 use crate::systems::asset::parsing::pack::ResourcePackAssetLoader;
 use crate::systems::asset::AssetPlugin;
@@ -33,7 +32,8 @@ use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_polyline::PolylinePlugin;
 use rc_shared::block::BlockStatesPlugin;
 use rc_shared::item::{ItemStates, ItemStatesPlugin};
-use std::env;
+use bevy::pbr::ExtendedMaterial;
+use crate::systems::asset::material::chunk_extension::ChunkMaterialExtension;
 
 #[rustfmt::skip]
 fn main() {
@@ -102,7 +102,8 @@ fn main() {
         // Asset Loaders
         .init_asset::<ResourcePacks>()
         .init_asset::<ResourcePackData>()
-        .add_plugins(MaterialPlugin::<ChunkMaterial>::default())
+        //.add_plugins(MaterialPlugin::<ChunkMaterial>::default())
+        .add_plugins(MaterialPlugin::<ExtendedMaterial<StandardMaterial, ChunkMaterialExtension>>::default())
         .init_asset_loader::<JsonAssetLoader<ResourcePacks>>()
         .init_asset_loader::<ResourcePackAssetLoader>()
 

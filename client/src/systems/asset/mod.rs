@@ -1,12 +1,12 @@
-use bevy::color::palettes::basic::GRAY;
+use bevy::color::palettes::basic::{RED};
+use bevy::pbr::ExtendedMaterial;
 use crate::state::AppState;
-
 use crate::systems::asset::atlas::resource_packs::{
     load_resource_zips, ResourcePackData, ResourcePacks,
 };
 use crate::systems::asset::atlas::{build_texture_atlas, AtlasLoadingStage};
-use crate::systems::asset::material::chunk::ChunkMaterial;
 use bevy::prelude::*;
+use crate::systems::asset::material::chunk_extension::{ChunkMaterialExtension, ChunkMaterial};
 
 pub mod atlas;
 pub mod material;
@@ -36,15 +36,23 @@ pub struct AssetService {
 
 impl AssetService {
     pub fn new(server: Res<AssetServer>, materials: &mut Assets<ChunkMaterial>) -> AssetService {
-        let opaque_texture_atlas_material = materials.add(ChunkMaterial {
-            color: LinearRgba::from(GRAY),
-            color_texture: None,
-            alpha_mode: Default::default(),
+        let opaque_texture_atlas_material = materials.add(ExtendedMaterial {
+            base: StandardMaterial {
+                base_color: Color::from(RED),
+                ..default()
+            },
+            extension: ChunkMaterialExtension {
+                quantize_steps: 0
+            },
         });
-        let translucent_texture_atlas_material = materials.add(ChunkMaterial {
-            color: LinearRgba::from(GRAY),
-            color_texture: None,
-            alpha_mode: Default::default(),
+        let translucent_texture_atlas_material = materials.add(ExtendedMaterial {
+            base: StandardMaterial {
+                base_color: Color::from(RED),
+                ..default()
+            },
+            extension: ChunkMaterialExtension {
+                quantize_steps: 0
+            },
         });
 
         AssetService {

@@ -1,11 +1,12 @@
 use crate::systems::asset::atlas::atlas::{TextureAtlas, TEXTURE_ATLAS};
 use crate::systems::asset::atlas::resource_packs::{ResourcePackData, ResourcePacks};
-use crate::systems::asset::material::chunk::ChunkMaterial;
 use crate::systems::asset::AssetService;
 use crate::systems::ui::loading::LoadingUIData;
 
 use bevy::prelude::*;
-use bevy::color::palettes::basic::WHITE;
+use bevy::color::palettes::basic::{GRAY, WHITE};
+use bevy::pbr::ExtendedMaterial;
+use crate::systems::asset::material::chunk_extension::{ChunkMaterialExtension, ChunkMaterial};
 
 pub mod atlas;
 pub mod resource_packs;
@@ -51,19 +52,31 @@ pub fn build_texture_atlas(
     // Create a new material
     let _ = materials.insert(
         &service.opaque_texture_atlas_material,
-        ChunkMaterial {
-            color: LinearRgba::from(WHITE),
-            color_texture: Some(TEXTURE_ATLAS.get().get_image().clone()),
-            alpha_mode: AlphaMode::Mask(0.2),
+        ExtendedMaterial {
+            base: StandardMaterial {
+                base_color: Color::from(WHITE),
+                base_color_texture: Some(TEXTURE_ATLAS.get().get_image().clone()),
+                alpha_mode: AlphaMode::Mask(0.2),
+                ..default()
+            },
+            extension: ChunkMaterialExtension {
+                quantize_steps: 0
+            },
         },
     );
 
     let _ = materials.insert(
         &service.translucent_texture_atlas_material,
-        ChunkMaterial {
-            color: LinearRgba::from(WHITE),
-            color_texture: Some(TEXTURE_ATLAS.get().get_image().clone()),
-            alpha_mode: AlphaMode::Mask(0.2), // Culling happens in custom shader
+        ExtendedMaterial {
+            base: StandardMaterial {
+                base_color: Color::from(WHITE),
+                base_color_texture: Some(TEXTURE_ATLAS.get().get_image().clone()),
+                alpha_mode: AlphaMode::Mask(0.2),
+                ..default()
+            },
+            extension: ChunkMaterialExtension {
+                quantize_steps: 0
+            },
         },
     );
 
