@@ -83,10 +83,10 @@ pub fn track_blockstate_changes(
                 let normal = match direction {
                     ViewableDirectionBitMap::Top => Vector3::new(0.0, 1.0, 0.0),
                     ViewableDirectionBitMap::Bottom => Vector3::new(0.0, -1.0, 0.0),
-                    ViewableDirectionBitMap::Left => Vector3::new(0.0, 0.0, -1.0),
-                    ViewableDirectionBitMap::Right => Vector3::new(0.0, 0.0, 1.0),
-                    ViewableDirectionBitMap::Front => Vector3::new(-1.0, 0.0, 0.0),
-                    ViewableDirectionBitMap::Back => Vector3::new(1.0, 0.0, 0.0),
+                    ViewableDirectionBitMap::Front => Vector3::new(0.0, 0.0, -1.0),
+                    ViewableDirectionBitMap::Back => Vector3::new(0.0, 0.0, 1.0),
+                    ViewableDirectionBitMap::Left => Vector3::new(-1.0, 0.0, 0.0),
+                    ViewableDirectionBitMap::Right => Vector3::new(1.0, 0.0, 0.0),
                 };
 
                 new_block.faces.push(Face {
