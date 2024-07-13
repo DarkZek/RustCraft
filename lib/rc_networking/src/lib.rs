@@ -1,15 +1,16 @@
-pub mod bistream;
 pub mod client;
 pub mod events;
 pub mod protocol;
-pub mod server;
 pub mod types;
+
+#[cfg(not(target_arch = "wasm32"))]
+pub mod server;
+#[cfg(not(target_arch = "wasm32"))]
+pub mod bistream;
 
 use protocol::Protocol;
 use std::net::SocketAddr;
 use std::time::Duration;
-
-pub use rustls;
 
 #[derive(Copy, Clone, Debug)]
 pub enum Channel {

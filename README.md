@@ -12,9 +12,7 @@ To build run the command in the respective folder
 
 `cd Client && cargo build --release`
 
-To run for WASM you need to install [cargo web](https://github.com/koute/cargo-web) and then run
-
-`cargo web start --target=wasm32-unknown-unknown`
+`cd ./client && cargo run --target wasm32-unknown-unknown`
 
 ## Contributing
 Issues are welcome, as are pull requests and any code contributions.

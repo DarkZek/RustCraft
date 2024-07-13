@@ -102,7 +102,6 @@ fn main() {
         // Asset Loaders
         .init_asset::<ResourcePacks>()
         .init_asset::<ResourcePackData>()
-        //.add_plugins(MaterialPlugin::<ChunkMaterial>::default())
         .add_plugins(MaterialPlugin::<ExtendedMaterial<StandardMaterial, ChunkMaterialExtension>>::default())
         .init_asset_loader::<JsonAssetLoader<ResourcePacks>>()
         .init_asset_loader::<ResourcePackAssetLoader>()

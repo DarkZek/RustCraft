@@ -6,7 +6,6 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bevy = { workspace = true, default-features = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 nalgebra = { workspace = true }
@@ -22,3 +21,14 @@ bevy-inspector-egui = "0.25.0"
 bevy_polyline = "0.10.0"
 bitflags = "2.4.1"
 rand = "0.8.5"
+web-time = "1.1.0"
+bevy = {  workspace = true, default-features = true }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+bevy = {  workspace = true, default-features = true, features = ["webgl2"] }
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+bevy = {  workspace = true, default-features = true, features = ["file_watcher", "dynamic_linking"] }
+
+[lib]
+crate-type = ["cdylib", "rlib"]

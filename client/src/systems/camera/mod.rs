@@ -40,7 +40,7 @@ fn setup_camera(mut commands: Commands) {
     ));
 
     // Spawn camera
-    commands
+    let mut camera = commands
         .spawn(Camera3dBundle {
             transform: start_transform,
             camera: Camera {
@@ -59,9 +59,13 @@ fn setup_camera(mut commands: Commands) {
                 aspect_ratio: 1.0,
             }),
             ..default()
-        })
-        .insert(ScreenSpaceAmbientOcclusionBundle::default())
-        .insert(TemporalAntiAliasBundle::default());
+        });
+
+    #[cfg(not(target_arch = "wasm32"))]
+    camera.insert(ScreenSpaceAmbientOcclusionBundle::default());
+
+    #[cfg(not(target_arch = "wasm32"))]
+    camera.insert(TemporalAntiAliasBundle::default());
 
     // Spawn player
     // Todo: Move this elsewhere
