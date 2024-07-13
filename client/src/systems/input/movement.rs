@@ -32,39 +32,30 @@ pub fn update_input_movement(
         0.4
     };
 
-    let mut proposed_delta = Vector3::zeros();
+    let mut proposed_position_delta = Vector3::zeros();
 
     if keys.just_pressed(KeyCode::Space) && player_physics.touching_ground {
         player_physics.velocity.y += 12.0;
     }
     if keys.pressed(KeyCode::KeyW) {
         // W is being held down
-        proposed_delta +=
-            forward * MOVEMENT_SPEED_POSITION * time.delta_seconds() * flying_multiplier;
-        player_physics.velocity +=
-            forward * time.delta_seconds() * MOVEMENT_SPEED_VELOCITY * flying_multiplier;
+        proposed_position_delta += forward;
     }
     if keys.pressed(KeyCode::KeyS) {
-        // W is being held down
-        proposed_delta -=
-            forward * MOVEMENT_SPEED_POSITION * time.delta_seconds() * flying_multiplier;
-        player_physics.velocity -=
-            forward * time.delta_seconds() * MOVEMENT_SPEED_VELOCITY * flying_multiplier;
+        // S is being held down
+        proposed_position_delta -= forward;
     }
     if keys.pressed(KeyCode::KeyA) {
-        // W is being held down
-        proposed_delta -=
-            right * MOVEMENT_SPEED_POSITION * time.delta_seconds() * flying_multiplier;
-        player_physics.velocity -=
-            right * time.delta_seconds() * MOVEMENT_SPEED_VELOCITY * flying_multiplier;
+        // A is being held down
+        proposed_position_delta -= right;
     }
     if keys.pressed(KeyCode::KeyD) {
-        // W is being held down
-        proposed_delta +=
-            right * MOVEMENT_SPEED_POSITION * time.delta_seconds() * flying_multiplier;
-        player_physics.velocity +=
-            right * time.delta_seconds() * MOVEMENT_SPEED_VELOCITY * flying_multiplier;
+        // D is being held down
+        proposed_position_delta += right;
     }
 
-    player_physics.translate_with_collision_detection(proposed_delta, &chunks, &block_states);
+    player_physics.velocity += proposed_position_delta * MOVEMENT_SPEED_VELOCITY * time.delta_seconds() * flying_multiplier;
+    proposed_position_delta *= MOVEMENT_SPEED_POSITION * time.delta_seconds() * flying_multiplier;
+
+    player_physics.translate_with_collision_detection(proposed_position_delta, &chunks, &block_states);
 }
