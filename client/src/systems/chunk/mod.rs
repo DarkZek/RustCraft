@@ -35,6 +35,8 @@ impl Plugin for ChunkPlugin {
 #[derive(Resource)]
 pub struct ChunkSystem {
     pub chunks: HashMap<Vector3<i32>, ChunkData, FnvBuildHasher>,
+
+    /// A list of all chunks that have rerender requests outstanding
     pub requested_chunks: Vec<Vector3<i32>>,
 }
 

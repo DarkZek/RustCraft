@@ -39,30 +39,37 @@ pub fn update_input_movement(
         1.0
     };
 
-    let mut proposed_position_delta = Vector3::zeros();
+    let mut proposed_delta = Vector3::zeros();
 
     if keys.just_pressed(KeyCode::Space) && player_physics.touching_ground {
         player_physics.velocity.y += 10.0;
     }
     if keys.pressed(KeyCode::KeyW) {
         // W is being held down
-        proposed_position_delta += forward;
+        proposed_delta += forward;
     }
     if keys.pressed(KeyCode::KeyS) {
         // S is being held down
-        proposed_position_delta -= forward;
+        proposed_delta -= forward;
     }
     if keys.pressed(KeyCode::KeyA) {
         // A is being held down
-        proposed_position_delta -= right;
+        proposed_delta -= right;
     }
     if keys.pressed(KeyCode::KeyD) {
         // D is being held down
-        proposed_position_delta += right;
+        proposed_delta += right;
     }
 
-    player_physics.velocity += proposed_position_delta * MOVEMENT_SPEED_VELOCITY * time.delta_seconds() * flying_multiplier * sprinting_multiplier;
-    proposed_position_delta *= MOVEMENT_SPEED_POSITION * time.delta_seconds() * flying_multiplier * sprinting_multiplier;
+    // No change
+    if proposed_delta == Vector3::new(0., 0., 0.) {
+        return
+    }
 
-    player_physics.translate_with_collision_detection(proposed_position_delta, &chunks, &block_states);
+    proposed_delta = proposed_delta.normalize();
+
+    player_physics.velocity += proposed_delta * MOVEMENT_SPEED_VELOCITY * time.delta_seconds() * flying_multiplier * sprinting_multiplier;
+    proposed_delta *= MOVEMENT_SPEED_POSITION * time.delta_seconds() * flying_multiplier * sprinting_multiplier;
+
+    player_physics.translate_with_collision_detection(proposed_delta, &chunks, &block_states);
 }
