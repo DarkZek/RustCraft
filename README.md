@@ -12,7 +12,7 @@ To build run the command in the respective folder
 
 `cd Client && cargo build --release`
 
-`cd ./client && cargo run --target wasm32-unknown-unknown`
+`cd ./client && WASM_SERVER_RUNNER_CUSTOM_INDEX_HTML=index.html && cargo run --target wasm32-unknown-unknown`
 
 ## Contributing
 Issues are welcome, as are pull requests and any code contributions.

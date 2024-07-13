@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:,">
+    <title>{{ TITLE }}</title>
+
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100%;
+        }
+
+        canvas {
+            display: block;
+            touch-action: none;
+        }
+
+        canvas:focus {
+            outline: none;
+        }
+    </style>
+</head>
+
+<body>
+{{ NO_MODULE }}
+<script type="module">
+    // {{ MODULE }}
+
+    async function run() {
+        await wasm_bindgen("/api/wasm.wasm").catch(error => {
+            if (!error.message.startsWith("Using exceptions for control flow, don't mind me. This isn't actually an error!")) {
+                throw error;
+            }
+        });
+    }
+
+    const reloadInterval = 1000;
+
+    async function startReloadInterval() {
+        const fetchVersion = () => fetch("/api/version").then(response => response.text());
+        const version = await fetchVersion();
+        let intervalToken;
+
+        function reloadIfChanged() {
+            fetchVersion()
+                .then(newVersion => {
+                    if (version != newVersion) {
+                        window.location.reload();
+                    }
+                })
+                .catch(_ => { });
+        }
+
+        intervalToken = setInterval(reloadIfChanged, reloadInterval);
+    }
+
+    let queuedMessages = [];
+    let websocket = new WebSocket(((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/ws");
+
+    function formatValue(value) {
+        return String(value); // TODO
+    }
+
+    function formatMessage(args) {
+        // https://github.com/denoland/deno/blob/32025dca5ca76695d463383372cd5f88687e2e9d/ext/console/01_console.js#L3091
+
+        let first = args[0];
+        let a = 0;
+        let string = "";
+
+        if (typeof first === "string" && args.length > 1) {
+            a++;
+
+            let appendedChars = 0;
+
+            for (let i = 0; i < first.length; i++) {
+                if (first[i] == '%') {
+                    let char = first[++i];
+
+                    if (a < args.length) {
+                        let formattedArg = null;
+                        if (char === 's') {
+                            formattedArg = String(args[a++]);
+                        } else if (char === 'd' || char === 'i') {
+                            let value = args[a++];
+                            if (typeof value === "bigint") {
+                                formattedArg = `${value}n`;
+                            } else if (typeof value === "number") {
+                                formattedArg = String(parseInt(String(value)));
+                            } else {
+                                formattedArg = "NaN";
+                            }
+                            formattedArg = `${value}n`;
+                        } else if (char === 'f') {
+                            let value = args[a++];
+                            if (typeof value == "number") {
+                                formattedArg = `${value}`;
+                            } else {
+                                formattedArg = "NaN";
+                            }
+                        } else if (char === 'o' || char === 'O') {
+                            formattedArg = formatValue(args[a++]);
+                        }
+                        else if (char === 'c') {
+                            let value = args[a++];
+                            formattedArg = ""; // TODO css
+                        }
+
+                        if (formattedArg != null) {
+                            string += first.slice(appendedChars, i - 1) + formattedArg;
+                            appendedChars = i + 1;
+                        }
+                    }
+
+                    if (char === '%') {
+                        string += first.slice(appendedChars, i - 1) + '%';
+                        appendedChars = i + 1;
+                    }
+                }
+            }
+
+            string += first.slice(appendedChars);
+        }
+
+        for (; a < args.length; a++) {
+            if (a > 0) string += " ";
+
+            if (typeof args[a] === "string") {
+                string += args[a];
+            } else {
+                string += formatValue(args[a]);
+            }
+        }
+
+        return string;
+    }
+
+    function sendLogMessage([level, args]) {
+        let msg = formatMessage(args);
+        websocket.send(level + "," + msg);
+    }
+    websocket.onerror = console.error;
+    websocket.onopen = () => {
+        for (const args of queuedMessages) sendLogMessage(args);
+        queuedMessages = [];
+    };
+
+    let logMethods = ["trace", "debug", "info", "warn", "error", "log"];
+    for (const logMethod of logMethods) {
+        let stdlog = console[logMethod].bind(console);
+        console[logMethod] = function (...args) {
+            stdlog(...args);
+
+            let item = [logMethod, args];
+            if (websocket.readyState === 1) {
+                sendLogMessage(item);
+            } else {
+                queuedMessages.push(item);
+            }
+        };
+    }
+
+    run();
+    startReloadInterval();
+</script>
+
+<script>
+
+    // Insert hack to make sound autoplay on Chrome as soon as the user interacts with the tab:
+    // https://developers.google.com/web/updates/2018/11/web-audio-autoplay#moving-forward
+
+    // the following function keeps track of all AudioContexts and resumes them on the first user
+    // interaction with the page. If the function is called and all contexts are already running,
+    // it will remove itself from all event listeners.
+    (function () {
+        // An array of all contexts to resume on the page
+        const audioContextList = [];
+
+        // An array of various user interaction events we should listen for
+        const userInputEventNames = [
+            "click",
+            "contextmenu",
+            "auxclick",
+            "dblclick",
+            "mousedown",
+            "mouseup",
+            "pointerup",
+            "touchend",
+            "keydown",
+            "keyup",
+        ];
+
+        // A proxy object to intercept AudioContexts and
+        // add them to the array for tracking and resuming later
+        self.AudioContext = new Proxy(self.AudioContext, {
+            construct(target, args) {
+                const result = new target(...args);
+                audioContextList.push(result);
+                return result;
+            },
+        });
+
+        // To resume all AudioContexts being tracked
+        function resumeAllContexts(_event) {
+            let count = 0;
+
+            audioContextList.forEach((context) => {
+                if (context.state !== "running") {
+                    context.resume();
+                } else {
+                    count++;
+                }
+            });
+
+            // If all the AudioContexts have now resumed then we unbind all
+            // the event listeners from the page to prevent unnecessary resume attempts
+            // Checking count > 0 ensures that the user interaction happens AFTER the game started up
+            if (count > 0 && count === audioContextList.length) {
+                userInputEventNames.forEach((eventName) => {
+                    document.removeEventListener(eventName, resumeAllContexts);
+                });
+            }
+        }
+
+        // We bind the resume function for each user interaction
+        // event on the page
+        userInputEventNames.forEach((eventName) => {
+            document.addEventListener(eventName, resumeAllContexts);
+        });
+    })();
+</script>
+</body>
+
+</html>
