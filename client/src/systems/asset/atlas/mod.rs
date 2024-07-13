@@ -61,9 +61,7 @@ pub fn build_texture_atlas(
                 reflectance: 0.0,
                 ..default()
             },
-            extension: ChunkMaterialExtension {
-                quantize_steps: 0
-            },
+            extension: ChunkMaterialExtension {},
         },
     );
 
@@ -78,9 +76,7 @@ pub fn build_texture_atlas(
                 reflectance: 0.0,
                 ..default()
             },
-            extension: ChunkMaterialExtension {
-                quantize_steps: 0
-            },
+            extension: ChunkMaterialExtension {},
         },
     );
 

@@ -15,12 +15,12 @@
 }
 #endif
 
-struct ChunkExtendedMaterial {
-    quantize_steps: u32,
-}
-
-@group(2) @binding(100)
-var<uniform> my_extended_material: ChunkExtendedMaterial;
+//struct ChunkExtendedMaterial {
+//
+//}
+//
+//@group(2) @binding(100)
+//var<uniform> chunk_material: ChunkExtendedMaterial;
 
 @fragment
 fn fragment(

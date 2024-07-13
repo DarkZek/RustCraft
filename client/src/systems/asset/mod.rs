@@ -41,18 +41,14 @@ impl AssetService {
                 base_color: Color::from(RED),
                 ..default()
             },
-            extension: ChunkMaterialExtension {
-                quantize_steps: 0
-            },
+            extension: ChunkMaterialExtension {},
         });
         let translucent_texture_atlas_material = materials.add(ExtendedMaterial {
             base: StandardMaterial {
                 base_color: Color::from(RED),
                 ..default()
             },
-            extension: ChunkMaterialExtension {
-                quantize_steps: 0
-            },
+            extension: ChunkMaterialExtension {},
         });
 
         AssetService {
