@@ -1,5 +1,6 @@
 mod look;
 mod movement;
+mod sprint;
 
 use crate::state::AppState;
 
@@ -7,7 +8,7 @@ use crate::systems::input::look::update_input_look;
 use crate::systems::input::movement::update_input_movement;
 use bevy::prelude::*;
 use bevy::window::{CursorGrabMode, PresentMode, PrimaryWindow};
-
+use crate::systems::input::sprint::detect_sprinting;
 
 pub struct InputPlugin;
 
@@ -16,7 +17,7 @@ impl Plugin for InputPlugin {
         app.insert_resource(InputSystem { captured: false })
             .add_systems(
                 Update,
-                (update_input_look, update_input_movement, grab_mouse)
+                (update_input_look, update_input_movement, grab_mouse, detect_sprinting)
                     .chain()
                     .run_if(in_state(AppState::InGame)),
             )

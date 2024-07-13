@@ -7,7 +7,7 @@ use rc_shared::block::BlockStates;
 use std::ops::Deref;
 
 const MAX_TOUCHING_GROUND_DIST: f32 = 0.05;
-const GRAVITY_STRENGTH: f32 = 50.0;
+const GRAVITY_STRENGTH: f32 = 40.0;
 
 const GROUND_FRICTION: f32 = 8.0;
 const AIR_FRICTION: f32 = 0.4;

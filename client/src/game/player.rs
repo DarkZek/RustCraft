@@ -4,6 +4,7 @@ use bevy::prelude::Component;
 pub struct Player {
     pub pitch: f32,
     pub yaw: f32,
+    pub is_sprinting: bool
 }
 
 impl Player {
@@ -11,6 +12,7 @@ impl Player {
         Player {
             pitch: 0.0,
             yaw: 0.0,
+            is_sprinting: false,
         }
     }
 }

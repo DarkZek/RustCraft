@@ -69,12 +69,6 @@ pub fn messages_update(
                     return;
                 }
 
-                let color = if entity.data == GameObjectData::Debug {
-                    Color::rgb(0.3, 0.8, 0.3)
-                } else {
-                    Color::rgb(1.0, 0.3, 0.3)
-                };
-
                 let entity_id = commands
                     .spawn(Transform::from_rotation(Quat::from_xyzw(
                         entity.rot[0],

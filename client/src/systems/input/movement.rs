@@ -1,3 +1,4 @@
+
 use crate::game::player::Player;
 use crate::systems::chunk::ChunkSystem;
 use crate::systems::input::InputSystem;
@@ -15,7 +16,7 @@ pub fn update_input_movement(
     keys: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,
     chunks: Res<ChunkSystem>,
-    block_states: Res<BlockStates>,
+    block_states: Res<BlockStates>
 ) {
     if !service.captured {
         return;
@@ -32,10 +33,16 @@ pub fn update_input_movement(
         0.4
     };
 
+    let sprinting_multiplier = if player.is_sprinting && player_physics.touching_ground {
+        1.5
+    } else {
+        1.0
+    };
+
     let mut proposed_position_delta = Vector3::zeros();
 
     if keys.just_pressed(KeyCode::Space) && player_physics.touching_ground {
-        player_physics.velocity.y += 12.0;
+        player_physics.velocity.y += 10.0;
     }
     if keys.pressed(KeyCode::KeyW) {
         // W is being held down
@@ -54,8 +61,8 @@ pub fn update_input_movement(
         proposed_position_delta += right;
     }
 
-    player_physics.velocity += proposed_position_delta * MOVEMENT_SPEED_VELOCITY * time.delta_seconds() * flying_multiplier;
-    proposed_position_delta *= MOVEMENT_SPEED_POSITION * time.delta_seconds() * flying_multiplier;
+    player_physics.velocity += proposed_position_delta * MOVEMENT_SPEED_VELOCITY * time.delta_seconds() * flying_multiplier * sprinting_multiplier;
+    proposed_position_delta *= MOVEMENT_SPEED_POSITION * time.delta_seconds() * flying_multiplier * sprinting_multiplier;
 
     player_physics.translate_with_collision_detection(proposed_position_delta, &chunks, &block_states);
 }
