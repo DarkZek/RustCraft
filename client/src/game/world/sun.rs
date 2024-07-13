@@ -52,14 +52,14 @@ pub fn setup_sun(
     let directional_light = commands
         .spawn(DirectionalLightBundle {
             directional_light: DirectionalLight {
-                color: Color::rgb(1., 1., 1.),
-                illuminance: 3000.0,
+                color: Color::rgb(1., 1.0, 0.8),
+                illuminance: 3200.0,
                 shadows_enabled: true,
                 ..default()
             },
             transform: Transform {
                 translation: Vec3::new(0.0, 0.0, 0.0),
-                rotation: Quat::from_rotation_x(3.),
+                rotation: Quat::from_rotation_x(4.),
                 ..default()
             },
             cascade_shadow_config: CascadeShadowConfigBuilder {
@@ -113,10 +113,10 @@ pub fn update_sun(sundata: ResMut<SunData>, mut query: Query<&mut Transform>) {
     let mut transform = query.get_mut(sundata.moon_sprite).unwrap();
     transform.translation = Vec3::new(0.0, y, x);
 
-    transform.rotation = Quat::from_axis_angle(
-        Vec3::new(1.0, 0.0, 0.0),
-        (day_progress * -PI * 2.0) + (PI / 2.0) + PI,
-    );
+    // transform.rotation = Quat::from_axis_angle(
+    //     Vec3::new(1.0, 0.0, 0.0),
+    //     (day_progress * -PI * 2.0) + (PI / 2.0) + PI,
+    // );
 
     // Update directional light
     let rot = Quat::from_axis_angle(
