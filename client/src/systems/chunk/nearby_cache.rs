@@ -17,6 +17,13 @@ pub struct NearbyChunkCache<'a> {
 }
 
 impl<'a> NearbyChunkCache<'a> {
+    pub fn empty(pos: Vector3<i32>) -> NearbyChunkCache<'a> {
+        NearbyChunkCache {
+            pos,
+            nearby: [None; 9+9+9],
+        }
+    }
+
     pub fn from_service(service: &'a ChunkSystem, chunk: Vector3<i32>) -> NearbyChunkCache<'a> {
         let mut nearby: [Option<&'a ChunkData>; 9 * 3] = [None; 9 * 3];
 
@@ -44,6 +51,10 @@ impl<'a> NearbyChunkCache<'a> {
         // Relative pos
         let pos = pos - self.pos;
 
+        self.get_relative_chunk(pos)
+    }
+
+    pub fn get_relative_chunk(&self, pos: Vector3<i32>) -> Option<&'a ChunkData> {
         if pos.x < -1 || pos.x > 1 || pos.y < -1 || pos.y > 1 || pos.z < -1 || pos.z > 1 {
             return None;
         }

@@ -16,7 +16,11 @@ use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use rc_shared::block::BlockStates;
 use rc_shared::helpers::from_bevy_vec3;
 use std::collections::BinaryHeap;
+use std::mem;
 use std::sync::atomic::Ordering;
+use bevy::tasks::{AsyncComputeTaskPool, Task};
+use bevy::tasks::futures_lite::future;
+use bevy::tasks::block_on;
 
 pub const ATTRIBUTE_LIGHTING_COLOR: MeshVertexAttribute =
     MeshVertexAttribute::new("Lighting", 988540917, VertexFormat::Float32x4);
@@ -40,7 +44,73 @@ pub enum RerenderChunkFlagContext {
 pub struct MeshBuilderCache {
     // A priority list of chunks to build
     chunks: BinaryHeap<MeshBuildEntry>,
+
+    processing_chunk_handles: Vec<Task<(UpdateChunkMesh)>>
 }
+
+impl MeshBuilderCache {
+    pub fn update_requested_chunks(
+        &mut self,
+        mut flags: EventReader<RerenderChunkFlag>,
+        mut chunks: &mut ChunkSystem
+    ) {
+        let mut rerender_chunks = Vec::new();
+
+        // Add all new flags to rerender list
+        for flag in flags.read() {
+            rerender_chunks.push(flag.chunk);
+
+            match flag.context {
+                RerenderChunkFlagContext::None => {}
+                RerenderChunkFlagContext::Adjacent => {
+                    // If rerendering adjacent chunks add them too
+                    rerender_chunks.push(flag.chunk + Vector3::new(0, 0, 1));
+                    rerender_chunks.push(flag.chunk + Vector3::new(0, 0, -1));
+                    rerender_chunks.push(flag.chunk + Vector3::new(0, 1, 0));
+                    rerender_chunks.push(flag.chunk + Vector3::new(0, -1, 0));
+                    rerender_chunks.push(flag.chunk + Vector3::new(1, 0, 0));
+                    rerender_chunks.push(flag.chunk + Vector3::new(-1, 0, 0));
+                }
+                RerenderChunkFlagContext::Surrounding => {
+                    for x in -1..=1 {
+                        for y in -1..=1 {
+                            for z in -1..=1 {
+                                if x == 0 && y == 0 && z == 0 {
+                                    continue;
+                                }
+                                rerender_chunks.push(flag.chunk + Vector3::new(x, y, z));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if self.chunks.len() >= MAX_PROCESSING_CHUNKS {
+            info!("Chunk Builder queue ({}) at maximum capacity for this frame. Just increased by {}", self.chunks.len(), rerender_chunks.len());
+        }
+
+        // Loop over all new chunks to render and add them to the list if the chunk exists and if its not already being rerendered
+        for pos in rerender_chunks {
+            // The chunk data exists
+            if let Some(data) = chunks.chunks.get(&pos) {
+                // And if this chunk isn't already scheduled for rebuild
+                if !self.chunks.iter().any(|v| v.chunk == pos) {
+                    // Put entry into rebuild table
+                    self.chunks.push(MeshBuildEntry {
+                        entity: data.entity.clone(),
+                        chunk: pos,
+                    });
+                }
+            } else {
+                warn!("Chunk rerender requested for {:?} when it does not exist", pos);
+            }
+        }
+
+    }
+}
+
+const MAX_PROCESSING_CHUNKS: usize = 10;
 
 pub fn mesh_builder(
     mut flags: EventReader<RerenderChunkFlag>,
@@ -56,119 +126,58 @@ pub fn mesh_builder(
     PLAYER_POS[1].store(pos.y as i32, Ordering::SeqCst);
     PLAYER_POS[2].store(pos.z as i32, Ordering::SeqCst);
 
-    let mut rerender_chunks = Vec::new();
+    builder_data.update_requested_chunks(flags, &mut chunks);
 
-    // Add all new flags to rerender list
-    for flag in flags.read() {
-        rerender_chunks.push(flag.chunk);
+    let mut existing_tasks = Vec::new();
+    mem::swap(&mut existing_tasks, &mut builder_data.processing_chunk_handles);
 
-        // If rerendering adjacent chunks add them too
-        if flag.context == RerenderChunkFlagContext::Adjacent {
-            rerender_chunks.push(flag.chunk + Vector3::new(0, 0, 1));
-            rerender_chunks.push(flag.chunk + Vector3::new(0, 0, -1));
-            rerender_chunks.push(flag.chunk + Vector3::new(0, 1, 0));
-            rerender_chunks.push(flag.chunk + Vector3::new(0, -1, 0));
-            rerender_chunks.push(flag.chunk + Vector3::new(1, 0, 0));
-            rerender_chunks.push(flag.chunk + Vector3::new(-1, 0, 0));
-        }
+    // Filter out any still processing handles
+    for mut task in existing_tasks {
+        if let Some(mut update) = block_on(future::poll_once(&mut task)) {
+            // TODO: Ensure no blocks have changed since cloned
 
-        if flag.context == RerenderChunkFlagContext::Surrounding {
-            for x in -1..=1 {
-                for y in -1..=1 {
-                    for z in -1..=1 {
-                        if x == 0 && y == 0 && z == 0 {
-                            continue;
-                        }
-                        rerender_chunks.push(flag.chunk + Vector3::new(x, y, z));
-                    }
-                }
+            if let Some(chunk) = chunks.chunks.get_mut(&update.chunk) {
+                update.opaque
+                    .apply_mesh(meshes.get_mut(&chunk.opaque_mesh).unwrap());
+                update.translucent
+                    .apply_mesh(meshes.get_mut(&chunk.translucent_mesh).unwrap());
             }
         }
     }
 
-    // How many chunks to render per frame
-    let max_chunks_per_frame = 40;
+    let thread_pool = AsyncComputeTaskPool::get();
 
-    if builder_data.chunks.len() >= max_chunks_per_frame {
-        info!("Chunk Builder queue ({}) at maximum capacity for this frame. Just increased by {}", builder_data.chunks.len(), rerender_chunks.len());
-    }
+    // Collect all available chunks
+    while !builder_data.chunks.is_empty() {
 
-    // Loop over all new chunks to render and add them to the list if the chunk exists and if its not already being rerendered
-    for pos in rerender_chunks {
-        // The chunk data exists
-        if let Some(data) = chunks.chunks.get(&pos) {
-            // And if this chunk isn't already scheduled for rebuild
-            if !builder_data.chunks.iter().any(|v| v.chunk == pos) {
-                // Put entry into rebuild table
-                builder_data.chunks.push(MeshBuildEntry {
-                    entity: data.entity.clone(),
-                    chunk: pos,
-                });
-            }
+        if builder_data.processing_chunk_handles.len() >= MAX_PROCESSING_CHUNKS {
+            break
         }
-    }
 
-    let build_chunks_count = builder_data.chunks.len().min(max_chunks_per_frame);
+        let chunk_entry = builder_data.chunks.pop().unwrap();
 
-    let mut build_chunks = Vec::with_capacity(build_chunks_count);
+        if let Some(chunk) = chunks.chunks.get(&chunk_entry.chunk) {
+            let chunk = chunk.clone();
 
-    // Collect
-    while build_chunks.len() < build_chunks_count {
-        build_chunks.push(builder_data.chunks.pop().unwrap());
-    }
+            // TODO: Make blockstates static
+            let block_states = block_states.clone();
 
-    #[cfg(not(target_arch = "wasm32"))]
-    let iterator = build_chunks.par_iter();
-    #[cfg(target_arch = "wasm32")]
-    let iterator = build_chunks.iter();
+            let task = thread_pool.spawn(async move {
+                //let cache = NearbyChunkCache::from_service(&chunks, chunk.position);
+                // TODO: Transfer data
+                let cache = NearbyChunkCache::empty(chunk.position);
 
-    // Direct lighting pass
-    let updates = iterator
-        .map(|entry| {
-            if let Some(chunk) = chunks.chunks.get(&entry.chunk) {
-                let nearby = NearbyChunkCache::from_service(&chunks, chunk.position);
-                Some((chunk.position, chunk.build_lighting(&block_states, &nearby)))
-            } else {
-                None
-            }
-        })
-        .collect::<Vec<Option<(Vector3<i32>, LightingUpdateData)>>>();
-
-    // Update chunks
-    for update in updates {
-        if let Some((chunk_pos, update)) = update {
-            chunks.chunks.get_mut(&chunk_pos).unwrap().light_levels = update.data;
-        }
-    }
-
-    #[cfg(not(target_arch = "wasm32"))]
-    let iterator = build_chunks.par_iter();
-    #[cfg(target_arch = "wasm32")]
-    let iterator = build_chunks.iter();
-
-    let updates = iterator
-        .map(|entry: &MeshBuildEntry| {
-            // If the data exists
-            if let Some(chunk) = chunks.chunks.get(&entry.chunk) {
-                let cache = NearbyChunkCache::from_service(&chunks, chunk.position);
                 // Generate mesh & gpu buffers
-                Some((
-                    chunk.build_mesh(&chunks, &block_states, true, &cache),
-                    chunk,
-                ))
-            } else {
-                warn!("Chunk data doesn't exist when trying to build chunk");
-                None
-            }
-        })
-        .collect::<Vec<Option<(UpdateChunkMesh, &ChunkData)>>>();
+                (
+                    chunk.build_mesh(&block_states, true, &cache)
+                )
+            });
 
-    for update in updates {
-        if let Some((val, chunk)) = update {
-            val.opaque
-                .apply_mesh(meshes.get_mut(&chunk.opaque_mesh).unwrap());
-            val.translucent
-                .apply_mesh(meshes.get_mut(&chunk.translucent_mesh).unwrap());
+            builder_data.processing_chunk_handles.push(task);
+
+        } else {
+            warn!("Chunk data for {:?} doesn't exist when trying to build chunk", chunk_entry.chunk);
+            continue
         }
     }
 }

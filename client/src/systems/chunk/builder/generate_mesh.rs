@@ -22,40 +22,12 @@ pub struct UpdateChunkMesh {
 impl ChunkData {
     pub fn build_mesh(
         &self,
-        chunks: &ChunkSystem,
         block_states: &BlockStates,
         edge_faces: bool,
         cache: &NearbyChunkCache,
     ) -> UpdateChunkMesh {
-        // Get adjacent chunks
-        let mut map = FnvHashMap::default();
 
-        map.insert(
-            Vector3::new(0, 1, 0),
-            chunks.chunks.get(&(self.position + Vector3::new(0, 1, 0))),
-        );
-        map.insert(
-            Vector3::new(0, -1, 0),
-            chunks.chunks.get(&(self.position + Vector3::new(0, -1, 0))),
-        );
-        map.insert(
-            Vector3::new(1, 0, 0),
-            chunks.chunks.get(&(self.position + Vector3::new(1, 0, 0))),
-        );
-        map.insert(
-            Vector3::new(-1, 0, 0),
-            chunks.chunks.get(&(self.position + Vector3::new(-1, 0, 0))),
-        );
-        map.insert(
-            Vector3::new(0, 0, 1),
-            chunks.chunks.get(&(self.position + Vector3::new(0, 0, 1))),
-        );
-        map.insert(
-            Vector3::new(0, 0, -1),
-            chunks.chunks.get(&(self.position + Vector3::new(0, 0, -1))),
-        );
-
-        let viewable = self.generate_viewable_map(block_states, map, edge_faces);
+        let viewable = self.generate_viewable_map(block_states, cache, edge_faces);
 
         let mut opaque = DrawKit::new();
         let mut translucent = DrawKit::new();

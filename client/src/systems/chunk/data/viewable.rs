@@ -7,6 +7,7 @@ use rc_shared::viewable_direction::{
 };
 use rc_shared::CHUNK_SIZE;
 use std::collections::HashMap;
+use crate::systems::chunk::nearby_cache::NearbyChunkCache;
 
 impl<'a> ChunkData {
     /*
@@ -35,7 +36,7 @@ impl<'a> ChunkData {
     pub fn generate_viewable_map(
         &self,
         block_states: &BlockStates,
-        adjacent_chunks: HashMap<Vector3<i32>, Option<&ChunkData>, FnvBuildHasher>,
+        adjacent_chunks: &NearbyChunkCache,
         chunk_edge_faces: bool,
     ) -> [[[ViewableDirection; 16]; 16]; 16] {
         let mut data = [[[ViewableDirection(0); CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
@@ -92,7 +93,7 @@ impl<'a> ChunkData {
                             );
 
                             // Checks if the block in an adjacent chunk is transparent
-                            if let Some(Some(chunk)) = adjacent_chunks.get(&direction) {
+                            if let Some(chunk) = adjacent_chunks.get_relative_chunk(*direction) {
                                 let block = {
                                     let block_id =
                                         chunk.world[block_pos.x][block_pos.y][block_pos.z];

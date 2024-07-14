@@ -7,7 +7,7 @@ use rc_shared::CHUNK_SIZE;
 
 pub mod viewable;
 
-#[derive(Debug, Component)]
+#[derive(Debug, Component, Clone)]
 pub struct ChunkData {
     pub position: Vector3<i32>,
 
@@ -20,6 +20,7 @@ pub struct ChunkData {
 
     pub world: RawChunkData,
 
+    // TODO: Investigate not storing this
     pub viewable_map: Option<[[[ViewableDirection; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE]>,
 
     // Stores the lighting intensity and color map
