@@ -7,7 +7,7 @@ use bevy::prelude::*;
 use nalgebra::Vector3;
 use rc_shared::block::BlockStates;
 
-const MOVEMENT_SPEED_POSITION: f32 = 2.0;
+const MOVEMENT_SPEED_POSITION: f32 = 2.4;
 const MOVEMENT_SPEED_VELOCITY: f32 = 15.0;
 
 pub fn update_input_movement(
@@ -41,8 +41,8 @@ pub fn update_input_movement(
 
     let mut proposed_delta = Vector3::zeros();
 
-    if keys.just_pressed(KeyCode::Space) && player_physics.touching_ground {
-        player_physics.velocity.y += 10.0;
+    if keys.pressed(KeyCode::Space) && player_physics.touching_ground {
+        player_physics.velocity.y = 10.0;
     }
     if keys.pressed(KeyCode::KeyW) {
         // W is being held down

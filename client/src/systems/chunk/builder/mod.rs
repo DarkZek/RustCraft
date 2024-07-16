@@ -103,7 +103,7 @@ impl MeshBuilderCache {
                     });
                 }
             } else {
-                warn!("Chunk rerender requested for {:?} when it does not exist", pos);
+                // Requested for chunk that has been unloaded or was never loaded
             }
         }
 
@@ -135,13 +135,14 @@ pub fn mesh_builder(
     for mut task in existing_tasks {
         if let Some(mut update) = block_on(future::poll_once(&mut task)) {
             // TODO: Ensure no blocks have changed since cloned
-
             if let Some(chunk) = chunks.chunks.get_mut(&update.chunk) {
                 update.opaque
                     .apply_mesh(meshes.get_mut(&chunk.opaque_mesh).unwrap());
                 update.translucent
                     .apply_mesh(meshes.get_mut(&chunk.translucent_mesh).unwrap());
             }
+        } else {
+            builder_data.processing_chunk_handles.push(task);
         }
     }
 
