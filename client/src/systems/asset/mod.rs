@@ -7,6 +7,7 @@ use crate::systems::asset::atlas::resource_packs::{
 use crate::systems::asset::atlas::{build_texture_atlas, AtlasLoadingStage};
 use bevy::prelude::*;
 use crate::systems::asset::material::chunk_extension::{ChunkMaterialExtension, ChunkMaterial};
+use crate::systems::asset::material::time::update_time;
 
 pub mod atlas;
 pub mod material;
@@ -19,6 +20,7 @@ impl Plugin for AssetPlugin {
         app.insert_resource(AtlasLoadingStage::AwaitingIndex)
             .add_systems(Startup, create_asset_service)
             .add_systems(Update, load_resource_zips)
+            .add_systems(Update, update_time)
             .add_systems(
                 Update,
                 build_texture_atlas.run_if(in_state(AppState::Loading)),
@@ -41,14 +43,14 @@ impl AssetService {
                 base_color: Color::from(RED),
                 ..default()
             },
-            extension: ChunkMaterialExtension {},
+            extension: ChunkMaterialExtension { time: 0.0 },
         });
         let translucent_texture_atlas_material = materials.add(ExtendedMaterial {
             base: StandardMaterial {
                 base_color: Color::from(RED),
                 ..default()
             },
-            extension: ChunkMaterialExtension {},
+            extension: ChunkMaterialExtension { time: 0.0 },
         });
 
         AssetService {

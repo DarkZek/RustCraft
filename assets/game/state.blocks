@@ -738,7 +738,12 @@
         0,
         0
       ],
-      "loot_table": []
+      "loot_table": [
+        {
+          "chance": 1.0,
+          "item": "mcv3::LeavesItem"
+        }
+      ]
     },
     {
       "identifier": "mcv3::Stone",

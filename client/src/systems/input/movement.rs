@@ -42,7 +42,7 @@ pub fn update_input_movement(
     let mut proposed_delta = Vector3::zeros();
 
     if keys.pressed(KeyCode::Space) && player_physics.touching_ground {
-        player_physics.velocity.y = 10.0;
+        player_physics.velocity.y = 9.0;
     }
     if keys.pressed(KeyCode::KeyW) {
         // W is being held down
