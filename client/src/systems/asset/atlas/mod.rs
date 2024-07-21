@@ -7,6 +7,7 @@ use bevy::prelude::*;
 use bevy::color::palettes::basic::{GRAY, WHITE};
 use bevy::pbr::ExtendedMaterial;
 use crate::systems::asset::material::chunk_extension::{ChunkMaterialExtension, ChunkMaterial};
+use crate::systems::asset::material::translucent_chunk_extension::{TranslucentChunkMaterial, TranslucentChunkMaterialExtension};
 
 pub mod atlas;
 pub mod resource_packs;
@@ -25,6 +26,7 @@ pub fn build_texture_atlas(
     mut stage: ResMut<AtlasLoadingStage>,
     mut images: ResMut<Assets<Image>>,
     mut materials: ResMut<Assets<ChunkMaterial>>,
+    mut translucent_materials: ResMut<Assets<TranslucentChunkMaterial>>,
     mut loading: ResMut<LoadingUIData>,
 ) {
     if *stage != AtlasLoadingStage::AwaitingPack
@@ -56,16 +58,16 @@ pub fn build_texture_atlas(
             base: StandardMaterial {
                 base_color: Color::from(WHITE),
                 base_color_texture: Some(TEXTURE_ATLAS.get().get_image().clone()),
-                alpha_mode: AlphaMode::Mask(0.2),
+                alpha_mode: AlphaMode::Opaque,
                 perceptual_roughness: 0.0,
                 reflectance: 0.0,
                 ..default()
             },
-            extension: ChunkMaterialExtension { time: 0.0 },
+            extension: ChunkMaterialExtension { },
         },
     );
 
-    let _ = materials.insert(
+    let _ = translucent_materials.insert(
         &service.translucent_texture_atlas_material,
         ExtendedMaterial {
             base: StandardMaterial {
@@ -76,7 +78,7 @@ pub fn build_texture_atlas(
                 reflectance: 0.0,
                 ..default()
             },
-            extension: ChunkMaterialExtension { time: 0.0 },
+            extension: TranslucentChunkMaterialExtension { time: 0.0 },
         },
     );
 

@@ -7,17 +7,20 @@
     mesh_view_bindings::view,
     view_transformations::position_world_to_clip,
 }
+#import "shaders/wind.wgsl" get_wind
 
 #ifdef DEFERRED_PREPASS
 #import bevy_pbr::rgb9e5
 #endif
 
+#ifdef IS_TRANSLUCENT
 struct ChunkExtendedMaterial {
     time: f32
 }
 
 @group(2) @binding(100)
 var<uniform> chunk_material: ChunkExtendedMaterial;
+#endif
 
 #ifdef MORPH_TARGETS
 fn morph_vertex(vertex_in: Vertex) -> Vertex {
@@ -79,11 +82,9 @@ fn vertex(vertex_no_morph: Vertex) -> VertexOutput {
 
     out.world_position = mesh_functions::mesh_position_local_to_world(world_from_local, vec4<f32>(vertex.position, 1.0));
 
-
-        var offsetX = out.world_position.x + chunk_material.time;
-        var offsetZ = out.world_position.z + chunk_material.time;
-        var windOffset = vec4(sin(offsetX) * 0.06, 0.0, sin(offsetZ + 0.5) * 0.04, 0.0);
-        out.world_position += windOffset;
+    #ifdef IS_TRANSLUCENT
+        out.world_position += get_wind(out.world_position, chunk_material.time);
+    #endif // IS_TRANSLUCENT
 
     out.position = position_world_to_clip(out.world_position.xyz);
 #ifdef DEPTH_CLAMP_ORTHO

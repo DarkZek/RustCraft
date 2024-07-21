@@ -34,6 +34,7 @@ use rc_shared::block::BlockStatesPlugin;
 use rc_shared::item::{ItemStates, ItemStatesPlugin};
 use bevy::pbr::ExtendedMaterial;
 use crate::systems::asset::material::chunk_extension::ChunkMaterialExtension;
+use crate::systems::asset::material::translucent_chunk_extension::TranslucentChunkMaterialExtension;
 
 #[rustfmt::skip]
 fn main() {
@@ -103,6 +104,7 @@ fn main() {
         .init_asset::<ResourcePacks>()
         .init_asset::<ResourcePackData>()
         .add_plugins(MaterialPlugin::<ExtendedMaterial<StandardMaterial, ChunkMaterialExtension>>::default())
+        .add_plugins(MaterialPlugin::<ExtendedMaterial<StandardMaterial, TranslucentChunkMaterialExtension>>::default())
         .init_asset_loader::<JsonAssetLoader<ResourcePacks>>()
         .init_asset_loader::<ResourcePackAssetLoader>()
 

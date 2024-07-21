@@ -4,14 +4,15 @@ use bevy::render::mesh::{MeshVertexBufferLayoutRef, VertexAttributeDescriptor};
 use bevy::render::render_resource::{AsBindGroup, RenderPipelineDescriptor, ShaderDefVal, ShaderRef, SpecializedMeshPipelineError};
 use crate::systems::chunk::builder::ATTRIBUTE_LIGHTING_COLOR;
 
-pub type ChunkMaterial = ExtendedMaterial<StandardMaterial, ChunkMaterialExtension>;
+pub type TranslucentChunkMaterial = ExtendedMaterial<StandardMaterial, TranslucentChunkMaterialExtension>;
 
 #[derive(Asset, AsBindGroup, Reflect, Debug, Clone)]
-pub struct ChunkMaterialExtension {
-
+pub struct TranslucentChunkMaterialExtension {
+    #[uniform(100)]
+    pub time: f32,
 }
 
-impl MaterialExtension for ChunkMaterialExtension {
+impl MaterialExtension for TranslucentChunkMaterialExtension {
     fn vertex_shader() -> ShaderRef {
         "shaders/extended_material.wgsl".into()
     }
@@ -20,5 +21,16 @@ impl MaterialExtension for ChunkMaterialExtension {
     }
     fn prepass_vertex_shader() -> ShaderRef {
         "shaders/extended_material_prepass.wgsl".into()
+    }
+
+    fn specialize(
+        pipeline: &MaterialExtensionPipeline,
+        descriptor: &mut RenderPipelineDescriptor,
+        layout: &MeshVertexBufferLayoutRef,
+        key: MaterialExtensionKey<Self>
+    ) -> Result<(), SpecializedMeshPipelineError> {
+        descriptor.vertex.shader_defs
+            .push("IS_TRANSLUCENT".into());
+        Ok(())
     }
 }

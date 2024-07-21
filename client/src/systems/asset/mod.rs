@@ -8,6 +8,7 @@ use crate::systems::asset::atlas::{build_texture_atlas, AtlasLoadingStage};
 use bevy::prelude::*;
 use crate::systems::asset::material::chunk_extension::{ChunkMaterialExtension, ChunkMaterial};
 use crate::systems::asset::material::time::update_time;
+use crate::systems::asset::material::translucent_chunk_extension::{TranslucentChunkMaterial, TranslucentChunkMaterialExtension};
 
 pub mod atlas;
 pub mod material;
@@ -33,24 +34,24 @@ pub struct AssetService {
     resource_packs: Handle<ResourcePacks>,
     pack: Option<Handle<ResourcePackData>>,
     pub opaque_texture_atlas_material: Handle<ChunkMaterial>,
-    pub translucent_texture_atlas_material: Handle<ChunkMaterial>,
+    pub translucent_texture_atlas_material: Handle<TranslucentChunkMaterial>,
 }
 
 impl AssetService {
-    pub fn new(server: Res<AssetServer>, materials: &mut Assets<ChunkMaterial>) -> AssetService {
+    pub fn new(server: Res<AssetServer>, materials: &mut Assets<ChunkMaterial>, translucent_materials: &mut Assets<TranslucentChunkMaterial>) -> AssetService {
         let opaque_texture_atlas_material = materials.add(ExtendedMaterial {
             base: StandardMaterial {
                 base_color: Color::from(RED),
                 ..default()
             },
-            extension: ChunkMaterialExtension { time: 0.0 },
+            extension: ChunkMaterialExtension { },
         });
-        let translucent_texture_atlas_material = materials.add(ExtendedMaterial {
+        let translucent_texture_atlas_material = translucent_materials.add(ExtendedMaterial {
             base: StandardMaterial {
                 base_color: Color::from(RED),
                 ..default()
             },
-            extension: ChunkMaterialExtension { time: 0.0 },
+            extension: TranslucentChunkMaterialExtension { time: 0.0 },
         });
 
         AssetService {
@@ -66,6 +67,7 @@ pub fn create_asset_service(
     mut commands: Commands,
     assets: Res<AssetServer>,
     mut materials: ResMut<Assets<ChunkMaterial>>,
+    mut translucent_materials: ResMut<Assets<TranslucentChunkMaterial>>,
 ) {
-    commands.insert_resource(AssetService::new(assets, &mut materials));
+    commands.insert_resource(AssetService::new(assets, &mut materials, &mut translucent_materials));
 }

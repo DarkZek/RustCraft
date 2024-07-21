@@ -6,6 +6,7 @@
     skinning,
     view_transformations::position_world_to_clip,
 }
+#import "shaders/wind.wgsl" get_wind
 
 #ifdef PREPASS_PIPELINE
 #import bevy_pbr::{
@@ -19,12 +20,18 @@
 }
 #endif
 
+// TODO: Try to combine prepass and non prepass
+// TODO: Split out into multiple files
+// TODO: Document which parts are copied from Bevy
+
+#ifdef IS_TRANSLUCENT
 struct ChunkExtendedMaterial {
     time: f32
 }
 
 @group(2) @binding(100)
 var<uniform> chunk_material: ChunkExtendedMaterial;
+#endif
 
 struct CustomVertexInput {
     @builtin(instance_index) instance_index: u32,
@@ -114,11 +121,9 @@ fn vertex(vertex_no_morph: CustomVertexInput) -> VertexOutput {
     #ifdef VERTEX_POSITIONS
         out.world_position = mesh_functions::mesh_position_local_to_world(world_from_local, vec4<f32>(vertex_no_morph.position, 1.0));
 
-        // Tree wind
-        var offsetX = out.world_position.x + chunk_material.time;
-        var offsetZ = out.world_position.z + chunk_material.time;
-        var windOffset = vec4(sin(offsetX) * 0.06, 0.0, sin(offsetZ + 0.5) * 0.04, 0.0);
-        out.world_position += windOffset;
+    #ifdef IS_TRANSLUCENT
+        out.world_position += get_wind(out.world_position, chunk_material.time);
+    #endif // IS_TRANSLUCENT
 
         out.position = position_world_to_clip(out.world_position.xyz);
     #endif
