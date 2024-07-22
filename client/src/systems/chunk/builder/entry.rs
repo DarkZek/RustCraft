@@ -8,7 +8,6 @@ pub static PLAYER_POS: [AtomicI32; 3] = [AtomicI32::new(0), AtomicI32::new(0), A
 
 #[derive(Eq)]
 pub struct MeshBuildEntry {
-    pub entity: Entity,
     pub chunk: Vector3<i32>,
 }
 

@@ -1,124 +1,69 @@
-pub mod game;
-pub mod state;
-pub mod systems;
+#![feature(duration_millis_float)]
 
-use crate::game::events::GameEventsPlugin;
-use crate::game::game_object::GameObjectPlugin;
-use crate::game::interaction::highlight::{
-    mouse_highlight_interaction, setup_highlights, HighlightData,
-};
-use crate::game::interaction::mouse_interaction;
-use crate::game::inventory::InventoryPlugin;
-use crate::game::state::{create_states, track_blockstate_changes, track_itemstate_changes};
-use crate::game::world::WorldPlugin;
-use crate::state::AppState;
-use crate::systems::asset::atlas::atlas::TEXTURE_ATLAS;
-use crate::systems::asset::atlas::resource_packs::{ResourcePackData, ResourcePacks};
-use crate::systems::asset::parsing::json::JsonAssetLoader;
-use crate::systems::asset::parsing::pack::ResourcePackAssetLoader;
-use crate::systems::asset::AssetPlugin;
-use crate::systems::camera::CameraPlugin;
-use crate::systems::chunk::ChunkPlugin;
-use crate::systems::input::InputPlugin;
-use crate::systems::networking::ClientNetworkingPlugin;
-use crate::systems::physics::PhysicsPlugin;
-use crate::systems::ui::UIPlugin;
-use bevy::core_pipeline::experimental::taa::TemporalAntiAliasPlugin;
-use bevy::log::{Level, LogPlugin};
-use bevy::prelude::*;
-use bevy::render::settings::{RenderCreation, WgpuSettings};
-use bevy::render::RenderPlugin;
-use bevy_inspector_egui::quick::WorldInspectorPlugin;
-use bevy_polyline::PolylinePlugin;
-use rc_shared::block::BlockStatesPlugin;
-use rc_shared::item::{ItemStates, ItemStatesPlugin};
-use bevy::pbr::ExtendedMaterial;
-use crate::systems::asset::material::chunk_extension::ChunkMaterialExtension;
-use crate::systems::asset::material::translucent_chunk_extension::TranslucentChunkMaterialExtension;
+use std::fs;
+use std::time::Instant;
+use nalgebra::Vector3;
+use rc_client::systems::chunk::data::ChunkData;
+use rc_client::systems::chunk::nearby_cache::NearbyChunkCache;
+use rc_shared::block::BlockStates;
+use rc_shared::block::types::Block;
+use rc_shared::CHUNK_SIZE;
 
-#[rustfmt::skip]
 fn main() {
-    
-    App::new()
-        .add_plugins(
-            DefaultPlugins
-            .set(LogPlugin {
-                filter: "wgpu=error,rustcraft=debug,naga=error,bevy_app=info".into(),
-                level: Level::INFO,
-                ..default()
-            })
-            .set(RenderPlugin {
-                render_creation: RenderCreation::Automatic(WgpuSettings {
-                    ..default()
-                }),
-                synchronous_pipeline_compilation: false,
-            })
-            .set(bevy::prelude::AssetPlugin {
-                watch_for_changes_override: Some(true),
-                file_path: "../assets".to_string(),
-                ..default()
-            })
-            .set(ImagePlugin::default_nearest()))
-        .add_plugins(WorldInspectorPlugin::new())
-        .add_plugins(TemporalAntiAliasPlugin)
 
-        .insert_resource(AmbientLight {
-            brightness: 175.0,
-            color: Color::rgb(0.95, 0.95, 1.0)
-        })
-        
-        // add the app state 
-        .init_state::<AppState>()
-        
-        .add_plugins(PolylinePlugin)
+    let mut chunk_data = [[[0; 16]; 16]; 16];
 
-        // Networking
-        .add_plugins(ClientNetworkingPlugin)
-        
-        // Interaction
-        .add_systems(Update, mouse_interaction)
-        .insert_resource(HighlightData::default())
-        .add_systems(Startup, setup_highlights)
-        .add_systems(Update, mouse_highlight_interaction)
-        
-        .add_plugins(GameEventsPlugin)
-        
-        // Chunk deserialisation
-        .add_plugins(ChunkPlugin)
+    // Light source
+    chunk_data[2][4][4] = 2;
 
-        .add_plugins(InputPlugin)
+    let chunk_pos = Vector3::new(0, 0, 0);
+    let chunk = ChunkData::new_handleless(chunk_data, chunk_pos);
 
-        .add_plugins(CameraPlugin)
+    let cache = NearbyChunkCache::empty(chunk_pos);
+    let mut states = BlockStates::new();
 
-        .add_plugins(PhysicsPlugin)
+    // Add sample blocks
+    states.states.push(Block {
+        identifier: "mcv3::Air".to_string(),
+        translucent: true,
+        full: false,
+        draw_betweens: false,
+        faces: vec![],
+        collision_boxes: vec![],
+        bounding_boxes: vec![],
+        emission: [0; 4],
+    });
+    states.states.push(Block {
+        identifier: "mcv3::Test".to_string(),
+        translucent: false,
+        full: true,
+        draw_betweens: false,
+        faces: vec![],
+        collision_boxes: vec![],
+        bounding_boxes: vec![],
+        emission: [0; 4],
+    });
+    states.states.push(Block {
+        identifier: "mcv3::Light".to_string(),
+        translucent: false,
+        full: true,
+        draw_betweens: false,
+        faces: vec![],
+        collision_boxes: vec![],
+        bounding_boxes: vec![],
+        emission: [255, 255, 255, 255],
+    });
 
-        .add_plugins(WorldPlugin)
 
-        .add_plugins(UIPlugin)
+    let start = Instant::now();
+    for i in 0..1 {
+        let mut out = [[[[0; 4]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
+        let lighting_update = chunk.build_lighting_blur(&states, &cache, &mut out);
 
-        .add_plugins(InventoryPlugin)
-        
-        .insert_resource(ItemStates::new())
-        
-        // Asset Loaders
-        .init_asset::<ResourcePacks>()
-        .init_asset::<ResourcePackData>()
-        .add_plugins(MaterialPlugin::<ExtendedMaterial<StandardMaterial, ChunkMaterialExtension>>::default())
-        .add_plugins(MaterialPlugin::<ExtendedMaterial<StandardMaterial, TranslucentChunkMaterialExtension>>::default())
-        .init_asset_loader::<JsonAssetLoader<ResourcePacks>>()
-        .init_asset_loader::<ResourcePackAssetLoader>()
-
-        .add_plugins(BlockStatesPlugin {
-            texture_atlas: &TEXTURE_ATLAS
-        })
-        .add_plugins(ItemStatesPlugin)
-        .add_plugins(GameObjectPlugin)
-        
-        .add_systems(Startup, create_states)
-        .add_systems(Update, track_blockstate_changes)
-        .add_systems(Update, track_itemstate_changes)
-        
-        // Asset deserialisation
-        .add_plugins(AssetPlugin)
-        .run();
+        if i == 0 {
+            fs::write("out.txt", format!("{:?}", out));
+        }
+    }
+    let elapsed = start.elapsed();
+    println!("Time {}ns {}ms", elapsed.as_nanos(), elapsed.as_millis_f64());
 }

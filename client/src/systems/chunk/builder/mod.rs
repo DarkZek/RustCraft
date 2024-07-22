@@ -98,7 +98,6 @@ impl MeshBuilderCache {
                 if !self.chunks.iter().any(|v| v.chunk == pos) {
                     // Put entry into rebuild table
                     self.chunks.push(MeshBuildEntry {
-                        entity: data.entity.clone(),
                         chunk: pos,
                     });
                 }
@@ -136,10 +135,13 @@ pub fn mesh_builder(
         if let Some(mut update) = block_on(future::poll_once(&mut task)) {
             // TODO: Ensure no blocks have changed since cloned
             if let Some(chunk) = chunks.chunks.get_mut(&update.chunk) {
+                if chunk.handles.is_none() {
+                    continue
+                }
                 update.opaque
-                    .apply_mesh(meshes.get_mut(&chunk.opaque_mesh).unwrap());
+                    .apply_mesh(meshes.get_mut(&chunk.handles.as_ref().unwrap().opaque_mesh).unwrap());
                 update.translucent
-                    .apply_mesh(meshes.get_mut(&chunk.translucent_mesh).unwrap());
+                    .apply_mesh(meshes.get_mut(&chunk.handles.as_ref().unwrap().translucent_mesh).unwrap());
             }
         } else {
             builder_data.processing_chunk_handles.push(task);

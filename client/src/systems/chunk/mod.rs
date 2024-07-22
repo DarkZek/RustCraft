@@ -107,10 +107,10 @@ impl ChunkSystem {
 
         let chunk = ChunkData::new(
             data,
+            position,
             entity,
             opaque_entity.unwrap(),
             transparent_entity.unwrap(),
-            position,
             opaque,
             translucent,
         );

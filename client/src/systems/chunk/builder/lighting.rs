@@ -8,6 +8,8 @@ use rc_shared::helpers::global_to_local_position;
 use rc_shared::viewable_direction::BLOCK_SIDES;
 use rc_shared::CHUNK_SIZE;
 use std::collections::VecDeque;
+use std::fs;
+use bevy::prelude::info;
 use web_time::Instant;
 
 const MAX_LIGHT_VALUE: usize = 16;
@@ -156,12 +158,13 @@ impl ChunkData {
         &self,
         states: &BlockStates,
         cache: &NearbyChunkCache,
-    ) -> LightingUpdateData {
+        out: &mut [[[[u8; 4]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE]
+    ) {
         let start = Instant::now();
 
-        let mut out = [[[[0 as u8; 4]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
         let mut collision = [[[false; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
 
+        let section_1 = Instant::now();
         for x in 0..CHUNK_SIZE {
             for y in 0..CHUNK_SIZE {
                 for z in 0..CHUNK_SIZE {
@@ -180,11 +183,16 @@ impl ChunkData {
                 }
             }
         }
+        println!("Section 1 took {}ms", section_1.elapsed().as_millis_f64());
+        fs::write("collision.txt", format!("{:?}", collision));
 
+        let section_2 = Instant::now();
+        let mut loops = 0;
         let mut changed = true;
         while changed {
+            println!("Loop {}", loops);
+            loops += 1;
             changed = false;
-            //println!("pass");
             for x in 0..CHUNK_SIZE {
                 for y in 0..CHUNK_SIZE {
                     for z in 0..CHUNK_SIZE {
@@ -213,7 +221,6 @@ impl ChunkData {
                                 );
                                 max_strength =
                                     max_strength.max(out[block_pos.x][block_pos.y][block_pos.z][3]);
-                                //println!("{:?} {} X {} {} {}", avg, max_strength, x, y, z);
                                 continue;
                             }
 
@@ -236,8 +243,6 @@ impl ChunkData {
                             continue;
                         }
 
-                        //println!("{:?} {}", avg, max_strength);
-
                         avg /= avg.w;
                         max_strength -= 1;
 
@@ -259,6 +264,10 @@ impl ChunkData {
 
             //println!("{:?}", out);
         }
+
+        println!("Section 2 took {}ms", section_2.elapsed().as_millis_f64());
+
+        let section_3 = Instant::now();
 
         for x in 0..CHUNK_SIZE {
             for y in 0..CHUNK_SIZE {
@@ -283,13 +292,13 @@ impl ChunkData {
             }
         }
 
-        debug!(
+        println!("Section 3 took {}ms", section_3.elapsed().as_millis_f64());
+
+        info!(
             "Took {}ns to render {:?} with with blur",
             start.elapsed().as_nanos(),
             self.position,
         );
-
-        LightingUpdateData { data: out }
     }
 }
 
@@ -329,4 +338,65 @@ fn get_lights(
     }
 
     lights
+}
+
+#[cfg(test)]
+mod tests {
+    use rc_shared::block::types::Block;
+    use super::*;
+
+    #[test]
+    fn it_works() {
+        let mut chunk_data = [[[0; 16]; 16]; 16];
+
+        // Light source
+        chunk_data[2][4][4] = 2;
+
+        let chunk_pos = Vector3::new(0, 0, 0);
+        let chunk = ChunkData::test_new(chunk_data, chunk_pos);
+
+        let cache = NearbyChunkCache::empty(chunk_pos);
+        let mut states = BlockStates::new();
+
+        // Add sample blocks
+        states.states.push(Block {
+            identifier: "mcv3::Air".to_string(),
+            translucent: true,
+            full: false,
+            draw_betweens: false,
+            faces: vec![],
+            collision_boxes: vec![],
+            bounding_boxes: vec![],
+            emission: [0; 4],
+        });
+        states.states.push(Block {
+            identifier: "mcv3::Test".to_string(),
+            translucent: false,
+            full: true,
+            draw_betweens: false,
+            faces: vec![],
+            collision_boxes: vec![],
+            bounding_boxes: vec![],
+            emission: [0; 4],
+        });
+        states.states.push(Block {
+            identifier: "mcv3::Light".to_string(),
+            translucent: false,
+            full: true,
+            draw_betweens: false,
+            faces: vec![],
+            collision_boxes: vec![],
+            bounding_boxes: vec![],
+            emission: [255, 255, 255, 255],
+        });
+
+        let mut out = [[[[0; 4]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
+
+        let start = Instant::now();
+        let lighting_update = chunk.build_lighting_blur(&states, &cache, &mut out);
+        let elapsed = start.elapsed();
+        println!("Time {}ns {}ms", elapsed.as_nanos(), elapsed.as_millis_f64());
+
+        println!("Output: {:?}", out);
+    }
 }
