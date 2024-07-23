@@ -5,7 +5,8 @@ use crate::systems::networking::NetworkingSystem;
 use crate::systems::physics::PhysicsObject;
 use bevy::prelude::*;
 use bevy::math::prelude::Cuboid;
-
+use bevy::render::mesh::PrimitiveTopology;
+use bevy::render::render_asset::RenderAssetUsages;
 use nalgebra::Vector3;
 use rc_shared::game_objects::GameObjectData;
 use rc_shared::item::types::ItemStack;
@@ -15,6 +16,9 @@ use crate::state::AppState;
 use rc_networking::protocol::Protocol;
 use rc_networking::types::ReceivePacket;
 use rc_shared::aabb::Aabb;
+use rc_shared::block::BlockStates;
+use crate::game::game_object::mesh::generate_item_mesh;
+use crate::systems::asset::AssetService;
 
 pub fn messages_update(
     mut event_reader: EventReader<ReceivePacket>,
@@ -22,8 +26,10 @@ pub fn messages_update(
     mut physics_objects: Query<&mut PhysicsObject>,
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-    mut system: ResMut<NetworkingSystem>
+    block_states: Res<BlockStates>,
+    item_states: Res<ItemStates>,
+    mut system: ResMut<NetworkingSystem>,
+    asset_service: Res<AssetService>
 ) {
     for event in event_reader.read() {
         match &event.0 {
@@ -52,12 +58,20 @@ pub fn messages_update(
                 }
             }
             Protocol::SpawnGameObject(entity) => {
-                let size = if let GameObjectData::Player(_) = entity.data { 1.0 } else { 0.2 };
+                let mut size = 1.0;
 
                 if system.entity_mapping.contains_key(&entity.id) {
                     warn!("Duplicate game_object attempted to spawn {:?}", entity.id);
                     return;
                 }
+
+                let mesh = if let GameObjectData::ItemDrop(item) = &entity.data {
+                    let identifier = &item.item.identifier;
+                    size = 0.2;
+                    generate_item_mesh(identifier, &block_states, &item_states)
+                } else {
+                    Mesh::from(Cuboid::new(1.0, 1.0, 1.0))
+                };
 
                 let entity_id = commands
                     .spawn(Transform::from_rotation(Quat::from_xyzw(
@@ -73,9 +87,9 @@ pub fn messages_update(
                     .insert(GameObject {
                         data: entity.data.clone()
                     })
-                    .insert(PbrBundle {
-                        mesh: meshes.add(Mesh::from(Cuboid::from_length(size))),
-                        material: materials.add(StandardMaterial::default()),
+                    .insert(MaterialMeshBundle {
+                        mesh: meshes.add(mesh),
+                        material: asset_service.translucent_texture_atlas_material.clone(),
                         ..default()
                     })
                     .id();

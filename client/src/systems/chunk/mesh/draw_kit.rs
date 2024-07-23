@@ -11,7 +11,7 @@ pub struct DrawKit {
     pub indices: Vec<u32>,
     pub normals: Vec<[f32; 3]>,
     pub uv_coordinates: Vec<[f32; 2]>,
-    pub lighting: Vec<[f32; 4]>,
+    pub lighting: Option<Vec<[f32; 4]>>,
 }
 
 impl DrawKit {
@@ -21,11 +21,21 @@ impl DrawKit {
             indices: vec![],
             normals: vec![],
             uv_coordinates: vec![],
-            lighting: vec![],
+            lighting: None,
         }
     }
 
-    pub fn draw_face(&mut self, position: Vector3<f32>, face: &Face, color: LightingColor) {
+    pub fn with_lighting(mut self) -> Self {
+        self.lighting = Some(vec![]);
+        self
+    }
+
+    pub fn draw_face(&mut self, position: Vector3<f32>, face: &Face, color: Option<LightingColor>) {
+
+        if color.is_none() != self.lighting.is_none() {
+            panic!("Attempted to set lighting color on colourless DrawKit");
+        }
+
         let center = (face.top_right + face.bottom_left) / 2.0;
 
         let bottom_right = center + (center - face.top_left);
@@ -39,18 +49,19 @@ impl DrawKit {
             position + bottom_right,
         ];
 
-        let color = [
-            color[0] as f32 / 255.0,
-            color[1] as f32 / 255.0,
-            color[2] as f32 / 255.0,
-            color[3] as f32 / 255.0,
-        ];
-
         for pos in pos {
             self.positions.push([pos.x, pos.y, pos.z]);
             self.normals
                 .push([face.normal.x, face.normal.y, face.normal.z]);
-            self.lighting.push(color);
+            if let Some(lighting) = &mut self.lighting {
+                let color = color.unwrap();
+                lighting.push([
+                    color[0] as f32 / 255.0,
+                    color[1] as f32 / 255.0,
+                    color[2] as f32 / 255.0,
+                    color[3] as f32 / 255.0,
+                ]);
+            }
         }
 
         self.uv_coordinates
@@ -70,14 +81,16 @@ impl DrawKit {
         self.indices.push(indices_index + 2);
     }
 
-    pub fn apply_mesh(self, mesh: &mut Mesh) {
+    pub fn apply_mesh(mut self, mesh: &mut Mesh) {
         mesh.insert_indices(Indices::U32(self.indices));
         mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, self.positions);
         mesh.insert_attribute(Mesh::ATTRIBUTE_NORMAL, self.normals);
         mesh.insert_attribute(Mesh::ATTRIBUTE_UV_0, self.uv_coordinates);
-        mesh.insert_attribute(
-            ATTRIBUTE_LIGHTING_COLOR,
-            VertexAttributeValues::Float32x4(self.lighting),
-        );
+        if let Some(lighting) = self.lighting.take() {
+            mesh.insert_attribute(
+                ATTRIBUTE_LIGHTING_COLOR,
+                VertexAttributeValues::Float32x4(lighting),
+            );
+        }
     }
 }

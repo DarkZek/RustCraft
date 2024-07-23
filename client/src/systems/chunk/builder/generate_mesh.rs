@@ -29,8 +29,8 @@ impl ChunkData {
 
         let viewable = self.generate_viewable_map(block_states, cache, edge_faces);
 
-        let mut opaque = DrawKit::new();
-        let mut translucent = DrawKit::new();
+        let mut opaque = DrawKit::new().with_lighting();
+        let mut translucent = DrawKit::new().with_lighting();
 
         // Create the buffers to add the mesh data into
         let chunk = self.world;
@@ -63,7 +63,7 @@ impl ChunkData {
                         block.draw(
                             Vector3::new(x as f32, y as f32, z as f32),
                             ViewableDirection(viewable),
-                            light_color,
+                            Some(light_color),
                             if block.translucent {
                                 &mut translucent
                             } else {

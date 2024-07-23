@@ -20,6 +20,9 @@ pub enum ViewableDirectionBitMap {
 }
 
 impl ViewableDirectionBitMap {
+    pub const FULL: ViewableDirection = ViewableDirection(0b00111111);
+    pub const NONE: ViewableDirection = ViewableDirection(0b0);
+
     pub fn from_code(code: u8) -> Option<ViewableDirectionBitMap> {
         match code {
             0b00000001 => Some(ViewableDirectionBitMap::Top),

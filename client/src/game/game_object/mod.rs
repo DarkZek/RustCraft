@@ -4,11 +4,12 @@ use crate::game::game_object::spawn::messages_update;
 use super::entity::GameObject;
 
 pub mod spawn;
+mod mesh;
 
 pub struct GameObjectPlugin;
 
 impl Plugin for GameObjectPlugin {
-    fn build(&self, app: &mut bevy::prelude::App) {
+    fn build(&self, app: &mut App) {
         app.add_systems(Update, item_spin);
         app.add_systems(Update, messages_update);
     }

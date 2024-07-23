@@ -11,6 +11,7 @@ const GRAVITY_STRENGTH: f32 = 30.0;
 
 const GROUND_FRICTION: f32 = 8.0;
 const AIR_FRICTION: f32 = 0.4;
+const MAX_HORIZONTAL_VELOCITY: f32 = 5.0;
 
 pub fn physics_tick(
     mut query: Query<&mut PhysicsObject>,
@@ -63,6 +64,14 @@ pub fn physics_tick(
             object.velocity *= 1.0 - (GROUND_FRICTION * time.delta_seconds());
         } else {
             object.velocity *= 1.0 - (AIR_FRICTION * time.delta_seconds());
+        }
+
+        // Limit horizontal velocity while touching ground
+        let horizontal_velocity = Vector3::new(object.velocity.x, 0.0, object.velocity.z);
+        if horizontal_velocity.magnitude() > MAX_HORIZONTAL_VELOCITY && object.touching_ground {
+            let multiplier = MAX_HORIZONTAL_VELOCITY / horizontal_velocity.magnitude();
+            object.velocity.x *= multiplier;
+            object.velocity.z *= multiplier;
         }
     }
 }
