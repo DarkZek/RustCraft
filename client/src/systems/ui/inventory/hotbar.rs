@@ -1,6 +1,4 @@
 use crate::game::inventory::Inventory;
-
-
 use crate::systems::ui::inventory::InventoryUI;
 use bevy::prelude::*;
 
@@ -62,56 +60,57 @@ pub fn setup_hotbar_ui(
 
                     // Spawn icons
                     for i in 0..HOTBAR_SLOTS {
-                        hotbar_icons[i] = Some(
-                            parent
-                                .spawn(ImageBundle {
-                                    style: Style {
-                                        width: Val::Px(80.0),
-                                        height: Val::Px(80.0),
-                                        align_self: AlignSelf::FlexStart,
-                                        position_type: PositionType::Absolute,
-                                        left: Val::Percent(
-                                            (100.0 / (HOTBAR_SLOTS as f32)) * i as f32,
-                                        ),
-                                        display: Display::None,
-                                        ..default()
-                                    },
+                        parent
+                            .spawn(NodeBundle {
+                                style: Style {
+                                    width: Val::Px(80.0),
+                                    height: Val::Px(80.0),
                                     ..default()
-                                })
-                                .id(),
-                        );
-                    }
+                                },
+                                ..default()
+                            })
+                            .with_children(|parent| {
 
-                    // Text
-                    for i in 0..HOTBAR_SLOTS {
-                        hotbar_text[i] = Some(
-                            parent
-                                .spawn(TextBundle {
-                                    style: Style {
-                                        width: Val::Px(80.0),
-                                        height: Val::Px(80.0),
-                                        align_self: AlignSelf::FlexStart,
-                                        position_type: PositionType::Absolute,
-                                        left: Val::Percent(
-                                            (100.0 / (HOTBAR_SLOTS as f32)) * i as f32 + 1.0,
-                                        ),
-                                        right: Val::Percent(5.0),
-                                        display: Display::None,
-                                        ..default()
-                                    },
-                                    text: Text::from_section(
-                                        // Accepts a String or any type that converts into a String, such as &str.
-                                        "test",
-                                        TextStyle {
-                                            font: font_handle.clone(),
-                                            font_size: 40.0,
-                                            color: Color::WHITE,
-                                        },
-                                    ),
-                                    ..default()
-                                })
-                                .id(),
-                        );
+                                hotbar_icons[i] = Some(
+                                    parent
+                                        .spawn(ImageBundle {
+                                            style: Style {
+                                                width: Val::Px(60.0),
+                                                height: Val::Px(60.0),
+                                                display: Display::None,
+                                                align_self: AlignSelf::Center,
+                                                justify_self: JustifySelf::Center,
+                                                left: Val::Px(10.0),
+                                                ..default()
+                                            },
+                                            ..default()
+                                        })
+                                        .id(),
+                                );
+
+                                hotbar_text[i] = Some(
+                                    parent
+                                        .spawn(TextBundle {
+                                            style: Style {
+                                                position_type: PositionType::Absolute,
+                                                right: Val::Px(15.0),
+                                                bottom: Val::Px(10.0),
+                                                display: Display::None,
+                                                ..default()
+                                            },
+                                            text: Text::from_section(
+                                                "",
+                                                TextStyle {
+                                                    font: font_handle.clone(),
+                                                    font_size: 30.0,
+                                                    color: Color::WHITE,
+                                                },
+                                            ),
+                                            ..default()
+                                        })
+                                        .id(),
+                                );
+                            });
                     }
                 });
         });
