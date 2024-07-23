@@ -190,7 +190,6 @@ impl ChunkData {
         let mut loops = 0;
         let mut changed = true;
         for _ in 0..12 {
-            println!("Loop {}", loops);
             loops += 1;
             changed = false;
 

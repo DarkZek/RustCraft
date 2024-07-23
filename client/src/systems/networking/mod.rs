@@ -42,7 +42,7 @@ pub fn connect_to_server(mut client: ResMut<NetworkingClient>) {
 
 #[derive(Resource)]
 pub struct NetworkingSystem {
-    entity_mapping: HashMap<GameObjectId, Entity>,
+    pub entity_mapping: HashMap<GameObjectId, Entity>,
 }
 
 impl Default for NetworkingSystem {

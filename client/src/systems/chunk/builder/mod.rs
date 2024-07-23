@@ -87,7 +87,7 @@ impl MeshBuilderCache {
         }
 
         if self.chunks.len() >= MAX_PROCESSING_CHUNKS {
-            info!("Chunk Builder queue ({}) at maximum capacity for this frame. Just increased by {}", self.chunks.len(), rerender_chunks.len());
+            debug!("Chunk Builder queue ({}) at maximum capacity for this frame. Just increased by {}", self.chunks.len(), rerender_chunks.len());
         }
 
         // Loop over all new chunks to render and add them to the list if the chunk exists and if its not already being rerendered

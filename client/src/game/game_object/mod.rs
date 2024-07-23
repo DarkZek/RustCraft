@@ -1,12 +1,16 @@
 use bevy::prelude::*;
 use rc_shared::game_objects::GameObjectData;
+use crate::game::game_object::spawn::messages_update;
 use super::entity::GameObject;
+
+pub mod spawn;
 
 pub struct GameObjectPlugin;
 
 impl Plugin for GameObjectPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
         app.add_systems(Update, item_spin);
+        app.add_systems(Update, messages_update);
     }
 }
 

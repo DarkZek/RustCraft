@@ -82,20 +82,12 @@ fn main() {
         .add_systems(Update, mouse_highlight_interaction)
 
         .add_plugins(GameEventsPlugin)
-
-        // Chunk deserialisation
         .add_plugins(ChunkPlugin)
-
         .add_plugins(InputPlugin)
-
         .add_plugins(CameraPlugin)
-
         .add_plugins(PhysicsPlugin)
-
         .add_plugins(WorldPlugin)
-
         .add_plugins(UIPlugin)
-
         .add_plugins(InventoryPlugin)
 
         .insert_resource(ItemStates::new())
