@@ -47,6 +47,16 @@ impl<'a> NearbyChunkCache<'a> {
         NearbyChunkCache { pos: chunk, nearby }
     }
 
+    pub fn set_chunk(&mut self, chunk: &'a ChunkData) {
+        let pos = chunk.position - self.pos;
+        if pos.x < -1 || pos.x > 1 || pos.y < -1 || pos.y > 1 || pos.z < -1 || pos.z > 1 {
+            panic!("Incorrectly set chunk");
+        }
+
+        self.nearby[NEARBY_CHUNK_LOOKUP_INDEX[(pos.x + 1) as usize][(pos.y + 1) as usize]
+            [(pos.z + 1) as usize]] = Some(chunk);
+    }
+
     pub fn get_chunk(&self, pos: Vector3<i32>) -> Option<&'a ChunkData> {
         // Relative pos
         let pos = pos - self.pos;

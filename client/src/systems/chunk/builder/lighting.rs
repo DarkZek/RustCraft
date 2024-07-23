@@ -158,7 +158,7 @@ impl ChunkData {
         &self,
         states: &BlockStates,
         cache: &NearbyChunkCache,
-        out: &mut [[[[u8; 4]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE]
+        out: &mut [[[[u8; 3]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE]
     ) {
         let start = Instant::now();
 
@@ -178,21 +178,24 @@ impl ChunkData {
 
                     println!("Found emitter at {} {} {}", x, y, z);
 
-                    out[x][y][z] = block.emission;
+                    out[x][y][z] = [block.emission[0], block.emission[1], block.emission[2]];
                     collision[x][y][z] = true;
                 }
             }
         }
-        println!("Section 1 took {}ms", section_1.elapsed().as_millis_f64());
+        //println!("Section 1 took {}ms", section_1.elapsed().as_millis_f64());
         fs::write("collision.txt", format!("{:?}", collision));
 
         let section_2 = Instant::now();
         let mut loops = 0;
         let mut changed = true;
-        while changed {
+        for _ in 0..12 {
             println!("Loop {}", loops);
             loops += 1;
             changed = false;
+
+            // TODO: Look at algorithm that visits neighbor blocks when they're dirty
+
             for x in 0..CHUNK_SIZE {
                 for y in 0..CHUNK_SIZE {
                     for z in 0..CHUNK_SIZE {
@@ -200,99 +203,50 @@ impl ChunkData {
                             continue;
                         }
 
-                        // Average 6 surrounding blocks
-                        let mut avg = Vector4::<u32>::zeros();
-                        let mut max_strength: u8 = 0;
+                        // Get max of 6 surrounding blocks
+                        let mut max = Vector3::new(out[x][y][z][0], out[x][y][z][1], out[x][y][z][2]);
                         for side in &BLOCK_SIDES {
-                            let (chunk_pos, block_pos) = global_to_local_position(
-                                side + Vector3::new(x, y, z).cast::<i32>() + (self.position * 16),
-                            );
+                            let block_pos = Vector3::new(x, y, z).cast::<i32>() + side;
 
-                            // If its this chunk then read this chunks lighting data
-                            if chunk_pos == self.position {
-                                avg += Vector4::new(
-                                    out[block_pos.x][block_pos.y][block_pos.z][0] as u32
-                                        * out[block_pos.x][block_pos.y][block_pos.z][3] as u32,
-                                    out[block_pos.x][block_pos.y][block_pos.z][1] as u32
-                                        * out[block_pos.x][block_pos.y][block_pos.z][3] as u32,
-                                    out[block_pos.x][block_pos.y][block_pos.z][2] as u32
-                                        * out[block_pos.x][block_pos.y][block_pos.z][3] as u32,
-                                    out[block_pos.x][block_pos.y][block_pos.z][3] as u32,
-                                );
-                                max_strength =
-                                    max_strength.max(out[block_pos.x][block_pos.y][block_pos.z][3]);
-                                continue;
+                            if block_pos.x == -1 || block_pos.y == -1 || block_pos.z == -1
+                                || block_pos.x == 16 || block_pos.y == 16 || block_pos.z == 16 {
+                                continue
                             }
 
-                            if let Some(v) = cache.get_chunk(chunk_pos) {
-                                avg += Vector4::new(
-                                    v.light_levels[block_pos.x][block_pos.y][block_pos.z][0] as u32
-                                        * out[block_pos.x][block_pos.y][block_pos.z][3] as u32,
-                                    v.light_levels[block_pos.x][block_pos.y][block_pos.z][1] as u32
-                                        * out[block_pos.x][block_pos.y][block_pos.z][3] as u32,
-                                    v.light_levels[block_pos.x][block_pos.y][block_pos.z][2] as u32
-                                        * out[block_pos.x][block_pos.y][block_pos.z][3] as u32,
-                                    v.light_levels[block_pos.x][block_pos.y][block_pos.z][3] as u32,
-                                );
-                                max_strength = max_strength
-                                    .max(v.light_levels[block_pos.x][block_pos.y][block_pos.z][3]);
-                            }
+                            let color = &out[block_pos.x as usize][block_pos.y as usize][block_pos.z as usize];
+                            max.x = max.x.max(color[0]);
+                            max.y = max.y.max(color[1]);
+                            max.z = max.z.max(color[2]);
                         }
 
-                        if max_strength == 0 || avg.w == 0 {
-                            continue;
+
+                        if out[x][y][z] != [0; 3] {
+                            continue
                         }
 
-                        avg /= avg.w;
-                        max_strength -= 1;
+                        // Reduce strengths
+                        max.x = max.x.max(1) - 1;
+                        max.y = max.y.max(1) - 1;
+                        max.z = max.z.max(1) - 1;
 
-                        //println!("bb {:?} {}", avg, max_strength);
+                        let new_lighting = [max.x, max.y, max.z];
 
-                        if out[x][y][z]
-                            != [avg.x as u8, avg.y as u8, avg.z as u8, max_strength.min(16)]
+                        if out[x][y][z] != new_lighting
                         {
-                            //println!("modify {:?}", out[x][y][z]);
-                            out[x][y][z] =
-                                [avg.x as u8, avg.y as u8, avg.z as u8, max_strength.min(16)];
-
-                            //println!("chabgwed");
                             changed = true;
                         }
+
+                        out[x][y][z] = new_lighting;
                     }
                 }
             }
 
-            //println!("{:?}", out);
-        }
-
-        println!("Section 2 took {}ms", section_2.elapsed().as_millis_f64());
-
-        let section_3 = Instant::now();
-
-        for x in 0..CHUNK_SIZE {
-            for y in 0..CHUNK_SIZE {
-                for z in 0..CHUNK_SIZE {
-                    let out_color = &mut out[x][y][z];
-
-                    // If there's no lighting data for this block ignore it
-                    if out_color[3] == 0 {
-                        continue;
-                    }
-
-                    // Light falloff
-                    out_color[0] =
-                        (out_color[0] as u32 * out_color[3] as u32 / MAX_LIGHT_VALUE as u32) as u8;
-                    out_color[1] =
-                        (out_color[1] as u32 * out_color[3] as u32 / MAX_LIGHT_VALUE as u32) as u8;
-                    out_color[2] =
-                        (out_color[2] as u32 * out_color[3] as u32 / MAX_LIGHT_VALUE as u32) as u8;
-
-                    out_color[3] = out_color[3] as u8;
-                }
+            if !changed {
+                break
             }
         }
 
-        println!("Section 3 took {}ms", section_3.elapsed().as_millis_f64());
+        //println!("Section 2 took {}ms", section_2.elapsed().as_millis_f64());
 
         info!(
             "Took {}ns to render {:?} with with blur",
