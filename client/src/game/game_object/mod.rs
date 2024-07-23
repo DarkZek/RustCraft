@@ -4,7 +4,7 @@ use crate::game::game_object::spawn::messages_update;
 use super::entity::GameObject;
 
 pub mod spawn;
-mod mesh;
+pub mod mesh;
 
 pub struct GameObjectPlugin;
 

@@ -19,11 +19,12 @@ pub struct Inventory {
 impl Inventory {
     /// Gets the select block's, block id
     pub fn selected_block_id(&self) -> Option<u32> {
-        if let Some(val) = &self.hotbar[self.hotbar_slot as usize] {
-            val.item.block_state
-        } else {
-            None
-        }
+        self.selected_item().map(|f| f.item.block_state).flatten()
+    }
+
+    /// Gets the select block's, block id
+    pub fn selected_item(&self) -> Option<&ItemStack> {
+        self.hotbar[self.hotbar_slot as usize].as_ref().map(|data| data)
     }
 
     /// Takes one of the selected block and removes it from the inventory

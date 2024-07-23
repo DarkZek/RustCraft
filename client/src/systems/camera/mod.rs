@@ -1,4 +1,5 @@
 use bevy::color::palettes::tailwind::BLUE_300;
+use bevy::core_pipeline::bloom::BloomSettings;
 use crate::game::entity::GameObject;
 use crate::game::player::Player;
 use crate::systems::physics::PhysicsObject;
@@ -7,6 +8,7 @@ use bevy::core_pipeline::experimental::taa::TemporalAntiAliasBundle;
 use bevy::pbr::ScreenSpaceAmbientOcclusionBundle;
 use bevy::prelude::*;
 use bevy::render::render_resource::TextureUsages;
+use bevy::render::view::GpuCulling;
 use nalgebra::Vector3;
 use rc_shared::aabb::Aabb;
 use rc_shared::constants::UserId;
@@ -20,6 +22,9 @@ impl Plugin for CameraPlugin {
             .add_systems(Update, camera_player_sync);
     }
 }
+
+#[derive(Component)]
+pub struct MainCamera;
 
 fn setup_camera(mut commands: Commands) {
     let mut player_physics = PhysicsObject::new(
@@ -61,6 +66,12 @@ fn setup_camera(mut commands: Commands) {
             ..default()
         });
 
+    camera.insert(MainCamera);
+
+    camera
+        .insert(BloomSettings::default())
+        .insert(GpuCulling);
+
     #[cfg(not(target_arch = "wasm32"))]
     camera.insert(ScreenSpaceAmbientOcclusionBundle::default());
 
@@ -80,7 +91,7 @@ fn setup_camera(mut commands: Commands) {
 
 fn camera_player_sync(
     mut query: ParamSet<(
-        Query<&mut Transform, (With<Transform>, With<Camera>)>,
+        Query<&mut Transform, (With<Transform>, With<MainCamera>)>,
         Query<&Transform, (With<Player>, Changed<Transform>)>,
     )>,
 ) {

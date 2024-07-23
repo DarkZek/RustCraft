@@ -15,11 +15,12 @@ use rc_networking::types::SendPacket;
 use rc_shared::block::BlockStates;
 use rc_shared::helpers::{from_bevy_vec3, global_to_local_position};
 use rc_shared::CHUNK_SIZE;
+use crate::systems::camera::MainCamera;
 
 pub fn mouse_interaction(
     mouse_button_input: Res<ButtonInput<MouseButton>>,
     mut commands: Commands,
-    camera: Query<&Transform, With<Camera>>,
+    camera: Query<&Transform, With<MainCamera>>,
     assets: Res<AssetService>,
     mut destroy_block_event: EventWriter<DestroyBlockEvent>,
     mut rerender_chunk_event: EventWriter<RerenderChunkFlag>,
@@ -63,7 +64,7 @@ pub fn mouse_interaction(
         }
     }
     if mouse_button_input.just_pressed(MouseButton::Right) {
-        if let Some(block_type) = inventory.take_selected_block() {
+        if let Some(block_type) = inventory.selected_block_id() {
             let pos = ray.block + ray.normal;
 
             // Locate chunk
@@ -71,6 +72,12 @@ pub fn mouse_interaction(
 
             // Try find chunk
             if let Some(chunk) = chunks.chunks.get_mut(&chunk_loc) {
+
+                if chunk.world[inner_loc.x][inner_loc.y][inner_loc.z] != 0 {
+                    // Trying to place a block on another block
+                    return
+                }
+
                 // Found chunk! Update block
                 chunk.world[inner_loc.x][inner_loc.y][inner_loc.z] = block_type;
 
@@ -99,6 +106,8 @@ pub fn mouse_interaction(
                     context: RerenderChunkFlagContext::Surrounding,
                 });
             }
+
+            inventory.take_selected_block();
 
             // Send network update
             send_packet.send(SendPacket(

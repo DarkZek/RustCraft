@@ -3,8 +3,8 @@ mod fps;
 mod inventory;
 pub mod loading;
 pub mod main_menu;
-
 pub mod debugging;
+mod equipped_item;
 
 use crate::state::AppState;
 use crate::systems::ui::connecting::ConnectingData;
@@ -17,6 +17,7 @@ use crate::systems::ui::loading::{
 };
 use crate::systems::ui::main_menu::{button_system, destroy_main_menu, setup_main_menu};
 use bevy::prelude::*;
+use crate::systems::ui::equipped_item::{setup_equipped_item, update_equipped_item_mesh};
 
 pub struct UIPlugin;
 
@@ -41,6 +42,9 @@ impl Plugin for UIPlugin {
             .insert_resource(InventoryUI::default())
             .add_systems(OnEnter(AppState::InGame), setup_hotbar_ui)
             .add_systems(Update, update_hotbar_ui)
+            // Equipped Item
+            .add_systems(OnEnter(AppState::InGame), setup_equipped_item)
+            .add_systems(Update, update_equipped_item_mesh.run_if(in_state(AppState::InGame)))
             // Debugging
             .insert_resource(DebuggingUIData::default())
             .add_systems(Startup, setup_debugging_ui)

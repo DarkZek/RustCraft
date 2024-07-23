@@ -10,7 +10,7 @@ const MAX_TOUCHING_GROUND_DIST: f32 = 0.05;
 const GRAVITY_STRENGTH: f32 = 30.0;
 
 const GROUND_FRICTION: f32 = 8.0;
-const AIR_FRICTION: f32 = 0.4;
+const AIR_FRICTION: f32 = 0.6;
 const MAX_HORIZONTAL_VELOCITY: f32 = 5.0;
 
 pub fn physics_tick(

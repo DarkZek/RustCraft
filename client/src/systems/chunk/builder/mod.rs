@@ -21,6 +21,7 @@ use std::sync::atomic::Ordering;
 use bevy::tasks::{AsyncComputeTaskPool, Task};
 use bevy::tasks::futures_lite::future;
 use bevy::tasks::block_on;
+use crate::systems::camera::MainCamera;
 
 pub const ATTRIBUTE_LIGHTING_COLOR: MeshVertexAttribute =
     MeshVertexAttribute::new("Lighting", 988540917, VertexFormat::Float32x4);
@@ -115,7 +116,7 @@ pub fn mesh_builder(
     mut flags: EventReader<RerenderChunkFlag>,
     mut chunks: ResMut<ChunkSystem>,
     mut meshes: ResMut<Assets<Mesh>>,
-    camera: Query<&Transform, With<Camera>>,
+    camera: Query<&Transform, With<MainCamera>>,
     block_states: Res<BlockStates>,
     mut builder_data: Local<MeshBuilderCache>,
 ) {

@@ -1,8 +1,9 @@
 use std::time::{Duration, Instant};
 use bevy::input::ButtonInput;
-use bevy::prelude::{KeyCode, Local, Projection, Query, Res, Time};
+use bevy::prelude::{KeyCode, Local, Projection, Query, Res, Time, With};
 use bevy_inspector_egui::egui::lerp;
 use crate::game::player::Player;
+use crate::systems::camera::MainCamera;
 
 const MAX_SPRINT_TAP_GAP: Duration = Duration::from_millis(500);
 
@@ -28,7 +29,7 @@ pub fn detect_sprinting(
     keys: Res<ButtonInput<KeyCode>>,
     mut player: Query<(&mut Player)>,
     mut local: Local<SprintMovementData>,
-    mut projection: Query<(&mut Projection)>,
+    mut projection: Query<(&mut Projection), With<MainCamera>>,
     time: Res<Time>,
 ) {
 

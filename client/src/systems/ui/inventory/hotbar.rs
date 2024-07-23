@@ -78,9 +78,9 @@ pub fn setup_hotbar_ui(
                                                 width: Val::Px(60.0),
                                                 height: Val::Px(60.0),
                                                 display: Display::None,
-                                                align_self: AlignSelf::Center,
-                                                justify_self: JustifySelf::Center,
+                                                top: Val::Px(10.0),
                                                 left: Val::Px(10.0),
+                                                right: Val::Px(10.0),
                                                 ..default()
                                             },
                                             ..default()

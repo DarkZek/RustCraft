@@ -6,6 +6,7 @@ use bevy::prelude::{default, Assets, Camera, Color, Commands, Entity, Query, Res
 use bevy_polyline::prelude::{Polyline, PolylineBundle, PolylineMaterial};
 use rc_shared::block::BlockStates;
 use rc_shared::helpers::{from_bevy_vec3, to_bevy_vec3};
+use crate::systems::camera::MainCamera;
 
 #[derive(Resource, Default)]
 pub struct HighlightData {
@@ -57,8 +58,8 @@ pub fn setup_highlights(
 
 pub fn mouse_highlight_interaction(
     highlight_data: ResMut<HighlightData>,
-    mut translation_data: Query<&mut Transform, Without<Camera>>,
-    camera: Query<&Transform, With<Camera>>,
+    mut translation_data: Query<&mut Transform, Without<MainCamera>>,
+    camera: Query<&Transform, With<MainCamera>>,
     chunks: ResMut<ChunkSystem>,
     blocks: Res<BlockStates>,
 ) {
