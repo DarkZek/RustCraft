@@ -4,15 +4,12 @@ mod lighting;
 
 use crate::systems::chunk::builder::entry::{MeshBuildEntry, PLAYER_POS};
 use crate::systems::chunk::builder::generate_mesh::UpdateChunkMesh;
-use crate::systems::chunk::builder::lighting::LightingUpdateData;
-use crate::systems::chunk::data::ChunkData;
 use crate::systems::chunk::nearby_cache::NearbyChunkCache;
 use crate::systems::chunk::ChunkSystem;
 use bevy::prelude::*;
 use bevy::render::mesh::MeshVertexAttribute;
 use bevy::render::render_resource::VertexFormat;
 use nalgebra::Vector3;
-use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use rc_shared::block::BlockStates;
 use rc_shared::helpers::from_bevy_vec3;
 use std::collections::BinaryHeap;
@@ -49,14 +46,14 @@ pub struct MeshBuilderCache {
     // A priority list of chunks to build
     chunks: BinaryHeap<MeshBuildEntry>,
 
-    processing_chunk_handles: Vec<Task<(UpdateChunkMesh)>>
+    processing_chunk_handles: Vec<Task<UpdateChunkMesh>>
 }
 
 impl MeshBuilderCache {
     pub fn update_requested_chunks(
         &mut self,
         mut flags: EventReader<RerenderChunkFlag>,
-        mut chunks: &mut ChunkSystem
+        chunks: &mut ChunkSystem
     ) {
         let mut rerender_chunks = Vec::new();
 
@@ -97,7 +94,7 @@ impl MeshBuilderCache {
         // Loop over all new chunks to render and add them to the list if the chunk exists and if its not already being rerendered
         for pos in rerender_chunks {
             // The chunk data exists
-            if let Some(data) = chunks.chunks.get(&pos) {
+            if chunks.chunks.get(&pos).is_some() {
                 // And if this chunk isn't already scheduled for rebuild
                 if !self.chunks.iter().any(|v| v.chunk == pos) {
                     // Put entry into rebuild table
@@ -116,7 +113,7 @@ impl MeshBuilderCache {
 const MAX_PROCESSING_CHUNKS: usize = 10;
 
 pub fn mesh_builder(
-    mut flags: EventReader<RerenderChunkFlag>,
+    flags: EventReader<RerenderChunkFlag>,
     mut chunks: ResMut<ChunkSystem>,
     mut meshes: ResMut<Assets<Mesh>>,
     camera: Query<&Transform, With<MainCamera>>,
@@ -175,9 +172,7 @@ pub fn mesh_builder(
                 let cache = NearbyChunkCache::empty(chunk.position);
 
                 // Generate mesh & gpu buffers
-                (
-                    chunk.build_mesh(&block_states, true, &cache)
-                )
+                chunk.build_mesh(&block_states, true, &cache)
             });
 
             builder_data.processing_chunk_handles.push(task);

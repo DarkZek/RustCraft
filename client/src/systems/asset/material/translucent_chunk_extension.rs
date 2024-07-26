@@ -1,8 +1,8 @@
 use bevy::pbr::{ExtendedMaterial, MaterialExtension, MaterialExtensionKey, MaterialExtensionPipeline};
 use bevy::prelude::*;
-use bevy::render::mesh::{MeshVertexBufferLayoutRef, VertexAttributeDescriptor};
-use bevy::render::render_resource::{AsBindGroup, RenderPipelineDescriptor, ShaderDefVal, ShaderRef, SpecializedMeshPipelineError, VertexAttribute, VertexBufferLayout, VertexFormat};
-use crate::systems::chunk::builder::{ATTRIBUTE_LIGHTING_COLOR, ATTRIBUTE_WIND_STRENGTH};
+use bevy::render::mesh::MeshVertexBufferLayoutRef;
+use bevy::render::render_resource::{AsBindGroup, RenderPipelineDescriptor, ShaderRef, SpecializedMeshPipelineError};
+use crate::systems::chunk::builder::ATTRIBUTE_WIND_STRENGTH;
 
 pub type TranslucentChunkMaterial = ExtendedMaterial<StandardMaterial, TranslucentChunkMaterialExtension>;
 
@@ -24,10 +24,10 @@ impl MaterialExtension for TranslucentChunkMaterialExtension {
     }
 
     fn specialize(
-        pipeline: &MaterialExtensionPipeline,
+        _pipeline: &MaterialExtensionPipeline,
         descriptor: &mut RenderPipelineDescriptor,
         layout: &MeshVertexBufferLayoutRef,
-        key: MaterialExtensionKey<Self>
+        _key: MaterialExtensionKey<Self>
     ) -> Result<(), SpecializedMeshPipelineError> {
         let vertex_attribute_id = layout.0.attribute_ids()
             .iter().position(|row| {

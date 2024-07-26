@@ -1,6 +1,5 @@
-use bevy::color::palettes::css::RED;
 use bevy::pbr::NotShadowCaster;
-use bevy::prelude::{AmbientLight, Assets, Camera, Camera3dBundle, ClearColorConfig, Commands, Cuboid, default, Entity, Handle, Local, MaterialMeshBundle, Mesh, PerspectiveProjection, Query, Rectangle, Res, ResMut, Resource, Transform};
+use bevy::prelude::{Assets, Camera, Camera3dBundle, ClearColorConfig, Commands, default, Entity, Handle, MaterialMeshBundle, Mesh, PerspectiveProjection, Query, Res, ResMut, Resource, Transform};
 use bevy::render::mesh::PrimitiveTopology;
 use bevy::render::render_asset::RenderAssetUsages;
 use bevy::render::view::RenderLayers;

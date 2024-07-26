@@ -27,9 +27,9 @@ impl Default for SprintMovementData {
 // Allow users to start sprinting when they double tap w
 pub fn detect_sprinting(
     keys: Res<ButtonInput<KeyCode>>,
-    mut player: Query<(&mut Player)>,
+    mut player: Query<&mut Player>,
     mut local: Local<SprintMovementData>,
-    mut projection: Query<(&mut Projection), With<MainCamera>>,
+    mut projection: Query<&mut Projection, With<MainCamera>>,
     time: Res<Time>,
 ) {
 

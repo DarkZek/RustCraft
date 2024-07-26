@@ -56,7 +56,7 @@ pub fn setup_sun(
             (
             DirectionalLightBundle {
                 directional_light: DirectionalLight {
-                    color: Color::rgb(1., 1.0, 0.8),
+                    color: Color::srgb(1., 1.0, 0.8),
                     illuminance: 3200.0,
                     shadows_enabled: true,
                     ..default()
@@ -97,9 +97,7 @@ pub fn update_sun(sundata: ResMut<SunData>, mut query: Query<&mut Transform>) {
         .as_millis()
         % day_len_ms;
 
-    let mut day_progress = time as f32 / day_len_ms as f32;
-
-    day_progress = 0.05;
+    let day_progress = time as f32 / day_len_ms as f32;
 
     let rotation_amount = day_progress * 2.0 * PI + (PI / 4.0);
     let x = (rotation_amount.cos() - rotation_amount.sin()) * sun_distance;
@@ -126,10 +124,10 @@ pub fn update_sun(sundata: ResMut<SunData>, mut query: Query<&mut Transform>) {
     // );
 
     // Update directional light
-    let rot = Quat::from_axis_angle(
-        Vec3::new(1.0, 0.0, 0.0),
-        (day_progress * -PI * 2.0) + (PI / 2.0) + PI,
-    );
+    // let rot = Quat::from_axis_angle(
+    //     Vec3::new(1.0, 0.0, 0.0),
+    //     (day_progress * -PI * 2.0) + (PI / 2.0) + PI,
+    // );
 
     //let mut transform = query.get_mut(sundata.directional_light).unwrap();
     //transform.rotation = rot;

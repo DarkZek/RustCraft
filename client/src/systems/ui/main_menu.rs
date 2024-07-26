@@ -17,7 +17,7 @@ pub fn setup_main_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
                 position_type: PositionType::Absolute,
                 ..default()
             },
-            background_color: Color::rgb(0.361, 0.42, 0.753).into(),
+            background_color: Color::srgb(0.361, 0.42, 0.753).into(),
             ..default()
         })
         .with_children(|c| {
@@ -39,7 +39,7 @@ pub fn setup_main_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
                     TextStyle {
                         font: asset_server.load("fonts/FiraSans-Bold.ttf"),
                         font_size: 40.0,
-                        color: Color::rgb(0.9, 0.9, 0.9),
+                        color: Color::srgb(0.9, 0.9, 0.9),
                     },
                 ));
             });
@@ -54,9 +54,9 @@ pub fn destroy_main_menu(mut commands: Commands, menu: Res<MainMenuData>) {
     commands.remove_resource::<MainMenuData>();
 }
 
-const NORMAL_BUTTON: Color = Color::rgb(0.15, 0.15, 0.15);
-const HOVERED_BUTTON: Color = Color::rgb(0.25, 0.25, 0.25);
-const PRESSED_BUTTON: Color = Color::rgb(0.35, 0.75, 0.35);
+const NORMAL_BUTTON: Color = Color::srgb(0.15, 0.15, 0.15);
+const HOVERED_BUTTON: Color = Color::srgb(0.25, 0.25, 0.25);
+const PRESSED_BUTTON: Color = Color::srgb(0.35, 0.75, 0.35);
 
 pub fn button_system(
     mut interaction_query: Query<

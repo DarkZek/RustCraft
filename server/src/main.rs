@@ -1,4 +1,3 @@
-#![feature(fs_try_exists)]
 #![allow(unused_variables)]
 #![allow(dead_code)]
 

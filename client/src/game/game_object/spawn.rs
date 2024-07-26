@@ -1,18 +1,13 @@
 use crate::game::entity::{GameObject};
 
-use crate::game::inventory::Inventory;
 use crate::systems::networking::NetworkingSystem;
 use crate::systems::physics::PhysicsObject;
 use bevy::prelude::*;
 use bevy::math::prelude::Cuboid;
-use bevy::render::mesh::PrimitiveTopology;
-use bevy::render::render_asset::RenderAssetUsages;
 use nalgebra::Vector3;
 use rc_shared::game_objects::GameObjectData;
-use rc_shared::item::types::ItemStack;
 use rc_shared::item::ItemStates;
 
-use crate::state::AppState;
 use rc_networking::protocol::Protocol;
 use rc_networking::types::ReceivePacket;
 use rc_shared::aabb::Aabb;

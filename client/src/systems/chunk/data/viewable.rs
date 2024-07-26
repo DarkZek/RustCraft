@@ -1,12 +1,10 @@
 use crate::systems::chunk::data::ChunkData;
-use fnv::FnvBuildHasher;
 use nalgebra::Vector3;
 use rc_shared::block::BlockStates;
 use rc_shared::viewable_direction::{
     calculate_viewable, ViewableDirection, ViewableDirectionBitMap,
 };
 use rc_shared::CHUNK_SIZE;
-use std::collections::HashMap;
 use crate::systems::chunk::nearby_cache::NearbyChunkCache;
 
 impl<'a> ChunkData {

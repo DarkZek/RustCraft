@@ -1,15 +1,13 @@
 use crate::systems::chunk::data::ChunkData;
 use crate::systems::chunk::nearby_cache::NearbyChunkCache;
 use bevy::log::{debug};
-use nalgebra::{Vector3, Vector4};
+use nalgebra::Vector3;
 use rc_shared::block::BlockStates;
 use rc_shared::chunk::RawLightingData;
 use rc_shared::helpers::global_to_local_position;
 use rc_shared::viewable_direction::BLOCK_SIDES;
 use rc_shared::CHUNK_SIZE;
 use std::collections::VecDeque;
-use std::fs;
-use bevy::prelude::info;
 use web_time::Instant;
 
 const MAX_LIGHT_VALUE: usize = 16;
@@ -154,105 +152,105 @@ impl ChunkData {
         LightingUpdateData { data: out }
     }
 
-    pub fn build_lighting_blur(
-        &self,
-        states: &BlockStates,
-        cache: &NearbyChunkCache,
-        out: &mut [[[[u8; 3]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE]
-    ) {
-        let start = Instant::now();
-
-        let mut collision = [[[false; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
-
-        let section_1 = Instant::now();
-        for x in 0..CHUNK_SIZE {
-            for y in 0..CHUNK_SIZE {
-                for z in 0..CHUNK_SIZE {
-                    let block = states.get_block(self.world[x][y][z] as usize);
-
-                    collision[x][y][z] = !block.translucent;
-
-                    if block.emission[3] == 0 {
-                        continue;
-                    }
-
-                    println!("Found emitter at {} {} {}", x, y, z);
-
-                    out[x][y][z] = [block.emission[0], block.emission[1], block.emission[2]];
-                    collision[x][y][z] = true;
-                }
-            }
-        }
-        //println!("Section 1 took {}ms", section_1.elapsed().as_millis_f64());
-        fs::write("collision.txt", format!("{:?}", collision));
-
-        let section_2 = Instant::now();
-        let mut loops = 0;
-        let mut changed = true;
-        for _ in 0..12 {
-            loops += 1;
-            changed = false;
-
-            // TODO: Look at algorithm that visits neighbor blocks when they're dirty
-
-            for x in 0..CHUNK_SIZE {
-                for y in 0..CHUNK_SIZE {
-                    for z in 0..CHUNK_SIZE {
-                        if collision[x][y][z] {
-                            continue;
-                        }
-
-                        // Get max of 6 surrounding blocks
-                        let mut max = Vector3::new(out[x][y][z][0], out[x][y][z][1], out[x][y][z][2]);
-                        for side in &BLOCK_SIDES {
-                            let block_pos = Vector3::new(x, y, z).cast::<i32>() + side;
-
-                            if block_pos.x == -1 || block_pos.y == -1 || block_pos.z == -1
-                                || block_pos.x == 16 || block_pos.y == 16 || block_pos.z == 16 {
-                                continue
-                            }
-
-                            let color = &out[block_pos.x as usize][block_pos.y as usize][block_pos.z as usize];
-                            max.x = max.x.max(color[0]);
-                            max.y = max.y.max(color[1]);
-                            max.z = max.z.max(color[2]);
-                        }
-
-
-                        if out[x][y][z] != [0; 3] {
-                            continue
-                        }
-
-                        // Reduce strengths
-                        max.x = max.x.max(1) - 1;
-                        max.y = max.y.max(1) - 1;
-                        max.z = max.z.max(1) - 1;
-
-                        let new_lighting = [max.x, max.y, max.z];
-
-                        if out[x][y][z] != new_lighting
-                        {
-                            changed = true;
-                        }
-
-                        out[x][y][z] = new_lighting;
-                    }
-                }
-            }
-
-            if !changed {
-                break
-            }
-        }
-
-        //println!("Section 2 took {}ms", section_2.elapsed().as_millis_f64());
-
-        info!(
-            "Took {}ns to render {:?} with with blur",
-            start.elapsed().as_nanos(),
-            self.position,
-        );
-    }
+    // pub fn build_lighting_blur(
+    //     &self,
+    //     states: &BlockStates,
+    //     cache: &NearbyChunkCache,
+    //     out: &mut [[[[u8; 3]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE]
+    // ) {
+    //     let start = Instant::now();
+    //
+    //     let mut collision = [[[false; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
+    //
+    //     let section_1 = Instant::now();
+    //     for x in 0..CHUNK_SIZE {
+    //         for y in 0..CHUNK_SIZE {
+    //             for z in 0..CHUNK_SIZE {
+    //                 let block = states.get_block(self.world[x][y][z] as usize);
+    //
+    //                 collision[x][y][z] = !block.translucent;
+    //
+    //                 if block.emission[3] == 0 {
+    //                     continue;
+    //                 }
+    //
+    //                 println!("Found emitter at {} {} {}", x, y, z);
+    //
+    //                 out[x][y][z] = [block.emission[0], block.emission[1], block.emission[2]];
+    //                 collision[x][y][z] = true;
+    //             }
+    //         }
+    //     }
+    //     //println!("Section 1 took {}ms", section_1.elapsed().as_millis_f64());
+    //     fs::write("collision.txt", format!("{:?}", collision));
+    //
+    //     let section_2 = Instant::now();
+    //     let mut loops = 0;
+    //     let mut changed = true;
+    //     for _ in 0..12 {
+    //         loops += 1;
+    //         changed = false;
+    //
+    //         // TODO: Look at algorithm that visits neighbor blocks when they're dirty
+    //
+    //         for x in 0..CHUNK_SIZE {
+    //             for y in 0..CHUNK_SIZE {
+    //                 for z in 0..CHUNK_SIZE {
+    //                     if collision[x][y][z] {
+    //                         continue;
+    //                     }
+    //
+    //                     // Get max of 6 surrounding blocks
+    //                     let mut max = Vector3::new(out[x][y][z][0], out[x][y][z][1], out[x][y][z][2]);
+    //                     for side in &BLOCK_SIDES {
+    //                         let block_pos = Vector3::new(x, y, z).cast::<i32>() + side;
+    //
+    //                         if block_pos.x == -1 || block_pos.y == -1 || block_pos.z == -1
+    //                             || block_pos.x == 16 || block_pos.y == 16 || block_pos.z == 16 {
+    //                             continue
+    //                         }
+    //
+    //                         let color = &out[block_pos.x as usize][block_pos.y as usize][block_pos.z as usize];
+    //                         max.x = max.x.max(color[0]);
+    //                         max.y = max.y.max(color[1]);
+    //                         max.z = max.z.max(color[2]);
+    //                     }
+    //
+    //
+    //                     if out[x][y][z] != [0; 3] {
+    //                         continue
+    //                     }
+    //
+    //                     // Reduce strengths
+    //                     max.x = max.x.max(1) - 1;
+    //                     max.y = max.y.max(1) - 1;
+    //                     max.z = max.z.max(1) - 1;
+    //
+    //                     let new_lighting = [max.x, max.y, max.z];
+    //
+    //                     if out[x][y][z] != new_lighting
+    //                     {
+    //                         changed = true;
+    //                     }
+    //
+    //                     out[x][y][z] = new_lighting;
+    //                 }
+    //             }
+    //         }
+    //
+    //         if !changed {
+    //             break
+    //         }
+    //     }
+    //
+    //     //println!("Section 2 took {}ms", section_2.elapsed().as_millis_f64());
+    //
+    //     info!(
+    //         "Took {}ns to render {:?} with with blur",
+    //         start.elapsed().as_nanos(),
+    //         self.position,
+    //     );
+    // }
 }
 
 // Gets all the lights in this chunk and the surrounding chunks
@@ -293,63 +291,63 @@ fn get_lights(
     lights
 }
 
-#[cfg(test)]
-mod tests {
-    use rc_shared::block::types::Block;
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let mut chunk_data = [[[0; 16]; 16]; 16];
-
-        // Light source
-        chunk_data[2][4][4] = 2;
-
-        let chunk_pos = Vector3::new(0, 0, 0);
-        let chunk = ChunkData::test_new(chunk_data, chunk_pos);
-
-        let cache = NearbyChunkCache::empty(chunk_pos);
-        let mut states = BlockStates::new();
-
-        // Add sample blocks
-        states.states.push(Block {
-            identifier: "mcv3::Air".to_string(),
-            translucent: true,
-            full: false,
-            draw_betweens: false,
-            faces: vec![],
-            collision_boxes: vec![],
-            bounding_boxes: vec![],
-            emission: [0; 4],
-        });
-        states.states.push(Block {
-            identifier: "mcv3::Test".to_string(),
-            translucent: false,
-            full: true,
-            draw_betweens: false,
-            faces: vec![],
-            collision_boxes: vec![],
-            bounding_boxes: vec![],
-            emission: [0; 4],
-        });
-        states.states.push(Block {
-            identifier: "mcv3::Light".to_string(),
-            translucent: false,
-            full: true,
-            draw_betweens: false,
-            faces: vec![],
-            collision_boxes: vec![],
-            bounding_boxes: vec![],
-            emission: [255, 255, 255, 255],
-        });
-
-        let mut out = [[[[0; 4]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
-
-        let start = Instant::now();
-        let lighting_update = chunk.build_lighting_blur(&states, &cache, &mut out);
-        let elapsed = start.elapsed();
-        println!("Time {}ns {}ms", elapsed.as_nanos(), elapsed.as_millis_f64());
-
-        println!("Output: {:?}", out);
-    }
-}
+// #[cfg(test)]
+// mod tests {
+//     use rc_shared::block::types::Block;
+//     use super::*;
+//
+//     #[test]
+//     fn it_works() {
+//         let mut chunk_data = [[[0; 16]; 16]; 16];
+//
+//         // Light source
+//         chunk_data[2][4][4] = 2;
+//
+//         let chunk_pos = Vector3::new(0, 0, 0);
+//         let chunk = ChunkData::test_new(chunk_data, chunk_pos);
+//
+//         let cache = NearbyChunkCache::empty(chunk_pos);
+//         let mut states = BlockStates::new();
+//
+//         // Add sample blocks
+//         states.states.push(Block {
+//             identifier: "mcv3::Air".to_string(),
+//             translucent: true,
+//             full: false,
+//             draw_betweens: false,
+//             faces: vec![],
+//             collision_boxes: vec![],
+//             bounding_boxes: vec![],
+//             emission: [0; 4],
+//         });
+//         states.states.push(Block {
+//             identifier: "mcv3::Test".to_string(),
+//             translucent: false,
+//             full: true,
+//             draw_betweens: false,
+//             faces: vec![],
+//             collision_boxes: vec![],
+//             bounding_boxes: vec![],
+//             emission: [0; 4],
+//         });
+//         states.states.push(Block {
+//             identifier: "mcv3::Light".to_string(),
+//             translucent: false,
+//             full: true,
+//             draw_betweens: false,
+//             faces: vec![],
+//             collision_boxes: vec![],
+//             bounding_boxes: vec![],
+//             emission: [255, 255, 255, 255],
+//         });
+//
+//         let mut out = [[[[0; 4]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
+//
+//         let start = Instant::now();
+//         let lighting_update = chunk.build_lighting_blur(&states, &cache, &mut out);
+//         let elapsed = start.elapsed();
+//         println!("Time {}ns {}ms", elapsed.as_nanos(), elapsed.as_millis_f64());
+//
+//         println!("Output: {:?}", out);
+//     }
+// }

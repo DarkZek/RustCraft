@@ -24,7 +24,7 @@ pub fn setup_loading_ui(mut commands: Commands, mut data: ResMut<LoadingUIData>)
                 position_type: PositionType::Absolute,
                 ..default()
             },
-            background_color: Color::rgb(0.361, 0.42, 0.753).into(),
+            background_color: Color::srgb(0.361, 0.42, 0.753).into(),
             ..default()
         })
         .id();

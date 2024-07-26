@@ -22,7 +22,7 @@ enum DestroyBlockCommand {
 // TODO: Move this into a more extensible system
 fn get_destroy_block_providers(
 ) -> Vec<fn(block_id: u32, pos: Vector3<i32>, world: &mut World) -> DestroyBlockCommand> {
-    vec![|block_id: u32, pos: Vector3<i32>, world: &mut World| {
+    vec![|block_id: u32, _pos: Vector3<i32>, world: &mut World| {
         let block_states = world.get_resource::<BlockStates>().unwrap();
 
         let ctable_id = block_states.get_by_id("mcv3::ConstructionTable").unwrap().0 as u32;

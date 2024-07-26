@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 pub mod game;
 pub mod state;
 pub mod systems;
@@ -65,7 +67,7 @@ fn main() {
 
         .insert_resource(AmbientLight {
             brightness: 175.0,
-            color: Color::rgb(0.95, 0.95, 1.0)
+            color: Color::srgb(0.95, 0.95, 1.0)
         })
 
         // add the app state

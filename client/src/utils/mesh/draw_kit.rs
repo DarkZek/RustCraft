@@ -1,4 +1,4 @@
-use crate::systems::chunk::builder::{ATTRIBUTE_LIGHTING_COLOR, ATTRIBUTE_WIND_STRENGTH};
+use crate::systems::chunk::builder::ATTRIBUTE_WIND_STRENGTH;
 use bevy::prelude::Mesh;
 use bevy::render::mesh::{Indices, VertexAttributeValues};
 use nalgebra::Vector3;
@@ -110,12 +110,12 @@ impl DrawKit {
         mesh.insert_attribute(Mesh::ATTRIBUTE_NORMAL, self.normals);
         mesh.insert_attribute(Mesh::ATTRIBUTE_UV_0, self.uv_coordinates);
 
-        if let Some(lighting) = self.lighting.take() {
-            // mesh.insert_attribute(
-            //     ATTRIBUTE_LIGHTING_COLOR,
-            //     VertexAttributeValues::Float32x4(lighting),
-            // );
-        }
+        // if let Some(lighting) = self.lighting.take() {
+        //     mesh.insert_attribute(
+        //         ATTRIBUTE_LIGHTING_COLOR,
+        //         VertexAttributeValues::Float32x4(lighting),
+        //     );
+        // }
 
         if let Some(wind_strength) = self.wind_strength.take() {
             mesh.insert_attribute(

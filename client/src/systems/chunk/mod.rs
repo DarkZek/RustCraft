@@ -1,5 +1,5 @@
 use crate::systems::asset::AssetService;
-use crate::systems::chunk::builder::{mesh_builder, RerenderChunkFlag, ATTRIBUTE_LIGHTING_COLOR, ATTRIBUTE_WIND_STRENGTH};
+use crate::systems::chunk::builder::{mesh_builder, RerenderChunkFlag, ATTRIBUTE_WIND_STRENGTH};
 use crate::systems::chunk::data::ChunkData;
 use crate::systems::chunk::request::request_chunks;
 use bevy::prelude::*;
