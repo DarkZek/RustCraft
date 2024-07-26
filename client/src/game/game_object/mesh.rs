@@ -6,7 +6,7 @@ use rc_shared::block::BlockStates;
 use rc_shared::item::ItemStates;
 use rc_shared::viewable_direction::{ViewableDirectionBitMap};
 use crate::game::block::Draw;
-use crate::systems::chunk::mesh::draw_kit::DrawKit;
+use crate::utils::mesh::draw_kit::DrawKit;
 
 const ITEM_SCALING_FACTOR: f32 = 4.0;
 
@@ -18,7 +18,7 @@ pub fn generate_item_mesh(
 
     let mut mesh = Mesh::new(PrimitiveTopology::TriangleList, RenderAssetUsages::all());
 
-    let mut draw_kit = DrawKit::new();
+    let mut draw_kit = DrawKit::new().with_wind_strength();
 
     let (_, item) = item_states.get_by_id(identifier).unwrap();
 

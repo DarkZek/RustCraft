@@ -1,7 +1,5 @@
 use crate::systems::asset::AssetService;
-use crate::systems::chunk::builder::{
-    mesh_builder, RerenderChunkFlag, ATTRIBUTE_LIGHTING_COLOR,
-};
+use crate::systems::chunk::builder::{mesh_builder, RerenderChunkFlag, ATTRIBUTE_LIGHTING_COLOR, ATTRIBUTE_WIND_STRENGTH};
 use crate::systems::chunk::data::ChunkData;
 use crate::systems::chunk::request::request_chunks;
 use bevy::prelude::*;
@@ -17,7 +15,6 @@ use std::collections::HashMap;
 pub mod builder;
 pub mod data;
 pub mod lookup;
-pub mod mesh;
 pub mod nearby_cache;
 mod request;
 
@@ -62,9 +59,12 @@ impl ChunkSystem {
         mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, vec![] as Vec<[f32; 3]>);
         mesh.insert_attribute(Mesh::ATTRIBUTE_NORMAL, vec![] as Vec<[f32; 3]>);
         mesh.insert_attribute(Mesh::ATTRIBUTE_UV_0, vec![] as Vec<[f32; 2]>);
-        mesh.insert_attribute(ATTRIBUTE_LIGHTING_COLOR, vec![] as Vec<[f32; 4]>);
+        //mesh.insert_attribute(ATTRIBUTE_LIGHTING_COLOR, vec![] as Vec<[f32; 4]>);
 
         let opaque = meshes.add(mesh.clone());
+
+        mesh.insert_attribute(ATTRIBUTE_WIND_STRENGTH, vec![] as Vec<f32>);
+
         let translucent = meshes.add(mesh);
 
         let mut opaque_entity = None;

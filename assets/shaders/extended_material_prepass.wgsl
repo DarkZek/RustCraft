@@ -1,7 +1,7 @@
 #import bevy_pbr::{
     prepass_bindings,
     mesh_functions,
-    prepass_io::{Vertex, VertexOutput, FragmentOutput},
+    prepass_io::{FragmentOutput},
     skinning,
     morph,
     mesh_view_bindings::view,
@@ -13,6 +13,84 @@
 #import bevy_pbr::rgb9e5
 #endif
 
+struct CustomVertexInput {
+    @builtin(instance_index) instance_index: u32,
+    @location(0) position: vec3<f32>,
+
+#ifdef VERTEX_UVS_A
+    @location(1) uv: vec2<f32>,
+#endif
+
+#ifdef VERTEX_UVS_B
+    @location(2) uv_b: vec2<f32>,
+#endif
+
+#ifdef NORMAL_PREPASS_OR_DEFERRED_PREPASS
+    @location(3) normal: vec3<f32>,
+#ifdef VERTEX_TANGENTS
+    @location(4) tangent: vec4<f32>,
+#endif
+#endif // NORMAL_PREPASS_OR_DEFERRED_PREPASS
+
+#ifdef SKINNED
+    @location(5) joint_indices: vec4<u32>,
+    @location(6) joint_weights: vec4<f32>,
+#endif
+
+#ifdef VERTEX_COLORS
+    @location(7) color: vec4<f32>,
+#endif
+
+    //@location(14) lighting: vec4<f32>
+
+#ifdef IS_TRANSLUCENT
+    @location(15) wind_strength: f32,
+#endif
+
+#ifdef MORPH_TARGETS
+    @builtin(vertex_index) index: u32,
+#endif // MORPH_TARGETS
+};
+
+struct CustomVertexOutput {
+    // This is `clip position` when the struct is used as a vertex stage output
+    // and `frag coord` when used as a fragment stage input
+    @builtin(position) position: vec4<f32>,
+
+#ifdef VERTEX_UVS_A
+    @location(0) uv: vec2<f32>,
+#endif
+
+#ifdef VERTEX_UVS_B
+    @location(1) uv_b: vec2<f32>,
+#endif
+
+#ifdef NORMAL_PREPASS_OR_DEFERRED_PREPASS
+    @location(2) world_normal: vec3<f32>,
+#ifdef VERTEX_TANGENTS
+    @location(3) world_tangent: vec4<f32>,
+#endif
+#endif // NORMAL_PREPASS_OR_DEFERRED_PREPASS
+
+    @location(4) world_position: vec4<f32>,
+#ifdef MOTION_VECTOR_PREPASS
+    @location(5) previous_world_position: vec4<f32>,
+#endif
+
+#ifdef DEPTH_CLAMP_ORTHO
+    @location(6) clip_position_unclamped: vec4<f32>,
+#endif // DEPTH_CLAMP_ORTHO
+#ifdef VERTEX_OUTPUT_INSTANCE_INDEX
+    @location(7) instance_index: u32,
+#endif
+
+#ifdef VERTEX_COLORS
+    @location(8) color: vec4<f32>,
+#endif
+
+    //@location(14) lighting: vec4<f32>
+}
+
 #ifdef IS_TRANSLUCENT
 struct ChunkExtendedMaterial {
     time: f32
@@ -23,7 +101,7 @@ var<uniform> chunk_material: ChunkExtendedMaterial;
 #endif
 
 #ifdef MORPH_TARGETS
-fn morph_vertex(vertex_in: Vertex) -> Vertex {
+fn morph_vertex(vertex_in: CustomVertexInput) -> CustomVertexInput {
     var vertex = vertex_in;
     let weight_count = morph::layer_count();
     for (var i: u32 = 0u; i < weight_count; i ++) {
@@ -46,7 +124,7 @@ fn morph_vertex(vertex_in: Vertex) -> Vertex {
 //
 // This function is used for motion vector calculation, and, as such, it doesn't
 // bother morphing the normals and tangents.
-fn morph_prev_vertex(vertex_in: Vertex) -> Vertex {
+fn morph_prev_vertex(vertex_in: CustomVertexInput) -> Vertex {
     var vertex = vertex_in;
     let weight_count = morph::layer_count();
     for (var i: u32 = 0u; i < weight_count; i ++) {
@@ -63,8 +141,8 @@ fn morph_prev_vertex(vertex_in: Vertex) -> Vertex {
 #endif  // MORPH_TARGETS
 
 @vertex
-fn vertex(vertex_no_morph: Vertex) -> VertexOutput {
-    var out: VertexOutput;
+fn vertex(vertex_no_morph: CustomVertexInput) -> CustomVertexOutput {
+    var out: CustomVertexOutput;
 
 #ifdef MORPH_TARGETS
     var vertex = morph_vertex(vertex_no_morph);
@@ -82,9 +160,9 @@ fn vertex(vertex_no_morph: Vertex) -> VertexOutput {
 
     out.world_position = mesh_functions::mesh_position_local_to_world(world_from_local, vec4<f32>(vertex.position, 1.0));
 
-    #ifdef IS_TRANSLUCENT
-        out.world_position += get_wind(out.world_position, chunk_material.time);
-    #endif // IS_TRANSLUCENT
+#ifdef IS_TRANSLUCENT
+    out.world_position += get_wind(out.world_position, chunk_material.time) * vertex_no_morph.wind_strength;
+#endif // IS_TRANSLUCENT
 
     out.position = position_world_to_clip(out.world_position.xyz);
 #ifdef DEPTH_CLAMP_ORTHO
@@ -177,7 +255,7 @@ fn vertex(vertex_no_morph: Vertex) -> VertexOutput {
 
 #ifdef PREPASS_FRAGMENT
 @fragment
-fn fragment(in: VertexOutput) -> FragmentOutput {
+fn fragment(in: CustomVertexOutput) -> FragmentOutput {
     var out: FragmentOutput;
 
 #ifdef NORMAL_PREPASS

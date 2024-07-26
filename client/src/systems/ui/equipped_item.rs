@@ -1,5 +1,6 @@
+use bevy::color::palettes::css::RED;
 use bevy::pbr::NotShadowCaster;
-use bevy::prelude::{Assets, Camera, Camera3dBundle, ClearColorConfig, Commands, Cuboid, default, Entity, Handle, Local, MaterialMeshBundle, Mesh, PerspectiveProjection, Query, Rectangle, Res, ResMut, Resource, Transform};
+use bevy::prelude::{AmbientLight, Assets, Camera, Camera3dBundle, ClearColorConfig, Commands, Cuboid, default, Entity, Handle, Local, MaterialMeshBundle, Mesh, PerspectiveProjection, Query, Rectangle, Res, ResMut, Resource, Transform};
 use bevy::render::mesh::PrimitiveTopology;
 use bevy::render::render_asset::RenderAssetUsages;
 use bevy::render::view::RenderLayers;
@@ -8,10 +9,11 @@ use rc_shared::item::ItemStates;
 use crate::game::game_object::mesh::generate_item_mesh;
 use crate::game::inventory::Inventory;
 use crate::systems::asset::AssetService;
+use crate::systems::chunk::builder::ATTRIBUTE_WIND_STRENGTH;
 
 /// Used by the view model camera and the player's equipped item.
 /// The light sources belong to both layers
-const VIEW_MODEL_RENDER_LAYER: usize = 1;
+pub const VIEW_MODEL_RENDER_LAYER: usize = 1;
 
 #[derive(Resource)]
 pub struct EquippedItemData {
@@ -43,10 +45,13 @@ pub fn setup_equipped_item(
         RenderLayers::layer(VIEW_MODEL_RENDER_LAYER),
     ));
 
+    let mut empty_mesh = Mesh::new(PrimitiveTopology::TriangleList, RenderAssetUsages::all());
+    empty_mesh.insert_attribute(ATTRIBUTE_WIND_STRENGTH, vec![] as Vec<f32>);
+
     // Spawn the player's right arm.
     let mesh_entity = commands.spawn((
         MaterialMeshBundle {
-            mesh: meshes.add(Mesh::new(PrimitiveTopology::TriangleList, RenderAssetUsages::all())),
+            mesh: meshes.add(empty_mesh),
             material: asset_service.translucent_texture_atlas_material.clone(),
             transform: Transform::from_xyz(0.3, -0.34, -0.4),
             ..default()
@@ -65,7 +70,7 @@ pub fn setup_equipped_item(
 
 pub fn update_equipped_item_mesh(
     mut meshes: ResMut<Assets<Mesh>>,
-    mut query: Query<&Handle<Mesh>>,
+    query: Query<&Handle<Mesh>>,
     mut data: ResMut<EquippedItemData>,
     block_states: Res<BlockStates>,
     item_states: Res<ItemStates>,
@@ -82,7 +87,11 @@ pub fn update_equipped_item_mesh(
     let mesh = if let Some(identifier) = &data.equipped_identifier {
         generate_item_mesh(identifier, &block_states, &item_states)
     } else {
-        Mesh::new(PrimitiveTopology::TriangleList, RenderAssetUsages::all())
+        let mut mesh = Mesh::new(PrimitiveTopology::TriangleList, RenderAssetUsages::all());
+
+        mesh.insert_attribute(ATTRIBUTE_WIND_STRENGTH, vec![] as Vec<f32>);
+
+        mesh
     };
 
     let mesh_handle = query.get(data.mesh_entity).unwrap();

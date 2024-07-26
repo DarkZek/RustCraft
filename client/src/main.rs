@@ -1,8 +1,8 @@
 pub mod game;
 pub mod state;
 pub mod systems;
+pub mod utils;
 
-use bevy::core_pipeline::auto_exposure::AutoExposurePlugin;
 use crate::game::events::GameEventsPlugin;
 use crate::game::game_object::GameObjectPlugin;
 use crate::game::interaction::highlight::{

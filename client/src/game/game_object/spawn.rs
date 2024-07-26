@@ -19,6 +19,7 @@ use rc_shared::aabb::Aabb;
 use rc_shared::block::BlockStates;
 use crate::game::game_object::mesh::generate_item_mesh;
 use crate::systems::asset::AssetService;
+use crate::systems::chunk::builder::ATTRIBUTE_WIND_STRENGTH;
 
 pub fn messages_update(
     mut event_reader: EventReader<ReceivePacket>,
@@ -70,7 +71,13 @@ pub fn messages_update(
                     size = 0.2;
                     generate_item_mesh(identifier, &block_states, &item_states)
                 } else {
-                    Mesh::from(Cuboid::new(1.0, 1.0, 1.0))
+                    let mut mesh = Mesh::from(Cuboid::new(1.0, 1.0, 1.0));
+
+                    let len = mesh.attribute(Mesh::ATTRIBUTE_POSITION).unwrap().len();
+
+                    mesh.insert_attribute(ATTRIBUTE_WIND_STRENGTH, vec![0.0f32; len] as Vec<f32>);
+
+                    mesh
                 };
 
                 let entity_id = commands

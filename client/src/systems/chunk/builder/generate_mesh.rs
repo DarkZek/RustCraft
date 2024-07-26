@@ -1,15 +1,13 @@
 use crate::game::block::Draw;
 use crate::systems::chunk::data::ChunkData;
-use crate::systems::chunk::mesh::draw_kit::DrawKit;
 use crate::systems::chunk::nearby_cache::NearbyChunkCache;
-use crate::systems::chunk::ChunkSystem;
 use bevy::ecs::component::Component;
-use fnv::FnvHashMap;
 use nalgebra::Vector3;
 use rc_shared::block::BlockStates;
 use rc_shared::helpers::global_to_local_position;
 use rc_shared::viewable_direction::{ViewableDirection, BLOCK_SIDES};
 use rc_shared::CHUNK_SIZE;
+use crate::utils::mesh::draw_kit::DrawKit;
 
 #[derive(Component)]
 pub struct UpdateChunkMesh {
@@ -30,7 +28,7 @@ impl ChunkData {
         let viewable = self.generate_viewable_map(block_states, cache, edge_faces);
 
         let mut opaque = DrawKit::new().with_lighting();
-        let mut translucent = DrawKit::new().with_lighting();
+        let mut translucent = DrawKit::new().with_lighting().with_wind_strength();
 
         // Create the buffers to add the mesh data into
         let chunk = self.world;

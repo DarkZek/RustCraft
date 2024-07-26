@@ -18,12 +18,6 @@ use rc_shared::aabb::Aabb;
 
 pub fn messages_update(
     mut event_reader: EventReader<ReceivePacket>,
-    mut transforms: Query<&mut Transform>,
-    mut physics_objects: Query<&mut PhysicsObject>,
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-    mut system: ResMut<NetworkingSystem>,
     mut app_state: ResMut<NextState<AppState>>,
     mut inventory: ResMut<Inventory>,
     item_state: Res<ItemStates>

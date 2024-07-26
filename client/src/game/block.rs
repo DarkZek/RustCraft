@@ -1,8 +1,8 @@
-use crate::systems::chunk::mesh::draw_kit::DrawKit;
 use nalgebra::Vector3;
 use rc_shared::block::types::Block;
 use rc_shared::chunk::LightingColor;
 use rc_shared::viewable_direction::{AxisAlignedDirection, ViewableDirection};
+use crate::utils::mesh::draw_kit::DrawKit;
 
 pub trait Draw {
     fn draw(

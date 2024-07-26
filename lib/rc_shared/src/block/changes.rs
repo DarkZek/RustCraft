@@ -97,7 +97,8 @@ pub fn track_blockstate_changes(
                     normal,
                     edge: face.edge,
                     direction,
-                })
+                    wind_strengths: face.wind_strengths,
+                });
             }
 
             new_block_states.push(new_block);

@@ -4,7 +4,7 @@ mod inventory;
 pub mod loading;
 pub mod main_menu;
 pub mod debugging;
-mod equipped_item;
+pub mod equipped_item;
 
 use crate::state::AppState;
 use crate::systems::ui::connecting::ConnectingData;

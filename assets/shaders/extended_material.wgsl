@@ -60,6 +60,10 @@ struct CustomVertexInput {
 
     //@location(14) lighting: vec4<f32>
 
+#ifdef IS_TRANSLUCENT
+    @location(15) wind_strength: f32,
+#endif
+
 #ifdef MORPH_TARGETS
     @builtin(vertex_index) index: u32,
 #endif
@@ -122,7 +126,7 @@ fn vertex(vertex_no_morph: CustomVertexInput) -> VertexOutput {
         out.world_position = mesh_functions::mesh_position_local_to_world(world_from_local, vec4<f32>(vertex_no_morph.position, 1.0));
 
     #ifdef IS_TRANSLUCENT
-        out.world_position += get_wind(out.world_position, chunk_material.time);
+        out.world_position += get_wind(out.world_position, chunk_material.time) * vertex_no_morph.wind_strength;
     #endif // IS_TRANSLUCENT
 
         out.position = position_world_to_clip(out.world_position.xyz);
@@ -172,7 +176,9 @@ fn fragment(
     input.position = in.position;
     input.world_position = in.world_position;
     input.world_normal = in.world_normal;
+#ifdef VERTEX_UVS_A
     input.uv = in.uv;
+#endif // VERTEX_UVS_A
     input.instance_index = in.instance_index;
 
     // generate a PbrInput struct from the StandardMaterial bindings
@@ -193,8 +199,6 @@ fn fragment(
     // note this does not include fullscreen postprocessing effects like bloom.
     out.color = main_pass_post_lighting_processing(pbr_input, out.color);
 #endif
-
-    //out.color *= in.lighting;
 
     return out;
 }

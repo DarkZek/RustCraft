@@ -26,6 +26,9 @@ use crate::systems::camera::MainCamera;
 pub const ATTRIBUTE_LIGHTING_COLOR: MeshVertexAttribute =
     MeshVertexAttribute::new("Lighting", 988540917, VertexFormat::Float32x4);
 
+pub const ATTRIBUTE_WIND_STRENGTH: MeshVertexAttribute =
+    MeshVertexAttribute::new("WindStrength", 988520913, VertexFormat::Float32);
+
 #[derive(Event)]
 pub struct RerenderChunkFlag {
     pub chunk: Vector3<i32>,
@@ -33,7 +36,7 @@ pub struct RerenderChunkFlag {
     pub context: RerenderChunkFlagContext,
 }
 
-// The context surrounding the renrender chunk flag to know if we should load other chunks around
+// The context surrounding the rerender chunk flag to know if we should load other chunks around
 #[derive(Eq, PartialEq)]
 pub enum RerenderChunkFlagContext {
     None,
@@ -133,7 +136,7 @@ pub fn mesh_builder(
 
     // Filter out any still processing handles
     for mut task in existing_tasks {
-        if let Some(mut update) = block_on(future::poll_once(&mut task)) {
+        if let Some(update) = block_on(future::poll_once(&mut task)) {
             // TODO: Ensure no blocks have changed since cloned
             if let Some(chunk) = chunks.chunks.get_mut(&update.chunk) {
                 if chunk.handles.is_none() {

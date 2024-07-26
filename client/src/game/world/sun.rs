@@ -3,6 +3,8 @@ use bevy::prelude::*;
 use bevy::pbr::CascadeShadowConfigBuilder;
 use std::f32::consts::PI;
 use std::time::{SystemTime, UNIX_EPOCH};
+use bevy::render::view::RenderLayers;
+use crate::systems::ui::equipped_item::VIEW_MODEL_RENDER_LAYER;
 
 #[derive(Resource)]
 pub struct SunData {
@@ -50,26 +52,31 @@ pub fn setup_sun(
         .id();
 
     let directional_light = commands
-        .spawn(DirectionalLightBundle {
-            directional_light: DirectionalLight {
-                color: Color::rgb(1., 1.0, 0.8),
-                illuminance: 3200.0,
-                shadows_enabled: true,
+        .spawn(
+            (
+            DirectionalLightBundle {
+                directional_light: DirectionalLight {
+                    color: Color::rgb(1., 1.0, 0.8),
+                    illuminance: 3200.0,
+                    shadows_enabled: true,
+                    ..default()
+                },
+                transform: Transform {
+                    translation: Vec3::new(0.0, 0.0, 0.0),
+                    rotation: Quat::from_rotation_x(4.),
+                    ..default()
+                },
+                cascade_shadow_config: CascadeShadowConfigBuilder {
+                    first_cascade_far_bound: 4.0,
+                    maximum_distance: 100.0,
+                    ..default()
+                }
+                .into(),
                 ..default()
             },
-            transform: Transform {
-                translation: Vec3::new(0.0, 0.0, 0.0),
-                rotation: Quat::from_rotation_x(4.),
-                ..default()
-            },
-            cascade_shadow_config: CascadeShadowConfigBuilder {
-                first_cascade_far_bound: 4.0,
-                maximum_distance: 100.0,
-                ..default()
-            }
-            .into(),
-            ..default()
-        })
+            RenderLayers::from_layers(&[0, VIEW_MODEL_RENDER_LAYER]
+        )
+        ))
         .id();
 
     commands.insert_resource(SunData {

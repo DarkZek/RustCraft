@@ -349,7 +349,8 @@
           ],
           "texture": "game/long_grass",
           "edge": false,
-          "direction": 1
+          "direction": 1,
+          "wind_strengths": [0.0, 1.0, 1.0, 0.0]
         },
         {
           "top_left": [
@@ -369,7 +370,8 @@
           ],
           "texture": "game/long_grass",
           "edge": false,
-          "direction": 1
+          "direction": 1,
+          "wind_strengths": [0.0, 1.0, 1.0, 0.0]
         },
         {
           "top_left": [
@@ -389,7 +391,8 @@
           ],
           "texture": "game/long_grass",
           "edge": false,
-          "direction": 1
+          "direction": 1,
+          "wind_strengths": [0.0, 1.0, 1.0, 0.0]
         },
         {
           "top_left": [
@@ -409,7 +412,8 @@
           ],
           "texture": "game/long_grass",
           "edge": false,
-          "direction": 1
+          "direction": 1,
+          "wind_strengths": [0.0, 1.0, 1.0, 0.0]
         }
       ],
       "colliders": [
@@ -614,7 +618,8 @@
           ],
           "texture": "game/tree_leaves",
           "edge": true,
-          "direction": 1
+          "direction": 1,
+          "wind_strengths": [0.7, 0.7, 0.7, 0.7]
         },
         {
           "top_left": [
@@ -634,7 +639,8 @@
           ],
           "texture": "game/tree_leaves",
           "edge": true,
-          "direction": 2
+          "direction": 2,
+          "wind_strengths": [0.7, 0.7, 0.7, 0.7]
         },
         {
           "top_left": [
@@ -654,7 +660,8 @@
           ],
           "texture": "game/tree_leaves",
           "edge": true,
-          "direction": 4
+          "direction": 4,
+          "wind_strengths": [0.7, 0.7, 0.7, 0.7]
         },
         {
           "top_left": [
@@ -674,7 +681,8 @@
           ],
           "texture": "game/tree_leaves",
           "edge": true,
-          "direction": 8
+          "direction": 8,
+          "wind_strengths": [0.7, 0.7, 0.7, 0.7]
         },
         {
           "top_left": [
@@ -694,7 +702,8 @@
           ],
           "texture": "game/tree_leaves",
           "edge": true,
-          "direction": 16
+          "direction": 16,
+          "wind_strengths": [0.7, 0.7, 0.7, 0.7]
         },
         {
           "top_left": [
@@ -714,7 +723,8 @@
           ],
           "texture": "game/tree_leaves",
           "edge": true,
-          "direction": 32
+          "direction": 32,
+          "wind_strengths": [0.7, 0.7, 0.7, 0.7]
         }
       ],
       "colliders": [

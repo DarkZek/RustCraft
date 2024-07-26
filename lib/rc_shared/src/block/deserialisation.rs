@@ -29,6 +29,7 @@ pub struct DeserialisedFace {
     // If face is at the edge of a face, and its direction is against a block where it could be fulled, then cull the face
     pub edge: bool,
     pub direction: u8,
+    pub wind_strengths: Option<[f32; 4]>
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
