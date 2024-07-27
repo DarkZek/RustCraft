@@ -1,8 +1,6 @@
 use crate::aabb::Aabb;
 use crate::block::face::Face;
 
-
-
 #[derive(Debug, Clone)]
 pub struct Block {
     pub identifier: String,

@@ -7,7 +7,7 @@ use rc_shared::CHUNK_SIZE;
 
 pub mod viewable;
 
-#[derive(Debug, Component, Clone)]
+#[derive(Debug, Component, Clone, PartialEq)]
 pub struct ChunkData {
     pub position: Vector3<i32>,
 
@@ -62,7 +62,7 @@ impl ChunkData {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct ChunkHandleData {
     pub entity: Entity,
     pub opaque_entity: Entity,

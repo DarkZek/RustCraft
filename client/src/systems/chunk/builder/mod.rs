@@ -87,10 +87,6 @@ impl MeshBuilderCache {
             }
         }
 
-        if self.chunks.len() >= MAX_PROCESSING_CHUNKS {
-            debug!("Chunk Builder queue ({}) at maximum capacity for this frame. Just increased by {}", self.chunks.len(), rerender_chunks.len());
-        }
-
         // Loop over all new chunks to render and add them to the list if the chunk exists and if its not already being rerendered
         for pos in rerender_chunks {
             // The chunk data exists
@@ -125,6 +121,10 @@ pub fn mesh_builder(
     PLAYER_POS[0].store(pos.x as i32, Ordering::SeqCst);
     PLAYER_POS[1].store(pos.y as i32, Ordering::SeqCst);
     PLAYER_POS[2].store(pos.z as i32, Ordering::SeqCst);
+
+    if builder_data.chunks.len() >= MAX_PROCESSING_CHUNKS {
+        debug!("Chunk Builder queue ({}) at maximum capacity for this frame. Just increased by {}", builder_data.chunks.len(), flags.len());
+    }
 
     builder_data.update_requested_chunks(flags, &mut chunks);
 

@@ -117,6 +117,14 @@ impl ChunkSystem {
 
         self.chunks.insert(position, chunk);
     }
+
+    pub fn unload_chunk(&mut self, position: Vector3<i32>, commands: &mut Commands) {
+        if let Some(chunk) = self.chunks.remove(&position) {
+            if let Some(handles) = chunk.handles {
+                commands.entity(handles.entity).despawn_recursive();
+            }
+        }
+    }
 }
 
 impl ChunkSystemTrait for ChunkSystem {
