@@ -27,8 +27,8 @@ impl ChunkData {
 
         let viewable = self.generate_viewable_map(block_states, cache, edge_faces);
 
-        let mut opaque = DrawKit::new().with_lighting();
-        let mut translucent = DrawKit::new().with_lighting().with_wind_strength();
+        let mut opaque = DrawKit::new();
+        let mut translucent = DrawKit::new().with_wind_strength();
 
         // Create the buffers to add the mesh data into
         let chunk = self.world;
@@ -51,6 +51,11 @@ impl ChunkData {
                                     + (self.position * CHUNK_SIZE as i32),
                             );
 
+                            if chunk_pos == self.position {
+                                light_color[i] = self.light_levels[local_pos.x][local_pos.y][local_pos.z];
+                                continue;
+                            }
+
                             light_color[i] = if let Some(chunk) = cache.get_chunk(chunk_pos) {
                                 chunk.light_levels[local_pos.x][local_pos.y][local_pos.z]
                             } else {
@@ -61,7 +66,7 @@ impl ChunkData {
                         block.draw(
                             Vector3::new(x as f32, y as f32, z as f32),
                             ViewableDirection(viewable),
-                            Some(light_color),
+                            light_color,
                             if block.translucent {
                                 &mut translucent
                             } else {

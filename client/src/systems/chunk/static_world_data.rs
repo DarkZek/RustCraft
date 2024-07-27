@@ -1,7 +1,7 @@
 use std::fs;
 use bevy::asset::{Asset, Assets, AssetServer};
 use bevy::input::ButtonInput;
-use bevy::prelude::{AssetEvent, Camera3d, Commands, EventReader, EventWriter, Handle, info, KeyCode, Mesh, Quat, Query, Res, ResMut, Resource, Transform, TypePath, With};
+use bevy::prelude::{AssetEvent, Camera3d, Commands, EventReader, EventWriter, Handle, info, KeyCode, Mesh, Quat, Query, Res, ResMut, Resource, Transform, TypePath, warn, With};
 use nalgebra::{Vector3, Vector4};
 use serde::{Deserialize, Serialize};
 use rc_shared::block::deserialisation::{BlockStatesFile, DeserialisedBlock};
@@ -73,8 +73,12 @@ pub fn save_surroundings(
         }
     }
 
-    fs::write("../../../chunk_lighting_benchmark.mpk", rmp_serde::to_vec(&serialized_data).unwrap()).unwrap();
+    let save = fs::write("static_world_data.mpk", rmp_serde::to_vec(&serialized_data).unwrap());
 
-    info!("Saved static world data");
+    if let Err(e) = save {
+        warn!("Failed to save static_world_data.mpk. Reason: {}", e);
+    } else {
+        info!("Saved static world data");
+    }
 
 }

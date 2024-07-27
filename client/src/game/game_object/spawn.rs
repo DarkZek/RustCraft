@@ -14,7 +14,7 @@ use rc_shared::aabb::Aabb;
 use rc_shared::block::BlockStates;
 use crate::game::game_object::mesh::generate_item_mesh;
 use crate::systems::asset::AssetService;
-use crate::systems::chunk::builder::ATTRIBUTE_WIND_STRENGTH;
+use crate::systems::chunk::builder::{ATTRIBUTE_LIGHTING_COLOR, ATTRIBUTE_WIND_STRENGTH};
 
 pub fn messages_update(
     mut event_reader: EventReader<ReceivePacket>,
@@ -71,6 +71,7 @@ pub fn messages_update(
                     let len = mesh.attribute(Mesh::ATTRIBUTE_POSITION).unwrap().len();
 
                     mesh.insert_attribute(ATTRIBUTE_WIND_STRENGTH, vec![0.0f32; len] as Vec<f32>);
+                    mesh.insert_attribute(ATTRIBUTE_LIGHTING_COLOR, vec![[1.0_f32; 4]; len] as Vec<[f32; 4]>);
 
                     mesh
                 };

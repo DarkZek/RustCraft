@@ -28,26 +28,24 @@ pub struct BlockLightRecord {
 impl ChunkData {
     pub fn build_lighting(
         &self,
-        states: &BlockStates,
-        cache: &NearbyChunkCache,
+        context: LightingContext
     ) -> LightingUpdateData {
+
         let start = Instant::now();
 
-        let lights = get_lights(self.position, states, cache);
-
-        if lights.len() == 0 {
+        if context.lights.len() == 0 {
             return LightingUpdateData {
                 data: [[[[0 as u8; 4]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE],
             };
         }
 
-        let lights_len = lights.len();
+        let lights_len = context.lights.len();
 
         // Rolling average of chunk lighting data
         let mut data = [[[BlockLightRecord::default(); CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
 
         // Propagate lighting
-        for (light_pos, color) in lights {
+        for (light_pos, color) in &context.lights {
             // a 32 block wide area around the light that tracks what blocks it's visited
             let mut visited = [[[false; CHUNK_SIZE * 2]; CHUNK_SIZE * 2]; CHUNK_SIZE * 2];
 
@@ -73,16 +71,16 @@ impl ChunkData {
                     continue;
                 }
 
-                if let Some(v) = cache.get_chunk(chunk_pos) {
-                    assert_eq!(v.position, chunk_pos);
+                let local_relative_position =
+                    pos - (CHUNK_SIZE as i32 * chunk_pos)
+                        + Vector3::new(CHUNK_SIZE as i32, CHUNK_SIZE as i32, CHUNK_SIZE as i32);
 
-                    if !states
-                        .get_block(v.world[block_pos.x][block_pos.y][block_pos.z] as usize)
-                        .translucent
-                    {
-                        // Collision, bail
-                        continue;
-                    }
+                if !context.translucency_map
+                    [local_relative_position.x as usize]
+                    [local_relative_position.y as usize]
+                    [local_relative_position.z as usize] {
+                    // Collision, bail
+                    continue;
                 }
 
                 if chunk_pos == self.position {
@@ -162,42 +160,69 @@ impl ChunkData {
     }
 }
 
-// Gets all the lights in this chunk and the surrounding chunks
-fn get_lights(
-    chunk_pos: Vector3<i32>,
-    states: &BlockStates,
-    cache: &NearbyChunkCache,
-) -> Vec<(Vector3<i32>, [u8; 4])> {
-    let mut lights = Vec::new();
+pub struct LightingContext {
+    // Location of all lights in the scene
+    lights: Vec<(Vector3<i32>, [u8; 4])>,
+    // Translucency of all blocks in the surrounding chunks.
+    // TODO: Convert this into a more compressed format?
+    translucency_map: [[[bool; CHUNK_SIZE * 3]; CHUNK_SIZE * 3]; CHUNK_SIZE * 3]
+}
 
-    for chunk_x in (chunk_pos.x - 1)..=(chunk_pos.x + 1) {
-        for chunk_y in (chunk_pos.y - 1)..=(chunk_pos.y + 1) {
-            for chunk_z in (chunk_pos.z - 1)..=(chunk_pos.z + 1) {
-                // Get chunk
-                if let Some(chunk) = cache.get_chunk(Vector3::new(chunk_x, chunk_y, chunk_z)) {
-                    for x in 0..CHUNK_SIZE {
-                        for y in 0..CHUNK_SIZE {
-                            for z in 0..CHUNK_SIZE {
-                                let block = states.get_block(chunk.world[x][y][z] as usize);
+// Stores any context a chunk may need to build lighting. Used so that chunk can be chucked at another thread
+impl LightingContext {
+    pub(crate) fn new(
+        chunk_pos: Vector3<i32>,
+        states: &BlockStates,
+        cache: &NearbyChunkCache,
+    ) -> LightingContext {
+        let mut lights = Vec::new();
 
-                                if block.emission[3] == 0 {
-                                    continue;
+        let mut translucency_map = [[[false; 48]; 48]; 48];
+
+        for chunk_x in (chunk_pos.x - 1)..=(chunk_pos.x + 1) {
+            for chunk_y in (chunk_pos.y - 1)..=(chunk_pos.y + 1) {
+                for chunk_z in (chunk_pos.z - 1)..=(chunk_pos.z + 1) {
+                    // Get chunk
+                    if let Some(chunk) = cache.get_chunk(Vector3::new(chunk_x, chunk_y, chunk_z)) {
+                        for x in 0..CHUNK_SIZE {
+                            for y in 0..CHUNK_SIZE {
+                                for z in 0..CHUNK_SIZE {
+                                    let block = states.get_block(chunk.world[x][y][z] as usize);
+
+                                    let block_position = Vector3::new(x, y, z).cast::<i32>()
+                                        + (CHUNK_SIZE as i32 * chunk.position);
+
+                                    // Position in 3x3 array of chunk data
+                                    let local_relative_position =
+                                        block_position - (CHUNK_SIZE as i32 * chunk_pos)
+                                            + Vector3::new(CHUNK_SIZE as i32, CHUNK_SIZE as i32, CHUNK_SIZE as i32);
+
+                                    translucency_map
+                                        [local_relative_position.x as usize]
+                                        [local_relative_position.y as usize]
+                                        [local_relative_position.z as usize] = block.translucent;
+
+                                    if block.emission[3] == 0 {
+                                        continue;
+                                    }
+
+                                    lights.push((
+                                        block_position,
+                                        block.emission,
+                                    ));
                                 }
-
-                                lights.push((
-                                    Vector3::new(x, y, z).cast::<i32>()
-                                        + (CHUNK_SIZE as i32 * chunk.position),
-                                    block.emission,
-                                ));
                             }
                         }
                     }
                 }
             }
         }
-    }
 
-    lights
+        LightingContext {
+            lights,
+            translucency_map,
+        }
+    }
 }
 
 #[cfg(test)]
@@ -208,6 +233,7 @@ mod tests {
     use fnv::FnvHashMap;
     use rc_shared::block::BlockStates;
     use rc_shared::block::types::Block;
+    use crate::systems::chunk::builder::lighting::{LightingContext};
     use crate::systems::chunk::data::ChunkData;
     use crate::systems::chunk::nearby_cache::NearbyChunkCache;
     use crate::systems::chunk::static_world_data::StaticWorldData;
@@ -269,7 +295,12 @@ mod tests {
                 let nearby_block_cache = NearbyChunkCache::from_map(&chunks, *pos);
 
                 let start = Instant::now();
-                chunk.build_lighting(&states, &nearby_block_cache);
+
+                let context = LightingContext::new(*pos, &states, &nearby_block_cache);
+
+                let translucency_map = [[[false; 48]; 48]; 48];
+
+                chunk.build_lighting(context);
                 total_time_nanos += start.elapsed().as_nanos();
             }
 

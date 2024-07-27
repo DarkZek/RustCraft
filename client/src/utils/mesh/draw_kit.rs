@@ -1,4 +1,4 @@
-use crate::systems::chunk::builder::ATTRIBUTE_WIND_STRENGTH;
+use crate::systems::chunk::builder::{ATTRIBUTE_LIGHTING_COLOR, ATTRIBUTE_WIND_STRENGTH};
 use bevy::prelude::Mesh;
 use bevy::render::mesh::{Indices, VertexAttributeValues};
 use nalgebra::Vector3;
@@ -11,7 +11,7 @@ pub struct DrawKit {
     pub indices: Vec<u32>,
     pub normals: Vec<[f32; 3]>,
     pub uv_coordinates: Vec<[f32; 2]>,
-    pub lighting: Option<Vec<[f32; 4]>>,
+    pub lighting: Vec<[f32; 4]>,
     pub wind_strength: Option<Vec<f32>>,
 }
 
@@ -22,14 +22,9 @@ impl DrawKit {
             indices: vec![],
             normals: vec![],
             uv_coordinates: vec![],
-            lighting: None,
+            lighting: vec![],
             wind_strength: None,
         }
-    }
-
-    pub fn with_lighting(mut self) -> Self {
-        self.lighting = Some(vec![]);
-        self
     }
 
     pub fn with_wind_strength(mut self) -> Self {
@@ -41,13 +36,8 @@ impl DrawKit {
         &mut self,
         position: Vector3<f32>,
         face: &Face,
-        color: Option<LightingColor>
+        color: LightingColor
     ) {
-
-        if color.is_none() != self.lighting.is_none() {
-            panic!("Attempted to set lighting color on colourless DrawKit");
-        }
-
         let center = (face.top_right + face.bottom_left) / 2.0;
 
         let bottom_right = center + (center - face.top_left);
@@ -66,15 +56,12 @@ impl DrawKit {
             self.normals
                 .push([face.normal.x, face.normal.y, face.normal.z]);
 
-            if let Some(lighting) = &mut self.lighting {
-                let color = color.unwrap();
-                lighting.push([
-                    color[0] as f32 / 255.0,
-                    color[1] as f32 / 255.0,
-                    color[2] as f32 / 255.0,
-                    color[3] as f32 / 255.0,
-                ]);
-            }
+            self.lighting.push([
+                color[0] as f32 / 255.0,
+                color[1] as f32 / 255.0,
+                color[2] as f32 / 255.0,
+                color[3] as f32 / 255.0,
+            ]);
         }
 
         self.uv_coordinates
@@ -110,12 +97,10 @@ impl DrawKit {
         mesh.insert_attribute(Mesh::ATTRIBUTE_NORMAL, self.normals);
         mesh.insert_attribute(Mesh::ATTRIBUTE_UV_0, self.uv_coordinates);
 
-        // if let Some(lighting) = self.lighting.take() {
-        //     mesh.insert_attribute(
-        //         ATTRIBUTE_LIGHTING_COLOR,
-        //         VertexAttributeValues::Float32x4(lighting),
-        //     );
-        // }
+        mesh.insert_attribute(
+            ATTRIBUTE_LIGHTING_COLOR,
+            VertexAttributeValues::Float32x4(self.lighting),
+        );
 
         if let Some(wind_strength) = self.wind_strength.take() {
             mesh.insert_attribute(

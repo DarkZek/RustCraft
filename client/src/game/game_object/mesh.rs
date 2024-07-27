@@ -3,6 +3,7 @@ use bevy::render::mesh::PrimitiveTopology;
 use bevy::render::render_asset::RenderAssetUsages;
 use nalgebra::Vector3;
 use rc_shared::block::BlockStates;
+use rc_shared::chunk::LightingColor;
 use rc_shared::item::ItemStates;
 use rc_shared::viewable_direction::{ViewableDirectionBitMap};
 use crate::game::block::Draw;
@@ -26,7 +27,7 @@ pub fn generate_item_mesh(
         block_states.get_block(block as usize).draw(
             Vector3::new(-0.5, 0.0, -0.5),
             ViewableDirectionBitMap::FULL,
-            None,
+            [[255; 4]; 6],
             &mut draw_kit
         );
     } else {

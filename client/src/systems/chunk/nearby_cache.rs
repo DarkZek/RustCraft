@@ -19,6 +19,11 @@ pub struct NearbyChunkCache<'a> {
 }
 
 impl<'a> NearbyChunkCache<'a> {
+
+    pub fn position(&self) -> Vector3<i32> {
+        self.pos
+    }
+
     pub fn empty(pos: Vector3<i32>) -> NearbyChunkCache<'a> {
         NearbyChunkCache {
             pos,

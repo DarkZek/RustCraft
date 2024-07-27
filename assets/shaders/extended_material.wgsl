@@ -58,7 +58,7 @@ struct CustomVertexInput {
     @location(7) joint_weights: vec4<f32>,
 #endif
 
-    //@location(14) lighting: vec4<f32>
+    @location(14) lighting: vec4<f32>,
 
 #ifdef IS_TRANSLUCENT
     @location(15) wind_strength: f32,
@@ -94,11 +94,11 @@ struct CustomVertexOutput {
     @location(7) @interpolate(flat) visibility_range_dither: i32,
 #endif
 
-    //@location(14) lighting: vec4<f32>
+    @location(14) lighting: vec4<f32>
 }
 
 @vertex
-fn vertex(vertex_no_morph: CustomVertexInput) -> VertexOutput {
+fn vertex(vertex_no_morph: CustomVertexInput) -> CustomVertexOutput {
     var out: CustomVertexOutput;
 
     #ifdef SKINNED
@@ -160,8 +160,8 @@ fn vertex(vertex_no_morph: CustomVertexInput) -> VertexOutput {
     #endif
 
     let ambient = 0.06;
-    // out.lighting = vec4(vertex.lighting.xyz + ambient, 1.0);
-    // out.lighting = vec4(1.0, 1.0, 1.0, 1.0);
+
+    out.lighting = vec4(vertex_no_morph.lighting.xyz + ambient, 1.0);
 
     return out;
 }
@@ -199,6 +199,8 @@ fn fragment(
     // note this does not include fullscreen postprocessing effects like bloom.
     out.color = main_pass_post_lighting_processing(pbr_input, out.color);
 #endif
+
+    out.color *= in.lighting;
 
     return out;
 }

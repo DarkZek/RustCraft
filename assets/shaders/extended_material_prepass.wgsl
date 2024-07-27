@@ -41,7 +41,7 @@ struct CustomVertexInput {
     @location(7) color: vec4<f32>,
 #endif
 
-    //@location(14) lighting: vec4<f32>
+    @location(14) lighting: vec4<f32>,
 
 #ifdef IS_TRANSLUCENT
     @location(15) wind_strength: f32,

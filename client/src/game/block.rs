@@ -9,7 +9,7 @@ pub trait Draw {
         &self,
         pos: Vector3<f32>,
         visible_map: ViewableDirection,
-        light_color: Option<[LightingColor; 6]>,
+        light_color: [LightingColor; 6],
         kit: &mut DrawKit,
     );
 }
@@ -19,7 +19,7 @@ impl Draw for Block {
         &self,
         pos: Vector3<f32>,
         visible_map: ViewableDirection,
-        light_color: Option<[LightingColor; 6]>,
+        light_color: [LightingColor; 6],
         kit: &mut DrawKit,
     ) {
         for face in &self.faces {
@@ -29,8 +29,7 @@ impl Draw for Block {
             }
 
             // Get lighting color
-            let color = light_color.map(|color|
-                color[AxisAlignedDirection::from(face.direction) as usize]);
+            let color = light_color[AxisAlignedDirection::from(face.direction) as usize];
 
             kit.draw_face(pos, face, color);
         }

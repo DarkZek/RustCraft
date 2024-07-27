@@ -1,5 +1,5 @@
 use crate::systems::asset::AssetService;
-use crate::systems::chunk::builder::{ATTRIBUTE_WIND_STRENGTH, mesh_builder, RerenderChunkFlag};
+use crate::systems::chunk::builder::{ATTRIBUTE_LIGHTING_COLOR, ATTRIBUTE_WIND_STRENGTH, mesh_builder, RerenderChunkFlag};
 use crate::systems::chunk::data::ChunkData;
 use crate::systems::chunk::request::request_chunks;
 use bevy::prelude::*;
@@ -66,7 +66,7 @@ impl ChunkSystem {
         mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, vec![] as Vec<[f32; 3]>);
         mesh.insert_attribute(Mesh::ATTRIBUTE_NORMAL, vec![] as Vec<[f32; 3]>);
         mesh.insert_attribute(Mesh::ATTRIBUTE_UV_0, vec![] as Vec<[f32; 2]>);
-        //mesh.insert_attribute(ATTRIBUTE_LIGHTING_COLOR, vec![] as Vec<[f32; 4]>);
+        mesh.insert_attribute(ATTRIBUTE_LIGHTING_COLOR, vec![] as Vec<[f32; 4]>);
 
         let opaque = meshes.add(mesh.clone());
 

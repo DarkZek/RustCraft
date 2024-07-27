@@ -8,7 +8,7 @@ use rc_shared::item::ItemStates;
 use crate::game::game_object::mesh::generate_item_mesh;
 use crate::game::inventory::Inventory;
 use crate::systems::asset::AssetService;
-use crate::systems::chunk::builder::ATTRIBUTE_WIND_STRENGTH;
+use crate::systems::chunk::builder::{ATTRIBUTE_LIGHTING_COLOR, ATTRIBUTE_WIND_STRENGTH};
 
 /// Used by the view model camera and the player's equipped item.
 /// The light sources belong to both layers
@@ -46,6 +46,7 @@ pub fn setup_equipped_item(
 
     let mut empty_mesh = Mesh::new(PrimitiveTopology::TriangleList, RenderAssetUsages::all());
     empty_mesh.insert_attribute(ATTRIBUTE_WIND_STRENGTH, vec![] as Vec<f32>);
+    empty_mesh.insert_attribute(ATTRIBUTE_LIGHTING_COLOR, vec![] as Vec<[f32; 4]>);
 
     // Spawn the player's right arm.
     let mesh_entity = commands.spawn((
@@ -89,6 +90,7 @@ pub fn update_equipped_item_mesh(
         let mut mesh = Mesh::new(PrimitiveTopology::TriangleList, RenderAssetUsages::all());
 
         mesh.insert_attribute(ATTRIBUTE_WIND_STRENGTH, vec![] as Vec<f32>);
+        mesh.insert_attribute(ATTRIBUTE_LIGHTING_COLOR, vec![] as Vec<[f32; 4]>);
 
         mesh
     };

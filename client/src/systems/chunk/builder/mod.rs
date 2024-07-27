@@ -19,6 +19,7 @@ use bevy::tasks::{AsyncComputeTaskPool, Task};
 use bevy::tasks::futures_lite::future;
 use bevy::tasks::block_on;
 use crate::systems::camera::MainCamera;
+use crate::systems::chunk::builder::lighting::{LightingContext, LightingUpdateData};
 
 pub const ATTRIBUTE_LIGHTING_COLOR: MeshVertexAttribute =
     MeshVertexAttribute::new("Lighting", 988540917, VertexFormat::Float32x4);
@@ -46,7 +47,7 @@ pub struct MeshBuilderCache {
     // A priority list of chunks to build
     chunks: BinaryHeap<MeshBuildEntry>,
 
-    processing_chunk_handles: Vec<Task<UpdateChunkMesh>>
+    processing_chunk_handles: Vec<Task<(UpdateChunkMesh, LightingUpdateData)>>
 }
 
 impl MeshBuilderCache {
@@ -133,16 +134,18 @@ pub fn mesh_builder(
 
     // Filter out any still processing handles
     for mut task in existing_tasks {
-        if let Some(update) = block_on(future::poll_once(&mut task)) {
+        if let Some((mesh_update, lighting_update)) = block_on(future::poll_once(&mut task)) {
             // TODO: Ensure no blocks have changed since cloned
-            if let Some(chunk) = chunks.chunks.get_mut(&update.chunk) {
+            if let Some(chunk) = chunks.chunks.get_mut(&mesh_update.chunk) {
                 if chunk.handles.is_none() {
                     continue
                 }
-                update.opaque
+                mesh_update.opaque
                     .apply_mesh(meshes.get_mut(&chunk.handles.as_ref().unwrap().opaque_mesh).unwrap());
-                update.translucent
+                mesh_update.translucent
                     .apply_mesh(meshes.get_mut(&chunk.handles.as_ref().unwrap().translucent_mesh).unwrap());
+
+                chunk.light_levels = lighting_update.data;
             }
         } else {
             builder_data.processing_chunk_handles.push(task);
@@ -161,18 +164,28 @@ pub fn mesh_builder(
         let chunk_entry = builder_data.chunks.pop().unwrap();
 
         if let Some(chunk) = chunks.chunks.get(&chunk_entry.chunk) {
-            let chunk = chunk.clone();
+            let mut chunk = chunk.clone();
+
+
+            let cache = NearbyChunkCache::from_service(&chunks, chunk.position);
+
+            let lighting_context = LightingContext::new(chunk.position, &block_states, &cache);
 
             // TODO: Make blockstates static
             let block_states = block_states.clone();
 
             let task = thread_pool.spawn(async move {
-                //let cache = NearbyChunkCache::from_service(&chunks, chunk.position);
-                // TODO: Transfer data
+                // TODO: Use data from lighting_context
                 let cache = NearbyChunkCache::empty(chunk.position);
 
+                let lighting_update = chunk.build_lighting(lighting_context);
+
+                chunk.light_levels = lighting_update.data;
+
                 // Generate mesh & gpu buffers
-                chunk.build_mesh(&block_states, true, &cache)
+                let mesh_updates = chunk.build_mesh(&block_states, true, &cache);
+
+                (mesh_updates, lighting_update)
             });
 
             builder_data.processing_chunk_handles.push(task);
