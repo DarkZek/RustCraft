@@ -13,6 +13,9 @@ use crate::systems::chunk::builder::{RerenderChunkFlag, RerenderChunkFlagContext
 use crate::systems::chunk::ChunkSystem;
 use crate::systems::chunk::data::ChunkData;
 
+/// Provides a means to store static world data in the client.
+/// This is used for the Main Menu Screen to show a world.
+
 #[derive(Asset, Debug, Clone, Deserialize, Serialize, TypePath)]
 pub struct StaticWorldChunk {
     pub data: RawChunkData,
@@ -24,69 +27,6 @@ pub struct StaticWorldData {
     pub data: Vec<StaticWorldChunk>,
     pub camera_position: Vector3<f32>,
     pub camera_rotation: Vector4<f32>
-}
-
-#[derive(Resource, Default)]
-pub struct MainMenuWorldState {
-    asset: Option<Handle<StaticWorldData>>
-}
-
-pub fn load_main_menu_world(asset_server: Res<AssetServer>, mut data: ResMut<MainMenuWorldState>) {
-    data.asset = Some(asset_server.load("main_menu_world.mpk").into());
-}
-
-pub fn handle_loaded_static_world(
-    mut events: EventReader<AssetEvent<StaticWorldData>>,
-    assets: ResMut<Assets<StaticWorldData>>,
-    mut chunk_system: ResMut<ChunkSystem>,
-    mut commands: Commands,
-    asset_service: Res<AssetService>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut data: ResMut<MainMenuWorldState>,
-    mut rerender_chunks: EventWriter<RerenderChunkFlag>,
-    mut query: Query<&mut Transform, With<Player>>
-) {
-
-    for event in events.read() {
-
-        match event {
-            AssetEvent::Added { .. } => {}
-            _ => return
-        }
-
-        data.asset = None;
-
-        let (_, loaded_data) = assets.iter().next().unwrap();
-
-        for chunk in loaded_data.data.clone() {
-            rerender_chunks.send(RerenderChunkFlag {
-                chunk: chunk.position,
-                context: RerenderChunkFlagContext::None,
-            });
-
-            chunk_system.create_chunk(chunk.position, chunk.data, &mut commands, &asset_service, &mut meshes);
-        }
-
-        // Set player position
-        let mut player_transform = query.get_single_mut().unwrap();
-
-        player_transform.translation = to_bevy_vec3(loaded_data.camera_position);
-        player_transform.rotation = Quat::from_array([
-            loaded_data.camera_rotation.x,
-            loaded_data.camera_rotation.y,
-            loaded_data.camera_rotation.z,
-            loaded_data.camera_rotation.w
-        ]);
-    }
-}
-
-pub fn remove_static_world(
-    mut chunk_system: ResMut<ChunkSystem>,
-    mut commands: Commands,) {
-    let positions = chunk_system.chunks.keys().cloned().collect::<Vec<Vector3<i32>>>();
-    for pos in positions {
-        chunk_system.unload_chunk(pos, &mut commands);
-    }
 }
 
 /// Saves your surroundings centering on you as static world data
@@ -133,7 +73,7 @@ pub fn save_surroundings(
         }
     }
 
-    fs::write("../assets/main_menu_world.mpk", rmp_serde::to_vec(&serialized_data).unwrap()).unwrap();
+    fs::write("../../../chunk_lighting_benchmark.mpk", rmp_serde::to_vec(&serialized_data).unwrap()).unwrap();
 
     info!("Saved static world data");
 

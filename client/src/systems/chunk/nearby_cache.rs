@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+use fnv::FnvBuildHasher;
 use crate::systems::chunk::data::ChunkData;
 use crate::systems::chunk::ChunkSystem;
 use nalgebra::Vector3;
@@ -25,9 +27,14 @@ impl<'a> NearbyChunkCache<'a> {
     }
 
     pub fn from_service(service: &'a ChunkSystem, chunk: Vector3<i32>) -> NearbyChunkCache<'a> {
+        Self::from_map(&service.chunks, chunk)
+    }
+
+
+    pub fn from_map(chunks: &'a HashMap<Vector3<i32>, ChunkData, FnvBuildHasher>, chunk: Vector3<i32>) -> NearbyChunkCache<'a> {
         let mut nearby: [Option<&'a ChunkData>; 9 * 3] = [None; 9 * 3];
 
-        nearby[0] = service.chunks.get(&chunk);
+        nearby[0] = chunks.get(&chunk);
 
         let mut i = 1;
 
@@ -38,7 +45,7 @@ impl<'a> NearbyChunkCache<'a> {
                         continue;
                     }
 
-                    nearby[i] = service.chunks.get(&(chunk + Vector3::new(x, y, z)));
+                    nearby[i] = chunks.get(&(chunk + Vector3::new(x, y, z)));
                     i += 1;
                 }
             }

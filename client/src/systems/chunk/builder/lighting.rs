@@ -16,6 +16,15 @@ pub struct LightingUpdateData {
     pub data: RawLightingData,
 }
 
+#[derive(Copy, Clone, Debug, Default)]
+pub struct BlockLightRecord {
+    weighted_cumulative_r: u32,
+    weighted_cumulative_g: u32,
+    weighted_cumulative_b: u32,
+    cumulative_strength: u32,
+    max_strength: u8
+}
+
 impl ChunkData {
     pub fn build_lighting(
         &self,
@@ -35,22 +44,22 @@ impl ChunkData {
         let lights_len = lights.len();
 
         // Rolling average of chunk lighting data
-        let mut data = [[[[0 as u32; 5]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
+        let mut data = [[[BlockLightRecord::default(); CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
 
         // Propagate lighting
         for (light_pos, color) in lights {
-            // a 32 block wide area around the light that tracks what blocks its visited
+            // a 32 block wide area around the light that tracks what blocks it's visited
             let mut visited = [[[false; CHUNK_SIZE * 2]; CHUNK_SIZE * 2]; CHUNK_SIZE * 2];
 
             let mut point = VecDeque::with_capacity(1000);
 
             // Starting points
             point.push_back((light_pos + Vector3::new(1, 0, 0), color[3] - 1));
-            point.push_back((light_pos - Vector3::new(1, 0, 0), color[3] - 1));
+            point.push_back((light_pos + Vector3::new(-1, 0, 0), color[3] - 1));
             point.push_back((light_pos + Vector3::new(0, 1, 0), color[3] - 1));
-            point.push_back((light_pos - Vector3::new(0, 1, 0), color[3] - 1));
+            point.push_back((light_pos + Vector3::new(0, -1, 0), color[3] - 1));
             point.push_back((light_pos + Vector3::new(0, 0, 1), color[3] - 1));
-            point.push_back((light_pos - Vector3::new(0, 0, 1), color[3] - 1));
+            point.push_back((light_pos + Vector3::new(0, 0, -1), color[3] - 1));
 
             while !point.is_empty() {
                 let (pos, strength) = point.pop_front().unwrap();
@@ -78,12 +87,12 @@ impl ChunkData {
 
                 if chunk_pos == self.position {
                     let current_color =
-                        &mut data[block_pos.x as usize][block_pos.y as usize][block_pos.z as usize];
-                    current_color[0] += strength as u32 * color[0] as u32;
-                    current_color[1] += strength as u32 * color[1] as u32;
-                    current_color[2] += strength as u32 * color[2] as u32;
-                    current_color[3] += strength as u32;
-                    current_color[4] = current_color[4].max(strength as u32);
+                        &mut data[block_pos.x][block_pos.y][block_pos.z];
+                    current_color.weighted_cumulative_r += strength as u32 * color[0] as u32;
+                    current_color.weighted_cumulative_g += strength as u32 * color[1] as u32;
+                    current_color.weighted_cumulative_b += strength as u32 * color[2] as u32;
+                    current_color.cumulative_strength += strength as u32;
+                    current_color.max_strength = current_color.max_strength.max(strength);
                 }
 
                 visited[(pos.x - light_pos.x + CHUNK_SIZE as i32) as usize]
@@ -118,26 +127,26 @@ impl ChunkData {
                     let color = &data[x][y][z];
 
                     // If there's no lighting data for this block ignore it
-                    if color[3] == 0 {
+                    if color.max_strength == 0 {
                         continue;
                     }
 
                     let out_color = &mut out[x][y][z];
 
                     // Get the proportional color
-                    out_color[0] = (color[0] / color[3]) as u8;
-                    out_color[1] = (color[1] / color[3]) as u8;
-                    out_color[2] = (color[2] / color[3]) as u8;
+                    out_color[0] = (color.weighted_cumulative_r / color.cumulative_strength) as u8;
+                    out_color[1] = (color.weighted_cumulative_g / color.cumulative_strength) as u8;
+                    out_color[2] = (color.weighted_cumulative_b / color.cumulative_strength) as u8;
 
-                    // Light falloff
+                    // Light falloff based off max strength
                     out_color[0] =
-                        (out_color[0] as u32 * color[4] as u32 / MAX_LIGHT_VALUE as u32) as u8;
+                        (out_color[0] as u32 * color.max_strength as u32 / MAX_LIGHT_VALUE as u32) as u8;
                     out_color[1] =
-                        (out_color[1] as u32 * color[4] as u32 / MAX_LIGHT_VALUE as u32) as u8;
+                        (out_color[1] as u32 * color.max_strength as u32 / MAX_LIGHT_VALUE as u32) as u8;
                     out_color[2] =
-                        (out_color[2] as u32 * color[4] as u32 / MAX_LIGHT_VALUE as u32) as u8;
+                        (out_color[2] as u32 * color.max_strength as u32 / MAX_LIGHT_VALUE as u32) as u8;
 
-                    out_color[3] = color[4] as u8;
+                    out_color[3] = color.max_strength;
                 }
             }
         }
@@ -189,4 +198,83 @@ fn get_lights(
     }
 
     lights
+}
+
+#[cfg(test)]
+mod tests {
+    use std::{fs};
+    use std::time::Instant;
+    use bevy_inspector_egui::egui::ahash::HashMapExt;
+    use fnv::FnvHashMap;
+    use rc_shared::block::BlockStates;
+    use rc_shared::block::types::Block;
+    use crate::systems::chunk::data::ChunkData;
+    use crate::systems::chunk::nearby_cache::NearbyChunkCache;
+    use crate::systems::chunk::static_world_data::StaticWorldData;
+
+    #[test]
+    fn benchmark_chunk_building() {
+
+        let file_data = fs::read("chunk_lighting_benchmark.mpk").unwrap();
+        let world_data = rmp_serde::from_slice::<StaticWorldData>(file_data.as_slice()).unwrap();
+
+        let mut chunks = FnvHashMap::new();
+
+        for chunk_data in world_data.data {
+            let chunk = ChunkData::new_handleless(chunk_data.data, chunk_data.position);
+            chunks.insert(chunk.position, chunk);
+        }
+
+        let mut states = BlockStates::new();
+
+        states.states.push(Block {
+            identifier: "mcv3::Air".to_string(),
+            translucent: true,
+            full: false,
+            draw_betweens: false,
+            faces: vec![],
+            collision_boxes: vec![],
+            bounding_boxes: vec![],
+            emission: [0; 4],
+        });
+
+        for i in 0..7 {
+            states.states.push(Block {
+                identifier: "mcv3::Stone".to_string(),
+                translucent: false,
+                full: true,
+                draw_betweens: false,
+                faces: vec![],
+                collision_boxes: vec![],
+                bounding_boxes: vec![],
+                emission: [0; 4],
+            });
+        }
+        states.states.push(Block {
+            identifier: "mcv3::Lamp".to_string(),
+            translucent: true,
+            full: true,
+            draw_betweens: false,
+            faces: vec![],
+            collision_boxes: vec![],
+            bounding_boxes: vec![],
+            emission: [255, 255, 255, 16],
+        });
+
+
+        for i in 0..10 {
+            let mut total_time_nanos = 0;
+
+            for (pos, chunk) in &chunks {
+                let nearby_block_cache = NearbyChunkCache::from_map(&chunks, *pos);
+
+                let start = Instant::now();
+                chunk.build_lighting(&states, &nearby_block_cache);
+                total_time_nanos += start.elapsed().as_nanos();
+            }
+
+            println!("Took {}ms per chunk", total_time_nanos as f32 / 1000000.0 / chunks.len() as f32);
+        }
+
+    }
 }

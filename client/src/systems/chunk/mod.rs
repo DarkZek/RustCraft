@@ -1,5 +1,5 @@
 use crate::systems::asset::AssetService;
-use crate::systems::chunk::builder::{mesh_builder, RerenderChunkFlag, ATTRIBUTE_WIND_STRENGTH};
+use crate::systems::chunk::builder::{ATTRIBUTE_WIND_STRENGTH, mesh_builder, RerenderChunkFlag};
 use crate::systems::chunk::data::ChunkData;
 use crate::systems::chunk::request::request_chunks;
 use bevy::prelude::*;
@@ -11,12 +11,15 @@ use nalgebra::Vector3;
 use rc_shared::chunk::{ChunkSystemTrait, RawChunkData};
 use rc_shared::CHUNK_SIZE;
 use std::collections::HashMap;
+use crate::systems::asset::parsing::message_pack::MessagePackAssetLoader;
+use crate::systems::chunk::static_world_data::{save_surroundings_system, StaticWorldData};
 
 pub mod builder;
 pub mod data;
 pub mod lookup;
 pub mod nearby_cache;
 mod request;
+pub mod static_world_data;
 
 pub struct ChunkPlugin;
 
@@ -25,7 +28,11 @@ impl Plugin for ChunkPlugin {
         app.insert_resource(ChunkSystem::new())
             .add_systems(Update, mesh_builder)
             .add_event::<RerenderChunkFlag>()
-            .add_systems(Update, request_chunks);
+            .add_systems(Update, request_chunks)
+            // Static world data
+            .init_asset::<StaticWorldData>()
+            .init_asset_loader::<MessagePackAssetLoader<StaticWorldData>>()
+            .add_systems(Update, save_surroundings_system);
     }
 }
 
