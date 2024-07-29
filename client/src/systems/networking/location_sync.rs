@@ -1,11 +1,10 @@
 use bevy::prelude::*;
 use rc_shared::constants::UserId;
-
 use rc_networking::protocol::serverbound::player_move::PlayerMove;
 use rc_networking::protocol::serverbound::player_rotate::PlayerRotate;
 use rc_networking::protocol::Protocol;
 use rc_networking::types::SendPacket;
-use crate::systems::camera::MainCamera;
+use crate::game::player::Player;
 
 const MIN_LOCATION_CHANGE_SYNC: f32 = 0.1;
 
@@ -15,7 +14,7 @@ pub struct LastNetworkTranslationSync(pub Vec3);
 pub struct LastNetworkRotationSync(pub Quat);
 
 pub fn network_location_sync(
-    query: Query<&Transform, (With<MainCamera>, Changed<Transform>)>,
+    query: Query<&Transform, (With<Player>, Changed<Transform>)>,
     mut translation: ResMut<LastNetworkTranslationSync>,
     mut rotation: ResMut<LastNetworkRotationSync>,
     mut networking: EventWriter<SendPacket>,

@@ -23,7 +23,7 @@ impl<T: Copy> RelativeChunkMap<T> {
         let position = position - self.position +
             Vector3::new(self.expansion as i32, self.expansion as i32, self.expansion as i32);
 
-        if let Some(mut position) = position.try_cast::<usize>() {
+        if let Some(position) = position.try_cast::<usize>() {
             self.data.get(position.x)
                 .map(|y| {
                     y.get(position.y)

@@ -1,3 +1,5 @@
+pub mod freecam;
+
 use bevy::color::palettes::tailwind::BLUE_300;
 use bevy::core_pipeline::bloom::BloomSettings;
 use crate::game::entity::GameObject;
@@ -13,13 +15,16 @@ use nalgebra::Vector3;
 use rc_shared::aabb::Aabb;
 use rc_shared::constants::UserId;
 use rc_shared::game_objects::GameObjectData;
+use crate::systems::camera::freecam::{Freecam, freecam_activation, freecam_movement};
 
 pub struct CameraPlugin;
 
 impl Plugin for CameraPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, setup_camera)
-            .add_systems(Update, camera_player_sync);
+            .add_systems(Update, camera_player_sync)
+            .insert_resource(Freecam::default())
+            .add_systems(Update, (freecam_activation, freecam_movement));
     }
 }
 
@@ -94,11 +99,9 @@ fn camera_player_sync(
         Query<&mut Transform, (With<Transform>, With<MainCamera>)>,
         Query<&Transform, (With<Player>, Changed<Transform>)>,
     )>,
+    freecam: Res<Freecam>
 ) {
-    if query.p0().is_empty() {
-        return;
-    }
-    if query.p1().is_empty() {
+    if query.p0().is_empty() || query.p1().is_empty() {
         return;
     }
 
@@ -108,5 +111,9 @@ fn camera_player_sync(
 
     let mut camera = camera_query.single_mut();
 
-    *camera = player;
+    camera.rotation = player.rotation;
+
+    if !freecam.enabled {
+        camera.translation = player.translation;
+    }
 }

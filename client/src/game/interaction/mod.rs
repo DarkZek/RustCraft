@@ -15,9 +15,11 @@ use rc_networking::types::SendPacket;
 use rc_shared::block::BlockStates;
 use rc_shared::helpers::{from_bevy_vec3, global_to_local_position};
 use rc_shared::CHUNK_SIZE;
+use crate::systems::camera::freecam::Freecam;
 use crate::systems::camera::MainCamera;
 
 pub fn mouse_interaction(
+    freecam: Res<Freecam>,
     mouse_button_input: Res<ButtonInput<MouseButton>>,
     mut commands: Commands,
     camera: Query<&Transform, With<MainCamera>>,
@@ -30,6 +32,11 @@ pub fn mouse_interaction(
     mut meshes: ResMut<Assets<Mesh>>,
     mut send_packet: EventWriter<SendPacket>,
 ) {
+
+    if freecam.enabled {
+        return
+    }
+
     let camera_pos = camera.get_single().unwrap();
 
     let look = camera_pos.rotation * Vec3::new(0.0, 0.0, -1.0);

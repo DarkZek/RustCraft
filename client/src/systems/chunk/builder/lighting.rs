@@ -2,7 +2,6 @@ use crate::systems::chunk::data::ChunkData;
 use bevy::log::{debug};
 use nalgebra::Vector3;
 use rc_shared::chunk::RawLightingData;
-use rc_shared::helpers::global_to_local_position;
 use rc_shared::viewable_direction::BLOCK_SIDES;
 use rc_shared::CHUNK_SIZE;
 use std::collections::VecDeque;
