@@ -20,6 +20,7 @@ pub mod lookup;
 pub mod nearby_cache;
 mod request;
 pub mod static_world_data;
+mod nearby_chunk_map;
 
 pub struct ChunkPlugin;
 

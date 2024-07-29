@@ -20,6 +20,8 @@
 }
 #endif
 
+#import "shaders/material_pass.wgsl"::{ CustomVertexInput, CustomVertexOutput }
+
 // TODO: Try to combine prepass and non prepass
 // TODO: Split out into multiple files
 // TODO: Document which parts are copied from Bevy
@@ -32,70 +34,6 @@ struct ChunkExtendedMaterial {
 @group(2) @binding(100)
 var<uniform> chunk_material: ChunkExtendedMaterial;
 #endif
-
-struct CustomVertexInput {
-    @builtin(instance_index) instance_index: u32,
-#ifdef VERTEX_POSITIONS
-    @location(0) position: vec3<f32>,
-#endif
-#ifdef VERTEX_NORMALS
-    @location(1) normal: vec3<f32>,
-#endif
-#ifdef VERTEX_UVS_A
-    @location(2) uv: vec2<f32>,
-#endif
-#ifdef VERTEX_UVS_B
-    @location(3) uv_b: vec2<f32>,
-#endif
-#ifdef VERTEX_TANGENTS
-    @location(4) tangent: vec4<f32>,
-#endif
-#ifdef VERTEX_COLORS
-    @location(5) color: vec4<f32>,
-#endif
-#ifdef SKINNED
-    @location(6) joint_indices: vec4<u32>,
-    @location(7) joint_weights: vec4<f32>,
-#endif
-
-    @location(14) lighting: vec4<f32>,
-
-#ifdef IS_TRANSLUCENT
-    @location(15) wind_strength: f32,
-#endif
-
-#ifdef MORPH_TARGETS
-    @builtin(vertex_index) index: u32,
-#endif
-};
-
-struct CustomVertexOutput {
-    // This is `clip position` when the struct is used as a vertex stage output
-    // and `frag coord` when used as a fragment stage input
-    @builtin(position) position: vec4<f32>,
-    @location(0) world_position: vec4<f32>,
-    @location(1) world_normal: vec3<f32>,
-#ifdef VERTEX_UVS_A
-    @location(2) uv: vec2<f32>,
-#endif
-#ifdef VERTEX_UVS_B
-    @location(3) uv_b: vec2<f32>,
-#endif
-#ifdef VERTEX_TANGENTS
-    @location(4) world_tangent: vec4<f32>,
-#endif
-#ifdef VERTEX_COLORS
-    @location(5) color: vec4<f32>,
-#endif
-#ifdef VERTEX_OUTPUT_INSTANCE_INDEX
-    @location(6) @interpolate(flat) instance_index: u32,
-#endif
-#ifdef VISIBILITY_RANGE_DITHER
-    @location(7) @interpolate(flat) visibility_range_dither: i32,
-#endif
-
-    @location(14) lighting: vec4<f32>
-}
 
 @vertex
 fn vertex(vertex_no_morph: CustomVertexInput) -> CustomVertexOutput {
@@ -159,9 +97,9 @@ fn vertex(vertex_no_morph: CustomVertexInput) -> CustomVertexOutput {
         out.instance_index = vertex_no_morph.instance_index;
     #endif
 
-    let ambient = 0.06;
+    let ambient = 0.4;
 
-    out.lighting = vec4(vertex_no_morph.lighting.xyz + ambient, 1.0);
+    out.lighting = vec4(vertex_no_morph.lighting.xyz, 1.0);
 
     return out;
 }
@@ -200,7 +138,7 @@ fn fragment(
     out.color = main_pass_post_lighting_processing(pbr_input, out.color);
 #endif
 
-    out.color *= in.lighting;
+    out.color = in.lighting;
 
     return out;
 }

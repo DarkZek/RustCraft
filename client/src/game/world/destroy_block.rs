@@ -82,8 +82,6 @@ pub fn destroy_block_system(
             }
         }
 
-        info!("Destroyed {:?}", event.position);
-
         // Rerender
         world.send_event(RerenderChunkFlag {
             chunk: chunk_loc,

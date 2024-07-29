@@ -1,6 +1,7 @@
 mod entry;
 mod generate_mesh;
 mod lighting;
+mod build_context;
 
 use crate::systems::chunk::builder::entry::{MeshBuildEntry, PLAYER_POS};
 use crate::systems::chunk::builder::generate_mesh::UpdateChunkMesh;
@@ -19,7 +20,8 @@ use bevy::tasks::{AsyncComputeTaskPool, Task};
 use bevy::tasks::futures_lite::future;
 use bevy::tasks::block_on;
 use crate::systems::camera::MainCamera;
-use crate::systems::chunk::builder::lighting::{LightingContext, LightingUpdateData};
+use crate::systems::chunk::builder::build_context::ChunkBuildContext;
+use crate::systems::chunk::builder::lighting::{LightingUpdateData};
 
 pub const ATTRIBUTE_LIGHTING_COLOR: MeshVertexAttribute =
     MeshVertexAttribute::new("Lighting", 988540917, VertexFormat::Float32x4);
@@ -166,16 +168,15 @@ pub fn mesh_builder(
         if let Some(chunk) = chunks.chunks.get(&chunk_entry.chunk) {
             let mut chunk = chunk.clone();
 
-
             let cache = NearbyChunkCache::from_service(&chunks, chunk.position);
 
-            let lighting_context = LightingContext::new(chunk.position, &block_states, &cache);
+            let lighting_context = ChunkBuildContext::new(chunk.position, &block_states, &cache);
 
-            // TODO: Make blockstates static
+            // TODO: Make blockstates static because this is very slow
             let block_states = block_states.clone();
 
             let task = thread_pool.spawn(async move {
-                // TODO: Use data from lighting_context
+                // TODO: Use data from lighting_context so that we can get lighting info in between chunk faces
                 let cache = NearbyChunkCache::empty(chunk.position);
 
                 let lighting_update = chunk.build_lighting(lighting_context);

@@ -27,13 +27,7 @@ impl<T: Copy> NearbyChunkMap<T> {
         }
     }
 
-    pub fn get_iter_mut(&self) -> NearbyChunkIterator<T> {
-
-        return unimplemented!();
-        NearbyChunkIterator::new(&self)
-    }
-
-    pub fn iter(&mut self, cb: &dyn Fn(&mut T)) {
+    pub fn for_each<F>(&mut self, cb: F) where F: Fn(NearbyChunkItem<T>) {
         for chunk_x in (self.position.x - 1)..=(self.position.x + 1) {
             for chunk_y in (self.position.y - 1)..=(self.position.y + 1) {
                 for chunk_z in (self.position.z - 1)..=(self.position.z + 1) {
@@ -44,7 +38,12 @@ impl<T: Copy> NearbyChunkMap<T> {
                                     (Vector3::new(chunk_x, chunk_y, chunk_z) * CHUNK_SIZE as i32) +
                                         Vector3::new(x, y, z).cast::<i32>();
 
-                                cb()
+                                let index = world_to_index(world_position, self.position).unwrap();
+
+                                cb(NearbyChunkItem {
+                                    data: self.data[index.x][index.y][index.z],
+                                    world_position,
+                                })
                             }
                         }
                     }
@@ -53,30 +52,64 @@ impl<T: Copy> NearbyChunkMap<T> {
         }
     }
 
-    pub fn get_position_mut(&mut self, world_position: Vector3<i32>) -> Option<&mut T> {
-
+    pub fn get_position(&self, world_position: Vector3<i32>) -> Option<&T> {
         let index = world_to_index(world_position, self.position);
 
-        self.data
-            .get_mut(index.x).map(|y|
-        y.get_mut(index.y).map(|z| z.get_mut(index.z))
-        )
-            .flatten()
-            .flatten()
+        if let Some(index) = index {
+            self.data
+                .get(index.x)
+                .map(|y| {
+                    y.get(index.y)
+                        .map(|z| z.get(index.z))
+                })
+                .flatten()
+                .flatten()
+
+        } else {
+            None
+        }
     }
 
-    pub unsafe fn get_position_unchecked(&self, world_position: Vector3<i32>) -> NearbyChunkItem<T> {
-        // Localize
+    pub fn get_position_mut(&mut self, world_position: Vector3<i32>) -> Option<&mut T> {
         let index = world_to_index(world_position, self.position);
+
+        if let Some(index) = index {
+            self.data
+                .get_mut(index.x)
+                .map(|y| {
+                    y.get_mut(index.y)
+                        .map(|z| z.get_mut(index.z))
+                })
+                .flatten()
+                .flatten()
+
+        } else {
+            None
+        }
+    }
+
+    pub unsafe fn get_position_unchecked(&self, world_position: Vector3<i32>) -> NearbyChunkItem<&T> {
+        // Localize
+        let index = world_to_index(world_position, self.position).unwrap();
 
         NearbyChunkItem {
             data: &self.data[index.x][index.y][index.z],
             world_position,
         }
     }
+
+    pub unsafe fn get_position_mut_unchecked(&mut self, world_position: Vector3<i32>) -> NearbyChunkItem<&mut T> {
+        // Localize
+        let index = world_to_index(world_position, self.position).unwrap();
+
+        NearbyChunkItem {
+            data: &mut self.data[index.x][index.y][index.z],
+            world_position,
+        }
+    }
 }
 
-fn world_to_index(world_position: Vector3<i32>, index_center: Vector3<i32>) -> Vector3<usize> {
+fn world_to_index(world_position: Vector3<i32>, index_center: Vector3<i32>) -> Option<Vector3<usize>> {
     // Localize
     let relative_position = world_position - (index_center * CHUNK_SIZE as i32);
 
@@ -86,11 +119,17 @@ fn world_to_index(world_position: Vector3<i32>, index_center: Vector3<i32>) -> V
     // Move to make array start at zero
     chunk_position += Vector3::new(1,1,1);
 
-    Vector3::new(
+    if chunk_position.x < 0 || chunk_position.x >= 3 ||
+        chunk_position.y < 0 || chunk_position.y >= 3 ||
+        chunk_position.z < 0 || chunk_position.z >= 3 {
+        return None;
+    }
+
+    Some(Vector3::new(
         chunk_position.x as usize * CHUNK_SIZE + block_position.x,
         chunk_position.y as usize * CHUNK_SIZE + block_position.y,
         chunk_position.z as usize * CHUNK_SIZE + block_position.z,
-    )
+    ))
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -99,93 +138,41 @@ pub struct NearbyChunkItem<T> {
     world_position: Vector3<i32>
 }
 
-pub struct NearbyChunkIterator<'a, T: Copy> {
-    entries: [NearbyChunkItem<'a, T>; (CHUNK_SIZE * 3) * (CHUNK_SIZE * 3) * (CHUNK_SIZE * 3)],
-    i: usize
-}
-
-impl<'a, T: Copy> NearbyChunkIterator<'a, T> {
-    pub fn new(
-        data: &'a NearbyChunkMap<T>
-    ) -> NearbyChunkIterator<T> {
-
-        return unimplemented!();
-
-        println!("WHAT");
-
-        let chunk_pos = data.position;
-
-        let mut entries = unsafe {
-            [const { MaybeUninit::uninit() as MaybeUninit<NearbyChunkItem<T>> }; (CHUNK_SIZE * 3) * (CHUNK_SIZE * 3) * (CHUNK_SIZE * 3)]
-        };
-
-        let mut i = 0;
-
-
-
-        println!("WHAT");
-
-        let entries = unsafe {
-            mem::transmute::<_, [NearbyChunkItem<T>; (CHUNK_SIZE * 3) * (CHUNK_SIZE * 3) * (CHUNK_SIZE * 3)]>(entries)
-        };
-
-        Self {
-            entries,
-            i: 0
-        }
-    }
-}
-
-impl<'a, T: Copy> Iterator for NearbyChunkIterator<'a, T> {
-    type Item = NearbyChunkItem<'a, T>;
-
-    fn next(&mut self) -> Option<Self::Item> {
-
-        if self.i == (CHUNK_SIZE*3)*(CHUNK_SIZE*3)*(CHUNK_SIZE*3) {
-            return None;
-        }
-
-        let result = self.entries[self.i];
-
-        self.i += 1;
-
-        Some(result)
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use bevy::tasks::futures_lite::StreamExt;
-    use nalgebra::{Vector, Vector3};
+    use nalgebra::{ Vector3};
     use crate::systems::chunk::nearby_chunk_map::NearbyChunkMap;
 
     #[test]
-    fn benchmark_chunk_building() {
+    fn check_positions() {
         let mut data: NearbyChunkMap<bool> = NearbyChunkMap::new(
             Vector3::new(1, 0, 0),
             [[[false; 48]; 48]; 48]
         );
 
-        println!("hmm {:?}", unsafe { data.get_position_unchecked(Vector3::new(17, 0, 0)) });
-
         *data.get_position_mut(Vector3::new(17, 0, 0)).unwrap() = true;
 
-        println!("hmm {:?}", unsafe { data.get_position_unchecked(Vector3::new(17, 0, 0)) });
-
-        data.get_iter_mut();
-
-        return
-
-        data.get_iter_mut().for_each(|mut t| {
-
+        let asserted = false;
+        data.for_each(|t| {
             if t.world_position == Vector3::new(17, 0, 0) {
-                println!("{:?}", t.data);
+                assert_eq!(t.data, true);
+            } else {
+                assert_eq!(t.data, false);
             }
-
-            println!("?? {:?}", t.data);
-
         });
 
+        assert_eq!(asserted, true);
+    }
 
+    #[test]
+    fn boundary_testing() {
+        let mut data: NearbyChunkMap<bool> = NearbyChunkMap::new(
+            Vector3::new(0, 0, 0),
+            [[[false; 48]; 48]; 48]
+        );
+
+        assert_eq!(data.get_position_mut(Vector3::new(-16, 0, 0)).is_some(), true);
+        assert_eq!(data.get_position_mut(Vector3::new(-17, 0, 0)).is_some(), false);
     }
 }

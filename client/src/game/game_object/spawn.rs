@@ -98,8 +98,6 @@ pub fn messages_update(
                     .id();
 
                 system.entity_mapping.insert(entity.id, entity_id);
-
-                info!("Entity spawned {:?}!", entity.id);
             }
             Protocol::DespawnGameObject(packet) => {
                 if let Some(entity) = system.entity_mapping.remove(&packet.entity) {
