@@ -1,5 +1,3 @@
-use std::mem;
-use std::mem::MaybeUninit;
 use nalgebra::Vector3;
 use rc_shared::CHUNK_SIZE;
 use rc_shared::helpers::global_to_local_position;
@@ -212,9 +210,9 @@ mod tests {
         let asserted = false;
         data.for_each(|t| {
             if t.world_position == Vector3::new(17, 0, 0) {
-                assert_eq!(t.data, true);
+                assert_eq!(*t.data, true);
             } else {
-                assert_eq!(t.data, false);
+                assert_eq!(*t.data, false);
             }
         });
 

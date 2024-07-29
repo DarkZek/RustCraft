@@ -18,8 +18,6 @@ use crate::systems::ui::loading::{
 };
 use crate::systems::ui::main_menu::{button_system, destroy_main_menu, setup_main_menu};
 use bevy::prelude::*;
-use crate::systems::asset::parsing::message_pack::MessagePackAssetLoader;
-use crate::systems::chunk::static_world_data::{save_surroundings_system, StaticWorldData};
 use crate::systems::ui::equipped_item::{setup_equipped_item, update_equipped_item_mesh};
 use crate::systems::ui::main_menu_chunks::{handle_loaded_main_menu_world, load_main_menu_world, MainMenuWorldState, remove_main_menu_world};
 

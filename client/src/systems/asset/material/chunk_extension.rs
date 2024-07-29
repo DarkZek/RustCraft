@@ -2,7 +2,7 @@ use bevy::pbr::{ExtendedMaterial, MaterialExtension, MaterialExtensionKey, Mater
 use bevy::prelude::*;
 use bevy::render::mesh::{MeshVertexAttribute, MeshVertexBufferLayoutRef};
 use bevy::render::render_resource::{AsBindGroup, RenderPipelineDescriptor, ShaderRef, SpecializedMeshPipelineError};
-use crate::systems::chunk::builder::{ATTRIBUTE_LIGHTING_COLOR, ATTRIBUTE_WIND_STRENGTH};
+use crate::systems::chunk::builder::ATTRIBUTE_LIGHTING_COLOR;
 
 pub type ChunkMaterial = ExtendedMaterial<StandardMaterial, ChunkMaterialExtension>;
 

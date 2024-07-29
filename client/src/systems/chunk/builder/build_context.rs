@@ -1,7 +1,5 @@
-use std::fs;
 use nalgebra::Vector3;
 use rc_shared::block::BlockStates;
-use rc_shared::CHUNK_SIZE;
 use crate::systems::chunk::nearby_cache::NearbyChunkCache;
 use crate::systems::chunk::nearby_chunk_map::NearbyChunkMap;
 
@@ -25,7 +23,7 @@ impl ChunkBuildContext {
         let mut translucency_map: NearbyChunkMap<bool> = NearbyChunkMap::new_empty(chunk_pos);
 
         // Loop over every nearby chunk
-        translucency_map.for_each_mut(|mut entry| {
+        translucency_map.for_each_mut(|entry| {
             // TODO: Allow NearbyChunkMap to directly use a NearbyChunkCache to speed up chunk fetching
             let Some(chunk) = cache.get_chunk(entry.chunk_position) else {
                 return;

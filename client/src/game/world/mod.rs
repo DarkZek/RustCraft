@@ -1,7 +1,7 @@
 use crate::game::world::destroy_block::destroy_block_system;
 use crate::game::world::sun::{setup_sun, update_sun};
 use bevy::app::{App, Startup};
-use bevy::prelude::{AssetApp, IntoSystemConfigs, Plugin, Update};
+use bevy::prelude::{Plugin, Update};
 
 mod destroy_block;
 pub mod sun;

@@ -3,7 +3,6 @@ use bevy::render::mesh::PrimitiveTopology;
 use bevy::render::render_asset::RenderAssetUsages;
 use nalgebra::Vector3;
 use rc_shared::block::BlockStates;
-use rc_shared::chunk::LightingColor;
 use rc_shared::item::ItemStates;
 use rc_shared::viewable_direction::{ViewableDirectionBitMap};
 use crate::game::block::Draw;

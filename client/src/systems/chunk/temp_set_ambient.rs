@@ -1,6 +1,5 @@
 use bevy::asset::Assets;
 use bevy::prelude::{Query, ResMut, Transform, With};
-use nalgebra::clamp;
 use crate::game::player::Player;
 use crate::systems::asset::AssetService;
 use crate::systems::asset::material::chunk_extension::ChunkMaterial;

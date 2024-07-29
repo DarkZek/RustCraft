@@ -1,8 +1,6 @@
 use crate::systems::chunk::data::ChunkData;
-use crate::systems::chunk::nearby_cache::NearbyChunkCache;
 use bevy::log::{debug};
 use nalgebra::Vector3;
-use rc_shared::block::BlockStates;
 use rc_shared::chunk::RawLightingData;
 use rc_shared::helpers::global_to_local_position;
 use rc_shared::viewable_direction::BLOCK_SIDES;
@@ -218,7 +216,7 @@ mod tests {
         });
 
 
-        for i in 0..10 {
+        for _ in 0..10 {
             let mut total_time_nanos = 0;
 
             for (pos, chunk) in &chunks {
@@ -227,6 +225,8 @@ mod tests {
                 let start = Instant::now();
 
                 let context = ChunkBuildContext::new(*pos, &states, &nearby_block_cache);
+
+                println!("{}", context.lights.len());
 
                 chunk.build_lighting(context);
                 total_time_nanos += start.elapsed().as_nanos();
