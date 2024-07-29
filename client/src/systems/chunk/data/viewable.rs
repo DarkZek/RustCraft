@@ -2,10 +2,10 @@ use crate::systems::chunk::data::ChunkData;
 use nalgebra::Vector3;
 use rc_shared::block::BlockStates;
 use rc_shared::viewable_direction::{
-    calculate_viewable, ViewableDirection, ViewableDirectionBitMap,
+    calculate_chunk_viewable, ViewableDirection, ViewableDirectionBitMap,
 };
 use rc_shared::CHUNK_SIZE;
-use crate::systems::chunk::nearby_cache::NearbyChunkCache;
+use crate::systems::chunk::builder::build_context::ChunkBuildContext;
 
 impl<'a> ChunkData {
     /*
@@ -34,7 +34,7 @@ impl<'a> ChunkData {
     pub fn generate_viewable_map(
         &self,
         block_states: &BlockStates,
-        adjacent_chunks: &NearbyChunkCache,
+        build_context: &ChunkBuildContext,
         chunk_edge_faces: bool,
     ) -> [[[ViewableDirection; 16]; 16]; 16] {
         let mut data = [[[ViewableDirection(0); CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
@@ -54,8 +54,9 @@ impl<'a> ChunkData {
                     let block = block_states.get_block(self.world[x][y][z] as usize);
 
                     let mut viewable =
-                        calculate_viewable(block_states, &self.world, &block, [x, y, z]);
+                        calculate_chunk_viewable(block_states, &self.world, &block, [x, y, z]);
 
+                    // Catch any directions not inside the current chunk
                     for direction in directions.iter() {
                         // Calculates if block is bordering on this direction
                         if (direction.x == 1 && x == 15)
@@ -65,42 +66,15 @@ impl<'a> ChunkData {
                             || (direction.z == 1 && z == 15)
                             || (direction.z == -1 && z == 0)
                         {
-                            // Make it so we get the block on the other chunk closest to our block
-                            let block_pos: Vector3<usize> = Vector3::new(
-                                if direction.x == 0 {
-                                    x
-                                } else if direction.x == 1 {
-                                    0
-                                } else {
-                                    15
-                                },
-                                if direction.y == 0 {
-                                    y
-                                } else if direction.y == 1 {
-                                    0
-                                } else {
-                                    15
-                                },
-                                if direction.z == 0 {
-                                    z
-                                } else if direction.z == 1 {
-                                    0
-                                } else {
-                                    15
-                                },
-                            );
+
+                            let position = (self.position * CHUNK_SIZE as i32) +
+                                Vector3::new(x as i32, y as i32, z as i32) +
+                                direction;
 
                             // Checks if the block in an adjacent chunk is transparent
-                            if let Some(chunk) = adjacent_chunks.get_relative_chunk(*direction) {
-                                let block = {
-                                    let block_id =
-                                        chunk.world[block_pos.x][block_pos.y][block_pos.z];
-
-                                    block_states.get_block(block_id as usize)
-                                };
-
+                            if let Some(chunk) = build_context.surrounding_data.get(&position) {
                                 // Check if face visible
-                                if block.translucent {
+                                if chunk.is_transparent {
                                     viewable.add_flag(ViewableDirectionBitMap::from(direction));
                                 }
                             } else if chunk_edge_faces {

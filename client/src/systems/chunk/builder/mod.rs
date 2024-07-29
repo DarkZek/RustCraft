@@ -1,7 +1,7 @@
 mod entry;
 mod generate_mesh;
 mod lighting;
-mod build_context;
+pub mod build_context;
 
 use crate::systems::chunk::builder::entry::{MeshBuildEntry, PLAYER_POS};
 use crate::systems::chunk::builder::generate_mesh::UpdateChunkMesh;
@@ -170,21 +170,18 @@ pub fn mesh_builder(
 
             let cache = NearbyChunkCache::from_service(&chunks, chunk.position);
 
-            let lighting_context = ChunkBuildContext::new(chunk.position, &block_states, &cache);
+            let build_context = ChunkBuildContext::new(&block_states, &cache);
 
             // TODO: Make blockstates static because this is very slow
             let block_states = block_states.clone();
 
             let task = thread_pool.spawn(async move {
-                // TODO: Use data from lighting_context so that we can get lighting info in between chunk faces
-                let cache = NearbyChunkCache::empty(chunk.position);
-
-                let lighting_update = chunk.build_lighting(lighting_context);
+                let lighting_update = chunk.build_lighting(&build_context);
 
                 chunk.light_levels = lighting_update.data;
 
                 // Generate mesh & gpu buffers
-                let mesh_updates = chunk.build_mesh(&block_states, true, &cache);
+                let mesh_updates = chunk.build_mesh(&block_states, false, &build_context);
 
                 (mesh_updates, lighting_update)
             });

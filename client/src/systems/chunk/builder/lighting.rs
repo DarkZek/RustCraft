@@ -27,7 +27,7 @@ pub struct BlockLightRecord {
 impl ChunkData {
     pub fn build_lighting(
         &self,
-        context: ChunkBuildContext
+        context: &ChunkBuildContext
     ) -> LightingUpdateData {
 
         let start = Instant::now();
@@ -224,11 +224,11 @@ mod tests {
 
                 let start = Instant::now();
 
-                let context = ChunkBuildContext::new(*pos, &states, &nearby_block_cache);
+                let context = ChunkBuildContext::new(&states, &nearby_block_cache);
 
                 println!("{}", context.lights.len());
 
-                chunk.build_lighting(context);
+                chunk.build_lighting(&context);
                 total_time_nanos += start.elapsed().as_nanos();
             }
 

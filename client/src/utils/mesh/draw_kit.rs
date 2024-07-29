@@ -17,6 +17,7 @@ pub struct DrawKit {
 
 impl DrawKit {
     pub fn new() -> DrawKit {
+        // TODO: Create with estimate on capacity
         DrawKit {
             positions: vec![],
             indices: vec![],
@@ -64,6 +65,7 @@ impl DrawKit {
             ]);
         }
 
+        // TODO: Push multiple at a time
         self.uv_coordinates
             .push([face.texture.u_min, face.texture.v_max]);
         self.uv_coordinates

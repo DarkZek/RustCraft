@@ -87,7 +87,7 @@ pub fn mouse_interaction(
                     context: RerenderChunkFlagContext::Surrounding,
                 });
 
-                info!(
+                debug!(
                     "Updated [{}, {}, {}]",
                     ray.block.x, ray.block.y, ray.block.z
                 );

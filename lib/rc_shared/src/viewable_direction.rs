@@ -135,7 +135,7 @@ impl From<ViewableDirectionBitMap> for AxisAlignedDirection {
     }
 }
 
-pub fn calculate_viewable(
+pub fn calculate_chunk_viewable(
     block_states: &BlockStates,
     world: &RawChunkData,
     block: &Block,
