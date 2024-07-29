@@ -72,14 +72,8 @@ impl ChunkData {
                     continue;
                 }
 
-                let local_relative_position =
-                    pos - (CHUNK_SIZE as i32 * chunk_pos)
-                        + Vector3::new(CHUNK_SIZE as i32, CHUNK_SIZE as i32, CHUNK_SIZE as i32);
-
-                if !context.translucency_map
-                    [local_relative_position.x as usize]
-                    [local_relative_position.y as usize]
-                    [local_relative_position.z as usize] {
+                if context.translucency_map.get_position(pos).is_none() ||
+                    !context.translucency_map.get_position(pos).unwrap() {
                     // Collision, bail
                     continue;
                 }

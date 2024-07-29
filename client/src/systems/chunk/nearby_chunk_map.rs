@@ -5,15 +5,24 @@ use rc_shared::CHUNK_SIZE;
 use rc_shared::helpers::global_to_local_position;
 
 /// Stores information for each block in a 3x3 of chunk data centered on `position`
-struct NearbyChunkMap<T: Sized + Copy> {
+pub struct NearbyChunkMap<T: Sized + Copy> {
     position: Vector3<i32>,
-    data: [[[T; CHUNK_SIZE * 3]; CHUNK_SIZE * 3]; CHUNK_SIZE * 3]
+    pub(crate) data: [[[T; CHUNK_SIZE * 3]; CHUNK_SIZE * 3]; CHUNK_SIZE * 3]
 }
 
 impl<T: Default + Copy> Default for NearbyChunkMap<T> {
     fn default() -> Self {
         NearbyChunkMap {
             position: Default::default(),
+            data: [[[T::default(); CHUNK_SIZE * 3]; CHUNK_SIZE * 3]; CHUNK_SIZE * 3],
+        }
+    }
+}
+
+impl<T: Default + Copy> NearbyChunkMap<T> {
+    pub(crate) fn new_empty(position: Vector3<i32>) -> Self {
+        NearbyChunkMap {
+            position,
             data: [[[T::default(); CHUNK_SIZE * 3]; CHUNK_SIZE * 3]; CHUNK_SIZE * 3],
         }
     }
@@ -27,7 +36,7 @@ impl<T: Copy> NearbyChunkMap<T> {
         }
     }
 
-    pub fn for_each<F>(&mut self, cb: F) where F: Fn(NearbyChunkItem<T>) {
+    pub fn for_each<F>(&self, mut cb: F) where F: FnMut(NearbyChunkItem<T>) {
         for chunk_x in (self.position.x - 1)..=(self.position.x + 1) {
             for chunk_y in (self.position.y - 1)..=(self.position.y + 1) {
                 for chunk_z in (self.position.z - 1)..=(self.position.z + 1) {
@@ -41,8 +50,37 @@ impl<T: Copy> NearbyChunkMap<T> {
                                 let index = world_to_index(world_position, self.position).unwrap();
 
                                 cb(NearbyChunkItem {
-                                    data: self.data[index.x][index.y][index.z],
+                                    data: &self.data[index.x][index.y][index.z],
                                     world_position,
+                                    chunk_position: Vector3::new(chunk_x, chunk_y, chunk_z),
+                                    block_position: Vector3::new(x, y, z),
+                                })
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    pub fn for_each_mut<F>(&mut self, mut cb: F) where F: FnMut(NearbyChunkItemMut<T>) {
+        for chunk_x in (self.position.x - 1)..=(self.position.x + 1) {
+            for chunk_y in (self.position.y - 1)..=(self.position.y + 1) {
+                for chunk_z in (self.position.z - 1)..=(self.position.z + 1) {
+                    for x in 0..CHUNK_SIZE {
+                        for y in 0..CHUNK_SIZE {
+                            for z in 0..CHUNK_SIZE {
+                                let world_position =
+                                    (Vector3::new(chunk_x, chunk_y, chunk_z) * CHUNK_SIZE as i32) +
+                                        Vector3::new(x, y, z).cast::<i32>();
+
+                                let index = world_to_index(world_position, self.position).unwrap();
+
+                                cb(NearbyChunkItemMut {
+                                    data: &mut self.data[index.x][index.y][index.z],
+                                    world_position,
+                                    chunk_position: Vector3::new(chunk_x, chunk_y, chunk_z),
+                                    block_position: Vector3::new(x, y, z),
                                 })
                             }
                         }
@@ -88,23 +126,31 @@ impl<T: Copy> NearbyChunkMap<T> {
         }
     }
 
-    pub unsafe fn get_position_unchecked(&self, world_position: Vector3<i32>) -> NearbyChunkItem<&T> {
+    pub unsafe fn get_position_unchecked(&self, world_position: Vector3<i32>) -> NearbyChunkItem<T> {
         // Localize
         let index = world_to_index(world_position, self.position).unwrap();
+
+        let (chunk_position, block_position) = global_to_local_position(world_position);
 
         NearbyChunkItem {
             data: &self.data[index.x][index.y][index.z],
             world_position,
+            chunk_position,
+            block_position,
         }
     }
 
-    pub unsafe fn get_position_mut_unchecked(&mut self, world_position: Vector3<i32>) -> NearbyChunkItem<&mut T> {
+    pub unsafe fn get_position_mut_unchecked(&mut self, world_position: Vector3<i32>) -> NearbyChunkItem<T> {
         // Localize
         let index = world_to_index(world_position, self.position).unwrap();
+
+        let (chunk_position, block_position) = global_to_local_position(world_position);
 
         NearbyChunkItem {
             data: &mut self.data[index.x][index.y][index.z],
             world_position,
+            chunk_position,
+            block_position,
         }
     }
 }
@@ -133,9 +179,19 @@ fn world_to_index(world_position: Vector3<i32>, index_center: Vector3<i32>) -> O
 }
 
 #[derive(Copy, Clone, Debug)]
-pub struct NearbyChunkItem<T> {
-    data: T,
-    world_position: Vector3<i32>
+pub struct NearbyChunkItem<'a, T> {
+    pub data: &'a T,
+    pub world_position: Vector3<i32>,
+    pub chunk_position: Vector3<i32>,
+    pub block_position: Vector3<usize>
+}
+
+#[derive(Debug)]
+pub struct NearbyChunkItemMut<'a, T> {
+    pub data: &'a mut T,
+    pub world_position: Vector3<i32>,
+    pub chunk_position: Vector3<i32>,
+    pub block_position: Vector3<usize>
 }
 
 #[cfg(test)]

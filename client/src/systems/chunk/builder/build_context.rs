@@ -1,14 +1,16 @@
+use std::fs;
 use nalgebra::Vector3;
 use rc_shared::block::BlockStates;
 use rc_shared::CHUNK_SIZE;
 use crate::systems::chunk::nearby_cache::NearbyChunkCache;
+use crate::systems::chunk::nearby_chunk_map::NearbyChunkMap;
 
 pub struct ChunkBuildContext {
     // Location of all lights in the surrounding chunks
     pub lights: Vec<(Vector3<i32>, [u8; 4])>,
     // Translucency of all blocks in the surrounding chunks.
     // TODO: Convert this into a more compressed format?
-    pub translucency_map: [[[bool; CHUNK_SIZE * 3]; CHUNK_SIZE * 3]; CHUNK_SIZE * 3]
+    pub translucency_map: NearbyChunkMap<bool>
 }
 
 // Stores any context a chunk may need to build lighting. Used so that chunk can be chucked at another thread
@@ -20,46 +22,30 @@ impl ChunkBuildContext {
     ) -> ChunkBuildContext {
         let mut lights = Vec::new();
 
-        let mut translucency_map = [[[false; 48]; 48]; 48];
+        let mut translucency_map: NearbyChunkMap<bool> = NearbyChunkMap::new_empty(chunk_pos);
 
-        for chunk_x in (chunk_pos.x - 1)..=(chunk_pos.x + 1) {
-            for chunk_y in (chunk_pos.y - 1)..=(chunk_pos.y + 1) {
-                for chunk_z in (chunk_pos.z - 1)..=(chunk_pos.z + 1) {
-                    // Get chunk
-                    if let Some(chunk) = cache.get_chunk(Vector3::new(chunk_x, chunk_y, chunk_z)) {
-                        for x in 0..CHUNK_SIZE {
-                            for y in 0..CHUNK_SIZE {
-                                for z in 0..CHUNK_SIZE {
-                                    let block = states.get_block(chunk.world[x][y][z] as usize);
+        // Loop over every nearby chunk
+        translucency_map.for_each_mut(|mut entry| {
+            // TODO: Allow NearbyChunkMap to directly use a NearbyChunkCache to speed up chunk fetching
+            let Some(chunk) = cache.get_chunk(entry.chunk_position) else {
+                return;
+            };
 
-                                    let block_position = Vector3::new(x, y, z).cast::<i32>()
-                                        + (CHUNK_SIZE as i32 * chunk.position);
+            let block = states.get_block(
+                chunk.world[entry.block_position.x][entry.block_position.y][entry.block_position.z] as usize
+            );
 
-                                    // Position in 3x3 array of chunk data
-                                    let local_relative_position =
-                                        block_position - (CHUNK_SIZE as i32 * chunk_pos)
-                                            + Vector3::new(CHUNK_SIZE as i32, CHUNK_SIZE as i32, CHUNK_SIZE as i32);
+            *entry.data = block.translucent;
 
-                                    translucency_map
-                                        [local_relative_position.x as usize]
-                                        [local_relative_position.y as usize]
-                                        [local_relative_position.z as usize] = block.translucent;
-
-                                    if block.emission[3] == 0 {
-                                        continue;
-                                    }
-
-                                    lights.push((
-                                        block_position,
-                                        block.emission,
-                                    ));
-                                }
-                            }
-                        }
-                    }
-                }
+            if block.emission[3] == 0 {
+                return;
             }
-        }
+
+            lights.push((
+                entry.world_position,
+                block.emission,
+            ));
+        });
 
         // if lights.len() > 0 {
         //     println!("Get lights {}", lights.len());

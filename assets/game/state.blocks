@@ -905,7 +905,7 @@
       ],
       "loot_table": [
         {
-          "chance": 1.0,
+          "chance": 0.2,
           "item": "mcv3::LampItem"
         }
       ]
@@ -1054,9 +1054,9 @@
       ],
       "emission": [
         255,
-        150,
-        150,
-        12
+        255,
+        255,
+        16
       ],
       "loot_table": [
         {
