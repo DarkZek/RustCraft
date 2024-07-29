@@ -8,7 +8,8 @@ pub type ChunkMaterial = ExtendedMaterial<StandardMaterial, ChunkMaterialExtensi
 
 #[derive(Asset, AsBindGroup, Reflect, Debug, Clone)]
 pub struct ChunkMaterialExtension {
-
+    #[uniform(100)]
+    pub ambient_strength: f32,
 }
 
 impl MaterialExtension for ChunkMaterialExtension {

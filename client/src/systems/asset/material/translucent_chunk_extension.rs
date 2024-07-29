@@ -11,6 +11,8 @@ pub type TranslucentChunkMaterial = ExtendedMaterial<StandardMaterial, Transluce
 pub struct TranslucentChunkMaterialExtension {
     #[uniform(100)]
     pub time: f32,
+    #[uniform(100)]
+    pub ambient_strength: f32,
 }
 
 impl MaterialExtension for TranslucentChunkMaterialExtension {

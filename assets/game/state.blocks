@@ -905,7 +905,7 @@
       ],
       "loot_table": [
         {
-          "chance": 0.2,
+          "chance": 1.0,
           "item": "mcv3::LampItem"
         }
       ]

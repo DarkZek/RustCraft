@@ -26,14 +26,15 @@
 // TODO: Split out into multiple files
 // TODO: Document which parts are copied from Bevy
 
-#ifdef IS_TRANSLUCENT
 struct ChunkExtendedMaterial {
-    time: f32
+#ifdef IS_TRANSLUCENT
+    time: f32,
+#endif
+    ambient_strength: f32,
 }
 
 @group(2) @binding(100)
 var<uniform> chunk_material: ChunkExtendedMaterial;
-#endif
 
 @vertex
 fn vertex(vertex_no_morph: CustomVertexInput) -> CustomVertexOutput {
@@ -97,9 +98,7 @@ fn vertex(vertex_no_morph: CustomVertexInput) -> CustomVertexOutput {
         out.instance_index = vertex_no_morph.instance_index;
     #endif
 
-    let ambient = 0.4;
-
-    out.lighting = vec4(vertex_no_morph.lighting.xyz, 1.0);
+    out.lighting = vec4(vertex_no_morph.lighting.xyz, 1.0) + vec4(chunk_material.ambient_strength);
 
     return out;
 }

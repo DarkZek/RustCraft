@@ -13,6 +13,7 @@ use rc_shared::CHUNK_SIZE;
 use std::collections::HashMap;
 use crate::systems::asset::parsing::message_pack::MessagePackAssetLoader;
 use crate::systems::chunk::static_world_data::{save_surroundings_system, StaticWorldData};
+use crate::systems::chunk::temp_set_ambient::temp_set_ambient;
 
 pub mod builder;
 pub mod data;
@@ -21,6 +22,7 @@ pub mod nearby_cache;
 mod request;
 pub mod static_world_data;
 mod nearby_chunk_map;
+mod temp_set_ambient;
 
 pub struct ChunkPlugin;
 
@@ -33,7 +35,8 @@ impl Plugin for ChunkPlugin {
             // Static world data
             .init_asset::<StaticWorldData>()
             .init_asset_loader::<MessagePackAssetLoader<StaticWorldData>>()
-            .add_systems(Update, save_surroundings_system);
+            .add_systems(Update, save_surroundings_system)
+            .add_systems(Update, temp_set_ambient);
     }
 }
 

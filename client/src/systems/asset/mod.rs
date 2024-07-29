@@ -44,14 +44,14 @@ impl AssetService {
                 base_color: Color::from(RED),
                 ..default()
             },
-            extension: ChunkMaterialExtension { },
+            extension: ChunkMaterialExtension { ambient_strength: 0.0 },
         });
         let translucent_texture_atlas_material = translucent_materials.add(ExtendedMaterial {
             base: StandardMaterial {
                 base_color: Color::from(RED),
                 ..default()
             },
-            extension: TranslucentChunkMaterialExtension { time: 0.0 },
+            extension: TranslucentChunkMaterialExtension { time: 0.0, ambient_strength: 0.0 },
         });
 
         AssetService {
