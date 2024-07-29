@@ -23,6 +23,7 @@ mod request;
 pub mod static_world_data;
 mod nearby_chunk_map;
 mod temp_set_ambient;
+mod relative_chunk_map;
 
 pub struct ChunkPlugin;
 

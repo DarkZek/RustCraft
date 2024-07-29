@@ -8,6 +8,7 @@ use rc_shared::CHUNK_SIZE;
 use std::collections::VecDeque;
 use web_time::Instant;
 use crate::systems::chunk::builder::build_context::ChunkBuildContext;
+use crate::systems::chunk::relative_chunk_map::RelativeChunkMap;
 
 const MAX_LIGHT_VALUE: usize = 16;
 
@@ -27,7 +28,7 @@ pub struct BlockLightRecord {
 impl ChunkData {
     pub fn build_lighting(
         &self,
-        context: &ChunkBuildContext
+        context: &mut ChunkBuildContext
     ) -> LightingUpdateData {
 
         let start = Instant::now();
@@ -41,31 +42,37 @@ impl ChunkData {
         let lights_len = context.lights.len();
 
         // Rolling average of chunk lighting data
-        let mut data = [[[BlockLightRecord::default(); CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
+        let mut data: RelativeChunkMap<BlockLightRecord> = RelativeChunkMap::new_empty(
+            self.position * CHUNK_SIZE as i32,
+            1
+        );
 
         // Propagate lighting
         for (light_pos, color) in &context.lights {
             // a 32 block wide area around the light that tracks what blocks it's visited
+            // TODO: Decrease size
             let mut visited = [[[false; CHUNK_SIZE * 2]; CHUNK_SIZE * 2]; CHUNK_SIZE * 2];
 
             let mut point = VecDeque::with_capacity(1000);
 
             // Starting points
-            point.push_back((light_pos + Vector3::new(1, 0, 0), color[3] - 1));
-            point.push_back((light_pos + Vector3::new(-1, 0, 0), color[3] - 1));
-            point.push_back((light_pos + Vector3::new(0, 1, 0), color[3] - 1));
-            point.push_back((light_pos + Vector3::new(0, -1, 0), color[3] - 1));
-            point.push_back((light_pos + Vector3::new(0, 0, 1), color[3] - 1));
-            point.push_back((light_pos + Vector3::new(0, 0, -1), color[3] - 1));
+            point.push_back((light_pos + Vector3::new(1, 0, 0),     color[3] - 1));
+            point.push_back((light_pos + Vector3::new(-1, 0, 0),    color[3] - 1));
+            point.push_back((light_pos + Vector3::new(0, 1, 0),     color[3] - 1));
+            point.push_back((light_pos + Vector3::new(0, -1, 0),    color[3] - 1));
+            point.push_back((light_pos + Vector3::new(0, 0, 1),     color[3] - 1));
+            point.push_back((light_pos + Vector3::new(0, 0, -1),    color[3] - 1));
 
             while !point.is_empty() {
                 let (pos, strength) = point.pop_front().unwrap();
 
-                let (chunk_pos, block_pos) = global_to_local_position(pos);
+                let light_index = Vector3::new(
+                    (pos.x - light_pos.x + CHUNK_SIZE as i32) as usize,
+                        (pos.y - light_pos.y + CHUNK_SIZE as i32) as usize,
+                        (pos.z - light_pos.z + CHUNK_SIZE as i32) as usize
+                );
 
-                if visited[(pos.x - light_pos.x + CHUNK_SIZE as i32) as usize]
-                    [(pos.y - light_pos.y + CHUNK_SIZE as i32) as usize]
-                    [(pos.z - light_pos.z + CHUNK_SIZE as i32) as usize]
+                if visited[light_index.x][light_index.y][light_index.z]
                 {
                     continue;
                 }
@@ -76,9 +83,7 @@ impl ChunkData {
                     continue;
                 }
 
-                if chunk_pos == self.position {
-                    let current_color =
-                        &mut data[block_pos.x][block_pos.y][block_pos.z];
+                if let Some(current_color) = data.get_mut(pos) {
                     current_color.weighted_cumulative_r += strength as u32 * color[0] as u32;
                     current_color.weighted_cumulative_g += strength as u32 * color[1] as u32;
                     current_color.weighted_cumulative_b += strength as u32 * color[2] as u32;
@@ -86,9 +91,7 @@ impl ChunkData {
                     current_color.max_strength = current_color.max_strength.max(strength);
                 }
 
-                visited[(pos.x - light_pos.x + CHUNK_SIZE as i32) as usize]
-                    [(pos.y - light_pos.y + CHUNK_SIZE as i32) as usize]
-                    [(pos.z - light_pos.z + CHUNK_SIZE as i32) as usize] = true;
+                visited[light_index.x][light_index.y][light_index.z] = true;
 
                 if strength == 1 {
                     continue;
@@ -115,30 +118,30 @@ impl ChunkData {
         for x in 0..CHUNK_SIZE {
             for y in 0..CHUNK_SIZE {
                 for z in 0..CHUNK_SIZE {
-                    let color = &data[x][y][z];
+                    let color = data.get(
+                        self.position * CHUNK_SIZE as i32 + Vector3::new(x as i32, y as i32, z as i32)
+                    ).unwrap();
 
                     // If there's no lighting data for this block ignore it
                     if color.max_strength == 0 {
                         continue;
                     }
 
-                    let out_color = &mut out[x][y][z];
-
-                    // Get the proportional color
-                    out_color[0] = (color.weighted_cumulative_r / color.cumulative_strength) as u8;
-                    out_color[1] = (color.weighted_cumulative_g / color.cumulative_strength) as u8;
-                    out_color[2] = (color.weighted_cumulative_b / color.cumulative_strength) as u8;
-
-                    // Light falloff based off max strength
-                    out_color[0] =
-                        (out_color[0] as u32 * color.max_strength as u32 / MAX_LIGHT_VALUE as u32) as u8;
-                    out_color[1] =
-                        (out_color[1] as u32 * color.max_strength as u32 / MAX_LIGHT_VALUE as u32) as u8;
-                    out_color[2] =
-                        (out_color[2] as u32 * color.max_strength as u32 / MAX_LIGHT_VALUE as u32) as u8;
-
-                    out_color[3] = color.max_strength;
+                    out[x][y][z] = calculate_color(&color);
                 }
+            }
+        }
+
+        // Update context surrounding blocks with results of lighting pass
+        for (pos, entry) in &mut context.surrounding_data {
+            if let Some(lighting_data) = data.get(*pos) {
+
+                // If there's no lighting data for this block ignore it
+                if lighting_data.max_strength == 0 {
+                    continue;
+                }
+
+                entry.light = calculate_color(lighting_data);
             }
         }
 
@@ -151,6 +154,25 @@ impl ChunkData {
 
         LightingUpdateData { data: out }
     }
+}
+
+fn calculate_color(color: &BlockLightRecord) -> [u8; 4] {
+    let mut out_color = [
+        (color.weighted_cumulative_r / color.cumulative_strength) as u8,
+        (color.weighted_cumulative_g / color.cumulative_strength) as u8,
+        (color.weighted_cumulative_b / color.cumulative_strength) as u8,
+        color.max_strength
+    ];
+
+    // Light falloff based off max strength
+    out_color[0] =
+        (out_color[0] as u32 * color.max_strength as u32 / MAX_LIGHT_VALUE as u32) as u8;
+    out_color[1] =
+        (out_color[1] as u32 * color.max_strength as u32 / MAX_LIGHT_VALUE as u32) as u8;
+    out_color[2] =
+        (out_color[2] as u32 * color.max_strength as u32 / MAX_LIGHT_VALUE as u32) as u8;
+
+    out_color
 }
 
 #[cfg(test)]

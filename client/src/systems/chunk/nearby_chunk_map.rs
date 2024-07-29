@@ -5,7 +5,7 @@ use rc_shared::helpers::global_to_local_position;
 /// Stores information for each block in a 3x3 of chunk data centered on `position`
 pub struct NearbyChunkMap<T: Sized + Copy> {
     position: Vector3<i32>,
-    pub(crate) data: [[[T; CHUNK_SIZE * 3]; CHUNK_SIZE * 3]; CHUNK_SIZE * 3]
+    pub data: [[[T; CHUNK_SIZE * 3]; CHUNK_SIZE * 3]; CHUNK_SIZE * 3]
 }
 
 impl<T: Default + Copy> Default for NearbyChunkMap<T> {
@@ -18,7 +18,7 @@ impl<T: Default + Copy> Default for NearbyChunkMap<T> {
 }
 
 impl<T: Default + Copy> NearbyChunkMap<T> {
-    pub(crate) fn new_empty(position: Vector3<i32>) -> Self {
+    pub fn new_empty(position: Vector3<i32>) -> Self {
         NearbyChunkMap {
             position,
             data: [[[T::default(); CHUNK_SIZE * 3]; CHUNK_SIZE * 3]; CHUNK_SIZE * 3],

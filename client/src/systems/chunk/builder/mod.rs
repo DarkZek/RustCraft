@@ -170,13 +170,13 @@ pub fn mesh_builder(
 
             let cache = NearbyChunkCache::from_service(&chunks, chunk.position);
 
-            let build_context = ChunkBuildContext::new(&block_states, &cache);
+            let mut build_context = ChunkBuildContext::new(&block_states, &cache);
 
             // TODO: Make blockstates static because this is very slow
             let block_states = block_states.clone();
 
             let task = thread_pool.spawn(async move {
-                let lighting_update = chunk.build_lighting(&build_context);
+                let lighting_update = chunk.build_lighting(&mut build_context);
 
                 chunk.light_levels = lighting_update.data;
 
