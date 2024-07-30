@@ -10,7 +10,6 @@ use crate::game::game_object::GameObjectPlugin;
 use crate::game::interaction::highlight::{
     mouse_highlight_interaction, setup_highlights, HighlightData,
 };
-use crate::game::interaction::mouse_interaction;
 use crate::game::inventory::InventoryPlugin;
 use crate::game::state::{create_states, track_blockstate_changes, track_itemstate_changes};
 use crate::game::world::WorldPlugin;
@@ -36,6 +35,7 @@ use bevy_polyline::PolylinePlugin;
 use rc_shared::block::BlockStatesPlugin;
 use rc_shared::item::{ItemStates, ItemStatesPlugin};
 use bevy::pbr::ExtendedMaterial;
+use crate::game::interaction::InteractionPlugin;
 use crate::systems::asset::material::chunk_extension::ChunkMaterialExtension;
 use crate::systems::asset::material::translucent_chunk_extension::TranslucentChunkMaterialExtension;
 
@@ -79,7 +79,7 @@ fn main() {
         .add_plugins(ClientNetworkingPlugin)
 
         // Interaction
-        .add_systems(Update, mouse_interaction)
+        .add_plugins(InteractionPlugin)
         .insert_resource(HighlightData::default())
         .add_systems(Startup, setup_highlights)
         .add_systems(Update, mouse_highlight_interaction)
