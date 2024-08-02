@@ -7,6 +7,7 @@ use bevy::prelude::*;
 use nalgebra::Vector3;
 use rc_shared::block::BlockStates;
 use crate::systems::camera::freecam::Freecam;
+use crate::systems::camera::MainCamera;
 
 const MOVEMENT_SPEED_POSITION: f32 = 2.4;
 const MOVEMENT_SPEED_VELOCITY: f32 = 15.0;
@@ -14,6 +15,7 @@ const MOVEMENT_SPEED_VELOCITY: f32 = 15.0;
 pub fn update_input_movement(
     service: Res<InputSystem>,
     mut player: Query<(&mut PhysicsObject, &Player)>,
+    camera: Query<&Transform, With<MainCamera>>,
     keys: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,
     chunks: Res<ChunkSystem>,
@@ -24,9 +26,15 @@ pub fn update_input_movement(
         return;
     }
 
-    let (mut player_physics, player): (Mut<PhysicsObject>, &Player) = player.single_mut();
+    let camera = camera.single();
 
-    let forward = -Vector3::new(player.yaw.sin(), 0.0, player.yaw.cos());
+    let Ok((mut player_physics, player)) = player.get_single_mut() else {
+        println!("NO PLAYER");
+        return;
+    };
+
+    let forward = camera.forward();
+    let forward = Vector3::new(forward.x, 0.0, forward.z);
     let right = forward.cross(&Vector3::new(0.0, 1.0, 0.0));
 
     let flying_multiplier = if player_physics.touching_ground {

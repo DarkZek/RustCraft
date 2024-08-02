@@ -32,27 +32,9 @@ impl Plugin for CameraPlugin {
 pub struct MainCamera;
 
 fn setup_camera(mut commands: Commands) {
-    let mut player_physics = PhysicsObject::new(
-        Vector3::new(0.0, 0.0, 0.0),
-        Aabb::new(
-            Vector3::new(-0.35, -1.7, -0.35),
-            Vector3::new(0.7, 1.85, 0.7),
-        ),
-    );
-
-    // Enable gravity for local player
-    player_physics.gravity = true;
-
-    let start_transform = Transform::from_translation(Vec3::new(
-        player_physics.position.x,
-        player_physics.position.y,
-        player_physics.position.z,
-    ));
-
     // Spawn camera
     let mut camera = commands
         .spawn(Camera3dBundle {
-            transform: start_transform,
             camera: Camera {
                 clear_color: ClearColorConfig::Custom(Color::from(BLUE_300)),
                 ..default()
@@ -82,22 +64,12 @@ fn setup_camera(mut commands: Commands) {
 
     #[cfg(not(target_arch = "wasm32"))]
     camera.insert(TemporalAntiAliasBundle::default());
-
-    // Spawn player
-    // Todo: Move this elsewhere
-    commands
-        .spawn(start_transform)
-        .insert(player_physics)
-        .insert(GameObject {
-            data: GameObjectData::Player(UserId(999))
-        })
-        .insert(Player::new());
 }
 
 fn camera_player_sync(
     mut query: ParamSet<(
         Query<&mut Transform, (With<Transform>, With<MainCamera>)>,
-        Query<&Transform, (With<Player>, Changed<Transform>)>,
+        Query<&mut Transform, (With<Player>, Changed<Transform>)>,
     )>,
     freecam: Res<Freecam>
 ) {
@@ -105,15 +77,23 @@ fn camera_player_sync(
         return;
     }
 
-    let player: Transform = query.p1().single().clone();
+    {
+        // Update rotation
+        let camera_rotation = query.p0().single().rotation;
 
-    let mut camera_query = query.p0();
+        let mut player_query = query.p1();
+        let mut player = player_query.single_mut();
 
-    let mut camera = camera_query.single_mut();
-
-    camera.rotation = player.rotation;
+        player.rotation = camera_rotation;
+    }
 
     if !freecam.enabled {
-        camera.translation = player.translation;
+        // Update position
+        let player_position = query.p1().single().translation;
+
+        let mut camera_query = query.p0();
+        let mut camera = camera_query.single_mut();
+
+        camera.translation = player_position;
     }
 }

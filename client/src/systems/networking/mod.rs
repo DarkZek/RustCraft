@@ -7,7 +7,7 @@ use crate::systems::networking::messages::messages_update;
 use bevy::log::info;
 use bevy::prelude::*;
 use rc_networking::client::{NetworkingClient, QuinnClientPlugin};
-use rc_shared::constants::GameObjectId;
+use rc_shared::constants::{GameObjectId, UserId};
 use std::collections::HashMap;
 use std::net::SocketAddr;
 
@@ -32,10 +32,14 @@ impl Plugin for ClientNetworkingPlugin {
 }
 
 /// Connects to the local server instance
-pub fn connect_to_server(mut client: ResMut<NetworkingClient>) {
+pub fn connect_to_server(
+    mut client: ResMut<NetworkingClient>,
+    networking_system: Res<NetworkingSystem>
+) {
     let server_addr: SocketAddr = ([127, 0, 0, 1], 25568).into();
 
-    client.connect(server_addr);
+    // TODO: Make user_id dynamic
+    client.connect(server_addr, networking_system.user_id.0);
 
     info!("Connecting to server on {}", server_addr);
 }
@@ -43,12 +47,14 @@ pub fn connect_to_server(mut client: ResMut<NetworkingClient>) {
 #[derive(Resource)]
 pub struct NetworkingSystem {
     pub entity_mapping: HashMap<GameObjectId, Entity>,
+    pub user_id: UserId
 }
 
 impl Default for NetworkingSystem {
     fn default() -> Self {
         NetworkingSystem {
             entity_mapping: Default::default(),
+            user_id: UserId(123456),
         }
     }
 }

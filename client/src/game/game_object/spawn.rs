@@ -13,6 +13,7 @@ use rc_networking::types::ReceivePacket;
 use rc_shared::aabb::Aabb;
 use rc_shared::block::BlockStates;
 use crate::game::game_object::mesh::generate_item_mesh;
+use crate::game::player::Player;
 use crate::systems::asset::AssetService;
 use crate::systems::chunk::builder::{ATTRIBUTE_LIGHTING_COLOR, ATTRIBUTE_WIND_STRENGTH};
 
@@ -54,50 +55,76 @@ pub fn messages_update(
                 }
             }
             Protocol::SpawnGameObject(entity) => {
-                let mut size = 1.0;
-
                 if system.entity_mapping.contains_key(&entity.id) {
                     warn!("Duplicate game_object attempted to spawn {:?}", entity.id);
                     return;
                 }
 
-                let mesh = if let GameObjectData::ItemDrop(item) = &entity.data {
-                    let identifier = &item.item.identifier;
-                    size = 0.2;
-                    generate_item_mesh(identifier, &block_states, &item_states)
-                } else {
-                    let mut mesh = Mesh::from(Cuboid::new(1.0, 1.0, 1.0));
-
-                    let len = mesh.attribute(Mesh::ATTRIBUTE_POSITION).unwrap().len();
-
-                    mesh.insert_attribute(ATTRIBUTE_WIND_STRENGTH, vec![0.0f32; len] as Vec<f32>);
-                    mesh.insert_attribute(ATTRIBUTE_LIGHTING_COLOR, vec![[1.0_f32; 4]; len] as Vec<[f32; 4]>);
-
-                    mesh
-                };
-
-                let entity_id = commands
+                let mut entity_commands = commands
                     .spawn(Transform::from_rotation(Quat::from_xyzw(
                         entity.rot[0],
                         entity.rot[1],
                         entity.rot[2],
                         entity.rot[3],
-                    )))
-                    .insert(PhysicsObject::new(
-                        Vector3::new(entity.loc[0], entity.loc[1], entity.loc[2]),
-                        Aabb::new(Vector3::new(0.0, 0.0, 0.0), Vector3::new(size, size, size)),
-                    ))
-                    .insert(GameObject {
-                        data: entity.data.clone()
-                    })
-                    .insert(MaterialMeshBundle {
-                        mesh: meshes.add(mesh),
-                        material: asset_service.translucent_texture_atlas_material.clone(),
-                        ..default()
-                    })
-                    .id();
+                    )));
+                entity_commands.insert(GameObject {
+                    data: entity.data.clone()
+                });
 
-                system.entity_mapping.insert(entity.id, entity_id);
+                let mut gravity = false;
+                let aabb = match &entity.data {
+                    GameObjectData::ItemDrop(item) => {
+                        let identifier = &item.item.identifier;
+
+                        entity_commands.insert(MaterialMeshBundle {
+                            mesh: meshes.add(generate_item_mesh(identifier, &block_states, &item_states)),
+                            material: asset_service.translucent_texture_atlas_material.clone(),
+                            ..default()
+                        });
+
+                        Aabb::new(
+                            Vector3::new(-0.1, -0.1, -0.1),
+                            Vector3::new(0.2, 0.2, 0.2)
+                        )
+                    }
+                    GameObjectData::Player(user_id) => {
+
+                        let is_self_player = *user_id == system.user_id;
+
+                        if is_self_player {
+                            entity_commands.insert(Player::new());
+                            gravity = true;
+                        } else {
+                            let mut mesh = Mesh::from(Cuboid::new(1.0, 1.0, 1.0));
+
+                            let len = mesh.attribute(Mesh::ATTRIBUTE_POSITION).unwrap().len();
+
+                            mesh.insert_attribute(ATTRIBUTE_WIND_STRENGTH, vec![0.0f32; len] as Vec<f32>);
+                            mesh.insert_attribute(ATTRIBUTE_LIGHTING_COLOR, vec![[1.0_f32; 4]; len] as Vec<[f32; 4]>);
+
+                            entity_commands.insert(MaterialMeshBundle {
+                                mesh: meshes.add(mesh),
+                                material: asset_service.translucent_texture_atlas_material.clone(),
+                                ..default()
+                            });
+                        }
+
+                        Aabb::new(
+                            Vector3::new(-0.35, -1.7, -0.35),
+                            Vector3::new(0.7, 1.85, 0.7),
+                        )
+                    }
+                    _ => unimplemented!()
+                };
+
+                let mut physics = PhysicsObject::new(
+                    Vector3::new(entity.loc[0], entity.loc[1], entity.loc[2]),
+                    aabb,
+                );
+                physics.gravity = gravity;
+                entity_commands.insert(physics);
+
+                system.entity_mapping.insert(entity.id, entity_commands.id());
             }
             Protocol::DespawnGameObject(packet) => {
                 if let Some(entity) = system.entity_mapping.remove(&packet.entity) {

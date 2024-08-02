@@ -9,4 +9,5 @@ pub struct UserConnection {
     pub reliable: BiStream,
     pub chunk: BiStream,
     pub recv_err: UnboundedReceiver<StreamError>,
+    pub user_id: u64
 }

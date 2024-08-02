@@ -5,6 +5,7 @@ use bevy::ecs::event::{EventReader, EventWriter};
 use bevy::ecs::system::ResMut;
 use rc_shared::constants::GameObjectId;
 use rc_networking::events::connection::NetworkConnectionEvent;
+use rc_networking::types::ReceivePacket;
 
 const MAX_PING_TIMEOUT_SECONDS: u64 = 10;
 const PING_TIME_SECONDS: u64 = 15;
@@ -19,7 +20,7 @@ pub fn accept_connections(
         let user = GameUser {
             name: None,
             user_id: connection_event.client,
-            game_object_id: GameObjectId(connection_event.client.0),
+            game_object_id: None,
             loading: true,
         };
 

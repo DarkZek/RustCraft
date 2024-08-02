@@ -12,7 +12,7 @@ impl Default for Transform {
     fn default() -> Self {
         Transform {
             position: Vector3::zeros(),
-            rotation: Quaternion::default(),
+            rotation: Quaternion::identity(),
         }
     }
 }
@@ -21,7 +21,7 @@ impl Transform {
     pub fn from_translation(position: Vector3<f32>) -> Transform {
         Transform {
             position,
-            rotation: Default::default(),
+            rotation: Quaternion::identity(),
         }
     }
 }

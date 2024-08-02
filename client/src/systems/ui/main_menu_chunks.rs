@@ -1,9 +1,8 @@
 use bevy::asset::{AssetEvent, Assets, AssetServer, Handle};
 use bevy::math::Quat;
-use bevy::prelude::{Commands, EventReader, EventWriter, Mesh, Query, Res, ResMut, Resource, Transform, With};
+use bevy::prelude::{Camera, Commands, EventReader, EventWriter, Mesh, Query, Res, ResMut, Resource, Transform, With};
 use nalgebra::Vector3;
 use rc_shared::helpers::to_bevy_vec3;
-use crate::game::player::Player;
 use crate::systems::asset::AssetService;
 use crate::systems::chunk::builder::{RerenderChunkFlag, RerenderChunkFlagContext};
 use crate::systems::chunk::ChunkSystem;
@@ -27,7 +26,7 @@ pub fn handle_loaded_main_menu_world(
     mut meshes: ResMut<Assets<Mesh>>,
     mut data: ResMut<MainMenuWorldState>,
     mut rerender_chunks: EventWriter<RerenderChunkFlag>,
-    mut query: Query<&mut Transform, With<Player>>
+    mut query: Query<&mut Transform, With<Camera>>
 ) {
 
     for event in events.read() {
@@ -50,11 +49,11 @@ pub fn handle_loaded_main_menu_world(
             chunk_system.create_chunk(chunk.position, chunk.data, &mut commands, &asset_service, &mut meshes);
         }
 
-        // Set player position
-        let mut player_transform = query.get_single_mut().unwrap();
+        // Set camera position
+        let mut camera_transform = query.get_single_mut().unwrap();
 
-        player_transform.translation = to_bevy_vec3(loaded_data.camera_position);
-        player_transform.rotation = Quat::from_array([
+        camera_transform.translation = to_bevy_vec3(loaded_data.camera_position);
+        camera_transform.rotation = Quat::from_array([
             loaded_data.camera_rotation.x,
             loaded_data.camera_rotation.y,
             loaded_data.camera_rotation.z,

@@ -33,7 +33,9 @@ pub fn detect_sprinting(
     time: Res<Time>,
 ) {
 
-    let mut player = player.single_mut();
+    let Ok(mut player) = player.get_single_mut() else {
+        return
+    };
     let mut projection = projection.single_mut();
 
     // Update fov

@@ -28,7 +28,7 @@ pub struct GameUser {
     pub name: Option<String>,
 
     pub user_id: UserId,
-    pub game_object_id: GameObjectId,
+    pub game_object_id: Option<GameObjectId>,
     pub loading: bool,
 }
 

@@ -67,20 +67,26 @@ pub fn request_chunks(
     }
 
     for (user, chunks) in requesting_chunks {
-        if let Some(game_object_id) = transport.clients.get(&user).map(|v| v.game_object_id) {
-            if let Some(transform) = world
-                .get_game_object(&game_object_id)
-                .and_then(|entity| transforms.get(entity).ok())
-            {
-                let pos = from_bevy_vec3(transform.translation);
+        let Some(Some(game_object_id)) = transport.clients.get(&user).map(|v| v.game_object_id) else {
+            println!("has no game object");
+            continue
+        };
 
-                chunks.sort_by(|a, b| {
-                    let a_dist: i32 = (&pos - (a.cast::<f32>() * CHUNK_SIZE as f32)).norm() as i32;
-                    let b_dist: i32 = (&pos - (b.cast::<f32>() * CHUNK_SIZE as f32)).norm() as i32;
-                    a_dist.cmp(&b_dist)
-                });
-            }
-        }
+        // TODO: order chunk loading once we have sorted out the duplicate transform types
+        // let Some(transform) = world
+        //     .get_game_object(&game_object_id)
+        //     .and_then(|entity| transforms.get(entity).ok()) else {
+        //     println!("Has no transform");
+        //     continue;
+        // };
+        //
+        // let pos = from_bevy_vec3(transform.translation);
+        //
+        // chunks.sort_by(|a, b| {
+        //     let a_dist: i32 = (&pos - (a.cast::<f32>() * CHUNK_SIZE as f32)).norm() as i32;
+        //     let b_dist: i32 = (&pos - (b.cast::<f32>() * CHUNK_SIZE as f32)).norm() as i32;
+        //     a_dist.cmp(&b_dist)
+        // });
 
         // Chunks being held until next send cycle
         let mut holding_chunks = Vec::new();

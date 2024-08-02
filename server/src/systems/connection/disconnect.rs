@@ -23,22 +23,25 @@ pub fn disconnection_event(
     for event in event_reader.read() {
         let entry = clients.clients.remove(&event.client).unwrap();
 
-        let transform = query
-            .get(world.get_game_object(&entry.game_object_id).unwrap())
-            .unwrap();
+        if let Some(game_object_id) = &entry.game_object_id {
 
-        let (chunk_pos, _) = global_f32_to_local_position(transform.position);
+            let transform = query
+                .get(world.get_game_object(&game_object_id).unwrap())
+                .unwrap();
 
-        if let Some(eid) = world.remove_game_object(&entry.game_object_id, chunk_pos) {
-            // Delete game_object
-            commands.entity(eid).despawn();
+            let (chunk_pos, _) = global_f32_to_local_position(transform.position);
 
-            // Send all other players a disconnection event
-            for (uid, _) in &clients.clients {
-                writer.send(SendPacket(
-                    Protocol::DespawnGameObject(DespawnGameObject::new(entry.game_object_id)),
-                    *uid,
-                ));
+            if let Some(eid) = world.remove_game_object(game_object_id, chunk_pos) {
+                // Delete game_object
+                commands.entity(eid).despawn();
+
+                // Send all other players a disconnection event
+                for (uid, _) in &clients.clients {
+                    writer.send(SendPacket(
+                        Protocol::DespawnGameObject(DespawnGameObject::new(*game_object_id)),
+                        *uid,
+                    ));
+                }
             }
         }
     }

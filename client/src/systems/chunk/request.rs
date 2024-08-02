@@ -15,7 +15,10 @@ pub fn request_chunks(
     mut system: ResMut<ChunkSystem>,
     mut chunk_requests: EventWriter<SendPacket>,
 ) {
-    let object = player.single();
+    let Ok(object) = player.get_single() else {
+        return
+    };
+
     // Get current chunk
     let (current_chunk, _) = global_f32_to_local_position(object.position);
     let (previous_chunk, _) = global_f32_to_local_position(object.previous_position);

@@ -12,6 +12,7 @@ use bevy::prelude::{App, Plugin, Update};
 use quinn::{ClientConfig, Endpoint, RecvStream};
 use std::net::SocketAddr;
 use std::sync::Arc;
+use byteorder::{BigEndian, WriteBytesExt};
 use tokio::runtime::Runtime;
 use tokio::sync::mpsc::unbounded_channel;
 use tokio::task::JoinHandle;
@@ -71,7 +72,7 @@ impl NetworkingClient {
     }
 
     /// Open a new endpoint connection to an address
-    pub fn connect(&mut self, addr: SocketAddr) {
+    pub fn connect(&mut self, addr: SocketAddr, user_id: u64) {
         let mut endpoint = self
             .runtime
             .as_mut()
@@ -105,6 +106,10 @@ impl NetworkingClient {
             verify_stream(&mut unreliable.1, "Test1").await;
             verify_stream(&mut reliable.1, "Test2").await;
             verify_stream(&mut chunk.1, "Test3").await;
+
+            let mut data = vec![];
+            data.write_u64::<BigEndian>(user_id).unwrap();
+            reliable.0.write_all(&*data).await.unwrap();
 
             let (send_err, err_recv) = unbounded_channel();
 

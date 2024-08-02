@@ -39,7 +39,9 @@ pub fn receive_message_event(
         match &event.0 {
             Protocol::PlayerMove(packet) => {
                 // Update all other clients
-                let entity = system.clients.get(&event.1).unwrap().game_object_id;
+                let Some(entity) = system.clients.get(&event.1).unwrap().game_object_id else {
+                    continue
+                };
 
                 // TODO: Don't trust user input
 
@@ -65,7 +67,9 @@ pub fn receive_message_event(
             }
             Protocol::PlayerRotate(packet) => {
                 // Update all other clients
-                let entity = system.clients.get(&event.1).unwrap().game_object_id;
+                let Some(entity) = system.clients.get(&event.1).unwrap().game_object_id else {
+                    continue
+                };
 
                 // TODO: Don't trust user input
 

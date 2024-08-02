@@ -1,3 +1,5 @@
+use std::io::Cursor;
+use std::mem;
 use crate::bistream::BiStream;
 use rc_shared::constants::UserId;
 use crate::events::connection::NetworkConnectionEvent;
@@ -8,6 +10,7 @@ use crate::types::{ReceivePacket, SendPacket};
 use crate::{get_channel, Channel};
 use bevy::log::{info, trace, warn};
 use bevy::prelude::{EventReader, EventWriter, ResMut};
+use byteorder::{BigEndian, ReadBytesExt};
 use futures::FutureExt;
 use quinn::Endpoint;
 
@@ -26,10 +29,8 @@ pub fn update_system(
         if let Some(new_connection) = server.new_conn_task.as_mut().unwrap().now_or_never() {
             // If the connection succeeded
             if let Ok(new_conn) = new_connection {
-                server.all_time_users += 1;
-
                 // Send announcement
-                let client = UserId(server.all_time_users);
+                let client = UserId(new_conn.user_id);
 
                 server.connections.insert(client, new_conn);
 
@@ -79,6 +80,10 @@ pub async fn open_new_conn(endpoint: Endpoint) -> UserConnection {
         .unwrap();
     chunk.0.write_all("Test3".as_bytes().into()).await.unwrap();
 
+    let mut user_id = vec![0_u8; size_of::<u64>()];
+    reliable.1.read_exact(&mut user_id).await.unwrap();
+    let user_id = Cursor::new(user_id).read_u64::<BigEndian>().unwrap();
+
     let (send_err, recv_err) = unbounded_channel();
 
     let unreliable = BiStream::from_stream(unreliable.0, unreliable.1, send_err.clone());
@@ -91,6 +96,7 @@ pub async fn open_new_conn(endpoint: Endpoint) -> UserConnection {
         reliable,
         chunk,
         recv_err,
+        user_id,
     }
 }
 

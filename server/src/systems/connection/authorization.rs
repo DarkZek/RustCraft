@@ -36,7 +36,7 @@ pub fn authorization_event(
     for client in event_reader.read() {
         info!("Player {:?} logged in. Sending chunks.", client.user_id);
 
-        let transform = Transform::default();
+        let transform = Transform::from_translation(Vector3::new(0.0, 20.0, 0.0));
 
         // Create new game_object for player
         let game_object_id = GameObjectId(GAME_OBJECT_ID_COUNTER.fetch_add(1, Ordering::SeqCst));
@@ -46,7 +46,7 @@ pub fn authorization_event(
             .clients
             .get_mut(&client.user_id)
             .unwrap()
-            .game_object_id = game_object_id;
+            .game_object_id = Some(game_object_id);
 
         let entity = commands.spawn(Inventory::default()).id();
 
