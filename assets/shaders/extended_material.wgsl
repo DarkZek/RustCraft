@@ -22,8 +22,6 @@
 
 #import "shaders/material_pass.wgsl"::{ CustomVertexInput, CustomVertexOutput }
 
-// TODO: Try to combine prepass and non prepass
-// TODO: Split out into multiple files
 // TODO: Document which parts are copied from Bevy
 
 struct ChunkExtendedMaterial {

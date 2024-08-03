@@ -38,7 +38,6 @@ pub fn connect_to_server(
 ) {
     let server_addr: SocketAddr = ([127, 0, 0, 1], 25568).into();
 
-    // TODO: Make user_id dynamic
     client.connect(server_addr, networking_system.user_id.0);
 
     info!("Connecting to server on {}", server_addr);

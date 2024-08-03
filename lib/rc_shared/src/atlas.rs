@@ -113,20 +113,20 @@ impl TextureAtlasIndex {
     ) -> TextureAtlasIndex {
         let mut atlas = self.clone();
 
-        if u_min.is_some() {
-            atlas.u_min += u_min.unwrap();
+        if let Some(u_min) = u_min {
+            atlas.u_min += u_min;
         }
 
-        if u_max.is_some() {
-            atlas.u_max += u_max.unwrap();
+        if let Some(u_max) = u_max {
+            atlas.u_max += u_max;
         }
 
-        if v_min.is_some() {
-            atlas.v_min += v_min.unwrap();
+        if let Some(v_min) = v_min {
+            atlas.v_min += v_min;
         }
 
-        if v_max.is_some() {
-            atlas.v_max += v_max.unwrap();
+        if let Some(v_max) = v_max {
+            atlas.v_max += v_max;
         }
 
         atlas
