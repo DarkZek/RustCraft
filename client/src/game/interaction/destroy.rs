@@ -31,11 +31,11 @@ pub fn mouse_interaction_destroy(
     freecam: Res<Freecam>,
     mouse_button_input: Res<ButtonInput<MouseButton>>,
     mut transforms: ParamSet<(
-        Query<(&mut Transform, &mut Visibility), (Without<MainCamera>)>,
+        Query<(&mut Transform, &mut Visibility), Without<MainCamera>>,
         Query<&Transform, With<MainCamera>>,
     )>,
     mut destroy_block_event: EventWriter<DestroyBlockEvent>,
-    mut chunks: ResMut<ChunkSystem>,
+    chunks: ResMut<ChunkSystem>,
     blocks: Res<BlockStates>,
     mut locals: ResMut<MouseInteractionResource>
 ) {

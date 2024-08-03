@@ -4,7 +4,6 @@ use crate::systems::chunk::ChunkSystem;
 use crate::systems::physics::raycasts::do_raycast;
 use bevy::prelude::*;
 use nalgebra::Vector3;
-use crate::game::events::DestroyBlockEvent;
 use crate::game::inventory::Inventory;
 use crate::systems::chunk::builder::{RerenderChunkFlag, RerenderChunkFlagContext};
 use rc_shared::constants::UserId;

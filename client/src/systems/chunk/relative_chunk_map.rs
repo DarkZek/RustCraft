@@ -57,9 +57,9 @@ impl<T: Copy> RelativeChunkMap<T> {
 
 #[cfg(test)]
 mod tests {
-    use bevy::tasks::futures_lite::StreamExt;
+    
     use nalgebra::{ Vector3};
-    use crate::systems::chunk::nearby_chunk_map::NearbyChunkMap;
+    
     use crate::systems::chunk::relative_chunk_map::RelativeChunkMap;
 
     #[test]

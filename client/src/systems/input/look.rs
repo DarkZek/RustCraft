@@ -1,8 +1,6 @@
-use crate::game::player::Player;
 use crate::systems::input::InputSystem;
 use bevy::input::mouse::MouseMotion;
 use bevy::prelude::*;
-use bevy::window::PrimaryWindow;
 use crate::systems::camera::MainCamera;
 
 const MOUSE_SENSITIVITY: f32 = 0.005;

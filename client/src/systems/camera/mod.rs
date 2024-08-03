@@ -2,19 +2,13 @@ pub mod freecam;
 
 use bevy::color::palettes::tailwind::BLUE_300;
 use bevy::core_pipeline::bloom::BloomSettings;
-use crate::game::entity::GameObject;
 use crate::game::player::Player;
-use crate::systems::physics::PhysicsObject;
 use bevy::core_pipeline::core_3d::Camera3dDepthLoadOp;
 use bevy::core_pipeline::experimental::taa::TemporalAntiAliasBundle;
 use bevy::pbr::ScreenSpaceAmbientOcclusionBundle;
 use bevy::prelude::*;
 use bevy::render::render_resource::TextureUsages;
 use bevy::render::view::GpuCulling;
-use nalgebra::Vector3;
-use rc_shared::aabb::Aabb;
-use rc_shared::constants::UserId;
-use rc_shared::game_objects::GameObjectData;
 use crate::systems::camera::freecam::{Freecam, freecam_activation, freecam_movement};
 
 pub struct CameraPlugin;
