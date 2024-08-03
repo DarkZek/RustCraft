@@ -92,7 +92,7 @@ impl WorldData {
         location: Vector3<i32>,
     ) -> Result<Option<DeserializedChunkData>, ServerError> {
         let path = format!(
-            "./world/{:08x}{:08x}{:08x}.chunk",
+            "./world/chunks/{:08x}{:08x}{:08x}.chunk",
             location.x, location.y, location.z
         );
         if !fs::exists(&path)? {

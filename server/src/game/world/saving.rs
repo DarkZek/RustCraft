@@ -14,6 +14,9 @@ use std::fs::{create_dir_all, File};
 use std::io::BufWriter;
 use std::str::FromStr;
 use std::sync::atomic::Ordering;
+use rc_shared::game_objects::GameObjectData;
+use crate::game::inventory::Inventory;
+use crate::game::world::deserialized_player::DeserializedPlayerData;
 
 impl WorldData {
     pub fn load_spawn_chunks(&mut self, command: &mut Commands) {
@@ -68,14 +71,26 @@ impl WorldData {
         info!("Loaded spawn chunks");
     }
 
-    pub fn save_world(&self, config: &ServerConfig, query: &Query<(&GameObject, &Transform)>) {
-        create_dir_all("./world/").unwrap();
+    pub fn save_world(
+        &self,
+        config: &ServerConfig,
+        query: &Query<(&GameObject, &Transform, Option<&Inventory>)>
+    ) {
+        create_dir_all("./world/chunks").unwrap();
+        create_dir_all("./world/players").unwrap();
 
+        // Write chunks
         for (pos, chunk) in &self.chunks {
             let mut game_objects = vec![];
 
             for (id, entity) in self.game_objects_chunks.get(pos).unwrap_or(&HashMap::new()) {
-                let (game_object, transform) = query.get(*entity).unwrap();
+                let (game_object, transform, _) = query.get(*entity).unwrap();
+
+                // Players saved separately
+                if let GameObjectData::Player(_) = &game_object.data {
+                    continue
+                }
+
                 game_objects.push((*id, game_object.clone(), *transform));
             }
 
@@ -86,7 +101,7 @@ impl WorldData {
             };
 
             let file = File::create(format!(
-                "./world/{:08x}{:08x}{:08x}.chunk",
+                "./world/chunks/{:08x}{:08x}{:08x}.chunk",
                 pos.x, pos.y, pos.z
             ))
             .unwrap();
@@ -101,5 +116,28 @@ impl WorldData {
             GAME_OBJECT_ID_COUNTER.load(Ordering::SeqCst).to_string(),
         )
         .unwrap();
+
+        for (game_object, transform, inventory) in query.iter() {
+
+            let Some(inventory) = inventory else {
+                continue
+            };
+
+            let GameObjectData::Player(user_id) = &game_object.data else {
+                continue
+            };
+
+            let data = DeserializedPlayerData {
+                position: transform.position,
+                rotation: transform.rotation,
+                inventory: inventory.clone()
+            };
+
+            fs::write(
+                format!("./world/players/{}", user_id.0),
+                serde_json::to_string(&data).unwrap(),
+            )
+            .unwrap();
+        }
     }
 }

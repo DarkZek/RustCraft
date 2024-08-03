@@ -1,3 +1,4 @@
+use std::fs;
 use crate::game::inventory::Inventory;
 use crate::game::transform::Transform;
 use bevy::ecs::change_detection::ResMut;
@@ -22,6 +23,7 @@ use crate::systems::game_object::spawn::SpawnGameObjectRequest;
 
 
 use rc_networking::types::SendPacket;
+use crate::game::world::deserialized_player::DeserializedPlayerData;
 
 pub fn authorization_event(
     mut event_reader: EventReader<AuthorizationEvent>,
@@ -34,9 +36,26 @@ pub fn authorization_event(
     mut spawn_game_object: EventWriter<SpawnGameObjectRequest>,
 ) {
     for client in event_reader.read() {
-        info!("Player {:?} logged in. Sending chunks.", client.user_id);
+        // Load player data
+        let path = format!("./world/players/{}", client.user_id.0);
+        let (transform, mut inventory) = if fs::exists(&path).unwrap() {
+            let player_data = serde_json::from_str::<DeserializedPlayerData>(&
+                fs::read_to_string(&path).unwrap()
+            ).unwrap();
 
-        let transform = Transform::from_translation(Vector3::new(0.0, 20.0, 0.0));
+            let mut transform = Transform::from_translation(player_data.position);
+
+            transform.rotation = player_data.rotation;
+
+            (transform, player_data.inventory)
+        } else {
+            (Transform::from_translation(Vector3::new(0.0, 20.0, 0.0)), Inventory::default())
+        };
+
+        // Recompute inventory
+        inventory.dirty = true;
+
+        info!("Player {:?} logged in. Sending chunks.", client.user_id);
 
         // Create new game_object for player
         let game_object_id = GameObjectId(GAME_OBJECT_ID_COUNTER.fetch_add(1, Ordering::SeqCst));
@@ -48,7 +67,7 @@ pub fn authorization_event(
             .unwrap()
             .game_object_id = Some(game_object_id);
 
-        let entity = commands.spawn(Inventory::default()).id();
+        let entity = commands.spawn(inventory).id();
 
         spawn_game_object.send(SpawnGameObjectRequest {
             transform,

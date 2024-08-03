@@ -1,11 +1,12 @@
 use bevy::ecs::{component::Component, event::EventWriter, system::{Query}};
+use serde::{Deserialize, Serialize};
 use rc_networking::{protocol::{clientbound::update_inventory::UpdateInventory, Protocol}, types::SendPacket};
 use rc_shared::{game_objects::GameObjectData, item::types::ItemStack};
 
 use super::game_object::{GameObject};
 
 
-#[derive(Component)]
+#[derive(Component, Deserialize, Serialize, Clone)]
 pub struct Inventory {
     pub hotbar: [Option<ItemStack>; 10],
     pub hotbar_slot: u8,
