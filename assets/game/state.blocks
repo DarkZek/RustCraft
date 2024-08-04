@@ -47541,160 +47541,296 @@
         }
       ]
     },
-    {
-      "identifier": "mcv3::RubyOre",
-      "translucent": false,
-      "full": true,
-      "draw_betweens": false,
-      "faces": [
-        {
-          "top_left": [
-            0.0,
-            1.0,
-            0.0
-          ],
-          "top_right": [
-            1.0,
-            1.0,
-            0.0
-          ],
-          "bottom_left": [
-            0.0,
-            1.0,
-            1.0
-          ],
-          "texture": "game/ruby",
-          "edge": true,
-          "direction": 1
-        },
-        {
-          "top_left": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "top_right": [
-            0.0,
-            0.0,
-            1.0
-          ],
-          "bottom_left": [
-            1.0,
-            0.0,
-            0.0
-          ],
-          "texture": "game/ruby",
-          "edge": true,
-          "direction": 2
-        },
-        {
-          "top_left": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "top_right": [
-            0.0,
-            1.0,
-            0.0
-          ],
-          "bottom_left": [
-            0.0,
-            0.0,
-            1.0
-          ],
-          "texture": "game/ruby",
-          "edge": true,
-          "direction": 4
-        },
-        {
-          "top_left": [
-            1.0,
-            0.0,
-            1.0
-          ],
-          "top_right": [
-            1.0,
-            1.0,
-            1.0
-          ],
-          "bottom_left": [
-            1.0,
-            0.0,
-            0.0
-          ],
-          "texture": "game/ruby",
-          "edge": true,
-          "direction": 8
-        },
-        {
-          "top_left": [
-            1.0,
-            0.0,
-            0.0
-          ],
-          "top_right": [
-            1.0,
-            1.0,
-            0.0
-          ],
-          "bottom_left": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "texture": "game/ruby",
-          "edge": true,
-          "direction": 16
-        },
-        {
-          "top_left": [
-            0.0,
-            0.0,
-            1.0
-          ],
-          "top_right": [
-            0.0,
-            1.0,
-            1.0
-          ],
-          "bottom_left": [
-            1.0,
-            0.0,
-            1.0
-          ],
-          "texture": "game/ruby",
-          "edge": true,
-          "direction": 32
-        }
-      ],
-      "colliders": [
-        {
-          "bottom_left": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "size": [
-            1.0,
-            1.0,
-            1.0
-          ],
-          "collidable": true
-        }
-      ],
-      "emission": [
-        0,
-        0,
-        0,
-        0
-      ],
-      "loot_table": [
-        {
-          "chance": 1.0,
-          "item": "mcv3::RubyItem"
-        }
-      ]
-    }
+         {
+           "identifier": "mcv3::RubyOre",
+           "translucent": false,
+           "full": true,
+           "draw_betweens": false,
+           "faces": [
+             {
+               "top_left": [
+                 0.0,
+                 1.0,
+                 0.0
+               ],
+               "top_right": [
+                 1.0,
+                 1.0,
+                 0.0
+               ],
+               "bottom_left": [
+                 0.0,
+                 1.0,
+                 1.0
+               ],
+               "texture": "game/ruby",
+               "edge": true,
+               "direction": 1
+             },
+             {
+               "top_left": [
+                 0.0,
+                 0.0,
+                 0.0
+               ],
+               "top_right": [
+                 0.0,
+                 0.0,
+                 1.0
+               ],
+               "bottom_left": [
+                 1.0,
+                 0.0,
+                 0.0
+               ],
+               "texture": "game/ruby",
+               "edge": true,
+               "direction": 2
+             },
+             {
+               "top_left": [
+                 0.0,
+                 0.0,
+                 0.0
+               ],
+               "top_right": [
+                 0.0,
+                 1.0,
+                 0.0
+               ],
+               "bottom_left": [
+                 0.0,
+                 0.0,
+                 1.0
+               ],
+               "texture": "game/ruby",
+               "edge": true,
+               "direction": 4
+             },
+             {
+               "top_left": [
+                 1.0,
+                 0.0,
+                 1.0
+               ],
+               "top_right": [
+                 1.0,
+                 1.0,
+                 1.0
+               ],
+               "bottom_left": [
+                 1.0,
+                 0.0,
+                 0.0
+               ],
+               "texture": "game/ruby",
+               "edge": true,
+               "direction": 8
+             },
+             {
+               "top_left": [
+                 1.0,
+                 0.0,
+                 0.0
+               ],
+               "top_right": [
+                 1.0,
+                 1.0,
+                 0.0
+               ],
+               "bottom_left": [
+                 0.0,
+                 0.0,
+                 0.0
+               ],
+               "texture": "game/ruby",
+               "edge": true,
+               "direction": 16
+             },
+             {
+               "top_left": [
+                 0.0,
+                 0.0,
+                 1.0
+               ],
+               "top_right": [
+                 0.0,
+                 1.0,
+                 1.0
+               ],
+               "bottom_left": [
+                 1.0,
+                 0.0,
+                 1.0
+               ],
+               "texture": "game/ruby",
+               "edge": true,
+               "direction": 32
+             }
+           ],
+           "colliders": [
+             {
+               "bottom_left": [
+                 0.0,
+                 0.0,
+                 0.0
+               ],
+               "size": [
+                 1.0,
+                 1.0,
+                 1.0
+               ],
+               "collidable": true
+             }
+           ],
+           "emission": [
+             0,
+             0,
+             0,
+             0
+           ],
+           "loot_table": [
+             {
+               "chance": 1.0,
+               "item": "mcv3::RubyItem"
+             }
+           ]
+         },
+          {
+            "identifier": "mcv3::Water",
+            "translucent": true,
+            "full": false,
+            "draw_betweens": false,
+           "faces": [
+             {
+               "top_left": [
+                 0.0,
+                 0.9,
+                 0.0
+               ],
+               "top_right": [
+                 1.0,
+                 0.9,
+                 0.0
+               ],
+               "bottom_left": [
+                 0.0,
+                 0.9,
+                 1.0
+               ],
+               "texture": "game/water",
+               "edge": true,
+               "direction": 1
+             },
+             {
+               "top_left": [
+                 0.0,
+                 0.0,
+                 0.0
+               ],
+               "top_right": [
+                 0.0,
+                 0.0,
+                 1.0
+               ],
+               "bottom_left": [
+                 1.0,
+                 0.0,
+                 0.0
+               ],
+               "texture": "game/water",
+               "edge": true,
+               "direction": 2
+             },
+             {
+               "top_left": [
+                 0.0,
+                 0.0,
+                 0.0
+               ],
+               "top_right": [
+                 0.0,
+                 0.9,
+                 0.0
+               ],
+               "bottom_left": [
+                 0.0,
+                 0.0,
+                 1.0
+               ],
+               "texture": "game/water",
+               "edge": true,
+               "direction": 4
+             },
+             {
+               "top_left": [
+                 1.0,
+                 0.0,
+                 1.0
+               ],
+               "top_right": [
+                 1.0,
+                 0.9,
+                 1.0
+               ],
+               "bottom_left": [
+                 1.0,
+                 0.0,
+                 0.0
+               ],
+               "texture": "game/water",
+               "edge": true,
+               "direction": 8
+             },
+             {
+               "top_left": [
+                 1.0,
+                 0.0,
+                 0.0
+               ],
+               "top_right": [
+                 1.0,
+                 0.9,
+                 0.0
+               ],
+               "bottom_left": [
+                 0.0,
+                 0.0,
+                 0.0
+               ],
+               "texture": "game/water",
+               "edge": true,
+               "direction": 16
+             },
+             {
+               "top_left": [
+                 0.0,
+                 0.0,
+                 1.0
+               ],
+               "top_right": [
+                 0.0,
+                 0.9,
+                 1.0
+               ],
+               "bottom_left": [
+                 1.0,
+                 0.0,
+                 1.0
+               ],
+               "texture": "game/water",
+               "edge": true,
+               "direction": 32
+             }
+           ],
+            "colliders": [],
+            "emission": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "loot_table": []
+          }
   ]
 }
