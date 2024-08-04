@@ -87,8 +87,6 @@ struct CustomVertexOutput {
 #ifdef VERTEX_COLORS
     @location(8) color: vec4<f32>,
 #endif
-
-    //@location(14) lighting: vec4<f32>
 }
 
 #ifdef IS_TRANSLUCENT

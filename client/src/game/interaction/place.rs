@@ -57,9 +57,6 @@ pub fn mouse_interaction_place(
 
     let ray = cast.unwrap();
 
-    // Locate chunk
-    let (chunk_loc, inner_loc) = global_to_local_position(ray.block);
-
     if let Some(block_type) = inventory.selected_block_id() {
         let pos = ray.block + ray.normal;
 

@@ -96,7 +96,8 @@ fn vertex(vertex_no_morph: CustomVertexInput) -> CustomVertexOutput {
         out.instance_index = vertex_no_morph.instance_index;
     #endif
 
-    out.lighting = vec4(vertex_no_morph.lighting.xyz, 1.0) + vec4(chunk_material.ambient_strength);
+    let ambient = vec4(chunk_material.ambient_strength, chunk_material.ambient_strength, chunk_material.ambient_strength, 1.0);
+    out.lighting = vec4(vertex_no_morph.lighting.xyz, 1.0) + ambient;
 
     return out;
 }
@@ -134,8 +135,6 @@ fn fragment(
     // note this does not include fullscreen postprocessing effects like bloom.
     out.color = main_pass_post_lighting_processing(pbr_input, out.color);
 #endif
-
-    out.color *= in.lighting * 2.0;
 
     return out;
 }

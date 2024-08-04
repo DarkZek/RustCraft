@@ -27,7 +27,7 @@ pub fn request_chunks(
         return;
     }
 
-    let render_distance = 5;
+    let render_distance = 8;
 
     // Load new chunks
     for x in -render_distance..render_distance {

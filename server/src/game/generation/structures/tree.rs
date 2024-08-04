@@ -8,7 +8,7 @@ impl StructureGenerator for TreeStructureGenerator {
     fn bounding_box() -> StructureBoundingBox {
         StructureBoundingBox {
             bottom_left: Vector3::new(-1, 0, -1),
-            size: Vector3::new(3, 5, 3)
+            size: Vector3::new(3, 6, 3)
         }
     }
 

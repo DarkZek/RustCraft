@@ -1,7 +1,7 @@
 use bevy::app::{App, Update};
 use bevy::asset::Assets;
 use bevy::color::{Color, Srgba};
-use bevy::pbr::{PbrBundle, StandardMaterial};
+use bevy::pbr::{NotShadowCaster, PbrBundle, StandardMaterial};
 use bevy::prelude::{AlphaMode, Commands, Cuboid, Mesh, Plugin, ResMut, Startup, Visibility};
 use bevy::utils::default;
 use crate::game::interaction::destroy::{mouse_interaction_destroy, MouseInteractionResource};
@@ -35,14 +35,17 @@ pub fn setup_mouse_interaction(
         ..default()
     });
 
-    resource.block_selection_entity = Some(commands.spawn(PbrBundle {
-        mesh,
-        material,
-        transform: Default::default(),
-        global_transform: Default::default(),
-        visibility: Visibility::Hidden,
-        inherited_visibility: Default::default(),
-        view_visibility: Default::default(),
-        ..default()
-    }).id());
+    resource.block_selection_entity = Some(commands.spawn((
+        PbrBundle {
+            mesh,
+            material,
+            transform: Default::default(),
+            global_transform: Default::default(),
+            visibility: Visibility::Hidden,
+            inherited_visibility: Default::default(),
+            view_visibility: Default::default(),
+            ..default()
+        },
+        NotShadowCaster
+    )).id());
 }
