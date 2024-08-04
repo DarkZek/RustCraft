@@ -1,30 +1,19 @@
 use crate::game::generation::noise::SimplexNoise;
-use nalgebra::Vector3;
+use nalgebra::{Vector2, Vector3};
 use rc_shared::biome::{ChunkEnvironment, EnvironmentEntry, EnvironmentMap};
-
-pub fn generate_chunk_environment(environment: &EnvironmentMap) -> ChunkEnvironment {
-    // Get 'center'
-    let env = environment[8][8][8];
-
-    if env.vegetation > 0.5 {
-        ChunkEnvironment::FOREST
-    } else {
-        ChunkEnvironment::PLAIN
-    }
-}
+use rc_shared::CHUNK_SIZE;
 
 pub fn generate_environment_map(seed: u32, pos: Vector3<i32>) -> EnvironmentMap {
-    let mut map = [[[EnvironmentEntry {
-        climate: 0.0,
-        terrain: 0.0,
-        vegetation: 0.0,
-    }; 16]; 16]; 16];
 
-    for x in 0..16 {
-        for y in 0..16 {
-            for z in 0..16 {
-                map[x][y][z] = generate_biome(seed, pos + Vector3::new(x, y, z).cast::<i32>());
-            }
+    let world_pos = Vector2::new(pos.x * CHUNK_SIZE as i32, pos.z * CHUNK_SIZE as i32);
+
+    let mut map = EnvironmentMap::new_empty(
+        world_pos
+    , CHUNK_SIZE);
+
+    for x in (world_pos.x - CHUNK_SIZE as i32)..(world_pos.x + (CHUNK_SIZE as i32 * 2)) {
+        for z in (world_pos.y - CHUNK_SIZE as i32)..(world_pos.y + (CHUNK_SIZE as i32 * 2)) {
+            map.set([x, z], generate_biome(seed, Vector3::new(x, 0, z)));
         }
     }
 

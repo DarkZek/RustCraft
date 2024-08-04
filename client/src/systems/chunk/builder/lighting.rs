@@ -7,7 +7,7 @@ use rc_shared::CHUNK_SIZE;
 use std::collections::VecDeque;
 use web_time::Instant;
 use crate::systems::chunk::builder::build_context::ChunkBuildContext;
-use crate::systems::chunk::relative_chunk_map::RelativeChunkMap;
+use rc_shared::relative_chunk_map::RelativeChunkMap;
 
 const MAX_LIGHT_VALUE: usize = 16;
 
@@ -82,7 +82,7 @@ impl ChunkData {
                     continue;
                 }
 
-                if let Some(current_color) = data.get_mut(pos) {
+                if let Some(current_color) = data.get_mut(pos.into()) {
                     current_color.weighted_cumulative_r += strength as u32 * color[0] as u32;
                     current_color.weighted_cumulative_g += strength as u32 * color[1] as u32;
                     current_color.weighted_cumulative_b += strength as u32 * color[2] as u32;

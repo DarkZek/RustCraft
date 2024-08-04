@@ -8,7 +8,7 @@ mod structures;
 use std::time::Instant;
 
 use crate::game::chunk::ChunkData;
-use crate::game::generation::phase1::{generate_chunk_environment, generate_environment_map};
+use crate::game::generation::phase1::generate_environment_map;
 use crate::game::generation::phase2::generate_greybox_chunk;
 use crate::game::generation::phase3::decorate_chunk;
 use crate::game::generation::phase4::add_structures;
@@ -33,19 +33,14 @@ impl ChunkData {
         let seed = 0;
         let environment_map = generate_environment_map(
             seed,
-            Vector3::new(
-                position.x * CHUNK_SIZE as i32,
-                position.y * CHUNK_SIZE as i32,
-                position.z * CHUNK_SIZE as i32,
-            ),
+            position,
         );
-        let environment = generate_chunk_environment(&environment_map);
 
         let (mut chunk_data, heightmap) = generate_greybox_chunk(seed, position, &environment_map);
 
         decorate_chunk(seed, position, &mut chunk_data, &heightmap, &environment_map);
 
-        add_structures(seed, position, &mut chunk_data, &heightmap, environment);
+        add_structures(seed, position, &mut chunk_data, &heightmap, &environment_map);
         
         info!("Took {}ms to build chunk", started.elapsed().as_millis());
 

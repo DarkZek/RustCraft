@@ -7,39 +7,41 @@ use rc_shared::chunk::RawChunkData;
 use rc_shared::CHUNK_SIZE;
 use ::noise::{RidgedMulti, Perlin};
 use ::noise::{MultiFractal, NoiseFn, Seedable, Turbulence};
+use rc_shared::relative_chunk_flat_map::RelativeChunkFlatMap;
 
 pub fn generate_greybox_chunk(
     seed: u32,
     pos: Vector3<i32>,
     environment: &EnvironmentMap,
-) -> (RawChunkData, [[i32; CHUNK_SIZE]; CHUNK_SIZE]) {
+) -> (RawChunkData, RelativeChunkFlatMap<i32>) {
     let ground_noise = SimplexNoise::new(0).with_scale(30.0);
     let ground_noise_2 = SimplexNoise::new(100).with_scale(50.0);
     let ground_noise_3 = SimplexNoise::new(200).with_scale(100.0);
 
-    let mut heightmap = [[0; CHUNK_SIZE]; CHUNK_SIZE];
+    let world_pos = pos * CHUNK_SIZE as i32;
 
-    for x in 0..CHUNK_SIZE {
-        for z in 0..CHUNK_SIZE {
-            let absolute = Vector2::new((pos.x * 16) + x as i32, (pos.z * 16) + z as i32);
+    let mut heightmap = RelativeChunkFlatMap::new_empty(Vector2::new(world_pos.x, world_pos.z), CHUNK_SIZE);
 
+    for x in (world_pos.x - CHUNK_SIZE as i32)..(world_pos.x + (CHUNK_SIZE as i32 * 2)) {
+        for z in (world_pos.z - CHUNK_SIZE as i32)..(world_pos.z + (CHUNK_SIZE as i32 * 2)) {
             let base_height = 35;
 
-            let environment_entry = &environment[x][0][z];
+            let environment_entry = environment.get([x, z]).unwrap();
 
             // Hilly
-            let height_multiplier = 8.0 + clamp_map(0.5..1.0, 0.0..16.0, environment_entry.terrain);
+            let height_multiplier = 8.0 + clamp_map(0.5..1.0, 0.0..32.0, environment_entry.terrain);
 
-            let ground_level = (ground_noise_3.sample_2d(absolute.x, absolute.y)
+            let ground_level = (ground_noise_3.sample_2d(x, z)
                 * height_multiplier
                 + environment_entry.terrain * 10.0
-                + ground_noise_2.sample_2d(absolute.x, absolute.y) * 5.0
-                + ground_noise.sample_2d(absolute.x, absolute.y) * 2.0)
+                + ground_noise_2.sample_2d(x, z) * 5.0
+                + ground_noise.sample_2d(x, z) * 2.0)
                 .floor() as i32;
 
-            heightmap[x][z] = ground_level;
+            heightmap.set([x, z], ground_level);
         }
     }
+
 
     let scale = 0.05;
 
@@ -65,7 +67,7 @@ pub fn generate_greybox_chunk(
                 );
                 let v = perturbed_base_secondary_jade.get([absolute.x as f64 * scale, absolute.z as f64 * scale, absolute.y as f64 * scale * 2.0]);
 
-                if absolute.y < heightmap[x][z] && v < 0.7 {
+                if absolute.y < *heightmap.get([absolute.x, absolute.z]).unwrap() && v < 0.7 {
                     world[x][y][z] = 6;
                 }
             }

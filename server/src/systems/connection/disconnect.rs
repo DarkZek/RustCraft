@@ -3,7 +3,7 @@ use crate::{TransportSystem, WorldData};
 use bevy::ecs::event::EventReader;
 use bevy::ecs::prelude::{Commands, EventWriter};
 use bevy::ecs::system::ResMut;
-use bevy::prelude::{Query, warn};
+use bevy::prelude::{Query, Res, warn};
 use rc_networking::events::disconnect::NetworkDisconnectionEvent;
 use rc_networking::protocol::clientbound::despawn_game_object::DespawnGameObject;
 use crate::game::world::deserialized_player::DeserializedPlayerData;
@@ -12,6 +12,7 @@ use crate::game::transform::Transform;
 use rc_networking::protocol::Protocol;
 use rc_networking::types::SendPacket;
 use rc_shared::helpers::global_f32_to_local_position;
+use crate::config::ServerConfig;
 use crate::game::inventory::Inventory;
 
 pub fn disconnection_event(
@@ -20,6 +21,7 @@ pub fn disconnection_event(
     mut world: ResMut<WorldData>,
     mut writer: EventWriter<SendPacket>,
     mut clients: ResMut<TransportSystem>,
+    config: Res<ServerConfig>,
     query: Query<(&Transform, &Inventory)>,
 ) {
     for event in event_reader.read() {
@@ -38,19 +40,22 @@ pub fn disconnection_event(
 
         if let Some(eid) = world.remove_game_object(game_object_id, chunk_pos) {
 
-            // TODO: Move to more centralized place
-            // Save player data
-            let data = DeserializedPlayerData {
-                position: transform.position,
-                rotation: transform.rotation,
-                inventory: inventory.clone()
-            };
+            if config.save_world {
 
-            fs::write(
-                format!("./world/players/{}", entry.user_id.0),
-                serde_json::to_string(&data).unwrap(),
-            )
-            .unwrap();
+                // TODO: Move to more centralized place
+                // Save player data
+                let data = DeserializedPlayerData {
+                    position: transform.position,
+                    rotation: transform.rotation,
+                    inventory: inventory.clone()
+                };
+
+                fs::write(
+                    format!("./world/players/{}", entry.user_id.0),
+                    serde_json::to_string(&data).unwrap(),
+                )
+                .unwrap();
+            }
 
             // Delete game_object
             commands.entity(eid).despawn();

@@ -9,7 +9,7 @@ use bevy::log::{info, warn};
 use crate::item::event::ItemStatesUpdatedEvent;
 use crate::item::ItemStates;
 use crate::viewable_direction::ViewableDirectionBitMap;
-use bevy::prelude::{AssetEvent, Assets, EventReader, EventWriter, Res, ResMut};
+use bevy::prelude::*;
 use nalgebra::Vector3;
 
 /// Copies the blockstate asset to the Resource

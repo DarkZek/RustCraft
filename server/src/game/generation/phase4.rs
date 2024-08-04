@@ -1,50 +1,66 @@
+use std::fs;
+use bevy::reflect::List;
+use bevy::tasks::futures_lite::StreamExt;
 use crate::game::generation::noise::SimplexNoise;
-use nalgebra::Vector3;
-use rc_shared::biome::ChunkEnvironment;
+use nalgebra::{Vector2, Vector3};
+use noise::{NoiseFn, Worley};
+use rc_shared::biome::{ChunkEnvironment, EnvironmentMap};
 use rc_shared::chunk::RawChunkData;
 use rc_shared::CHUNK_SIZE;
-use crate::game::generation::structures::StructureGenerator;
+use rc_shared::relative_chunk_flat_map::RelativeChunkFlatMap;
+use crate::game::generation::structures::{StructureBoundingBox, StructureGenerator};
 use crate::game::generation::structures::tree::TreeStructureGenerator;
-
-pub fn add_structures(seed: u32, pos: Vector3<i32>, world: &mut RawChunkData, heightmap: &[[i32; CHUNK_SIZE]; CHUNK_SIZE], environment: ChunkEnvironment) {
-    // TODO: Take in surrounding chunks `ChunkEnvironment`
-
-    add_structures_to_chunk(seed, pos, pos, world, &heightmap, &environment);
-}
 
 /// Adds structures to chunk
 /// `world_pos` is the position of `world`, while `generation_pos` is a surrounding chunk that is having its structures generated also to generate overlap
 /// in the chunks structures.
-pub fn add_structures_to_chunk(
+pub fn add_structures(
     seed: u32,
-    generation_pos: Vector3<i32>,
-    world_pos: Vector3<i32>,
+    chunk_pos: Vector3<i32>,
     world: &mut RawChunkData,
-    heightmap: &[[i32; CHUNK_SIZE]; CHUNK_SIZE],
-    environment: &ChunkEnvironment,
+    heightmap: &RelativeChunkFlatMap<i32>,
+    environment: &EnvironmentMap
 ) {
-    let tree_noise = SimplexNoise::new(seed + 10).with_scale(2.0);
 
-    for x in 0..CHUNK_SIZE {
-        for y in 0..CHUNK_SIZE {
-            for z in 0..CHUNK_SIZE {
-                let absolute_generation = Vector3::new(
-                    (generation_pos.x * 16) + x as i32,
-                    (generation_pos.y * 16) + y as i32,
-                    (generation_pos.z * 16) + z as i32,
-                );
+    let mut trees = vec![];
 
-                let ground_level = heightmap[x][z];
+    let chunk_bounding_box = StructureBoundingBox::new(
+        chunk_pos * CHUNK_SIZE as i32,
+        Vector3::new(CHUNK_SIZE as i32, CHUNK_SIZE as i32, CHUNK_SIZE as i32)
+    );
 
-                // Trees in an falling off manner
-                if absolute_generation.y == ground_level + 1
-                    && *environment == ChunkEnvironment::FOREST
-                    && tree_noise.sample_2d(absolute_generation.x, absolute_generation.z)
-                        > 0.8
-                {
-                    TreeStructureGenerator::spawn(seed, world_pos, absolute_generation, world);
-                }
+    let tree_noise = SimplexNoise::new(seed + 10).with_scale(1.0);
+
+    let world_pos = chunk_pos * CHUNK_SIZE as i32;
+
+    for x in (world_pos.x - CHUNK_SIZE as i32)..(world_pos.x + (2*CHUNK_SIZE as i32)) {
+        for z in (world_pos.z - CHUNK_SIZE as i32)..(world_pos.z + (2*CHUNK_SIZE as i32)) {
+            let ground_level = *heightmap.get([x, z]).unwrap();
+            let environment = *environment.get([x, z]).unwrap();
+
+            let affects_chunk =
+                chunk_bounding_box.collides(&TreeStructureGenerator::bounding_box().shifted(Vector3::new(x, ground_level + 1, z)));
+
+            let intersects_tree = does_tree_intersect(&trees, Vector3::new(x, ground_level + 1, z));
+
+            if environment.vegetation > 0.3
+                && !intersects_tree && affects_chunk
+                && tree_noise.sample_2d(x as f64, z as f64) > 0.9
+            {
+                trees.push(Vector3::new(x, ground_level + 1, z));
+                TreeStructureGenerator::spawn(seed, chunk_pos, Vector3::new(x, ground_level + 1, z), world);
             }
         }
     }
+}
+
+fn does_tree_intersect(trees: &Vec<Vector3<i32>>, pos: Vector3<i32>) -> bool {
+    for tree in trees {
+        if TreeStructureGenerator::bounding_box().shifted(pos).collides(
+            &TreeStructureGenerator::bounding_box().shifted(*tree)
+        ) {
+            return true
+        }
+    }
+    false
 }

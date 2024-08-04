@@ -3,12 +3,13 @@ use nalgebra::Vector3;
 use rc_shared::biome::{EnvironmentMap};
 use rc_shared::chunk::RawChunkData;
 use rc_shared::CHUNK_SIZE;
+use rc_shared::relative_chunk_flat_map::RelativeChunkFlatMap;
 
 pub fn decorate_chunk(
     seed: u32,
     pos: Vector3<i32>,
     world: &mut RawChunkData,
-    heightmap: &[[i32; CHUNK_SIZE]; CHUNK_SIZE],
+    heightmap: &RelativeChunkFlatMap<i32>,
     environment: &EnvironmentMap,
 ) {
     let ground_noise = SimplexNoise::new(seed);
@@ -25,7 +26,7 @@ pub fn decorate_chunk(
                     (pos.z * 16) + z as i32,
                 );
 
-                let ground_level = heightmap[x][z];
+                let ground_level = *heightmap.get([absolute.x, absolute.z]).unwrap();
 
                 // Dirt
                 if absolute.y < ground_level && absolute.y > ground_level - 4 {

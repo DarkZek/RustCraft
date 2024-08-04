@@ -4,9 +4,40 @@ use crate::helpers::global_to_local_position;
 
 pub mod tree;
 
+#[derive(Copy, Clone, Debug)]
 pub struct StructureBoundingBox {
-    bottom_left: Vector3<i32>,
-    size: Vector3<i32>
+    pub bottom_left: Vector3<i32>,
+    pub size: Vector3<i32>
+}
+
+impl StructureBoundingBox {
+    pub fn new(
+        bottom_left: Vector3<i32>,
+        size: Vector3<i32>
+    ) -> Self {
+        StructureBoundingBox {
+            bottom_left,
+            size,
+        }
+    }
+
+    pub fn collides(&self, other: &StructureBoundingBox) -> bool {
+        let x_check_1 = other.bottom_left.x >= self.bottom_left.x + self.size.x;
+        let x_check_2 = other.bottom_left.x + other.size.x <= self.bottom_left.x;
+
+        let y_check_1 = other.bottom_left.y >= self.bottom_left.y + self.size.y;
+        let y_check_2 = other.bottom_left.y + other.size.y <= self.bottom_left.y;
+
+        let z_check_1 = other.bottom_left.z >= self.bottom_left.z + self.size.z;
+        let z_check_2 = other.bottom_left.z + other.size.z <= self.bottom_left.z;
+
+        !(x_check_1 || x_check_2 || y_check_1 || y_check_2 || z_check_1 || z_check_2)
+    }
+
+    pub fn shifted(mut self, movement: Vector3<i32>) -> Self {
+        self.bottom_left += movement;
+        self
+    }
 }
 
 pub trait StructureGenerator {

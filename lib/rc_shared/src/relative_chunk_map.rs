@@ -1,5 +1,5 @@
 use nalgebra::Vector3;
-use rc_shared::CHUNK_SIZE;
+use crate::CHUNK_SIZE;
 
 // Chunk data, with the ability to index slightly outside the bounds
 pub struct RelativeChunkMap<T: Sized + Copy> {
@@ -35,8 +35,8 @@ impl<T: Copy> RelativeChunkMap<T> {
             None
         }
     }
-    pub fn get_mut(&mut self, position: Vector3<i32>) -> Option<&mut T> {
-        let position = position - self.position +
+    pub fn get_mut(&mut self, position: [i32; 3]) -> Option<&mut T> {
+        let position = Vector3::new(position[0], position[1], position[2]) - self.position +
             Vector3::new(self.expansion as i32, self.expansion as i32, self.expansion as i32);
 
         if let Some(position) = position.try_cast::<usize>() {
@@ -51,6 +51,11 @@ impl<T: Copy> RelativeChunkMap<T> {
             None
         }
     }
+    pub fn set(&mut self, position: [i32; 3], value: T) {
+        if let Some(entry) = self.get_mut(position) {
+            *entry = value;
+        }
+    }
 }
 
 
@@ -59,8 +64,7 @@ impl<T: Copy> RelativeChunkMap<T> {
 mod tests {
     
     use nalgebra::{ Vector3};
-    
-    use crate::systems::chunk::relative_chunk_map::RelativeChunkMap;
+    use crate::relative_chunk_map::RelativeChunkMap;
 
     #[test]
     fn check_positions() {

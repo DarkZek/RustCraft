@@ -1,12 +1,14 @@
+use crate::relative_chunk_flat_map::RelativeChunkFlatMap;
+
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum ChunkEnvironment {
     FOREST,
     PLAIN
 }
 
-pub type EnvironmentMap = [[[EnvironmentEntry; 16]; 16]; 16];
+pub type EnvironmentMap = RelativeChunkFlatMap<EnvironmentEntry>;
 
-#[derive(PartialEq, Debug, Copy, Clone)]
+#[derive(PartialEq, Debug, Copy, Clone, Default)]
 pub struct EnvironmentEntry {
     pub climate: f64,
     pub terrain: f64,
