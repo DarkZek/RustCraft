@@ -7,7 +7,7 @@ use rc_shared::constants::GameObjectId;
 use rc_networking::protocol::clientbound::spawn_game_object::SpawnGameObject;
 use rc_networking::protocol::Protocol;
 use rc_networking::types::SendPacket;
-use rc_shared::game_objects::{DebugGameObjectData, GameObjectData, GameObjectType, get_game_object_data};
+use rc_shared::game_objects::{DebugGameObjectData, GameObjectData, GameObjectType};
 use rc_shared::helpers::global_f32_to_local_position;
 
 #[derive(Event)]

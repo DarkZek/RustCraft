@@ -8,7 +8,7 @@ use crate::systems::game_object::spawn::SpawnGameObjectRequest;
 use crate::{TransportSystem, WorldData};
 use bevy::ecs::prelude::*;
 use bevy::log::info;
-use nalgebra::{Quaternion, Vector3};
+use nalgebra::{Quaternion, Vector3, Vector4};
 use rand::Rng;
 use rc_networking::protocol::clientbound::block_update::BlockUpdate;
 use rc_networking::protocol::clientbound::entity_moved::EntityMoved;
@@ -63,7 +63,7 @@ pub fn receive_message_event(
                 if let Some(val) = global.get_game_object(&entity) {
                     // Move player in ecs
                     transforms.get_mut(val).unwrap().rotation =
-                        Quaternion::new(packet.x, packet.y, packet.z, packet.w);
+                        Quaternion::from_vector(Vector4::new(packet.x, packet.y, packet.z, packet.w));
                     commands.entity(val.clone()).insert(DirtyPosition);
                     commands.entity(val).insert(DirtyRotation);
                 } else {
