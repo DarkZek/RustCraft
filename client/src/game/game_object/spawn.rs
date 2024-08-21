@@ -74,7 +74,7 @@ pub fn messages_update(
                 let mut gravity = false;
                 let aabb = match &entity.data {
                     GameObjectData::ItemDrop(item) => {
-                        let identifier = &item.item.identifier;
+                        let identifier = &item.item_stack.item.identifier;
 
                         entity_commands.insert(MaterialMeshBundle {
                             mesh: meshes.add(generate_item_mesh(identifier, &block_states, &item_states)),
@@ -87,9 +87,9 @@ pub fn messages_update(
                             Vector3::new(0.2, 0.2, 0.2)
                         )
                     }
-                    GameObjectData::Player(user_id) => {
+                    GameObjectData::Player(player_data) => {
 
-                        let is_self_player = *user_id == system.user_id;
+                        let is_self_player = player_data.user_id == system.user_id;
 
                         if is_self_player {
                             entity_commands.insert(Player::new());

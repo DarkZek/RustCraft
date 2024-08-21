@@ -2,7 +2,7 @@ use bevy::ecs::{component::Component, event::EventWriter, system::{Query}};
 use serde::{Deserialize, Serialize};
 use rc_networking::{protocol::{clientbound::update_inventory::UpdateInventory, Protocol}, types::SendPacket};
 use rc_shared::{game_objects::GameObjectData, item::types::ItemStack};
-
+use rc_shared::game_objects::PlayerGameObjectData;
 use super::game_object::{GameObject};
 
 
@@ -90,19 +90,17 @@ impl Default for Inventory {
 }
 
 pub fn propagate_inventories(
-    mut query: Query<(&mut Inventory, &GameObject)>,
+    mut query: Query<(&mut Inventory, &PlayerGameObjectData)>,
     mut send_packet: EventWriter<SendPacket>) {
-    for (mut inventory, game_object) in query.iter_mut() {
+    for (mut inventory, player_data) in query.iter_mut() {
         if !inventory.dirty {
             continue;
         }
 
-        if let GameObjectData::Player(user_id) = game_object.data {
-            inventory.dirty = false;
+        inventory.dirty = false;
 
-            // Let client know new inventory status
-            let packet = UpdateInventory::new(inventory.hotbar.clone(), None);
-            send_packet.send(SendPacket(Protocol::UpdateInventory(packet), user_id));
-        }
+        // Let client know new inventory status
+        let packet = UpdateInventory::new(inventory.hotbar.clone(), None);
+        send_packet.send(SendPacket(Protocol::UpdateInventory(packet), player_data.user_id));
     }
 }

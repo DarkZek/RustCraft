@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use std::fs;
 use crate::game::inventory::Inventory;
 use crate::game::transform::Transform;
@@ -6,22 +7,16 @@ use bevy::ecs::event::EventReader;
 use bevy::ecs::prelude::{Commands, EventWriter};
 use bevy::ecs::system::Query;
 use bevy::log::info;
-
 use nalgebra::Vector3;
-use rc_shared::game_objects::GameObjectData;
+use rc_shared::game_objects::{GameObjectData, PlayerGameObjectData};
 use std::sync::atomic::Ordering;
-
 use crate::events::authorize::AuthorizationEvent;
 use crate::game::world::data::GAME_OBJECT_ID_COUNTER;
 use crate::helpers::global_to_local_position;
 use crate::systems::chunk::ChunkSystem;
 use crate::{TransportSystem, WorldData};
 use rc_shared::constants::GameObjectId;
-
-
 use crate::systems::game_object::spawn::SpawnGameObjectRequest;
-
-
 use rc_networking::types::SendPacket;
 use crate::game::world::deserialized_player::DeserializedPlayerData;
 
@@ -73,8 +68,12 @@ pub fn authorization_event(
             transform,
             id: game_object_id,
             entity: Some(entity),
-            data: GameObjectData::Player(client.user_id)
+            data: GameObjectData::Player(PlayerGameObjectData {
+                user_id: client.user_id,
+            })
         });
+
+        chunk_system.user_loaded_chunks.insert(client.user_id, HashSet::default());
 
         let chunks = global.chunks.keys();
 

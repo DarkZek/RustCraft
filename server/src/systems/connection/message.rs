@@ -17,11 +17,12 @@ use rc_networking::protocol::Protocol;
 use rc_networking::types::{ReceivePacket, SendPacket};
 use rc_shared::block::BlockStates;
 use rc_shared::constants::GameObjectId;
-use rc_shared::game_objects::GameObjectData;
+use rc_shared::game_objects::{GameObjectData, ItemDropGameObjectData};
 use rc_shared::item::types::ItemStack;
 use rc_shared::item::ItemStates;
 use rc_shared::viewable_direction::BLOCK_SIDES;
 use bevy::log::warn;
+use crate::game::entity::{DirtyPosition, DirtyRotation};
 
 pub fn receive_message_event(
     mut event_reader: EventReader<ReceivePacket>,
@@ -32,8 +33,8 @@ pub fn receive_message_event(
     mut block_update_writer: EventWriter<BlockUpdateEvent>,
     mut ew: EventWriter<SpawnGameObjectRequest>,
     block_states: Res<BlockStates>,
-    item_states: Res<ItemStates>
-
+    item_states: Res<ItemStates>,
+    mut commands: Commands
 ) {
     for event in event_reader.read() {
         match &event.0 {
@@ -43,26 +44,14 @@ pub fn receive_message_event(
                     continue
                 };
 
-                // TODO: Don't trust user input
-
-                let send_packet = Protocol::EntityMoved(EntityMoved {
-                    entity,
-                    x: packet.x,
-                    y: packet.y,
-                    z: packet.z,
-                });
-
-                for (client, _) in &system.clients {
-                    if *client == event.1 {
-                        continue;
-                    }
-                    event_writer.send(SendPacket(send_packet.clone(), *client));
-                }
-
                 if let Some(val) = global.get_game_object(&entity) {
                     // Move player in ecs
-                    transforms.get_mut(val).unwrap().position =
+                    transforms.get_mut(val.clone()).unwrap().position =
                         Vector3::new(packet.x, packet.y, packet.z);
+                    commands.entity(val.clone()).insert(DirtyPosition);
+                    commands.entity(val).insert(DirtyRotation);
+                } else {
+                    warn!("Player {:?} tried to move that wasn't spawned in", event.1);
                 }
             }
             Protocol::PlayerRotate(packet) => {
@@ -71,28 +60,14 @@ pub fn receive_message_event(
                     continue
                 };
 
-                // TODO: Don't trust user input
-
-                let send_packet = Protocol::EntityRotated(EntityRotated {
-                    entity,
-                    x: packet.x,
-                    y: packet.y,
-                    z: packet.z,
-                    w: packet.w,
-                });
-
-                for (client, _) in &system.clients {
-                    if *client == event.1 {
-                        continue;
-                    }
-                    //info!("Move packet sent to {:?}", client);
-                    event_writer.send(SendPacket(send_packet.clone(), *client));
-                }
-
                 if let Some(val) = global.get_game_object(&entity) {
-                    // Rotate player in ecs
+                    // Move player in ecs
                     transforms.get_mut(val).unwrap().rotation =
                         Quaternion::new(packet.x, packet.y, packet.z, packet.w);
+                    commands.entity(val.clone()).insert(DirtyPosition);
+                    commands.entity(val).insert(DirtyRotation);
+                } else {
+                    warn!("Player {:?} tried to move that wasn't spawned in", event.1);
                 }
             }
             Protocol::BlockUpdate(packet) => {
@@ -143,7 +118,9 @@ pub fn receive_message_event(
                                 packet.y as f32 + 0.5,
                                 packet.z as f32 + 0.5,
                             )),
-                            data: GameObjectData::ItemDrop(drop),
+                            data: GameObjectData::ItemDrop(ItemDropGameObjectData {
+                                item_stack: drop,
+                            }),
                             id: GameObjectId(GAME_OBJECT_ID_COUNTER.fetch_add(1, Ordering::SeqCst)),
                             entity: None,
                         });

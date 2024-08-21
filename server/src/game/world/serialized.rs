@@ -3,10 +3,11 @@ use crate::game::game_object::GameObject;
 use crate::game::transform::Transform;
 use rc_shared::constants::GameObjectId;
 use serde::{Deserialize, Serialize};
+use rc_shared::game_objects::GameObjectData;
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 pub struct DeserializedChunkData {
     pub version: u32,
     pub data: ChunkData,
-    pub game_objects: Vec<(GameObjectId, GameObject, Transform)>,
+    pub game_objects: Vec<(GameObjectId, GameObject, Transform, GameObjectData)>,
 }

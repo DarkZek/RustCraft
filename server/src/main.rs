@@ -36,6 +36,7 @@ use rc_shared::block::{BlockStates, BlockStatesPlugin};
 use rc_shared::item::{ItemStates, ItemStatesPlugin};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
+use crate::game::entity::EntityPlugin;
 
 static SHUTDOWN_BIT: AtomicBool = AtomicBool::new(false);
 static DUMMY_ATLAS: DummyAtlas = DummyAtlas;
@@ -70,6 +71,7 @@ fn main() {
         .add_plugins(ChunkPlugin)
         .add_plugins(GameObjectPlugin)
         .add_plugins(ConnectionPlugin)
+        .add_plugins(EntityPlugin)
         .add_plugins(BlockStatesPlugin {
             texture_atlas: &DUMMY_ATLAS,
         })

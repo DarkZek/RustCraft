@@ -7,7 +7,7 @@ use rc_shared::constants::GameObjectId;
 use rc_networking::protocol::clientbound::spawn_game_object::SpawnGameObject;
 use rc_networking::protocol::Protocol;
 use rc_networking::types::SendPacket;
-use rc_shared::game_objects::GameObjectData;
+use rc_shared::game_objects::{DebugGameObjectData, GameObjectData, GameObjectType, get_game_object_data};
 use rc_shared::helpers::global_f32_to_local_position;
 
 #[derive(Event)]
@@ -41,14 +41,23 @@ pub fn spawn_entities(
             command.spawn_empty().id()
         };
 
-        let entity = command
-            .entity(entity)
+        let mut entity_commands = command
+            .entity(entity);
+
+        entity_commands
             .insert(Transform::from_translation(event.transform.position))
             .insert(GameObject {
-                data: event.data.clone(),
                 id: event.id,
             })
-            .id();
+            .insert(GameObjectType::from(&event.data));
+
+        match event.data.clone() {
+            GameObjectData::Debug => entity_commands.insert(DebugGameObjectData),
+            GameObjectData::ItemDrop(data) => entity_commands.insert(data),
+            GameObjectData::Player(data) => entity_commands.insert(data)
+        };
+
+        let entity = entity_commands.id();
 
         let id = event
             .id;

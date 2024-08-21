@@ -23,6 +23,7 @@ pub struct ChunkPlugin;
 impl Plugin for ChunkPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(ChunkSystem {
+            user_loaded_chunks: Default::default(),
             generating_chunks: Default::default(),
             requesting_chunks: Default::default(),
             chunk_outstanding_requests: Default::default(),
@@ -36,12 +37,14 @@ impl Plugin for ChunkPlugin {
 
 #[derive(Resource)]
 pub struct ChunkSystem {
+    pub user_loaded_chunks: HashMap<UserId, HashSet<Vector3<i32>>>,
     pub generating_chunks: HashSet<Vector3<i32>>,
     pub requesting_chunks: HashMap<UserId, Vec<Vector3<i32>>>,
     // How many chunk requests have been send and are waiting acknowledgement
     pub chunk_outstanding_requests: HashMap<UserId, usize>,
 }
 
+/// Handles chunk requests coming in, and chunk data going out
 pub fn request_chunks(
     mut system: ResMut<ChunkSystem>,
     world: Res<WorldData>,
@@ -55,6 +58,7 @@ pub fn request_chunks(
         requesting_chunks,
         chunk_outstanding_requests,
         generating_chunks,
+        user_loaded_chunks
     } = &mut *system;
 
     // Remove packets received
@@ -112,7 +116,9 @@ pub fn request_chunks(
                     *user,
                 ));
 
-                // Increase outstanding requests
+                user_loaded_chunks.get_mut(user).unwrap().insert(chunk.position);
+
+                // Increase outstanding acknowledgement requests
                 *chunk_outstanding_requests.get_mut(user).unwrap() += 1;
             } else {
                 if !generating_chunks.contains(&chunk_pos) {

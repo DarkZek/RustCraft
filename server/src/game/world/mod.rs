@@ -3,6 +3,7 @@ use crate::game::world::data::WorldData;
 
 use crate::{AppExit, ServerConfig};
 use bevy::prelude::*;
+use rc_shared::game_objects::{GameObjectType, ItemDropGameObjectData, PlayerGameObjectData};
 use crate::game::inventory::Inventory;
 
 pub mod data;
@@ -24,7 +25,7 @@ fn save_world(
     world: Res<WorldData>,
     config: Res<ServerConfig>,
     bevy_shutdown: EventReader<AppExit>,
-    query: Query<(&GameObject, &crate::game::transform::Transform, Option<&Inventory>)>,
+    query: Query<(&GameObject, &GameObjectType, &crate::game::transform::Transform, Option<&Inventory>, Option<&ItemDropGameObjectData>, Option<&PlayerGameObjectData>)>
 ) {
     if bevy_shutdown.is_empty() {
         return;

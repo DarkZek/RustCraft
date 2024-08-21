@@ -14,7 +14,7 @@ use std::fs::{create_dir_all, File};
 use std::io::BufWriter;
 use std::str::FromStr;
 use std::sync::atomic::Ordering;
-use rc_shared::game_objects::GameObjectData;
+use rc_shared::game_objects::{DebugGameObjectData, GameObjectData, GameObjectType, ItemDropGameObjectData, PlayerGameObjectData};
 use crate::game::inventory::Inventory;
 use crate::game::world::deserialized_player::DeserializedPlayerData;
 
@@ -51,9 +51,18 @@ impl WorldData {
 
                     self.chunks.insert(Vector3::new(x, y, z), data);
 
-                    for (id, game_object, transform) in game_objects {
-                        let entity = command.spawn(transform).insert(game_object).id();
+                    for (id, game_object, transform, data) in game_objects {
+                        let mut entity_commands = command.spawn(transform);
 
+                        entity_commands.insert(game_object);
+
+                        match data {
+                            GameObjectData::Debug => entity_commands.insert(DebugGameObjectData),
+                            GameObjectData::ItemDrop(data) => entity_commands.insert(data),
+                            GameObjectData::Player(data) => entity_commands.insert(data)
+                        };
+
+                        let entity = entity_commands.id();
                         self.insert_game_object(id, entity, Vector3::new(x, y, z));
                     }
                 }
@@ -74,7 +83,7 @@ impl WorldData {
     pub fn save_world(
         &self,
         config: &ServerConfig,
-        query: &Query<(&GameObject, &Transform, Option<&Inventory>)>
+        query: &Query<(&GameObject, &GameObjectType, &Transform, Option<&Inventory>, Option<&ItemDropGameObjectData>, Option<&PlayerGameObjectData>)>
     ) {
         create_dir_all("./world/chunks").unwrap();
         create_dir_all("./world/players").unwrap();
@@ -84,14 +93,17 @@ impl WorldData {
             let mut game_objects = vec![];
 
             for (id, entity) in self.game_objects_chunks.get(pos).unwrap_or(&HashMap::new()) {
-                let (game_object, transform, _) = query.get(*entity).unwrap();
+                let (game_object, game_object_type, transform, _, item_drop, _)
+                    = query.get(*entity).unwrap();
 
-                // Players saved separately
-                if let GameObjectData::Player(_) = &game_object.data {
-                    continue
-                }
+                let data = match game_object_type {
+                    GameObjectType::Debug => GameObjectData::Debug,
+                    GameObjectType::ItemDrop => GameObjectData::ItemDrop(item_drop.unwrap().clone()),
+                    // Players saved separately
+                    GameObjectType::Player => continue
+                };
 
-                game_objects.push((*id, game_object.clone(), *transform));
+                game_objects.push((*id, game_object.clone(), *transform, data));
             }
 
             let data = DeserializedChunkData {
@@ -117,13 +129,13 @@ impl WorldData {
         )
         .unwrap();
 
-        for (game_object, transform, inventory) in query.iter() {
+        for (game_object, game_object_type, transform, inventory, _, player_data) in query.iter() {
 
             let Some(inventory) = inventory else {
                 continue
             };
 
-            let GameObjectData::Player(user_id) = &game_object.data else {
+            let Some(player_data) = player_data else {
                 continue
             };
 
@@ -134,7 +146,7 @@ impl WorldData {
             };
 
             fs::write(
-                format!("./world/players/{}", user_id.0),
+                format!("./world/players/{}", player_data.user_id.0),
                 serde_json::to_string(&data).unwrap(),
             )
             .unwrap();
