@@ -20,12 +20,13 @@ use std::sync::atomic::Ordering;
 use bevy::tasks::{AsyncComputeTaskPool, Task};
 use bevy::tasks::futures_lite::future;
 use bevy::tasks::block_on;
-use rc_client::systems::chunk::builder::thread::ChunkBuilderScheduler;
 use crate::systems::camera::MainCamera;
 use crate::systems::chunk::builder::build_context::ChunkBuildContext;
 use crate::systems::chunk::builder::lighting::{LightingUpdateData};
-use crate::systems::chunk::builder::thread::executor::ChunkBuilderExecutor;
+use crate::systems::chunk::builder::thread::ChunkBuilderScheduler;
+use crate::systems::chunk::builder::thread::executor::{ChunkBuilderExecutor, ChunkBuilderJob};
 use crate::systems::chunk::flags::ChunkFlagsBitMap;
+use crate::systems::chunk::builder::thread::ChunkBuilderSchedulerTrait;
 
 pub const ATTRIBUTE_LIGHTING_COLOR: MeshVertexAttribute =
     MeshVertexAttribute::new("Lighting", 988540917, VertexFormat::Float32x4);
@@ -130,13 +131,13 @@ impl MeshBuilderContext {
 
 const MAX_PROCESSING_CHUNKS: usize = 4;
 
-pub fn mesh_builder(
+/// Schedules chunk meshes to be built
+pub fn mesh_scheduler(
     flags: EventReader<RerenderChunkFlag>,
     mut chunks: ResMut<ChunkSystem>,
-    mut meshes: ResMut<Assets<Mesh>>,
     camera: Query<&Transform, With<MainCamera>>,
     block_states: Res<BlockStates>,
-    mut builder_data: Local<MeshBuilderContext>,
+    mut builder_data: ResMut<MeshBuilderContext>,
 ) {
     // Update player location
     let pos = from_bevy_vec3(camera.single().translation);
@@ -150,31 +151,6 @@ pub fn mesh_builder(
 
     builder_data.update_requested_chunks(flags, &mut chunks);
 
-    let mut existing_tasks = Vec::new();
-    mem::swap(&mut existing_tasks, &mut builder_data.processing_chunk_handles);
-
-    // Filter out any still processing handles
-    for mut task in existing_tasks {
-        if let Some((mesh_update, lighting_update)) = block_on(future::poll_once(&mut task)) {
-            // TODO: Ensure no blocks have changed since cloned
-            if let Some(chunk) = chunks.chunks.get_mut(&mesh_update.chunk) {
-                if chunk.handles.is_none() {
-                    continue
-                }
-                mesh_update.opaque
-                    .apply_mesh(meshes.get_mut(&chunk.handles.as_ref().unwrap().opaque_mesh).unwrap());
-                mesh_update.translucent
-                    .apply_mesh(meshes.get_mut(&chunk.handles.as_ref().unwrap().translucent_mesh).unwrap());
-
-                chunk.light_levels = lighting_update.data;
-            }
-        } else {
-            builder_data.processing_chunk_handles.push(task);
-        }
-    }
-
-    let thread_pool = AsyncComputeTaskPool::get();
-
     // Collect all available chunks
     while !builder_data.chunks.is_empty() {
 
@@ -185,33 +161,42 @@ pub fn mesh_builder(
         let chunk_entry = builder_data.chunks.pop().unwrap();
 
         if let Some(chunk) = chunks.chunks.get(&chunk_entry.chunk) {
-
-            println!("{:?}", chunk.position);
             let mut chunk = chunk.clone();
 
             let cache = NearbyChunkCache::from_service(&chunks, chunk.position);
 
-            let mut build_context = ChunkBuildContext::new(&block_states, &cache);
+            let mut context = ChunkBuildContext::new(&block_states, &cache);
 
-            // TODO: Make blockstates static because this is very slow
-            let block_states = block_states.clone();
-
-            let task = thread_pool.spawn(async move {
-                let lighting_update = chunk.build_lighting(&mut build_context);
-
-                chunk.light_levels = lighting_update.data;
-
-                // Generate mesh & gpu buffers
-                let mesh_updates = chunk.build_mesh(&block_states, false, &build_context);
-
-                (mesh_updates, lighting_update)
-            });
-
-            builder_data.processing_chunk_handles.push(task);
+            builder_data.scheduler.schedule(ChunkBuilderJob {
+                chunk,
+                context
+            })
 
         } else {
             warn!("Chunk data for {:?} doesn't exist when trying to build chunk", chunk_entry.chunk);
             continue
+        }
+    }
+}
+
+/// Updates the mesh data with the new built data
+pub fn mesh_updater(
+    mut chunks: ResMut<ChunkSystem>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut builder_data: ResMut<MeshBuilderContext>
+) {
+    while let Some(update) = builder_data.scheduler.poll() {
+        if let Some(chunk) = chunks.chunks.get_mut(&update.position) {
+            if chunk.handles.is_none() {
+                continue
+            }
+
+            update.mesh.opaque
+                .apply_mesh(meshes.get_mut(&chunk.handles.as_ref().unwrap().opaque_mesh).unwrap());
+            update.mesh.translucent
+                .apply_mesh(meshes.get_mut(&chunk.handles.as_ref().unwrap().translucent_mesh).unwrap());
+
+            chunk.light_levels = update.lighting.data;
         }
     }
 }

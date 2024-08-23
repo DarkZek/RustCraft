@@ -1,5 +1,5 @@
 use crate::systems::asset::AssetService;
-use crate::systems::chunk::builder::{ATTRIBUTE_LIGHTING_COLOR, ATTRIBUTE_WIND_STRENGTH, mesh_builder, RerenderChunkFlag};
+use crate::systems::chunk::builder::{ATTRIBUTE_LIGHTING_COLOR, ATTRIBUTE_WIND_STRENGTH, mesh_scheduler, mesh_updater, RerenderChunkFlag, setup_mesh_builder_context};
 use crate::systems::chunk::data::ChunkData;
 use crate::systems::chunk::request::request_chunks;
 use bevy::prelude::*;
@@ -11,9 +11,8 @@ use nalgebra::Vector3;
 use rc_shared::chunk::{ChunkSystemTrait, RawChunkData};
 use rc_shared::CHUNK_SIZE;
 use std::collections::HashMap;
+use crate::state::AppState;
 use crate::systems::asset::parsing::message_pack::MessagePackAssetLoader;
-use crate::systems::chunk::builder::thread::ChunkBuilderScheduler;
-use crate::systems::chunk::builder::thread::executor::ChunkBuilderExecutor;
 use crate::systems::chunk::flags::ChunkFlagsBitMap;
 use crate::systems::chunk::static_world_data::{save_surroundings_system, StaticWorldData};
 use crate::systems::chunk::temp_set_ambient::temp_set_ambient;
@@ -34,7 +33,10 @@ pub struct ChunkPlugin;
 impl Plugin for ChunkPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(ChunkSystem::new())
-            .add_systems(Update, mesh_builder)
+            .add_systems(OnExit(AppState::Loading), setup_mesh_builder_context)
+            .add_systems(Update, (mesh_scheduler, mesh_updater).run_if(in_state(AppState::MainMenu)))
+            .add_systems(Update, (mesh_scheduler, mesh_updater).run_if(in_state(AppState::Connecting)))
+            .add_systems(Update, (mesh_scheduler, mesh_updater).run_if(in_state(AppState::InGame)))
             .add_event::<RerenderChunkFlag>()
             .add_systems(Update, request_chunks)
             // Static world data

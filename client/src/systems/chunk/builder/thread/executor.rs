@@ -1,3 +1,4 @@
+use nalgebra::Vector3;
 use rc_shared::block::BlockStates;
 use crate::systems::chunk::builder::build_context::ChunkBuildContext;
 use crate::systems::chunk::builder::generate_mesh::UpdateChunkMesh;
@@ -36,6 +37,7 @@ impl ChunkBuilderExecutor {
         let mesh = chunk.build_mesh(&self.block_states, false, &context);
 
         Some(ChunkBuilderUpdate {
+            position: chunk.position,
             mesh,
             lighting
         })
@@ -43,11 +45,12 @@ impl ChunkBuilderExecutor {
 }
 
 pub struct ChunkBuilderJob {
-    chunk: ChunkData,
-    context: ChunkBuildContext
+    pub chunk: ChunkData,
+    pub context: ChunkBuildContext
 }
 
 pub struct ChunkBuilderUpdate {
-    mesh: UpdateChunkMesh,
-    lighting: LightingUpdateData
+    pub position: Vector3<i32>,
+    pub mesh: UpdateChunkMesh,
+    pub lighting: LightingUpdateData
 }

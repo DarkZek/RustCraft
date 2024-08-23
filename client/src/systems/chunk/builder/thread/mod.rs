@@ -6,3 +6,5 @@ pub use platform::unthreaded::ChunkBuilderScheduler;
 
 #[cfg(not(target_arch = "wasm32"))]
 pub use platform::threaded::ChunkBuilderScheduler;
+
+pub use platform::ChunkBuilderSchedulerTrait;

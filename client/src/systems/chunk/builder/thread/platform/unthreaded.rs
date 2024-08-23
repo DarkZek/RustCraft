@@ -1,6 +1,4 @@
 use std::time::Duration;
-use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender};
-use tokio::task::JoinHandle;
 use tokio::time::Instant;
 use crate::systems::chunk::builder::thread::executor::{ChunkBuilderExecutor, ChunkBuilderJob, ChunkBuilderUpdate};
 use crate::systems::chunk::builder::thread::platform::ChunkBuilderSchedulerTrait;
@@ -15,8 +13,8 @@ pub struct ChunkBuilderScheduler {
 
 
 impl ChunkBuilderSchedulerTrait for ChunkBuilderScheduler {
-    fn new(executor: ChunkBuilderExecutor) -> ChunkBuilderScheduler {
-        ChunkBuilderScheduler {
+    fn new(executor: ChunkBuilderExecutor) -> Self {
+        Self {
             executor,
             last_built: Instant::now(),
         }

@@ -1,4 +1,8 @@
+use std::task::Poll;
+use bevy::prelude::warn;
+use tokio::runtime::Runtime;
 use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender};
+use tokio::sync::mpsc::error::TryRecvError;
 use tokio::task::JoinHandle;
 use crate::systems::chunk::builder::thread::executor::{ChunkBuilderExecutor, ChunkBuilderJob, ChunkBuilderUpdate};
 use crate::systems::chunk::builder::thread::platform::ChunkBuilderSchedulerTrait;
@@ -6,11 +10,14 @@ use crate::systems::chunk::builder::thread::platform::ChunkBuilderSchedulerTrait
 pub struct ChunkBuilderScheduler {
     jobs_in: UnboundedSender<ChunkBuilderJob>,
     updates_out: UnboundedReceiver<ChunkBuilderUpdate>,
-    handle: JoinHandle<usize>
+    handle: JoinHandle<usize>,
+    runtime: Runtime
 }
 
 impl ChunkBuilderSchedulerTrait for ChunkBuilderScheduler {
     fn new(mut executor: ChunkBuilderExecutor) -> ChunkBuilderScheduler {
+
+        let runtime = Runtime::new().unwrap();
 
         let (in_send, mut in_recv): (UnboundedSender<ChunkBuilderJob>, UnboundedReceiver<ChunkBuilderJob>) =
             unbounded_channel();
@@ -18,8 +25,8 @@ impl ChunkBuilderSchedulerTrait for ChunkBuilderScheduler {
         let (out_send, mut out_recv): (UnboundedSender<ChunkBuilderUpdate>, UnboundedReceiver<ChunkBuilderUpdate>) =
             unbounded_channel();
 
-        let executor_handle = tokio::spawn(async move || {
-            while let Ok(job) = in_recv.try_recv() {
+        let executor_handle = runtime.spawn(async move {
+            while let Some(job) = in_recv.recv().await {
                 // 1:1 since the channel buffers inputs for us
                 executor.requests.push(job);
                 let update = executor.build().unwrap();
@@ -31,7 +38,8 @@ impl ChunkBuilderSchedulerTrait for ChunkBuilderScheduler {
         ChunkBuilderScheduler {
             jobs_in: in_send,
             updates_out: out_recv,
-            handle: executor_handle
+            handle: executor_handle,
+            runtime
         }
     }
 
@@ -40,6 +48,18 @@ impl ChunkBuilderSchedulerTrait for ChunkBuilderScheduler {
     }
 
     fn poll(&mut self) -> Option<ChunkBuilderUpdate> {
-        self.updates_out.recv()
+        match self.updates_out.try_recv() {
+            Ok(val) => Some(val),
+            Err(e) => {
+                match e {
+                    TryRecvError::Empty => {
+                        None
+                    }
+                    _ => {
+                        panic!("Chunk builder thread closed unexpectedly.")
+                    }
+                }
+            }
+        }
     }
 }
