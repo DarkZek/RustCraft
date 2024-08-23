@@ -2,6 +2,7 @@ mod entry;
 mod generate_mesh;
 mod lighting;
 pub mod build_context;
+pub mod thread;
 
 use crate::systems::chunk::builder::entry::{MeshBuildEntry, PLAYER_POS};
 use crate::systems::chunk::builder::generate_mesh::UpdateChunkMesh;
@@ -19,9 +20,12 @@ use std::sync::atomic::Ordering;
 use bevy::tasks::{AsyncComputeTaskPool, Task};
 use bevy::tasks::futures_lite::future;
 use bevy::tasks::block_on;
+use rc_client::systems::chunk::builder::thread::ChunkBuilderScheduler;
 use crate::systems::camera::MainCamera;
 use crate::systems::chunk::builder::build_context::ChunkBuildContext;
 use crate::systems::chunk::builder::lighting::{LightingUpdateData};
+use crate::systems::chunk::builder::thread::executor::ChunkBuilderExecutor;
+use crate::systems::chunk::flags::ChunkFlagsBitMap;
 
 pub const ATTRIBUTE_LIGHTING_COLOR: MeshVertexAttribute =
     MeshVertexAttribute::new("Lighting", 988540917, VertexFormat::Float32x4);
@@ -44,15 +48,25 @@ pub enum RerenderChunkFlagContext {
     Surrounding,
 }
 
-#[derive(Default)]
-pub struct MeshBuilderCache {
+#[derive(Resource)]
+pub struct MeshBuilderContext {
     // A priority list of chunks to build
     chunks: BinaryHeap<MeshBuildEntry>,
 
-    processing_chunk_handles: Vec<Task<(UpdateChunkMesh, LightingUpdateData)>>
+    processing_chunk_handles: Vec<Task<(UpdateChunkMesh, LightingUpdateData)>>,
+
+    scheduler: ChunkBuilderScheduler
 }
 
-impl MeshBuilderCache {
+pub fn setup_mesh_builder_context(mut commands: Commands, block_states: Res<BlockStates>) {
+    commands.insert_resource(MeshBuilderContext {
+        chunks: Default::default(),
+        processing_chunk_handles: vec![],
+        scheduler: ChunkBuilderScheduler::new(ChunkBuilderExecutor::new(block_states.clone())),
+    })
+}
+
+impl MeshBuilderContext {
     pub fn update_requested_chunks(
         &mut self,
         mut flags: EventReader<RerenderChunkFlag>,
@@ -93,7 +107,12 @@ impl MeshBuilderCache {
         // Loop over all new chunks to render and add them to the list if the chunk exists and if its not already being rerendered
         for pos in rerender_chunks {
             // The chunk data exists
-            if chunks.chunks.get(&pos).is_some() {
+            if let Some(chunk) = chunks.chunks.get(&pos) {
+                if chunk.flags.has_flag(ChunkFlagsBitMap::AtEdge) {
+                    // At edge of loaded world. We can't know its visible direction yet, so don't build it
+                    continue
+                }
+
                 // And if this chunk isn't already scheduled for rebuild
                 if !self.chunks.iter().any(|v| v.chunk == pos) {
                     // Put entry into rebuild table
@@ -109,7 +128,7 @@ impl MeshBuilderCache {
     }
 }
 
-const MAX_PROCESSING_CHUNKS: usize = 10;
+const MAX_PROCESSING_CHUNKS: usize = 4;
 
 pub fn mesh_builder(
     flags: EventReader<RerenderChunkFlag>,
@@ -117,7 +136,7 @@ pub fn mesh_builder(
     mut meshes: ResMut<Assets<Mesh>>,
     camera: Query<&Transform, With<MainCamera>>,
     block_states: Res<BlockStates>,
-    mut builder_data: Local<MeshBuilderCache>,
+    mut builder_data: Local<MeshBuilderContext>,
 ) {
     // Update player location
     let pos = from_bevy_vec3(camera.single().translation);
@@ -166,6 +185,8 @@ pub fn mesh_builder(
         let chunk_entry = builder_data.chunks.pop().unwrap();
 
         if let Some(chunk) = chunks.chunks.get(&chunk_entry.chunk) {
+
+            println!("{:?}", chunk.position);
             let mut chunk = chunk.clone();
 
             let cache = NearbyChunkCache::from_service(&chunks, chunk.position);

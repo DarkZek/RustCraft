@@ -26,10 +26,12 @@ bevy = { workspace = true, default-features = true }
 rmp-serde = { workspace = true }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-bevy = {  workspace = true, default-features = true, features = ["webgl2"] }
+bevy = { workspace = true, default-features = true, features = ["webgl2"] }
+tokio = { workspace = true, features = ["rt", "sync"]}
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-bevy = {  workspace = true, default-features = true, features = ["file_watcher", "dynamic_linking"] }
+bevy = { workspace = true, default-features = true, features = ["file_watcher"] }
+tokio = { workspace = true, features = ["rt", "rt-multi-thread", "sync"] }
 
 [lib]
 crate-type = ["cdylib", "rlib"]

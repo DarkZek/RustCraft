@@ -17,10 +17,10 @@ default-features = false
 features = []
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-tokio = { version = "*", features = ["rt", "sync"]}
+tokio = { workspace = true, features = ["rt", "sync"]}
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-tokio = { version = "*", features = ["rt", "rt-multi-thread", "sync"]}
+tokio = { workspace = true, features = ["rt", "rt-multi-thread", "sync"] }
 rustls = { version = "0.21.0", default-features = false, features = ["quic", "dangerous_configuration"] }
 quinn = { version = "0.10.2"  }
 rcgen = "*"

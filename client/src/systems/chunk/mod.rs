@@ -12,6 +12,9 @@ use rc_shared::chunk::{ChunkSystemTrait, RawChunkData};
 use rc_shared::CHUNK_SIZE;
 use std::collections::HashMap;
 use crate::systems::asset::parsing::message_pack::MessagePackAssetLoader;
+use crate::systems::chunk::builder::thread::ChunkBuilderScheduler;
+use crate::systems::chunk::builder::thread::executor::ChunkBuilderExecutor;
+use crate::systems::chunk::flags::ChunkFlagsBitMap;
 use crate::systems::chunk::static_world_data::{save_surroundings_system, StaticWorldData};
 use crate::systems::chunk::temp_set_ambient::temp_set_ambient;
 
@@ -23,6 +26,8 @@ mod request;
 pub mod static_world_data;
 mod nearby_chunk_map;
 mod temp_set_ambient;
+mod flags;
+mod edge;
 
 pub struct ChunkPlugin;
 
@@ -45,14 +50,14 @@ pub struct ChunkSystem {
     pub chunks: HashMap<Vector3<i32>, ChunkData, FnvBuildHasher>,
 
     /// A list of all chunks that have rerender requests outstanding
-    pub requested_chunks: Vec<Vector3<i32>>,
+    pub requested_chunks: Vec<Vector3<i32>>
 }
 
 impl ChunkSystem {
     pub fn new() -> ChunkSystem {
         ChunkSystem {
             chunks: FnvHashMap::default(),
-            requested_chunks: vec![],
+            requested_chunks: vec![]
         }
     }
 
@@ -127,12 +132,32 @@ impl ChunkSystem {
         );
 
         self.chunks.insert(position, chunk);
+
+        // Recompute onedge for all surrounding chunks
+        for x in (position.x - 1)..=(position.x + 1) {
+            for y in (position.y - 1)..=(position.y + 1) {
+                for z in (position.z - 1)..=(position.z + 1) {
+                    self.recompute_on_edge(Vector3::new(x, y, z));
+                }
+            }
+        }
     }
 
     pub fn unload_chunk(&mut self, position: Vector3<i32>, commands: &mut Commands) {
         if let Some(chunk) = self.chunks.remove(&position) {
             if let Some(handles) = chunk.handles {
                 commands.entity(handles.entity).despawn_recursive();
+            }
+        }
+
+        // All surrounding chunks are now on edge
+        for x in (position.x - 1)..=(position.x + 1) {
+            for y in (position.y - 1)..=(position.y + 1) {
+                for z in (position.z - 1)..=(position.z + 1) {
+                    if let Some(mut data) = self.chunks.get_mut(&Vector3::new(x, y, z)) {
+                        data.flags.add_flag(ChunkFlagsBitMap::AtEdge);
+                    }
+                }
             }
         }
     }

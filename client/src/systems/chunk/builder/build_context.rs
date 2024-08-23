@@ -36,9 +36,8 @@ impl ChunkBuildContext {
         let mut surrounding_data = FnvHashMap::new();
 
         // Loop over every nearby chunk
-        translucency_map.for_each_mut(|entry| {
-            // TODO: Allow NearbyChunkMap to directly use a NearbyChunkCache to speed up chunk fetching
-            let Some(chunk) = cache.get_chunk(entry.chunk_position) else {
+        translucency_map.for_each_mut_with_chunks(cache, |entry| {
+            let Some(chunk) = entry.chunk else {
                 return;
             };
 

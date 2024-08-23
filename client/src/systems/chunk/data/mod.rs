@@ -4,6 +4,7 @@ use nalgebra::Vector3;
 use rc_shared::chunk::{RawChunkData, RawLightingData};
 use rc_shared::viewable_direction::ViewableDirection;
 use rc_shared::CHUNK_SIZE;
+use crate::systems::chunk::flags::ChunkFlags;
 
 pub mod viewable;
 
@@ -20,7 +21,9 @@ pub struct ChunkData {
     pub light_levels: RawLightingData,
 
     // Always set except for during tests
-    pub handles: Option<ChunkHandleData>
+    pub handles: Option<ChunkHandleData>,
+
+    pub flags: ChunkFlags
 }
 
 impl ChunkData {
@@ -44,7 +47,8 @@ impl ChunkData {
                 transparent_entity,
                 opaque_mesh,
                 translucent_mesh,
-            })
+            }),
+            flags: Default::default(),
         }
     }
 
@@ -57,7 +61,8 @@ impl ChunkData {
             viewable_map: None,
             position,
             light_levels: [[[[255, 255, 255, 255]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE],
-            handles: None
+            handles: None,
+            flags: Default::default(),
         }
     }
 }

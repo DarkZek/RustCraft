@@ -1,6 +1,8 @@
 use nalgebra::Vector3;
+use crate::systems::chunk::nearby_cache::NearbyChunkCache;
 use rc_shared::CHUNK_SIZE;
 use rc_shared::helpers::global_to_local_position;
+use crate::systems::chunk::data::ChunkData;
 
 /// Stores information for each block in a 3x3 of chunk data centered on `position`
 pub struct NearbyChunkMap<T: Sized + Copy> {
@@ -45,7 +47,7 @@ impl<T: Copy> NearbyChunkMap<T> {
                                     (Vector3::new(chunk_x, chunk_y, chunk_z) * CHUNK_SIZE as i32) +
                                         Vector3::new(x, y, z).cast::<i32>();
 
-                                let index = world_to_index(world_position, self.position).unwrap();
+                                let index = world_to_index_unchecked(world_position, self.position);
 
                                 cb(NearbyChunkItem {
                                     data: &self.data[index.x][index.y][index.z],
@@ -72,13 +74,44 @@ impl<T: Copy> NearbyChunkMap<T> {
                                     (Vector3::new(chunk_x, chunk_y, chunk_z) * CHUNK_SIZE as i32) +
                                         Vector3::new(x, y, z).cast::<i32>();
 
-                                let index = world_to_index(world_position, self.position).unwrap();
+                                let index = world_to_index_unchecked(world_position, self.position);
 
                                 cb(NearbyChunkItemMut {
                                     data: &mut self.data[index.x][index.y][index.z],
                                     world_position,
                                     chunk_position: Vector3::new(chunk_x, chunk_y, chunk_z),
                                     block_position: Vector3::new(x, y, z),
+                                })
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    pub fn for_each_mut_with_chunks<F>(&mut self, nearby_chunk_cache: &NearbyChunkCache, mut cb: F) where F: FnMut(NearbyChunkItemWithChunkMut<T>) {
+        for chunk_x in (self.position.x - 1)..=(self.position.x + 1) {
+            for chunk_y in (self.position.y - 1)..=(self.position.y + 1) {
+                for chunk_z in (self.position.z - 1)..=(self.position.z + 1) {
+
+                    let chunk = nearby_chunk_cache.get_chunk(Vector3::new(chunk_x, chunk_y, chunk_z));
+
+                    for x in 0..CHUNK_SIZE {
+                        for y in 0..CHUNK_SIZE {
+                            for z in 0..CHUNK_SIZE {
+                                let world_position =
+                                    (Vector3::new(chunk_x, chunk_y, chunk_z) * CHUNK_SIZE as i32) +
+                                        Vector3::new(x, y, z).cast::<i32>();
+
+                                let index = world_to_index_unchecked(world_position, self.position);
+
+                                cb(NearbyChunkItemWithChunkMut {
+                                    data: &mut self.data[index.x][index.y][index.z],
+                                    world_position,
+                                    chunk_position: Vector3::new(chunk_x, chunk_y, chunk_z),
+                                    block_position: Vector3::new(x, y, z),
+                                    chunk
                                 })
                             }
                         }
@@ -153,6 +186,7 @@ impl<T: Copy> NearbyChunkMap<T> {
     }
 }
 
+#[inline]
 fn world_to_index(world_position: Vector3<i32>, index_center: Vector3<i32>) -> Option<Vector3<usize>> {
     // Localize
     let relative_position = world_position - (index_center * CHUNK_SIZE as i32);
@@ -176,6 +210,24 @@ fn world_to_index(world_position: Vector3<i32>, index_center: Vector3<i32>) -> O
     ))
 }
 
+#[inline]
+fn world_to_index_unchecked(world_position: Vector3<i32>, index_center: Vector3<i32>) -> Vector3<usize> {
+    // Localize
+    let relative_position = world_position - (index_center * CHUNK_SIZE as i32);
+
+    // Break into components
+    let (mut chunk_position, block_position) = global_to_local_position(relative_position);
+
+    // Move to make array start at zero
+    chunk_position += Vector3::new(1,1,1);
+
+    Vector3::new(
+        chunk_position.x as usize * CHUNK_SIZE + block_position.x,
+        chunk_position.y as usize * CHUNK_SIZE + block_position.y,
+        chunk_position.z as usize * CHUNK_SIZE + block_position.z,
+    )
+}
+
 #[derive(Copy, Clone, Debug)]
 pub struct NearbyChunkItem<'a, T> {
     pub data: &'a T,
@@ -190,6 +242,15 @@ pub struct NearbyChunkItemMut<'a, T> {
     pub world_position: Vector3<i32>,
     pub chunk_position: Vector3<i32>,
     pub block_position: Vector3<usize>
+}
+
+#[derive(Debug)]
+pub struct NearbyChunkItemWithChunkMut<'a, T> {
+    pub data: &'a mut T,
+    pub world_position: Vector3<i32>,
+    pub chunk_position: Vector3<i32>,
+    pub block_position: Vector3<usize>,
+    pub chunk: Option<&'a ChunkData>
 }
 
 #[cfg(test)]
