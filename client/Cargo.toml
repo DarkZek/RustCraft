@@ -18,15 +18,14 @@ rc_networking = { path = "../lib/rc_networking" }
 rc_shared = { path = "../lib/rc_shared" }
 thiserror = "1.0.37"
 bevy-inspector-egui = "0.25.0"
-bevy_polyline = "0.10.0"
 bitflags = "2.4.1"
 rand = "0.8.5"
-web-time = "1.1.0"
+web-time = { workspace = true }
 bevy = { workspace = true, default-features = true }
 rmp-serde = { workspace = true }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-bevy = { workspace = true, default-features = true, features = ["webgl2"] }
+bevy = { workspace = true, default-features = true, features = ["webgpu"] }
 tokio = { workspace = true, features = ["rt", "sync"]}
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]

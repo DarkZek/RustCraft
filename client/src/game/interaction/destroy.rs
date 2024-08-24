@@ -1,4 +1,4 @@
-use std::time::Instant;
+use web_time::Instant;
 use crate::systems::chunk::ChunkSystem;
 use crate::systems::physics::raycasts::do_raycast;
 use bevy::prelude::*;

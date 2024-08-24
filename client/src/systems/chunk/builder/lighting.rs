@@ -177,7 +177,7 @@ fn calculate_color(color: &BlockLightRecord) -> [u8; 4] {
 #[cfg(test)]
 mod tests {
     use std::{fs};
-    use std::time::Instant;
+    use web_time::Instant;
     use bevy_inspector_egui::egui::ahash::HashMapExt;
     use fnv::FnvHashMap;
     use rc_shared::block::BlockStates;

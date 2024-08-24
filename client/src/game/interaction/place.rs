@@ -1,4 +1,4 @@
-use std::time::Instant;
+use web_time::Instant;
 use crate::systems::asset::AssetService;
 use crate::systems::chunk::ChunkSystem;
 use crate::systems::physics::raycasts::do_raycast;

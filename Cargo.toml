@@ -15,6 +15,7 @@ rmp-serde = { version = "1.3.0" }
 nalgebra = { version = "0.33.0", features=["serde-serialize"] }
 bevy = { version = "0.14.1", features = ["multi_threaded"], default-features = false }
 tokio = { version = "*", features = ["rt", "sync"] }
+web-time = "1.1.0"
 
 [profile.dev]
 opt-level = 1

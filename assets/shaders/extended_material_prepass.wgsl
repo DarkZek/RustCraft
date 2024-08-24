@@ -91,7 +91,10 @@ struct CustomVertexOutput {
 
 #ifdef IS_TRANSLUCENT
 struct ChunkExtendedMaterial {
-    time: f32
+    time: f32,
+    _padding1: f32,
+    _padding2: f32,
+    _padding3: f32,
 }
 
 @group(2) @binding(100)

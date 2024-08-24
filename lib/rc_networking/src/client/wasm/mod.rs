@@ -22,7 +22,7 @@ pub struct NetworkingClient {
 }
 
 impl NetworkingClient {
-    pub fn connect(&mut self, addr: SocketAddr) {
+    pub fn connect(&mut self, addr: SocketAddr, user_id: u64) {
 
     }
 }

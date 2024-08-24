@@ -31,13 +31,14 @@ use bevy::prelude::*;
 use bevy::render::settings::{RenderCreation, WgpuSettings};
 use bevy::render::RenderPlugin;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
-use bevy_polyline::PolylinePlugin;
 use rc_shared::block::BlockStatesPlugin;
 use rc_shared::item::{ItemStates, ItemStatesPlugin};
 use bevy::pbr::ExtendedMaterial;
 use crate::game::interaction::InteractionPlugin;
 use crate::systems::asset::material::chunk_extension::ChunkMaterialExtension;
 use crate::systems::asset::material::translucent_chunk_extension::TranslucentChunkMaterialExtension;
+
+// TODO: Performance - Make event based systems only run on event trigger https://docs.rs/bevy/latest/bevy/ecs/prelude/fn.on_event.html
 
 #[rustfmt::skip]
 fn main() {
@@ -72,8 +73,6 @@ fn main() {
 
         // add the app state
         .init_state::<AppState>()
-
-        .add_plugins(PolylinePlugin)
 
         // Networking
         .add_plugins(ClientNetworkingPlugin)

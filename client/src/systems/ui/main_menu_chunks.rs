@@ -14,7 +14,7 @@ pub struct MainMenuWorldState {
 }
 
 pub fn load_main_menu_world(asset_server: Res<AssetServer>, mut data: ResMut<MainMenuWorldState>) {
-    //data.asset = Some(asset_server.load("main_menu_world.mpk").into());
+    data.asset = Some(asset_server.load("main_menu_world.mpk").into());
 }
 
 pub fn handle_loaded_main_menu_world(

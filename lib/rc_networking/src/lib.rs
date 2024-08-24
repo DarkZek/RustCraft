@@ -12,7 +12,6 @@ pub mod bistream;
 
 use protocol::Protocol;
 use std::net::SocketAddr;
-use std::time::Duration;
 
 #[derive(Copy, Clone, Debug)]
 pub enum Channel {

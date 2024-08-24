@@ -51,7 +51,9 @@ pub struct NetworkingSystem {
 
 impl Default for NetworkingSystem {
     fn default() -> Self {
+
         let user_id = env!("USER_ID").parse::<u64>().unwrap();
+
         NetworkingSystem {
             entity_mapping: Default::default(),
             user_id: UserId(user_id),

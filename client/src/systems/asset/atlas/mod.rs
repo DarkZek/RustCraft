@@ -6,6 +6,7 @@ use crate::systems::ui::loading::LoadingUIData;
 use bevy::prelude::*;
 use bevy::color::palettes::basic::WHITE;
 use bevy::pbr::ExtendedMaterial;
+use crate::systems::asset::material::translucent_chunk_extension::ChunkMaterialUniform;
 use crate::systems::asset::material::chunk_extension::{ChunkMaterialExtension, ChunkMaterial};
 use crate::systems::asset::material::translucent_chunk_extension::{TranslucentChunkMaterial, TranslucentChunkMaterialExtension};
 
@@ -63,7 +64,7 @@ pub fn build_texture_atlas(
                 reflectance: 0.0,
                 ..default()
             },
-            extension: ChunkMaterialExtension { ambient_strength: 0.0 },
+            extension: ChunkMaterialExtension { uniform: ChunkMaterialUniform { ambient_strength: 0.0, ..default() } },
         },
     );
 
@@ -78,7 +79,7 @@ pub fn build_texture_atlas(
                 reflectance: 0.0,
                 ..default()
             },
-            extension: TranslucentChunkMaterialExtension { time: 0.0, ambient_strength: 0.0 },
+            extension: TranslucentChunkMaterialExtension { uniform: ChunkMaterialUniform { time: 0.0, ambient_strength: 0.0, ..default() } },
         },
     );
 

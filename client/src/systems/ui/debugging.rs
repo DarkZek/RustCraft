@@ -1,6 +1,6 @@
 
 use bevy::prelude::*;
-use std::time::{Duration};
+use web_time::{Duration};
 use web_time::Instant;
 
 #[derive(Resource, Debug)]

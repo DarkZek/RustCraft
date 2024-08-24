@@ -1,4 +1,5 @@
 use bevy::asset::Assets;
+use bevy::math::Vec4;
 use bevy::prelude::{Query, ResMut, Transform, With};
 use crate::systems::asset::AssetService;
 use crate::systems::asset::material::chunk_extension::ChunkMaterial;
@@ -23,6 +24,6 @@ pub fn temp_set_ambient(
         0.2
     };
 
-    materials.get_mut(&asset_service.opaque_texture_atlas_material).unwrap().extension.ambient_strength = ambient_strength;
-    translucent_materials.get_mut(&asset_service.translucent_texture_atlas_material).unwrap().extension.ambient_strength = ambient_strength;
+    materials.get_mut(&asset_service.opaque_texture_atlas_material).unwrap().extension.uniform.ambient_strength = ambient_strength;
+    translucent_materials.get_mut(&asset_service.translucent_texture_atlas_material).unwrap().extension.uniform.ambient_strength = ambient_strength;
 }

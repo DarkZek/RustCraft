@@ -9,6 +9,7 @@ bincode = { workspace = true }
 serde = { version = "1.0.145", features = ["derive"] }
 thiserror = "1.0.37"
 futures = "*"
+web-time = { workspace = true }
 rc_shared = { path = '../rc_shared' }
 
 [dependencies.bevy]

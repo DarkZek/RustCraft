@@ -1,4 +1,4 @@
-use std::time::{Duration, Instant};
+use web_time::{Duration, Instant};
 use bevy::input::ButtonInput;
 use bevy::prelude::{KeyCode, Local, Projection, Query, Res, Time, With};
 use bevy_inspector_egui::egui::lerp;

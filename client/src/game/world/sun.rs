@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use bevy::pbr::CascadeShadowConfigBuilder;
 use std::f32::consts::PI;
-use std::time::{SystemTime, UNIX_EPOCH};
+use web_time::{SystemTime, UNIX_EPOCH};
 use bevy::render::view::RenderLayers;
 use crate::systems::ui::equipped_item::VIEW_MODEL_RENDER_LAYER;
 

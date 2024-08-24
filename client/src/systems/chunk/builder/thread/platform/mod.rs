@@ -1,6 +1,7 @@
 use crate::systems::chunk::builder::thread::executor::{ChunkBuilderExecutor, ChunkBuilderJob, ChunkBuilderUpdate};
 
 pub mod unthreaded;
+#[cfg(not(target_arch = "wasm32"))]
 pub mod threaded;
 
 pub trait ChunkBuilderSchedulerTrait {

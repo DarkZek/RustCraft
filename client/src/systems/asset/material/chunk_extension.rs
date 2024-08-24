@@ -2,6 +2,7 @@ use bevy::pbr::{ExtendedMaterial, MaterialExtension, MaterialExtensionKey, Mater
 use bevy::prelude::*;
 use bevy::render::mesh::{MeshVertexAttribute, MeshVertexBufferLayoutRef};
 use bevy::render::render_resource::{AsBindGroup, RenderPipelineDescriptor, ShaderRef, SpecializedMeshPipelineError};
+use crate::systems::asset::material::translucent_chunk_extension::ChunkMaterialUniform;
 use crate::systems::chunk::builder::ATTRIBUTE_LIGHTING_COLOR;
 
 pub type ChunkMaterial = ExtendedMaterial<StandardMaterial, ChunkMaterialExtension>;
@@ -9,7 +10,7 @@ pub type ChunkMaterial = ExtendedMaterial<StandardMaterial, ChunkMaterialExtensi
 #[derive(Asset, AsBindGroup, Reflect, Debug, Clone)]
 pub struct ChunkMaterialExtension {
     #[uniform(100)]
-    pub ambient_strength: f32,
+    pub uniform: ChunkMaterialUniform
 }
 
 impl MaterialExtension for ChunkMaterialExtension {

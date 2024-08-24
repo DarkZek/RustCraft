@@ -17,7 +17,7 @@ impl rustls::client::ServerCertVerifier for SkipServerVerification {
         _server_name: &rustls::ServerName,
         _scts: &mut dyn Iterator<Item = &[u8]>,
         _ocsp_response: &[u8],
-        _now: std::time::SystemTime,
+        _now: web_time::SystemTime,
     ) -> Result<rustls::client::ServerCertVerified, rustls::Error> {
         warn!("Ignoring server tls certificate checking");
         Ok(rustls::client::ServerCertVerified::assertion())

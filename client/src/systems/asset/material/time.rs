@@ -8,6 +8,6 @@ pub fn update_time(
     service: ResMut<AssetService>,
     mut materials: ResMut<Assets<TranslucentChunkMaterial>>,
 ) {
-    materials.get_mut(&service.translucent_texture_atlas_material).unwrap().extension.time
+    materials.get_mut(&service.translucent_texture_atlas_material).unwrap().extension.uniform.time
         += time.delta_seconds();
 }

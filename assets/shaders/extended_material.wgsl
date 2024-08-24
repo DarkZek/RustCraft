@@ -25,10 +25,10 @@
 // TODO: Document which parts are copied from Bevy
 
 struct ChunkExtendedMaterial {
-#ifdef IS_TRANSLUCENT
     time: f32,
-#endif
     ambient_strength: f32,
+    _padding2: f32,
+    _padding3: f32,
 }
 
 @group(2) @binding(100)

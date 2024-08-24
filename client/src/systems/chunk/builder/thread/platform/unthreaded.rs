@@ -1,5 +1,5 @@
-use std::time::Duration;
-use tokio::time::Instant;
+use web_time::Duration;
+use web_time::Instant;
 use crate::systems::chunk::builder::thread::executor::{ChunkBuilderExecutor, ChunkBuilderJob, ChunkBuilderUpdate};
 use crate::systems::chunk::builder::thread::platform::ChunkBuilderSchedulerTrait;
 

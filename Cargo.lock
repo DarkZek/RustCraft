@@ -902,17 +902,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "bevy_polyline"
-version = "0.10.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f54091a26c01aa225f771e1a9b12eb2eadabfec359b67aeab75a46f7d3437647"
-dependencies = [
- "bevy",
- "bitflags 2.6.0",
- "bytemuck",
-]
-
-[[package]]
 name = "bevy_ptr"
 version = "0.14.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4048,7 +4037,6 @@ dependencies = [
  "anyhow",
  "bevy",
  "bevy-inspector-egui",
- "bevy_polyline",
  "bitflags 2.6.0",
  "fnv",
  "image 0.23.14",
@@ -4081,6 +4069,7 @@ dependencies = [
  "serde",
  "thiserror",
  "tokio",
+ "web-time",
 ]
 
 [[package]]

@@ -8,7 +8,7 @@ use crate::systems::asset::atlas::{build_texture_atlas, AtlasLoadingStage};
 use bevy::prelude::*;
 use crate::systems::asset::material::chunk_extension::{ChunkMaterialExtension, ChunkMaterial};
 use crate::systems::asset::material::time::update_time;
-use crate::systems::asset::material::translucent_chunk_extension::{TranslucentChunkMaterial, TranslucentChunkMaterialExtension};
+use crate::systems::asset::material::translucent_chunk_extension::{ChunkMaterialUniform, TranslucentChunkMaterial, TranslucentChunkMaterialExtension};
 
 pub mod atlas;
 pub mod material;
@@ -44,14 +44,14 @@ impl AssetService {
                 base_color: Color::from(RED),
                 ..default()
             },
-            extension: ChunkMaterialExtension { ambient_strength: 0.0 },
+            extension: ChunkMaterialExtension { uniform: ChunkMaterialUniform { ambient_strength: 0.0, ..default() } },
         });
         let translucent_texture_atlas_material = translucent_materials.add(ExtendedMaterial {
             base: StandardMaterial {
                 base_color: Color::from(RED),
                 ..default()
             },
-            extension: TranslucentChunkMaterialExtension { time: 0.0, ambient_strength: 0.0 },
+            extension: TranslucentChunkMaterialExtension { uniform: ChunkMaterialUniform { time: 0.0, ambient_strength: 0.0, ..default() } },
         });
 
         AssetService {

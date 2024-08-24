@@ -1,7 +1,7 @@
 use bevy::pbr::{ExtendedMaterial, MaterialExtension, MaterialExtensionKey, MaterialExtensionPipeline};
 use bevy::prelude::*;
 use bevy::render::mesh::MeshVertexBufferLayoutRef;
-use bevy::render::render_resource::{AsBindGroup, RenderPipelineDescriptor, ShaderRef, SpecializedMeshPipelineError};
+use bevy::render::render_resource::{AsBindGroup, RenderPipelineDescriptor, ShaderRef, ShaderType, SpecializedMeshPipelineError};
 use crate::systems::asset::material::chunk_extension::add_vertex_extension;
 use crate::systems::chunk::builder::{ATTRIBUTE_LIGHTING_COLOR, ATTRIBUTE_WIND_STRENGTH};
 
@@ -10,9 +10,17 @@ pub type TranslucentChunkMaterial = ExtendedMaterial<StandardMaterial, Transluce
 #[derive(Asset, AsBindGroup, Reflect, Debug, Clone)]
 pub struct TranslucentChunkMaterialExtension {
     #[uniform(100)]
+    pub uniform: ChunkMaterialUniform
+}
+
+#[derive(Clone, Debug, Default, Reflect, ShaderType)]
+#[repr(C)]
+pub struct ChunkMaterialUniform {
+    // TODO: Use bevy globals.time
     pub time: f32,
-    #[uniform(100)]
     pub ambient_strength: f32,
+    pub _padding1: f32,
+    pub _padding2: f32,
 }
 
 impl MaterialExtension for TranslucentChunkMaterialExtension {
