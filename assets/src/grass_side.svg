@@ -23,16 +23,16 @@
      inkscape:pageopacity="0.0"
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
-     inkscape:export-bgcolor="#54b42cff"
-     inkscape:zoom="1.9295397"
-     inkscape:cx="26.431174"
-     inkscape:cy="68.669227"
+     inkscape:export-bgcolor="#875233ff"
+     inkscape:zoom="5.741584"
+     inkscape:cx="64.267979"
+     inkscape:cy="45.022419"
      inkscape:window-width="1512"
      inkscape:window-height="916"
      inkscape:window-x="0"
      inkscape:window-y="38"
      inkscape:window-maximized="1"
-     inkscape:current-layer="g46" />
+     inkscape:current-layer="g18" />
   <defs
      id="defs1" />
   <g
@@ -250,6 +250,12 @@
          style="fill:#875233;fill-opacity:1"
          d="m 26.037464,80.673915 8.00129,1.26637 -4.66306,-4.94389 z"
          id="path69-7-3" />
+      <path
+         style="fill:#000000;fill-opacity:0.112462;stroke-width:264.567"
+         d="m -4.74044,18.477714 114.73176,1.147318 -6.08493,18.843785 -5.37064,7.109599 -10.640445,-6.609735 -0.446709,8.302562 -7.518085,-4.78973 -5.459026,8.323038 -7.95189,-3.713155 L 56.296854,52.667777 48.821863,42.497064 38.596293,47.234313 31.068441,38.166691 28.302305,52.20885 12.893518,42.403634 3.2474807,47.765855 -2.6752684,43.03031"
+         id="path2"
+         transform="translate(-1.6023239,-0.2409591)"
+         sodipodi:nodetypes="ccccccccccccccccc" />
       <path
          style="fill:#875233;fill-opacity:1"
          d="m 10.899434,12.2469 0.54693,8.082402 3.78154,-5.646773 z"

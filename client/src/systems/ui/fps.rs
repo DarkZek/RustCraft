@@ -54,7 +54,7 @@ pub fn setup_fps_ui(
         .id();
 }
 
-pub fn update_fps_ui(mut query: Query<&mut Text>, mut data: ResMut<FpsUIData>, _time: Res<Time>) {
+pub fn update_fps_ui(mut query: Query<&mut Text>, mut data: ResMut<FpsUIData>) {
     data.frames += 1;
 
     if data.last_update.elapsed() < Duration::from_secs(1) {

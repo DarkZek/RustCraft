@@ -26,13 +26,13 @@ pub fn collect_items(
             let dist = (player_pos.position - transform.position).magnitude();
 
             if dist < ITEM_COLLECTION_RADIUS {
-                // Prevent it from being collected twice
-                item_drop.item_stack.amount = 0;
-                command.get_entity(entity).unwrap().despawn();
-
                 // Add to user inventory
                 let mut inventory = inventory_query.get_mut(player_entity).unwrap();
                 inventory.push_item(item_drop.item_stack.clone());
+
+                // Prevent it from being collected twice
+                item_drop.item_stack.amount = 0;
+                command.get_entity(entity).unwrap().despawn();
 
                 send_packet.send(SendPacket(Protocol::DespawnGameObject(DespawnGameObject::new(game_object.id)), player_data.user_id));
             }
