@@ -10,11 +10,15 @@ use rc_shared::constants::UserId;
 use rc_networking::protocol::clientbound::block_update::BlockUpdate;
 use rc_networking::protocol::Protocol;
 use rc_networking::types::SendPacket;
+use rc_shared::aabb::Aabb;
 use rc_shared::block::BlockStates;
 use rc_shared::helpers::{from_bevy_vec3, global_to_local_position};
 use rc_shared::CHUNK_SIZE;
+use crate::game::entity::GameObject;
+use crate::game::interaction::MAX_INTERACTION_DISTANCE;
 use crate::systems::camera::freecam::Freecam;
 use crate::systems::camera::MainCamera;
+use crate::systems::physics::PhysicsObject;
 
 pub struct MouseInteractionLocals {
     left_clicking_started: Option<Instant>,
@@ -24,15 +28,13 @@ pub struct MouseInteractionLocals {
 pub fn mouse_interaction_place(
     freecam: Res<Freecam>,
     mouse_button_input: Res<ButtonInput<MouseButton>>,
-    mut commands: Commands,
     camera: Query<&Transform, With<MainCamera>>,
-    assets: Res<AssetService>,
     mut rerender_chunk_event: EventWriter<RerenderChunkFlag>,
     mut chunks: ResMut<ChunkSystem>,
     blocks: Res<BlockStates>,
     mut inventory: ResMut<Inventory>,
-    mut meshes: ResMut<Assets<Mesh>>,
     mut send_packet: EventWriter<SendPacket>,
+    game_objects: Query<&PhysicsObject, With<GameObject>>,
 ) {
 
     if freecam.enabled || !mouse_button_input.just_pressed(MouseButton::Right) {
@@ -46,7 +48,7 @@ pub fn mouse_interaction_place(
     let cast = do_raycast(
         from_bevy_vec3(camera_pos.translation),
         from_bevy_vec3(look),
-        15.0,
+        MAX_INTERACTION_DISTANCE,
         &chunks,
         &blocks,
     );
@@ -57,55 +59,59 @@ pub fn mouse_interaction_place(
 
     let ray = cast.unwrap();
 
-    if let Some(block_type) = inventory.selected_block_id() {
-        let pos = ray.block + ray.normal;
+    let Some(block_type) = inventory.selected_block_id() else {
+        return
+    };
 
-        // Locate chunk
-        let (chunk_loc, inner_loc) = global_to_local_position(pos);
+    let pos = ray.block + ray.normal;
 
-        // Try find chunk
-        if let Some(chunk) = chunks.chunks.get_mut(&chunk_loc) {
+    // TODO: We could look this up instead
+    let block_collider = Aabb::new(Vector3::new(pos.x as f32, pos.y as f32, pos.z as f32), Vector3::new(1.0, 1.0, 1.0));
 
-            if chunk.world[inner_loc.x][inner_loc.y][inner_loc.z] != 0 {
-                // Trying to place a block on another block
-                return
-            }
+    // Ensure no gameobjects colliding
+    for physics_object in game_objects.iter() {
+        let aabb = physics_object.collider.offset(physics_object.position);
 
-            // Found chunk! Update block
-            chunk.world[inner_loc.x][inner_loc.y][inner_loc.z] = block_type;
+        let collides = aabb.aabb_collides(&block_collider);
 
-            // Rerender
-            rerender_chunk_event.send(RerenderChunkFlag {
-                chunk: chunk_loc,
-                context: RerenderChunkFlagContext::Surrounding,
-            });
-
-            debug!(
-                "Updated [{}, {}, {}]",
-                ray.block.x, ray.block.y, ray.block.z
-            );
-        } else {
-            // Create chunk data
-            let mut chunk = [[[0; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
-
-            // Set block
-            chunk[inner_loc.x][inner_loc.y][inner_loc.z] = block_type;
-
-            // Create chunk
-            chunks.create_chunk(chunk_loc, chunk, &mut commands, &assets, &mut meshes);
-
-            rerender_chunk_event.send(RerenderChunkFlag {
-                chunk: chunk_loc,
-                context: RerenderChunkFlagContext::Surrounding,
-            });
+        if collides {
+            return
         }
-
-        inventory.take_selected_block();
-
-        // Send network update
-        send_packet.send(SendPacket(
-            Protocol::BlockUpdate(BlockUpdate::new(block_type, pos.x, pos.y, pos.z)),
-            UserId(0),
-        ));
     }
+
+    // Locate chunk
+    let (chunk_loc, inner_loc) = global_to_local_position(pos);
+
+    // Try find chunk
+    let Some(chunk) = chunks.chunks.get_mut(&chunk_loc) else {
+        warn!("Tried to place block in unloaded chunk");
+        return
+    };
+
+    if chunk.world[inner_loc.x][inner_loc.y][inner_loc.z] != 0 {
+        // Trying to place a block on another block
+        return
+    }
+
+    // Found chunk! Update block
+    chunk.world[inner_loc.x][inner_loc.y][inner_loc.z] = block_type;
+
+    // Rerender
+    rerender_chunk_event.send(RerenderChunkFlag {
+        chunk: chunk_loc,
+        context: RerenderChunkFlagContext::Surrounding,
+    });
+
+    debug!(
+        "Updated [{}, {}, {}]",
+        ray.block.x, ray.block.y, ray.block.z
+    );
+
+    inventory.take_selected_block();
+
+    // Send network update
+    send_packet.send(SendPacket(
+        Protocol::BlockUpdate(BlockUpdate::new(block_type, pos.x, pos.y, pos.z)),
+        UserId(0),
+    ));
 }

@@ -6,6 +6,7 @@ use nalgebra::Vector3;
 use crate::game::events::DestroyBlockEvent;
 use rc_shared::block::BlockStates;
 use rc_shared::helpers::{from_bevy_vec3, global_to_local_position, to_bevy_vec3};
+use crate::game::interaction::MAX_INTERACTION_DISTANCE;
 use crate::systems::camera::freecam::Freecam;
 use crate::systems::camera::MainCamera;
 
@@ -57,7 +58,7 @@ pub fn mouse_interaction_destroy(
     let cast = do_raycast(
         from_bevy_vec3(camera_pos.translation),
         from_bevy_vec3(look),
-        15.0,
+        MAX_INTERACTION_DISTANCE,
         &chunks,
         &blocks,
     );

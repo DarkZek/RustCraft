@@ -7,6 +7,8 @@ use bevy::utils::default;
 use crate::game::interaction::destroy::{mouse_interaction_destroy, MouseInteractionResource};
 use crate::game::interaction::place::mouse_interaction_place;
 
+pub const MAX_INTERACTION_DISTANCE: f32 = 7.0;
+
 pub mod highlight;
 mod destroy;
 mod place;

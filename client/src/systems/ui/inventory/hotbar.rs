@@ -10,7 +10,20 @@ pub fn setup_hotbar_ui(
     asset_server: Res<AssetServer>,
     mut inventory_ui: ResMut<InventoryUI>,
 ) {
-    let mut hotbar_selected_image = None;
+    inventory_ui.hotbar_selected_images = Some([
+        asset_server.load::<Image>("ui/hotbar_selected_0.png"),
+        asset_server.load::<Image>("ui/hotbar_selected_1.png"),
+        asset_server.load::<Image>("ui/hotbar_selected_2.png"),
+        asset_server.load::<Image>("ui/hotbar_selected_3.png"),
+        asset_server.load::<Image>("ui/hotbar_selected_4.png"),
+        asset_server.load::<Image>("ui/hotbar_selected_5.png"),
+        asset_server.load::<Image>("ui/hotbar_selected_6.png"),
+        asset_server.load::<Image>("ui/hotbar_selected_7.png"),
+        asset_server.load::<Image>("ui/hotbar_selected_8.png"),
+        asset_server.load::<Image>("ui/hotbar_selected_9.png"),
+    ]);
+
+    let mut hotbar_selected_entity = None;
     let mut hotbar_icons = [None, None, None, None, None, None, None, None, None, None];
     let mut hotbar_text = [None, None, None, None, None, None, None, None, None, None];
 
@@ -42,7 +55,8 @@ pub fn setup_hotbar_ui(
                     ..default()
                 })
                 .with_children(|parent| {
-                    hotbar_selected_image = Some(
+                    let default_image = inventory_ui.hotbar_selected_images.as_ref().unwrap().get(0).unwrap();
+                    hotbar_selected_entity = Some(
                         parent
                             .spawn(ImageBundle {
                                 style: Style {
@@ -52,7 +66,7 @@ pub fn setup_hotbar_ui(
                                     position_type: PositionType::Absolute,
                                     ..default()
                                 },
-                                image: asset_server.load("ui/hotbar_selected.png").into(),
+                                image: default_image.clone().into(),
                                 ..default()
                             })
                             .id(),
@@ -115,7 +129,7 @@ pub fn setup_hotbar_ui(
                 });
         });
 
-    inventory_ui.hotbar_selected_image = hotbar_selected_image;
+    inventory_ui.hotbar_selected_entity = hotbar_selected_entity;
     inventory_ui.hotbar_icons = Some(hotbar_icons.map(|v| v.unwrap()));
     inventory_ui.hotbar_text = Some(hotbar_text.map(|v| v.unwrap()));
 }
@@ -140,12 +154,18 @@ pub fn update_hotbar_ui(
     if selected_slot_changed {
         inventory.hotbar_slot = hotbar_index;
 
-        let mut hotbar_style = style
-            .get_mut(*inventory_ui.hotbar_selected_image.as_ref().unwrap())
+        let mut selected_hotbar_style = style
+            .get_mut(*inventory_ui.hotbar_selected_entity.as_ref().unwrap())
             .unwrap();
 
-        hotbar_style.left =
+        selected_hotbar_style.left =
             Val::Percent((100.0 / HOTBAR_SLOTS as f32) * inventory.hotbar_slot as f32);
+
+        let mut selected_hotbar_image = images
+            .get_mut(*inventory_ui.hotbar_selected_entity.as_ref().unwrap())
+            .unwrap();
+
+        selected_hotbar_image.texture = inventory_ui.hotbar_selected_images.as_ref().unwrap().get(hotbar_index as usize).unwrap().clone().into();
     }
 
     if inventory_ui.hotbar_icons.is_none() {
