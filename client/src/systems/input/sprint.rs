@@ -1,7 +1,7 @@
 use web_time::{Duration, Instant};
 use bevy::input::ButtonInput;
 use bevy::prelude::{KeyCode, Local, Projection, Query, Res, Time, With};
-use bevy_inspector_egui::egui::lerp;
+use rc_shared::helpers::Lerp;
 use crate::game::player::Player;
 use crate::systems::camera::MainCamera;
 
@@ -40,10 +40,10 @@ pub fn detect_sprinting(
 
     // Update fov
     let target_animation = if player.is_sprinting { 1.0 } else { 0.0 };
-    local.fov_animation = lerp(local.fov_animation..=target_animation, 7.5 * time.delta_seconds());
+    local.fov_animation = local.fov_animation.lerp(target_animation, 7.5 * time.delta_seconds());
 
     if let Projection::Perspective(projection) = &mut *projection {
-        projection.fov = lerp(WALKING_FOV..=SPRINTING_FOV, local.fov_animation);
+        projection.fov = WALKING_FOV.lerp(SPRINTING_FOV, local.fov_animation);
     }
 
     if keys.just_released(KeyCode::KeyW) {

@@ -30,7 +30,6 @@ use bevy::log::{Level, LogPlugin};
 use bevy::prelude::*;
 use bevy::render::settings::{RenderCreation, WgpuSettings};
 use bevy::render::RenderPlugin;
-use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use rc_shared::block::BlockStatesPlugin;
 use rc_shared::item::{ItemStates, ItemStatesPlugin};
 use bevy::pbr::ExtendedMaterial;

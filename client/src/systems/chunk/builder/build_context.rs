@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use bevy_inspector_egui::egui::ahash::HashMapExt;
 use fnv::{FnvBuildHasher, FnvHashMap};
 use nalgebra::Vector3;
 use rc_shared::block::BlockStates;
@@ -33,7 +32,7 @@ impl ChunkBuildContext {
 
         let mut lights = Vec::new();
         let mut translucency_map: NearbyChunkMap<bool> = NearbyChunkMap::new_empty(chunk_pos);
-        let mut surrounding_data = FnvHashMap::new();
+        let mut surrounding_data = FnvHashMap::default();
 
         // Loop over every nearby chunk
         translucency_map.for_each_mut_with_chunks(cache, |entry| {
@@ -105,7 +104,6 @@ fn is_neighbor_block(relative_chunk_pos: Vector3<i32>, block_pos: Vector3<usize>
 
 #[cfg(test)]
 mod tests {
-    use bevy_inspector_egui::egui::ahash::HashMapExt;
     use fnv::FnvHashMap;
     use nalgebra::Vector3;
     use rc_shared::block::BlockStates;
@@ -155,7 +153,7 @@ mod tests {
             emission: [0; 4],
         });
 
-        let mut chunks = FnvHashMap::new();
+        let mut chunks = FnvHashMap::default();
 
         // Three chunks one at 0,0,0 and one at 0,1,0 and one at -1,0,0
         let data = [[[0; 16]; 16]; 16];
@@ -223,7 +221,7 @@ mod tests {
             emission: [0; 4],
         });
 
-        let mut chunks = FnvHashMap::new();
+        let mut chunks = FnvHashMap::default();
 
         // Three chunks one at 0,0,0 and one at 0,1,0 and one at -1,0,0
         let data = [[[0; 16]; 16]; 16];

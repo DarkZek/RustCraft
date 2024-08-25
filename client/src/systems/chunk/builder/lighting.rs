@@ -193,7 +193,7 @@ mod tests {
         let file_data = fs::read("chunk_lighting_benchmark.mpk").unwrap();
         let world_data = rmp_serde::from_slice::<StaticWorldData>(file_data.as_slice()).unwrap();
 
-        let mut chunks = FnvHashMap::new();
+        let mut chunks = FnvHashMap::default();
 
         for chunk_data in world_data.data {
             let chunk = ChunkData::new_handleless(chunk_data.data, chunk_data.position);
