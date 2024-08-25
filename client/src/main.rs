@@ -63,7 +63,7 @@ fn main() {
                     ..default()
                 })
                 .set(ImagePlugin::default_nearest()))
-        .add_plugins(WorldInspectorPlugin::new())
+
         .add_plugins(TemporalAntiAliasPlugin)
 
         .insert_resource(AmbientLight {

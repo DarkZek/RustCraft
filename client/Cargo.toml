@@ -17,12 +17,14 @@ zip = { version = "0.5.5", default-features = false, features = ["deflate"] }
 rc_networking = { path = "../lib/rc_networking" }
 rc_shared = { path = "../lib/rc_shared" }
 thiserror = "1.0.37"
-bevy-inspector-egui = "0.25.0"
 bitflags = "2.4.1"
 rand = "0.8.5"
 web-time = { workspace = true }
 bevy = { workspace = true, default-features = true }
 rmp-serde = { workspace = true }
+
+[target.'cfg(debug_assertions)'.dependencies]
+bevy = { workspace = true, default-features = true, features = ["trace"] }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 bevy = { workspace = true, default-features = true, features = ["webgpu"] }

@@ -1,9 +1,9 @@
 use std::task::Poll;
 use bevy::prelude::warn;
-use tokio::runtime::Runtime;
+use tokio::runtime::{Builder, Runtime};
 use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender};
 use tokio::sync::mpsc::error::TryRecvError;
-use tokio::task::JoinHandle;
+use tokio::task::{JoinHandle};
 use crate::systems::chunk::builder::thread::executor::{ChunkBuilderExecutor, ChunkBuilderJob, ChunkBuilderUpdate};
 use crate::systems::chunk::builder::thread::platform::ChunkBuilderSchedulerTrait;
 
@@ -17,7 +17,11 @@ pub struct ChunkBuilderScheduler {
 impl ChunkBuilderSchedulerTrait for ChunkBuilderScheduler {
     fn new(mut executor: ChunkBuilderExecutor) -> ChunkBuilderScheduler {
 
-        let runtime = Runtime::new().unwrap();
+        let runtime = Builder::new_multi_thread()
+            .thread_name("chunk-builder")
+            .worker_threads(1)
+            .build()
+            .unwrap();
 
         let (in_send, mut in_recv): (UnboundedSender<ChunkBuilderJob>, UnboundedReceiver<ChunkBuilderJob>) =
             unbounded_channel();
