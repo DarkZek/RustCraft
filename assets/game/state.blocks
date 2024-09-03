@@ -461,7 +461,7 @@
             1.0,
             1.0
           ],
-          "texture": "game/wood_log",
+          "texture": "game/wood_top",
           "edge": true,
           "direction": 1
         },
@@ -481,7 +481,7 @@
             0.0,
             0.0
           ],
-          "texture": "game/wood_log",
+          "texture": "game/wood_top",
           "edge": true,
           "direction": 2
         },

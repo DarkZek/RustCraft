@@ -46,8 +46,8 @@ fn main() {
         .add_plugins(
             DefaultPlugins
                 .set(LogPlugin {
-                    filter: "wgpu=error,rustcraft=debug,naga=error,bevy_app=info".into(),
-                    level: Level::INFO,
+                    filter: "wgpu=error,naga=error,bevy_app=info".into(),
+                    level: Level::DEBUG,
                     ..default()
                 })
                 .set(RenderPlugin {

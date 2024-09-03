@@ -36,11 +36,11 @@ pub fn connect_to_server(
     mut client: ResMut<NetworkingClient>,
     networking_system: Res<NetworkingSystem>
 ) {
-    let server_addr: SocketAddr = ([127, 0, 0, 1], 25568).into();
-
-    client.connect(server_addr, networking_system.user_id.0);
+    let server_addr = "https://test.marshalldoes.dev:25568".parse().unwrap();
 
     info!("Connecting to server on {}", server_addr);
+
+    client.connect(server_addr, networking_system.user_id.0);
 }
 
 #[derive(Resource)]

@@ -1,5 +1,7 @@
+use std::borrow::Cow;
 use std::io::Cursor;
 use std::mem;
+use bevy::prelude::error;
 use crate::bistream::BiStream;
 use rc_shared::constants::UserId;
 use crate::events::connection::NetworkConnectionEvent;
@@ -9,13 +11,14 @@ use crate::server::NetworkingServer;
 use crate::types::{ReceivePacket, SendPacket};
 use crate::{get_channel, Channel};
 use bevy::log::{info, trace, warn};
-use bevy::prelude::{EventReader, EventWriter, ResMut};
+use bevy::prelude::{debug, EventReader, EventWriter, ResMut};
 use byteorder::{BigEndian, ReadBytesExt};
 use futures::FutureExt;
-use quinn::Endpoint;
-
+use quinn::{Connection, ConnectionError, Endpoint, Incoming};
+use std::borrow::Borrow;
 use tokio::sync::mpsc::error::TryRecvError;
 use tokio::sync::mpsc::unbounded_channel;
+use web_transport::Session;
 
 /// Enables new connection attempts
 pub fn update_system(
@@ -28,7 +31,7 @@ pub fn update_system(
         // Check if task is completed
         if let Some(new_connection) = server.new_conn_task.as_mut().unwrap().now_or_never() {
             // If the connection succeeded
-            if let Ok(new_conn) = new_connection {
+            if let Ok(Some(new_conn)) = new_connection {
                 // Send announcement
                 let client = UserId(new_conn.user_id);
 
@@ -59,30 +62,103 @@ pub fn update_system(
 }
 
 /// Accepts new connections then creates network channels
-pub async fn open_new_conn(endpoint: Endpoint) -> UserConnection {
+pub async fn open_new_conn(endpoint: Endpoint) -> Option<UserConnection> {
     let connecting = endpoint.accept().await;
-    let connection = connecting.unwrap().await.unwrap();
+
+    let incoming_connection = match connecting {
+        Some(v) => v,
+        None => {
+            warn!("Client failed connection with no incoming connection");
+            return None
+        },
+    };
+
+    let mut connecting = match incoming_connection.accept() {
+        Ok(v) => v,
+        Err(e) => {
+            warn!("Client failed connection, {:?}", e);
+            return None
+        }
+    };
+
+    let handshake = connecting
+        .handshake_data()
+        .await
+        .unwrap()
+        .downcast::<quinn::crypto::rustls::HandshakeData>()
+        .unwrap();
+
+    let alpn = handshake.protocol.expect("missing ALPN");
+    let alpn = String::from_utf8_lossy(&alpn);
+    let server_name = handshake.server_name.unwrap_or_default();
+
+    debug!(
+        "received QUIC handshake: ip={} alpn={} server={}",
+        connecting.remote_address(),
+        alpn,
+        server_name,
+    );
+
+    let connection = match connecting.await {
+        Ok(v) => v,
+        Err(e) => {
+            warn!("Client failed connection with error {:?}", e);
+            return None
+        }
+    };
+
+    debug!("Accepted connection");
+
+    let mut connection: Session = match alpn.borrow() {
+        "h3" => {
+            debug!("Accepted connection");
+            // HTTP3
+            let request = web_transport_quinn::accept(connection)
+                .await
+                .unwrap();
+
+            debug!("add312312d connection");
+            let session: web_transport_quinn::Session = request
+                .ok()
+                .await
+                .unwrap();
+            debug!("addd connection");
+
+            Session::from(session)
+        }
+        v => {
+            warn!("Unsupported ALPN attempted to connect {}", v);
+            return None;
+        }
+    };
+
+    debug!("Negotiated HTTP3");
 
     let mut unreliable = connection.open_bi().await.unwrap();
     let mut reliable = connection.open_bi().await.unwrap();
     let mut chunk = connection.open_bi().await.unwrap();
 
+    debug!("Opened Bi Streams");
+
     // Stream not created until written to, so to ensure order write 5 bytes
     unreliable
         .0
-        .write_all("Test1".as_bytes().into())
+        .write("Test1".as_bytes().into())
         .await
         .unwrap();
     reliable
         .0
-        .write_all("Test2".as_bytes().into())
+        .write("Test2".as_bytes().into())
         .await
         .unwrap();
-    chunk.0.write_all("Test3".as_bytes().into()).await.unwrap();
+    chunk.0.write("Test3".as_bytes().into()).await.unwrap();
 
-    let mut user_id = vec![0_u8; size_of::<u64>()];
-    reliable.1.read_exact(&mut user_id).await.unwrap();
+    debug!("Sent validation packets");
+
+    let user_id = reliable.1.read(size_of::<u64>()).await.unwrap().unwrap();
     let user_id = Cursor::new(user_id).read_u64::<BigEndian>().unwrap();
+
+    debug!("Read user_id packet {:?}", user_id);
 
     let (send_err, recv_err) = unbounded_channel();
 
@@ -90,14 +166,16 @@ pub async fn open_new_conn(endpoint: Endpoint) -> UserConnection {
     let reliable = BiStream::from_stream(reliable.0, reliable.1, send_err.clone());
     let chunk = BiStream::from_stream(chunk.0, chunk.1, send_err);
 
-    UserConnection {
+    debug!("Successfully create BiStreams");
+
+    Some(UserConnection {
         connection,
         unreliable,
         reliable,
         chunk,
         recv_err,
         user_id,
-    }
+    })
 }
 
 /// Detect shutdowns and close networking client
@@ -107,7 +185,7 @@ pub fn read_packets_system(
 ) {
     for (user_id, client) in server.connections.iter_mut() {
         let mut recieve_from_channel = |channel: &mut BiStream| {
-            while let Ok(packet) = channel.in_recv.try_recv() {
+            while let Ok(packet) = channel.try_recv() {
                 trace!("{:?} => {:?}", user_id, packet);
                 recv.send(ReceivePacket(packet, *user_id));
             }
@@ -127,12 +205,15 @@ pub fn write_packets_system(
         if let Some(conn) = server.connections.get(&v.1) {
             trace!("{:?} <= {:?} {:?}", v.1, get_channel(&v.0), v.0);
 
-            match get_channel(&v.0) {
-                Channel::Reliable => conn.reliable.out_send.send(v.0.clone()),
-                Channel::Unreliable => conn.unreliable.out_send.send(v.0.clone()),
-                Channel::Chunk => conn.chunk.out_send.send(v.0.clone()),
+            let result = match get_channel(&v.0) {
+                Channel::Reliable => conn.reliable.send(v.0.clone()),
+                Channel::Unreliable => conn.unreliable.send(v.0.clone()),
+                Channel::Chunk => conn.chunk.send(v.0.clone()),
+            };
+
+            if let Err(e) = result {
+                error!("Failed to send packet {:?}", e);
             }
-            .unwrap();
         } else {
             trace!("Tried to send packet to disconnected client {:?}", v.1);
         }

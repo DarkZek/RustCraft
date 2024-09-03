@@ -64,7 +64,7 @@ pub fn setup_mesh_builder_context(mut commands: Commands, block_states: Res<Bloc
         chunks: Default::default(),
         processing_chunk_handles: vec![],
         scheduler: ChunkBuilderScheduler::new(ChunkBuilderExecutor::new(block_states.clone())),
-    })
+    });
 }
 
 impl MeshBuilderContext {

@@ -13,6 +13,7 @@ use crate::game::generation::phase2::generate_greybox_chunk;
 use crate::game::generation::phase3::decorate_chunk;
 use crate::game::generation::phase4::add_structures;
 use bevy::log::info;
+use bevy::prelude::trace;
 use nalgebra::Vector3;
 use rc_shared::CHUNK_SIZE;
 
@@ -42,7 +43,7 @@ impl ChunkData {
 
         add_structures(seed, position, &mut chunk_data, &heightmap, &environment_map);
         
-        info!("Took {}ms to build chunk", started.elapsed().as_millis());
+        trace!("Took {}ms to build chunk", started.elapsed().as_millis());
 
         ChunkData {
             position,

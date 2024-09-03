@@ -46,7 +46,7 @@ fn main() {
         let _ = SHUTDOWN_BIT.store(true, Ordering::SeqCst);
     });
 
-    info!("Rustcraft Server starting up");
+    info!("Rustcraft Server starting");
 
     // Build App
     App::default()
@@ -63,7 +63,7 @@ fn main() {
         // Plugins
         .add_plugins(LogPlugin {
             filter: "rechannel=warn".into(),
-            level: Level::INFO,
+            level: Level::DEBUG,
             ..default()
         })
         .add_plugins(WorldPlugin)

@@ -18,6 +18,9 @@ use serde::{Deserialize, Serialize};
 pub mod clientbound;
 pub mod serverbound;
 
+/// The HTTP/3 ALPN is required when negotiating a QUIC connection.
+pub const ALPN: &[u8] = b"h3";
+
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 #[repr(C)]
 pub enum Protocol {

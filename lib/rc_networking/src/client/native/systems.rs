@@ -5,7 +5,7 @@ use crate::types::{ReceivePacket, SendPacket};
 use crate::{get_channel, Channel, Protocol};
 use bevy::app::AppExit;
 use bevy::log::{info, warn};
-use bevy::prelude::{EventReader, EventWriter, ResMut};
+use bevy::prelude::{EventReader, EventWriter, NonSendMut, ResMut};
 use futures::FutureExt;
 use rc_shared::constants::UserId;
 use tokio::sync::mpsc::error::TryRecvError;
@@ -57,9 +57,9 @@ pub fn write_packets_system(
     if let Some(conn) = &client.connection {
         for packet in to_send.read() {
             let res = match get_channel(&packet.0) {
-                Channel::Reliable => conn.reliable.out_send.send(packet.0.clone()),
-                Channel::Unreliable => conn.unreliable.out_send.send(packet.0.clone()),
-                Channel::Chunk => conn.chunk.out_send.send(packet.0.clone()),
+                Channel::Reliable => conn.reliable.send(packet.0.clone()),
+                Channel::Unreliable => conn.unreliable.send(packet.0.clone()),
+                Channel::Chunk => conn.chunk.send(packet.0.clone()),
             };
 
             if res.is_err() {
@@ -82,12 +82,12 @@ pub fn detect_shutdown_system(
 ) {
     for _ in bevy_shutdown.read() {
         info!("Shutting down server");
-        if let Some(connection) = client.connection.take() {
+        if let Some(mut connection) = client.connection.take() {
             connection
                 .connection
-                .close(0_u8.into(), "Closed".as_bytes());
+                .close(0_u8.into(), "Closed");
         }
-        if let Some(endpoint) = client.endpoint.take() {
+        if let Some(mut endpoint) = client.endpoint.take() {
             endpoint.close(0_u8.into(), "Closed".as_bytes());
         }
         if let Some(runtime) = client.runtime.take() {
@@ -103,7 +103,7 @@ pub fn send_packets_system(
 ) {
     if let Some(conn) = &mut client.connection {
         let mut recieve_from_channel = |channel: &mut BiStream| {
-            while let Ok(packet) = channel.in_recv.try_recv() {
+            while let Ok(packet) = channel.try_recv() {
                 recv.send(ReceivePacket(packet, UserId(0)));
             }
         };
