@@ -45,7 +45,6 @@ impl Plugin for QuinnClientPlugin {
 pub struct NetworkingClient {
     connection: Option<ServerConnection>,
     pending_connections_recv: Option<UnboundedReceiver<Option<ServerConnection>>>
-    // pending_connections_recv: Option<UnboundedReceiver<String>>
 }
 
 impl NetworkingClient {

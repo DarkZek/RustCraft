@@ -4983,9 +4983,9 @@ dependencies = [
 
 [[package]]
 name = "web-transport-quinn"
-version = "0.3.2"
+version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5a1d058d3b16ccf1aa382117498d2f84db9fa9487bd0e13717829e24155792b9"
+checksum = "17e3e06bcce282d3c13214cfc5a0343a7533cdc191a44cd592eeb673f2ca1b95"
 dependencies = [
  "bytes",
  "futures",

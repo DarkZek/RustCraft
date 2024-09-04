@@ -12,7 +12,7 @@ thiserror = "1.0.37"
 futures = "0.3.30"
 web-time = { workspace = true }
 rc_shared = { path = '../rc_shared' }
-web-transport = "0.6.0"
+web-transport = { version = "0.6.0" }
 url = "2.5.2"
 
 [dependencies.bevy]
@@ -32,4 +32,4 @@ rcgen = "0.13.1"
 rustls-pemfile = "2.1.3"
 rustls-native-certs = "0.7.2"
 quinn = { version = "0.11.3" }
-web-transport-quinn = "0.3.2"
+web-transport-quinn = { version = "0.3" }

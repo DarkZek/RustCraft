@@ -33,7 +33,7 @@ impl Plugin for ClientNetworkingPlugin {
 
 /// Connects to the local server instance
 pub fn connect_to_server(
-    mut client: ResMut<NetworkingClient>,
+    mut client: NonSendMut<NetworkingClient>,
     networking_system: Res<NetworkingSystem>
 ) {
     let server_addr = "https://test.marshalldoes.dev:25568".parse().unwrap();

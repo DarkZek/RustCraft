@@ -1,7 +1,7 @@
 use crate::Protocol;
 use bevy::prelude::trace;
 
-use web_transport::{RecvStream, SendStream};
+use web_transport::{Error, RecvStream, SendStream};
 use std::mem::size_of;
 use bevy::log::debug;
 use futures::{AsyncReadExt, AsyncWriteExt};
@@ -64,8 +64,8 @@ impl BiStream {
             debug!("[Task Pool] [Reader] Started");
 
             loop {
-                let len_data = match recv.read(size_of::<u32>()).await {
-                    Ok(v) => v.unwrap().to_vec(),
+                let len_data = match read_exact(&mut recv, size_of::<u32>()).await {
+                    Ok(v) => v,
                     Err(e) => {
                         err.send(StreamError::Error).unwrap();
                         trace!("Network stream exited: {:?}", e);
@@ -77,21 +77,14 @@ impl BiStream {
 
                 let len = bincode::deserialize::<u32>(&len_data).unwrap();
 
-                let mut chunk_data = Vec::new();
-                while chunk_data.len() < len as usize {
-                    let remaining_len = len as usize - chunk_data.len();
-                    debug!("[Task Pool] [Reader] Remaining length {}", remaining_len);
-                    let mut data = match recv.read(remaining_len).await {
-                        Ok(v) => v.unwrap().to_vec(),
-                        Err(e) => {
-                            err.send(StreamError::Error).unwrap();
-                            trace!("Network stream exited: {:?}", e);
-                            return recv;
-                        }
-                    };
-
-                    chunk_data.append(&mut data);
-                }
+                let mut chunk_data = match read_exact(&mut recv, len as usize).await {
+                    Ok(v) => v,
+                    Err(e) => {
+                        err.send(StreamError::Error).unwrap();
+                        trace!("Network stream exited: {:?}", e);
+                        return recv;
+                    }
+                };
 
                 assert_eq!(chunk_data.len(), len as usize, "Chunk data was not equal for packet with length. Read: {} Expected: {}", chunk_data.len(), len);
 
@@ -118,4 +111,20 @@ impl BiStream {
     pub fn send(&self, message: Protocol) -> Result<(), SendError<Protocol>> {
         self.out_send.send(message)
     }
+}
+
+async fn read_exact(recv: &mut RecvStream, len: usize) -> Result<Vec<u8>, Error> {
+    // TODO: Remove copying here
+    let mut chunk_data = Vec::new();
+    while chunk_data.len() < len {
+        let remaining_len = len - chunk_data.len();
+
+        debug!("[Task Pool] [Reader] Remaining length {}", remaining_len);
+
+        let mut data = recv.read(remaining_len).await?.unwrap().to_vec();
+
+        chunk_data.append(&mut data);
+    }
+
+    Ok(chunk_data)
 }

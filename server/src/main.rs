@@ -63,7 +63,7 @@ fn main() {
         // Plugins
         .add_plugins(LogPlugin {
             filter: "rechannel=warn".into(),
-            level: Level::DEBUG,
+            level: Level::INFO,
             ..default()
         })
         .add_plugins(WorldPlugin)
