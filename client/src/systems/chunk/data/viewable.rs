@@ -48,13 +48,14 @@ impl<'a> ChunkData {
             Vector3::new(0, 0, -1),
         ];
 
-        for x in 0..self.world.len() {
-            for z in 0..self.world[0][0].len() {
-                for y in 0..self.world[0].len() {
-                    let block = block_states.get_block(self.world[x][y][z] as usize);
+        for x in 0..CHUNK_SIZE {
+            for z in 0..CHUNK_SIZE {
+                for y in 0..CHUNK_SIZE {
+                    let pos = Vector3::new(x, y, z);
+                    let block = block_states.get_block(self.world.get(pos) as usize);
 
                     let mut viewable =
-                        calculate_chunk_viewable(block_states, &self.world, &block, [x, y, z]);
+                        calculate_chunk_viewable(block_states, &self.world, &block, pos);
 
                     // Catch any directions not inside the current chunk
                     for direction in directions.iter() {

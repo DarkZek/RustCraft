@@ -8,7 +8,7 @@ use bevy::render::primitives::Aabb;
 use bevy::render::render_asset::RenderAssetUsages;
 use fnv::{FnvBuildHasher, FnvHashMap};
 use nalgebra::Vector3;
-use rc_shared::chunk::{ChunkSystemTrait, RawChunkData};
+use rc_shared::chunk::{ChunkDataStorage, ChunkSystemTrait, RawChunkData};
 use rc_shared::CHUNK_SIZE;
 use std::collections::HashMap;
 use crate::state::AppState;
@@ -67,7 +67,7 @@ impl ChunkSystem {
     pub fn create_chunk(
         &mut self,
         position: Vector3<i32>,
-        data: RawChunkData,
+        data: ChunkDataStorage,
         commands: &mut Commands,
         asset_service: &AssetService,
         meshes: &mut Assets<Mesh>,
@@ -166,10 +166,10 @@ impl ChunkSystem {
 }
 
 impl ChunkSystemTrait for ChunkSystem {
-    fn get_raw_chunk(&self, pos: &Vector3<i32>) -> Option<&RawChunkData> {
+    fn get_raw_chunk(&self, pos: &Vector3<i32>) -> Option<&ChunkDataStorage> {
         self.chunks.get(pos).map(|v| &v.world)
     }
-    fn get_raw_chunk_mut(&mut self, pos: &Vector3<i32>) -> Option<&mut RawChunkData> {
+    fn get_raw_chunk_mut(&mut self, pos: &Vector3<i32>) -> Option<&mut ChunkDataStorage> {
         self.chunks.get_mut(pos).map(|v| &mut v.world)
     }
 }

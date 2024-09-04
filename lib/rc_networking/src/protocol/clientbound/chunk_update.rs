@@ -1,7 +1,8 @@
-use rc_shared::chunk::RawChunkData;
+use rc_shared::chunk::{ChunkDataStorage, RawChunkData};
 use rc_shared::CHUNK_SIZE;
 use serde::{Deserialize, Serialize};
 use std::sync::atomic::{AtomicU64, Ordering};
+use nalgebra::Vector3;
 
 /// How many blocks are sent per partial update packet
 pub const CHUNK_UPDATE_BLOCKS_PER_PACKET: usize = 256;
@@ -10,10 +11,10 @@ pub const CHUNK_UPDATE_BLOCKS_PER_PACKET: usize = 256;
 pub const CHUNK_UPDATE_PARTIAL_CHUNKS: usize =
     (CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE) / CHUNK_UPDATE_BLOCKS_PER_PACKET;
 
-#[derive(Serialize, Deserialize, PartialEq, Debug, Copy, Clone)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 #[repr(C)]
 pub struct FullChunkUpdate {
-    pub data: RawChunkData,
+    pub data: ChunkDataStorage,
     pub x: i32,
     pub y: i32,
     pub z: i32,
@@ -35,7 +36,7 @@ pub struct PartialChunkUpdate {
 static PARTIAL_CHUNK_UPDATE_ID: AtomicU64 = AtomicU64::new(0);
 
 impl FullChunkUpdate {
-    pub fn new(data: RawChunkData, x: i32, y: i32, z: i32) -> Self {
+    pub fn new(data: ChunkDataStorage, x: i32, y: i32, z: i32) -> Self {
         FullChunkUpdate { data, x, y, z }
     }
 
@@ -64,7 +65,7 @@ impl FullChunkUpdate {
                         number += 1;
                     }
 
-                    current_update[i % PARTIAL_CHUNK_UPDATE_SIZE] = self.data[x][y][z];
+                    current_update[i % PARTIAL_CHUNK_UPDATE_SIZE] = self.data.get(Vector3::new(x, y, z));
 
                     i += 1;
                 }
@@ -111,7 +112,7 @@ impl FullChunkUpdate {
         }
 
         Some(FullChunkUpdate::new(
-            data,
+            ChunkDataStorage::Data(Box::new(data)),
             partial_chunk.x,
             partial_chunk.y,
             partial_chunk.z,

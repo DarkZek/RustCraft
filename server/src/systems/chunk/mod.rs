@@ -105,22 +105,10 @@ pub fn request_chunks(
             if world.chunks.contains_key(&chunk_pos) {
                 let chunk = world.chunks.get(&chunk_pos).unwrap();
 
-                // Convert to rawchunkdata
-                // TODO: Switch FullChunkUpdate to use this new storage method
-                let mut raw_data = [[[0; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
-
-                for x in 0..16 {
-                    for y in 0..16 {
-                        for z in 0..16 {
-                            raw_data[x][y][z] = chunk.world.get(Vector3::new(x, y, z));
-                        }
-                    }
-                }
-
                 // Send to user
                 send_packets.send(SendPacket(
                     Protocol::FullChunkUpdate(FullChunkUpdate::new(
-                        raw_data,
+                        chunk.world.clone(),
                         chunk.position.x,
                         chunk.position.y,
                         chunk.position.z,

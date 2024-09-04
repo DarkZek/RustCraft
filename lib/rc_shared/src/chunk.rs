@@ -15,8 +15,8 @@ pub type ChunkMetadata = HashMap<String, Metadata>;
 pub type LightingColor = [u8; 4];
 
 pub trait ChunkSystemTrait {
-    fn get_raw_chunk(&self, pos: &Vector3<i32>) -> Option<&RawChunkData>;
-    fn get_raw_chunk_mut(&mut self, pos: &Vector3<i32>) -> Option<&mut RawChunkData>;
+    fn get_raw_chunk(&self, pos: &Vector3<i32>) -> Option<&ChunkDataStorage>;
+    fn get_raw_chunk_mut(&mut self, pos: &Vector3<i32>) -> Option<&mut ChunkDataStorage>;
 }
 
 

@@ -76,7 +76,7 @@ pub fn destroy_block_system(
                 .unwrap()
                 .get_raw_chunk_mut(&chunk_loc)
             {
-                chunk[inner_loc.x][inner_loc.y][inner_loc.z] = new_block_id;
+                chunk.set(inner_loc, new_block_id);
             } else {
                 warn!("Attempted to destroy block in unloaded chunk {:?}", event)
             }

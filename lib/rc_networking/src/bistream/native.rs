@@ -8,7 +8,7 @@ use futures::{AsyncReadExt, AsyncWriteExt};
 use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender};
 use tokio::sync::mpsc::error::{SendError, TryRecvError};
 use tokio::task::JoinHandle;
-use crate::bistream::StreamError;
+use crate::bistream::{read_exact, StreamError};
 
 pub struct BiStream {
     out_handle: JoinHandle<SendStream>,
@@ -30,6 +30,9 @@ impl BiStream {
 
         // Spawn new runtime
         let out_handle = tokio::spawn(async move {
+
+            trace!("[Task Pool] [Writer] Started");
+
             while let Some(packet) = out_recv.recv().await {
                 let packet_data = bincode::serialize(&packet).unwrap();
                 if let Err(e) = send
@@ -111,20 +114,4 @@ impl BiStream {
     pub fn send(&self, message: Protocol) -> Result<(), SendError<Protocol>> {
         self.out_send.send(message)
     }
-}
-
-async fn read_exact(recv: &mut RecvStream, len: usize) -> Result<Vec<u8>, Error> {
-    // TODO: Remove copying here
-    let mut chunk_data = Vec::new();
-    while chunk_data.len() < len {
-        let remaining_len = len - chunk_data.len();
-
-        debug!("[Task Pool] [Reader] Remaining length {}", remaining_len);
-
-        let mut data = recv.read(remaining_len).await?.unwrap().to_vec();
-
-        chunk_data.append(&mut data);
-    }
-
-    Ok(chunk_data)
 }

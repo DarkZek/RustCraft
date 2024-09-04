@@ -3933,6 +3933,7 @@ dependencies = [
  "bincode",
  "byteorder",
  "futures",
+ "nalgebra 0.33.0",
  "quinn",
  "rc_shared",
  "rcgen",

@@ -11,6 +11,7 @@ use rc_networking::protocol::clientbound::chunk_update::{
 use rc_networking::protocol::serverbound::acknowledge_chunk::AcknowledgeChunk;
 use rc_networking::protocol::Protocol;
 use rc_networking::types::{ReceivePacket, SendPacket};
+use rc_shared::chunk::ChunkDataStorage;
 use rc_shared::helpers::global_to_local_position;
 use rc_shared::CHUNK_SIZE;
 
@@ -36,7 +37,7 @@ pub fn network_chunk_sync(
 
                 chunk_service.create_chunk(
                     location,
-                    update.data,
+                    update.data.clone(),
                     &mut commands,
                     &asset_service,
                     &mut meshes,
@@ -104,7 +105,7 @@ pub fn network_chunk_sync(
                 // Try find chunk
                 if let Some(chunk) = chunk_service.chunks.get_mut(&chunk_loc) {
                     // Found chunk! Update block
-                    chunk.world[inner_loc.x][inner_loc.y][inner_loc.z] = update.id;
+                    chunk.world.set(inner_loc, update.id);
 
                     // Rerender
                     rerender_chunks.send(RerenderChunkFlag {
@@ -121,7 +122,7 @@ pub fn network_chunk_sync(
                     // Create chunk
                     chunk_service.create_chunk(
                         chunk_loc,
-                        chunk,
+                        ChunkDataStorage::Data(Box::new(chunk)),
                         &mut commands,
                         &mut asset_service,
                         &mut meshes,

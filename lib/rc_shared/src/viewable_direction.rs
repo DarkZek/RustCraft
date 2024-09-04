@@ -1,10 +1,11 @@
 use crate::atlas::Rotate;
 use crate::block::types::Block;
 use crate::block::BlockStates;
-use crate::chunk::RawChunkData;
+use crate::chunk::{ChunkDataStorage, RawChunkData};
 use bevy::log::warn;
 use nalgebra::Vector3;
 use serde::{Deserialize, Serialize};
+use crate::CHUNK_SIZE;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct ViewableDirection(pub u8);
@@ -137,38 +138,38 @@ impl From<ViewableDirectionBitMap> for AxisAlignedDirection {
 
 pub fn calculate_chunk_viewable(
     block_states: &BlockStates,
-    world: &RawChunkData,
+    world: &ChunkDataStorage,
     block: &Block,
-    pos: [usize; 3],
+    pos: Vector3<usize>,
 ) -> ViewableDirection {
     let mut direction: u8 = 0;
 
-    if pos[1] != world[0].len() - 1
-        && should_draw_betweens(block_states, world, pos, [0, 1, 0], block)
+    if pos.y != CHUNK_SIZE - 1
+        && should_draw_betweens(block_states, world, pos, Vector3::new(0, 1, 0), block)
     {
         direction += ViewableDirectionBitMap::Top as u8;
     }
 
-    if pos[1] != 0 && should_draw_betweens(block_states, world, pos, [0, -1, 0], block) {
+    if pos.y != 0 && should_draw_betweens(block_states, world, pos, Vector3::new(0, -1, 0), block) {
         direction += ViewableDirectionBitMap::Bottom as u8;
     }
 
-    if pos[0] != world.len() - 1 && should_draw_betweens(block_states, world, pos, [1, 0, 0], block)
+    if pos.x != CHUNK_SIZE - 1 && should_draw_betweens(block_states, world, pos, Vector3::new(1, 0, 0), block)
     {
         direction += ViewableDirectionBitMap::Right as u8;
     }
 
-    if pos[0] != 0 && should_draw_betweens(block_states, world, pos, [-1, 0, 0], block) {
+    if pos.x != 0 && should_draw_betweens(block_states, world, pos, Vector3::new(-1, 0, 0), block) {
         direction += ViewableDirectionBitMap::Left as u8;
     }
 
-    if pos[2] != world[0][0].len() - 1
-        && should_draw_betweens(block_states, world, pos, [0, 0, 1], block)
+    if pos.z != CHUNK_SIZE - 1
+        && should_draw_betweens(block_states, world, pos, Vector3::new(0, 0, 1), block)
     {
         direction += ViewableDirectionBitMap::Back as u8;
     }
 
-    if pos[2] != 0 && should_draw_betweens(block_states, world, pos, [0, 0, -1], block) {
+    if pos.z != 0 && should_draw_betweens(block_states, world, pos, Vector3::new(0, 0, -1), block) {
         direction += ViewableDirectionBitMap::Front as u8;
     }
 
@@ -177,13 +178,17 @@ pub fn calculate_chunk_viewable(
 
 fn should_draw_betweens(
     block_states: &BlockStates,
-    world: &RawChunkData,
-    pos: [usize; 3],
-    offset: [isize; 3],
+    world: &ChunkDataStorage,
+    pos: Vector3<usize>,
+    offset: Vector3<isize>,
     src_block: &Block,
 ) -> bool {
-    let block_id = world[(pos[0] as isize + offset[0]) as usize]
-        [(pos[1] as isize + offset[1]) as usize][(pos[2] as isize + offset[2]) as usize];
+    let block_pos = Vector3::new(
+        (pos[0] as isize + offset[0]) as usize,
+        (pos[1] as isize + offset[1]) as usize,
+        (pos[2] as isize + offset[2]) as usize,
+    );
+    let block_id = world.get(block_pos);
 
     if block_id == 0 {
         return true;

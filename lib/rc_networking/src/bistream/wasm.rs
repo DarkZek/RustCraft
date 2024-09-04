@@ -1,6 +1,5 @@
 use crate::Protocol;
-use bevy::prelude::{debug, info, trace};
-
+use bevy::prelude::{debug, info, trace, warn};
 use web_transport::{Error, RecvStream, SendStream};
 use std::mem::size_of;
 use bevy::tasks::IoTaskPool;
@@ -8,7 +7,7 @@ use futures::{AsyncReadExt, AsyncWriteExt};
 use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender};
 use tokio::sync::mpsc::error::{SendError, TryRecvError};
 use tokio::task::JoinHandle;
-use crate::bistream::StreamError;
+use crate::bistream::{read_exact, StreamError};
 
 pub struct BiStream {
     out_send: UnboundedSender<Protocol>,
@@ -34,9 +33,6 @@ impl BiStream {
             trace!("[Task Pool] [Writer] Started");
 
             while let Some(packet) = out_recv.recv().await {
-
-                trace!("[Task Pool] [Writer] Received packet {:?}", packet);
-
                 let packet_data = bincode::serialize(&packet).unwrap();
                 if let Err(e) = send
                     .write(bincode::serialize(&(packet_data.len() as u32)).unwrap().as_slice())
@@ -67,37 +63,30 @@ impl BiStream {
             unbounded_channel();
         task_pool.spawn(async move {
 
-            trace!("[Task Pool] [Reader] Started");
+            debug!("[Task Pool] [Reader] Started");
 
             loop {
-                let len_data = match recv.read(size_of::<u32>()).await {
-                    Ok(v) => v.unwrap().to_vec(),
+                let len_data = match read_exact(&mut recv, size_of::<u32>()).await {
+                    Ok(v) => v,
                     Err(e) => {
                         err.send(StreamError::Error).unwrap();
-                        warn!("Network stream exited: {:?}", e);
+                        trace!("Network stream exited: {:?}", e);
                         return recv;
                     }
                 };
 
-                trace!("[Task Pool] [Reader] Received data");
+                debug!("[Task Pool] [Reader] Received data");
 
                 let len = bincode::deserialize::<u32>(&len_data).unwrap();
 
-                let mut chunk_data = Vec::new();
-                while chunk_data.len() < len as usize {
-                    let remaining_len = len as usize - chunk_data.len();
-                    trace!("[Task Pool] [Reader] Remaining length {}", remaining_len);
-                    let mut data = match recv.read(remaining_len).await {
-                        Ok(v) => v.unwrap().to_vec(),
-                        Err(e) => {
-                            err.send(StreamError::Error).unwrap();
-                            warn!("Network stream exited: {:?}", e);
-                            return recv;
-                        }
-                    };
-
-                    chunk_data.append(&mut data);
-                }
+                let mut chunk_data = match read_exact(&mut recv, len as usize).await {
+                    Ok(v) => v,
+                    Err(e) => {
+                        err.send(StreamError::Error).unwrap();
+                        trace!("Network stream exited: {:?}", e);
+                        return recv;
+                    }
+                };
 
                 assert_eq!(chunk_data.len(), len as usize, "Chunk data was not equal for packet with length. Read: {} Expected: {}", chunk_data.len(), len);
 

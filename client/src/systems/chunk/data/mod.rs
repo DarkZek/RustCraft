@@ -1,7 +1,7 @@
 use bevy::ecs::component::Component;
 use bevy::prelude::{Entity, Handle, Mesh};
 use nalgebra::Vector3;
-use rc_shared::chunk::{RawChunkData, RawLightingData};
+use rc_shared::chunk::{ChunkDataStorage, RawChunkData, RawLightingData};
 use rc_shared::viewable_direction::ViewableDirection;
 use rc_shared::CHUNK_SIZE;
 use crate::systems::chunk::flags::ChunkFlags;
@@ -12,7 +12,7 @@ pub mod viewable;
 pub struct ChunkData {
     pub position: Vector3<i32>,
 
-    pub world: RawChunkData,
+    pub world: ChunkDataStorage,
 
     // TODO: Investigate not storing this
     pub viewable_map: Option<[[[ViewableDirection; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE]>,
@@ -28,7 +28,7 @@ pub struct ChunkData {
 
 impl ChunkData {
     pub fn new(
-        data: RawChunkData,
+        data: ChunkDataStorage,
         position: Vector3<i32>,
         entity: Entity,
         opaque_entity: Entity,
@@ -57,7 +57,7 @@ impl ChunkData {
         position: Vector3<i32>,
     ) -> ChunkData {
         ChunkData {
-            world: data,
+            world: ChunkDataStorage::Data(Box::new(data)),
             viewable_map: None,
             position,
             light_levels: [[[[255, 255, 255, 255]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE],

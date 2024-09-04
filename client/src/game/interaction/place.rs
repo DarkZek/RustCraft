@@ -88,13 +88,13 @@ pub fn mouse_interaction_place(
         return
     };
 
-    if chunk.world[inner_loc.x][inner_loc.y][inner_loc.z] != 0 {
+    if chunk.world.get(inner_loc) != 0 {
         // Trying to place a block on another block
         return
     }
 
     // Found chunk! Update block
-    chunk.world[inner_loc.x][inner_loc.y][inner_loc.z] = block_type;
+    chunk.world.set(inner_loc, block_type);
 
     // Rerender
     rerender_chunk_event.send(RerenderChunkFlag {
