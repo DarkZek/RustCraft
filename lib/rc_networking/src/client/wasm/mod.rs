@@ -1,3 +1,4 @@
+use std::future::Future;
 use std::mem::uninitialized;
 use std::net::SocketAddr;
 use bevy::app::Update;
@@ -8,8 +9,11 @@ use byteorder::{BigEndian, WriteBytesExt};
 use tokio::runtime::Builder;
 use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender};
 use url::Url;
+use web_transport::Error;
 use web_transport::wasm::{RecvStream, Session};
+use rc_shared::constants::UserId;
 use crate::bistream::BiStream;
+use crate::client::handshake::{HandshakeResult, negotiate_handshake};
 use crate::client::wasm::server_connection::ServerConnection;
 use crate::client::wasm::systems::{detect_shutdown_system, send_packets_system, update_system, write_packets_system};
 use crate::events::connection::NetworkConnectionEvent;
@@ -20,15 +24,14 @@ use crate::types::{ReceivePacket, SendPacket};
 mod systems;
 mod server_connection;
 
-pub struct QuinnClientPlugin;
+pub struct ClientPlugin;
 
-impl Plugin for QuinnClientPlugin {
+impl Plugin for ClientPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<ReceivePacket>()
             .add_event::<SendPacket>()
             .add_event::<NetworkConnectionEvent>()
             .add_event::<NetworkDisconnectionEvent>()
-            .insert_non_send_resource(NetworkingClient::new())
             .add_systems(
                 Update,
                 (
@@ -41,15 +44,18 @@ impl Plugin for QuinnClientPlugin {
     }
 }
 
+unsafe impl Send for NetworkingData {}
+unsafe impl Sync for NetworkingData {}
+
 #[derive(Resource)]
-pub struct NetworkingClient {
+pub struct NetworkingData {
     connection: Option<ServerConnection>,
     pending_connections_recv: Option<UnboundedReceiver<Option<ServerConnection>>>
 }
 
-impl NetworkingClient {
-    pub fn new() -> NetworkingClient {
-        NetworkingClient {
+impl NetworkingData {
+    pub fn new() -> NetworkingData {
+        NetworkingData {
             connection: None,
             pending_connections_recv: None,
         }
@@ -71,51 +77,24 @@ impl NetworkingClient {
 
         wasm_bindgen_futures::spawn_local(async move {
 
-            let mut session = match session.await {
+            let session = match session.await {
                 Ok(v) => v,
                 Err(e) => panic!("Server connection failed {:?}", e)
             };
 
-            let mut unreliable = session.accept_bi().await.unwrap();
-            let mut reliable = session.accept_bi().await.unwrap();
-            let mut chunk = session.accept_bi().await.unwrap();
+            let mut session = web_transport::Session::from(session);
 
-            debug!("Accepted bi streams");
+            let handshake_result = match negotiate_handshake(&mut session, UserId(user_id)).await {
+                Ok(v) => v,
+                Err(e) => panic!("Server connection failed {:?}", e)
+            };
 
-            // Channel must send data to be created, so verify data sent and remove from reader
-            async fn verify_stream(stream: &mut RecvStream, expected: &str) {
-                let bytes = stream.read(5).await.unwrap().unwrap();
-                let contents = String::from_utf8(bytes.to_vec()).unwrap();
-                if contents != expected {
-                    panic!(
-                        "Invalid client attempted connection. Contents: {} [{:?}] Expected: {} [{:?}]",
-                        contents,
-                        contents.as_bytes(),
-                        expected,
-                        expected.as_bytes(),
-                    );
-                }
-            }
-
-            verify_stream(&mut unreliable.1, "Test1").await;
-            verify_stream(&mut reliable.1, "Test2").await;
-            verify_stream(&mut chunk.1, "Test3").await;
-
-            debug!("Verified streams");
-
-            let mut data = vec![];
-            data.write_u64::<BigEndian>(user_id).unwrap();
-            reliable.0.write(&data).await.unwrap();
-
-            debug!("Sent UserId");
-
-            let (send_err, err_recv) = unbounded_channel();
-
-            let unreliable = BiStream::from_stream(unreliable.0, unreliable.1, send_err.clone());
-            let reliable = BiStream::from_stream(reliable.0, reliable.1, send_err.clone());
-            let chunk = BiStream::from_stream(chunk.0, chunk.1, send_err);
-
-            debug!("Created bi streams");
+            let HandshakeResult {
+                unreliable,
+                reliable,
+                chunk,
+                err_recv
+            } = handshake_result;
 
             pending_connections_send.send(
                 Some(

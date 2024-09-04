@@ -1,7 +1,7 @@
 use crate::Protocol;
 use bevy::prelude::{debug, info, trace};
 
-use web_transport::wasm::{Error, RecvStream, SendStream};
+use web_transport::{Error, RecvStream, SendStream};
 use std::mem::size_of;
 use bevy::tasks::IoTaskPool;
 use futures::{AsyncReadExt, AsyncWriteExt};
@@ -31,11 +31,11 @@ impl BiStream {
         // Spawn new runtime
         task_pool.spawn(async move {
 
-            debug!("[Task Pool] [Writer] Started");
+            trace!("[Task Pool] [Writer] Started");
 
             while let Some(packet) = out_recv.recv().await {
 
-                debug!("[Task Pool] [Writer] Received packet {:?}", packet);
+                trace!("[Task Pool] [Writer] Received packet {:?}", packet);
 
                 let packet_data = bincode::serialize(&packet).unwrap();
                 if let Err(e) = send
@@ -67,31 +67,31 @@ impl BiStream {
             unbounded_channel();
         task_pool.spawn(async move {
 
-            debug!("[Task Pool] [Reader] Started");
+            trace!("[Task Pool] [Reader] Started");
 
             loop {
                 let len_data = match recv.read(size_of::<u32>()).await {
                     Ok(v) => v.unwrap().to_vec(),
                     Err(e) => {
                         err.send(StreamError::Error).unwrap();
-                        trace!("Network stream exited: {:?}", e);
+                        warn!("Network stream exited: {:?}", e);
                         return recv;
                     }
                 };
 
-                debug!("[Task Pool] [Reader] Received data");
+                trace!("[Task Pool] [Reader] Received data");
 
                 let len = bincode::deserialize::<u32>(&len_data).unwrap();
 
                 let mut chunk_data = Vec::new();
                 while chunk_data.len() < len as usize {
                     let remaining_len = len as usize - chunk_data.len();
-                    debug!("[Task Pool] [Reader] Remaining length {}", remaining_len);
+                    trace!("[Task Pool] [Reader] Remaining length {}", remaining_len);
                     let mut data = match recv.read(remaining_len).await {
                         Ok(v) => v.unwrap().to_vec(),
                         Err(e) => {
                             err.send(StreamError::Error).unwrap();
-                            trace!("Network stream exited: {:?}", e);
+                            warn!("Network stream exited: {:?}", e);
                             return recv;
                         }
                     };

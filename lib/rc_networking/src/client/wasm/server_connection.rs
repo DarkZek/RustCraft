@@ -1,5 +1,5 @@
 use tokio::sync::mpsc::UnboundedReceiver;
-use web_transport::wasm::Session;
+use web_transport::Session;
 use crate::bistream::{BiStream, StreamError};
 
 pub struct ServerConnection {

@@ -24,15 +24,14 @@ use crate::protocol::ALPN;
 mod server_connection;
 mod systems;
 
-pub struct QuinnClientPlugin;
+pub struct ClientPlugin;
 
-impl Plugin for QuinnClientPlugin {
+impl Plugin for ClientPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<ReceivePacket>()
             .add_event::<SendPacket>()
             .add_event::<NetworkConnectionEvent>()
             .add_event::<NetworkDisconnectionEvent>()
-            .insert_resource(NetworkingClient::new())
             .add_systems(
                 Update,
                 (
@@ -46,7 +45,7 @@ impl Plugin for QuinnClientPlugin {
 }
 
 #[derive(Resource)]
-pub struct NetworkingClient {
+pub struct NetworkingData {
     endpoint: Option<Endpoint>,
     client_config: ClientConfig,
     runtime: Option<Runtime>,
@@ -54,8 +53,8 @@ pub struct NetworkingClient {
     pending_connection: Option<JoinHandle<ServerConnection>>,
 }
 
-impl NetworkingClient {
-    pub fn new() -> NetworkingClient {
+impl NetworkingData {
+    pub fn new() -> NetworkingData {
 
         let certificates = rustls_native_certs::load_native_certs().expect("could not load platform certs");
 
@@ -78,7 +77,7 @@ impl NetworkingClient {
 
         let runtime = Runtime::new().unwrap();
 
-        NetworkingClient {
+        NetworkingData {
             endpoint: None,
             client_config,
             runtime: Some(runtime),
