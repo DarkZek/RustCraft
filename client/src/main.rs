@@ -47,7 +47,7 @@ fn main() {
             DefaultPlugins
                 .set(LogPlugin {
                     filter: "wgpu=error,naga=error,bevy_app=info".into(),
-                    level: Level::DEBUG,
+                    level: Level::INFO,
                     ..default()
                 })
                 .set(RenderPlugin {

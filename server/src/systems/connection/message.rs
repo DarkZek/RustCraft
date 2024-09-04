@@ -87,9 +87,9 @@ pub fn receive_message_event(
 
                 // Store
                 let old_block_id = if let Some(chunk) = global.chunks.get_mut(&chunk_loc) {
-                    let block_id = chunk.world[inner_loc.x][inner_loc.y][inner_loc.z];
+                    let block_id = chunk.world.get(inner_loc);
                     // Found chunk! Update block
-                    chunk.world[inner_loc.x][inner_loc.y][inner_loc.z] = packet.id;
+                    chunk.world.set(inner_loc, packet.id);
                     block_id
                 } else {
                     warn!("{:?} attempted to break block in unloaded chunk. Skipping {:?}", event.1, chunk_loc);

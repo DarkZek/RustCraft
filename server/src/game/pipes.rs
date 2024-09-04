@@ -16,12 +16,12 @@ pub fn generate_links(
         let chunk = chunks.chunks.get_mut(&chunk_pos).unwrap();
 
         // The index at which the pipes states start
-        let pipes_index_start = 10_i32; // TODO: Fetch this dynamically
-        let pipes_states_len = 2_i32.pow(6);
+        let pipes_index_start = 10_u32; // TODO: Fetch this dynamically
+        let pipes_states_len = 2_u32.pow(6);
 
         // If it was a pipe
-        if (chunk.world[local_pos.x][local_pos.y][local_pos.z] as i32) < pipes_index_start
-            || chunk.world[local_pos.x][local_pos.y][local_pos.z] as i32
+        if chunk.world.get(local_pos) < pipes_index_start
+            || chunk.world.get(local_pos)
                 >= pipes_index_start + pipes_states_len
         {
             continue;
@@ -34,11 +34,11 @@ pub fn generate_links(
         for x in 0..CHUNK_SIZE {
             for y in 0..CHUNK_SIZE {
                 for z in 0..CHUNK_SIZE {
-                    if chunk.world[x][y][z] as i32 >= pipes_index_start
-                        && (chunk.world[x][y][z] as i32) < pipes_index_start + pipes_states_len
+                    if chunk.world.get(Vector3::new(x, y, z)) >= pipes_index_start
+                        && (chunk.world.get(Vector3::new(x, y, z))) < pipes_index_start + pipes_states_len
                     {
                         pipe_data[x][y][z] = ViewableDirection(
-                            (chunk.world[x][y][z] as i32 - pipes_index_start) as u8,
+                            (chunk.world.get(Vector3::new(x, y, z)) - pipes_index_start) as u8,
                         );
                     }
                 }

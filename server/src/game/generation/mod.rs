@@ -45,11 +45,15 @@ impl ChunkData {
         
         trace!("Took {}ms to build chunk", started.elapsed().as_millis());
 
-        ChunkData {
+        let mut data = ChunkData::new(
             position,
-            world: chunk_data,
-            block_metadata: Default::default(),
-            metadata: Default::default(),
-        }
+            chunk_data,
+            Default::default(),
+            Default::default()
+        );
+
+        data.optimise_data();
+
+        data
     }
 }
