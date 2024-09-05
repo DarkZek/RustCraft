@@ -46,7 +46,7 @@ fn main() {
         let _ = SHUTDOWN_BIT.store(true, Ordering::SeqCst);
     });
 
-    info!("Rustcraft Server starting up");
+    info!("Rustcraft Server starting");
 
     // Build App
     App::default()

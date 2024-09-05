@@ -22,7 +22,7 @@ use crate::systems::asset::AssetPlugin;
 use crate::systems::camera::CameraPlugin;
 use crate::systems::chunk::ChunkPlugin;
 use crate::systems::input::InputPlugin;
-use crate::systems::networking::ClientNetworkingPlugin;
+use crate::systems::networking::NetworkingPlugin;
 use crate::systems::physics::PhysicsPlugin;
 use crate::systems::ui::UIPlugin;
 use bevy::core_pipeline::experimental::taa::TemporalAntiAliasPlugin;
@@ -46,7 +46,7 @@ fn main() {
         .add_plugins(
             DefaultPlugins
                 .set(LogPlugin {
-                    filter: "wgpu=error,rustcraft=debug,naga=error,bevy_app=info".into(),
+                    filter: "wgpu=error,naga=error,bevy_app=info".into(),
                     level: Level::INFO,
                     ..default()
                 })
@@ -74,7 +74,7 @@ fn main() {
         .init_state::<AppState>()
 
         // Networking
-        .add_plugins(ClientNetworkingPlugin)
+        .add_plugins(NetworkingPlugin)
 
         // Interaction
         .add_plugins(InteractionPlugin)

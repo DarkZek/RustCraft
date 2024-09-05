@@ -6,7 +6,7 @@ use crate::systems::networking::location_sync::{
 use crate::systems::networking::messages::messages_update;
 use bevy::log::info;
 use bevy::prelude::*;
-use rc_networking::client::{NetworkingClient, QuinnClientPlugin};
+use rc_networking::client::{NetworkingClient, NetworkingClientPlugin};
 use rc_shared::constants::{GameObjectId, UserId};
 use std::collections::HashMap;
 use std::net::SocketAddr;
@@ -15,11 +15,11 @@ mod chunk;
 mod location_sync;
 mod messages;
 
-pub struct ClientNetworkingPlugin;
+pub struct NetworkingPlugin;
 
-impl Plugin for ClientNetworkingPlugin {
+impl Plugin for NetworkingPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins(QuinnClientPlugin)
+        app.add_plugins(NetworkingClientPlugin)
             // Once the game is in the Main Menu connect to server as we have no main screen yet
             .add_systems(OnEnter(AppState::Connecting), connect_to_server)
             .add_systems(Update, messages_update)
@@ -36,11 +36,11 @@ pub fn connect_to_server(
     mut client: ResMut<NetworkingClient>,
     networking_system: Res<NetworkingSystem>
 ) {
-    let server_addr: SocketAddr = ([127, 0, 0, 1], 25568).into();
-
-    client.connect(server_addr, networking_system.user_id.0);
+    let server_addr = "https://test.marshalldoes.dev:25568".parse().unwrap();
 
     info!("Connecting to server on {}", server_addr);
+
+    client.connect(server_addr, networking_system.user_id.0);
 }
 
 #[derive(Resource)]

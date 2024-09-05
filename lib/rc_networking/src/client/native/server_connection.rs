@@ -1,9 +1,9 @@
-use crate::bistream::{BiStream, StreamError};
-use quinn::Connection;
 use tokio::sync::mpsc::UnboundedReceiver;
+use web_transport::Session;
+use crate::bistream::{BiStream, StreamError};
 
 pub struct ServerConnection {
-    pub connection: Connection,
+    pub connection: Session,
     pub unreliable: BiStream,
     pub reliable: BiStream,
     pub chunk: BiStream,

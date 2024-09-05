@@ -1,10 +1,10 @@
 use crate::bistream::{BiStream, StreamError};
-use quinn::Connection;
 use tokio::sync::mpsc::UnboundedReceiver;
+use web_transport::Session;
 
 /// Stores a users connection details
 pub struct UserConnection {
-    pub connection: Connection,
+    pub connection: Session,
     pub unreliable: BiStream,
     pub reliable: BiStream,
     pub chunk: BiStream,

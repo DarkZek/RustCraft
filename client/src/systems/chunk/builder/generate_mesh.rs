@@ -31,16 +31,19 @@ impl ChunkData {
         let mut translucent = DrawKit::new().with_wind_strength();
 
         // Create the buffers to add the mesh data into
-        let chunk = self.world;
+        let chunk = &self.world;
 
         for x in 0..CHUNK_SIZE {
             for z in 0..CHUNK_SIZE {
                 for y in 0..CHUNK_SIZE {
                     let viewable = viewable[x][y][z].0;
+                    let pos = Vector3::new(x, y, z);
+
+                    let block_id = chunk.get(pos);
 
                     // Isn't air and is visible from at least one side
-                    if chunk[x][y][z] != 0 && viewable != 0 {
-                        let block = block_states.get_block(chunk[x][y][z] as usize);
+                    if block_id != 0 && viewable != 0 {
+                        let block = block_states.get_block(block_id as usize);
 
                         let mut light_color = [self.light_levels[x][y][z]; 6];
 

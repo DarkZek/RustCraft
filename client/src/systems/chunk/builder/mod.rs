@@ -20,6 +20,7 @@ use std::sync::atomic::Ordering;
 use bevy::tasks::{AsyncComputeTaskPool, Task};
 use bevy::tasks::futures_lite::future;
 use bevy::tasks::block_on;
+use rc_shared::chunk::ChunkDataStorage;
 use crate::systems::camera::MainCamera;
 use crate::systems::chunk::builder::build_context::ChunkBuildContext;
 use crate::systems::chunk::builder::lighting::{LightingUpdateData};
@@ -64,7 +65,7 @@ pub fn setup_mesh_builder_context(mut commands: Commands, block_states: Res<Bloc
         chunks: Default::default(),
         processing_chunk_handles: vec![],
         scheduler: ChunkBuilderScheduler::new(ChunkBuilderExecutor::new(block_states.clone())),
-    })
+    });
 }
 
 impl MeshBuilderContext {
@@ -112,6 +113,11 @@ impl MeshBuilderContext {
                 if chunk.flags.has_flag(ChunkFlagsBitMap::AtEdge) {
                     // At edge of loaded world. We can't know its visible direction yet, so don't build it
                     continue
+                }
+
+                if chunk.world == ChunkDataStorage::Empty {
+                    // The chunk has no blocks, so there's nothing to draw
+                    continue;
                 }
 
                 // And if this chunk isn't already scheduled for rebuild

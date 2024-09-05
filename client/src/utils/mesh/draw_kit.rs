@@ -19,11 +19,11 @@ impl DrawKit {
     pub fn new() -> DrawKit {
         // TODO: Create with estimate on capacity
         DrawKit {
-            positions: vec![],
-            indices: vec![],
-            normals: vec![],
-            uv_coordinates: vec![],
-            lighting: vec![],
+            positions: Vec::with_capacity(1000),
+            indices: Vec::with_capacity(1000),
+            normals: Vec::with_capacity(1000),
+            uv_coordinates: Vec::with_capacity(1000),
+            lighting: Vec::with_capacity(1000),
             wind_strength: None,
         }
     }

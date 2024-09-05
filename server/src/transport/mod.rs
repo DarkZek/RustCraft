@@ -6,7 +6,7 @@ use bevy::app::{App, Plugin};
 use rc_shared::constants::UserId;
 use std::collections::{HashMap, HashSet};
 
-use std::net::{IpAddr, SocketAddr};
+use std::net::{IpAddr, Ipv6Addr, SocketAddr};
 use std::str::FromStr;
 
 use crate::ServerConfig;
@@ -40,7 +40,7 @@ impl Plugin for TransportPlugin {
         let bind_addr = {
             let settings = app.world().get_resource::<ServerConfig>().unwrap();
 
-            SocketAddr::new(IpAddr::from_str(&settings.ip).unwrap(), settings.port)
+            SocketAddr::new(IpAddr::V6(Ipv6Addr::UNSPECIFIED), settings.port)
         };
 
         let current_time = SystemTime::now()

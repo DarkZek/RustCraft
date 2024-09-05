@@ -79,7 +79,7 @@ pub fn do_raycast(
 
         // Check if block is solid
         if let Some(chunk_data) = last_chunk {
-            let block_id = chunk_data.world[local_pos.x][local_pos.y][local_pos.z];
+            let block_id = chunk_data.world.get(local_pos);
             if block_id != 0 {
                 let collided_block = blocks.get_block(block_id as usize);
 

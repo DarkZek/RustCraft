@@ -15,9 +15,7 @@ noise = "0.8.2"
 rayon = "1.5.1"
 rc_networking = { path = "../lib/rc_networking" }
 rand = "0.8.5"
-
-[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-rustls = "0.21.6"
+rustls = "0.23.12"
 ctrlc = { version = "3.2.3" }
 
 [dependencies.bevy]

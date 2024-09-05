@@ -134,7 +134,7 @@ impl Aabb {
 
                     if let Some(chunk_data) = chunks.get_raw_chunk(&chunk_pos) {
                         // Fetch block id
-                        let block_id = chunk_data[block_pos.x][block_pos.y][block_pos.z];
+                        let block_id = chunk_data.get(block_pos);
 
                         // Fetch block information
                         let block_data = blocks.get_block(block_id as usize);

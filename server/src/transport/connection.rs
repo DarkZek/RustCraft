@@ -3,6 +3,7 @@ use crate::systems::connection::GameUser;
 use crate::TransportSystem;
 use bevy::ecs::event::{EventReader, EventWriter};
 use bevy::ecs::system::ResMut;
+use bevy::prelude::warn;
 use rc_shared::constants::GameObjectId;
 use rc_networking::events::connection::NetworkConnectionEvent;
 use rc_networking::types::ReceivePacket;
@@ -23,6 +24,12 @@ pub fn accept_connections(
             game_object_id: None,
             loading: true,
         };
+
+        if system.clients.contains_key(&connection_event.client) {
+            warn!("Already connected user attempted to connect again. Ignoring user");
+            // TODO: Disconnect user
+            return
+        }
 
         system.clients.insert(connection_event.client, user);
 

@@ -101,7 +101,7 @@ pub fn mouse_interaction_destroy(
             = to_bevy_vec3(ray.block.cast::<f32>()) + Vec3::new(0.5, 0.5, 0.5);
     }
 
-    let block_id = chunk.world[inner_loc.x][inner_loc.y][inner_loc.z];
+    let block_id = chunk.world.get(inner_loc);
 
     if locals.left_clicking_started.unwrap().elapsed().as_millis() > 800 {
         destroy_block_event.send(DestroyBlockEvent {

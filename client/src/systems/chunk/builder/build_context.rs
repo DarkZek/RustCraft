@@ -41,7 +41,7 @@ impl ChunkBuildContext {
             };
 
             let block = states.get_block(
-                chunk.world[entry.block_position.x][entry.block_position.y][entry.block_position.z] as usize
+                chunk.world.get(entry.block_position) as usize
             );
 
             *entry.data = block.translucent;

@@ -74,14 +74,14 @@ impl WorldData {
 
         self.chunks
             .get(&chunk_pos)
-            .map(|v| v.world[local_pos.x][local_pos.y][local_pos.z])
+            .map(|v| v.world.get(local_pos))
     }
 
     pub fn set_block_id(&mut self, pos: Vector3<i32>, block_id: u32) -> Option<()> {
         let (chunk_pos, local_pos) = global_to_local_position(pos);
 
         if let Some(chunk) = self.chunks.get_mut(&chunk_pos) {
-            chunk.world[local_pos.x][local_pos.y][local_pos.z] = block_id;
+            chunk.world.set(local_pos, block_id);
             Some(())
         } else {
             None

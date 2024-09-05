@@ -6,7 +6,6 @@ use std::io::{BufReader, BufWriter};
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Resource)]
 pub struct ServerConfig {
-    pub ip: String,
     pub port: u16,
     pub save_world: bool,
 }
@@ -14,7 +13,6 @@ pub struct ServerConfig {
 impl Default for ServerConfig {
     fn default() -> Self {
         ServerConfig {
-            ip: "127.0.0.1".to_string(),
             port: 25568,
             save_world: true,
         }

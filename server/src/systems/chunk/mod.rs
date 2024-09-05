@@ -108,7 +108,7 @@ pub fn request_chunks(
                 // Send to user
                 send_packets.send(SendPacket(
                     Protocol::FullChunkUpdate(FullChunkUpdate::new(
-                        chunk.world,
+                        chunk.world.clone(),
                         chunk.position.x,
                         chunk.position.y,
                         chunk.position.z,

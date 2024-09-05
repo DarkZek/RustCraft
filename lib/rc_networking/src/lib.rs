@@ -1,4 +1,5 @@
 #![allow(dead_code)]
+#![feature(trivial_bounds)]
 
 pub mod client;
 pub mod events;
@@ -7,11 +8,11 @@ pub mod types;
 
 #[cfg(not(target_arch = "wasm32"))]
 pub mod server;
-#[cfg(not(target_arch = "wasm32"))]
 pub mod bistream;
 
 use protocol::Protocol;
-use std::net::SocketAddr;
+
+// TODO: Remove panics and handle all errors properly
 
 #[derive(Copy, Clone, Debug)]
 pub enum Channel {
