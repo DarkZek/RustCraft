@@ -111,18 +111,17 @@ pub async fn open_new_conn(endpoint: Endpoint) -> Option<UserConnection> {
 
     let mut connection: Session = match alpn.borrow() {
         "h3" => {
-            debug!("Accepted connection");
             // HTTP3
             let request = web_transport_quinn::accept(connection)
                 .await
                 .unwrap();
 
-            debug!("add312312d connection");
+            debug!("Accepted HTTP3 handshake");
+
             let session: web_transport_quinn::Session = request
                 .ok()
                 .await
                 .unwrap();
-            debug!("addd connection");
 
             Session::from(session)
         }

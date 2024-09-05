@@ -12,6 +12,8 @@ pub mod bistream;
 
 use protocol::Protocol;
 
+// TODO: Remove panics and handle all errors properly
+
 #[derive(Copy, Clone, Debug)]
 pub enum Channel {
     Reliable,
