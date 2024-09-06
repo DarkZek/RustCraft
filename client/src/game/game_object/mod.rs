@@ -5,6 +5,7 @@ use super::entity::GameObject;
 
 pub mod spawn;
 pub mod mesh;
+mod player;
 
 pub struct GameObjectPlugin;
 
@@ -21,4 +22,8 @@ fn item_spin(mut query: Query<(&mut Transform, &GameObject)>, time: Res<Time>) {
             transform.rotate_local_y(time.delta_seconds() * 1.0);
         }
     }
+}
+
+pub trait Rotatable {
+    fn rotate(&mut self, yaw: f32, pitch: f32, transforms: &mut Query<&mut Transform>);
 }

@@ -9,7 +9,7 @@ use crate::server::user_connection::UserConnection;
 use crate::types::{ReceivePacket, SendPacket};
 use crate::*;
 use bevy::prelude::*;
-use quinn::{Endpoint, ServerConfig};
+use quinn::{Endpoint, IdleTimeout, ServerConfig};
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufReader, Cursor};
@@ -107,6 +107,7 @@ impl From<&NetworkingServerConfig> for NetworkingServer {
         let transport_config = Arc::get_mut(&mut config.transport).unwrap();
         // transport_config.max_concurrent_uni_streams(0_u8.into());
         transport_config.keep_alive_interval(Some(Duration::from_secs(1)));
+        transport_config.max_idle_timeout(Some(IdleTimeout::try_from(Duration::from_millis(2000)).unwrap()));
 
         // Runtime to run Quinn in
         let runtime = Runtime::new().unwrap();

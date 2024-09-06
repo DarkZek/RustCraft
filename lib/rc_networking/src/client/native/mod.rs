@@ -160,4 +160,8 @@ impl NetworkingData {
 
         self.endpoint = Some(endpoint);
     }
+
+    pub fn disconnect(&mut self) {
+        self.connection.take();
+    }
 }

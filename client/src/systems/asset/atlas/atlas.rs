@@ -10,8 +10,8 @@ use std::collections::HashMap;
 
 use std::sync::{OnceLock, RwLock, RwLockReadGuard};
 
-pub const ATLAS_WIDTH: u32 = 4096 / 6;
-pub const ATLAS_HEIGHT: u32 = 4096 / 6;
+pub const ATLAS_WIDTH: u32 = 4096 / 4;
+pub const ATLAS_HEIGHT: u32 = 4096 / 4;
 
 pub static TEXTURE_ATLAS: AtlasWrapper = AtlasWrapper::new();
 

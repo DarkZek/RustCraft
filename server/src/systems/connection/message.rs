@@ -22,6 +22,7 @@ use rc_shared::item::types::ItemStack;
 use rc_shared::item::ItemStates;
 use rc_shared::viewable_direction::BLOCK_SIDES;
 use bevy::log::warn;
+use bevy::prelude::trace;
 use crate::game::entity::{DirtyPosition, DirtyRotation};
 
 pub fn receive_message_event(
@@ -78,7 +79,6 @@ pub fn receive_message_event(
                     if *client == event.1 {
                         continue;
                     }
-                    info!("Block update packet sent to {:?}", client);
                     event_writer.send(SendPacket(Protocol::BlockUpdate(packet), *client));
                 }
 
@@ -111,7 +111,7 @@ pub fn receive_message_event(
                     let drops = calculate_drops(&block_states, &item_states, old_block_id);
 
                     for drop in drops {
-                        info!("Spawning item drop with item {:?}", drop);
+                        trace!("Spawning item drop with item {:?}", drop);
                         ew.send(SpawnGameObjectRequest {
                             transform: Transform::from_translation(Vector3::new(
                                 packet.x as f32 + 0.5,

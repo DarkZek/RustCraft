@@ -50,6 +50,10 @@ impl NetworkingClient {
     pub fn connect(&mut self, url: Url, user_id: u64) {
         self.data.connect(url, user_id);
     }
+
+    pub fn disconnect(&mut self) {
+        self.disconnect();
+    }
 }
 
 pub enum ConnectionStatus {

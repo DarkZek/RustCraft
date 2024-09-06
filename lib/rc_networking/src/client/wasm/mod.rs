@@ -111,4 +111,8 @@ impl NetworkingData {
             debug!("Sent successful connection");
         });
     }
+
+    pub fn disconnect(&mut self) {
+        self.connection.take();
+    }
 }

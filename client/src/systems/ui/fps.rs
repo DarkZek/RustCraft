@@ -2,6 +2,7 @@
 use bevy::prelude::*;
 use web_time::{Duration};
 use web_time::Instant;
+use crate::game::player::Player;
 
 #[derive(Resource, Debug)]
 pub struct FpsUIData {
@@ -54,13 +55,22 @@ pub fn setup_fps_ui(
         .id();
 }
 
-pub fn update_fps_ui(mut query: Query<&mut Text>, mut data: ResMut<FpsUIData>) {
+pub fn update_fps_ui(
+    mut query: Query<&mut Text>,
+    mut data: ResMut<FpsUIData>,
+    player_pos: Query<&Transform, With<Player>>
+) {
     data.frames += 1;
 
     if data.last_update.elapsed() < Duration::from_secs(1) {
         // No update
         return;
     }
+
+    let translation = player_pos
+        .get_single()
+        .map(|v| v.translation)
+        .unwrap_or(Vec3::new(0.0, 0.0, 0.0));
 
     query
         .get_mut(*data.entity.as_ref().unwrap())
@@ -69,8 +79,11 @@ pub fn update_fps_ui(mut query: Query<&mut Text>, mut data: ResMut<FpsUIData>) {
         .get_mut(0)
         .unwrap()
         .value = format!(
-        "FPS: {:.00}",
-        data.frames as f32 / data.last_update.elapsed().as_secs_f32()
+        "FPS: {:.00} X: {:.0} Y: {:.0} Z: {:.0}",
+        data.frames as f32 / data.last_update.elapsed().as_secs_f32(),
+        translation.x,
+        translation.y,
+        translation.z
     );
 
     data.last_update = Instant::now();

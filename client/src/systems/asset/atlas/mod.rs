@@ -74,7 +74,7 @@ pub fn build_texture_atlas(
             base: StandardMaterial {
                 base_color: Color::from(WHITE),
                 base_color_texture: Some(TEXTURE_ATLAS.get().get_image().clone()),
-                alpha_mode: AlphaMode::Blend,
+                alpha_mode: AlphaMode::Mask(0.5),
                 perceptual_roughness: 0.0,
                 reflectance: 0.0,
                 ..default()

@@ -66,7 +66,7 @@ fn main() {
         .add_plugins(TemporalAntiAliasPlugin)
 
         .insert_resource(AmbientLight {
-            brightness: 175.0,
+            brightness: 450.0,
             color: Color::srgb(0.95, 0.95, 1.0)
         })
 

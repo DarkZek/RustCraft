@@ -40,5 +40,6 @@ pub enum Protocol {
     UpdateLoading(UpdateLoading),
     AcknowledgeChunk(AcknowledgeChunk),
     UpdateInventorySlot(UpdateInventorySlot),
-    UpdateInventory(UpdateInventory)
+    UpdateInventory(UpdateInventory),
+    Disconnect(String)
 }

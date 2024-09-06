@@ -1,4 +1,4 @@
-use bevy::prelude::{EventWriter, Or, Query, Res, With};
+use bevy::prelude::{Commands, Entity, EventWriter, Or, Query, Res, With};
 use nalgebra::Vector3;
 use rc_networking::protocol::clientbound::entity_moved::EntityMoved;
 use rc_networking::protocol::clientbound::entity_rotated::EntityRotated;
@@ -13,11 +13,13 @@ use crate::systems::chunk::ChunkSystem;
 
 pub fn sync_entities(
     transform_query: Query<(&Transform, &PlayerGameObjectData, &GameObject)>,
-    entities_query: Query<(&Transform, &GameObject, Option<&DirtyPosition>, Option<&DirtyRotation>), Or<(With<DirtyPosition>, With<DirtyRotation>)>>,
+    entities_query: Query<(Entity, &Transform, &GameObject, Option<&DirtyPosition>, Option<&DirtyRotation>), Or<(With<DirtyPosition>, With<DirtyRotation>)>>,
     chunk_system: Res<ChunkSystem>,
-    mut ew: EventWriter<SendPacket>
+    mut ew: EventWriter<SendPacket>,
+    mut commands: Commands
 ) {
     for (
+        entity,
         transform,
         game_object,
         position,
@@ -60,6 +62,7 @@ pub fn sync_entities(
                     ),
                     player_data.user_id
                 ));
+                commands.entity(entity).remove::<DirtyPosition>();
             }
             if rotation.is_some() {
                 ew.send(SendPacket(
@@ -74,8 +77,8 @@ pub fn sync_entities(
                     ),
                     player_data.user_id
                 ));
+                commands.entity(entity).remove::<DirtyRotation>();
             }
         }
-
     }
 }

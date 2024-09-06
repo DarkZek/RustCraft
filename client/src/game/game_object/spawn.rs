@@ -4,6 +4,7 @@ use crate::systems::networking::NetworkingSystem;
 use crate::systems::physics::PhysicsObject;
 use bevy::prelude::*;
 use bevy::math::prelude::Cuboid;
+use bevy::utils::info;
 use nalgebra::Vector3;
 use rc_shared::game_objects::GameObjectData;
 use rc_shared::item::ItemStates;
@@ -13,12 +14,15 @@ use rc_networking::types::ReceivePacket;
 use rc_shared::aabb::Aabb;
 use rc_shared::block::BlockStates;
 use crate::game::game_object::mesh::generate_item_mesh;
+use crate::game::game_object::player::{get_player_model, PlayerGameObject};
+use crate::game::game_object::Rotatable;
 use crate::game::player::Player;
 use crate::systems::asset::AssetService;
 use crate::systems::chunk::builder::{ATTRIBUTE_LIGHTING_COLOR, ATTRIBUTE_WIND_STRENGTH};
 
 pub fn messages_update(
     mut event_reader: EventReader<ReceivePacket>,
+    mut entities: Query<(Entity, Option<&mut PlayerGameObject>)>,
     mut transforms: Query<&mut Transform>,
     mut physics_objects: Query<&mut PhysicsObject>,
     mut commands: Commands,
@@ -44,12 +48,19 @@ pub fn messages_update(
                 }
             }
             Protocol::EntityRotated(update) => {
-                if let Some(Ok(mut transform)) = system
+                if let Some(Ok((entity, mut game_object_variants))) = system
                     .entity_mapping
                     .get(&update.entity)
-                    .map(|v| transforms.get_mut(*v))
+                    .map(|v| entities.get_mut(*v))
                 {
-                    transform.rotation = Quat::from_xyzw(update.x, update.y, update.z, update.w);
+                    let quat = Quat::from_xyzw(update.x, update.y, update.z, update.w);
+                    let (x, y, z) = quat.to_euler(EulerRot::YXZ);
+
+                    if let Some(mut player) = game_object_variants {
+                        player.rotate(x, y, &mut transforms);
+                    } else {
+                        transforms.get_mut(entity).unwrap().rotation = quat;
+                    }
                 } else {
                     error!("Rotate event received before game_object created");
                 }
@@ -95,22 +106,17 @@ pub fn messages_update(
                             entity_commands.insert(Player::new());
                             gravity = true;
                         } else {
-                            let mut mesh = Mesh::from(Cuboid::new(1.0, 1.0, 1.0));
-
-                            let len = mesh.attribute(Mesh::ATTRIBUTE_POSITION).unwrap().len();
-
-                            mesh.insert_attribute(ATTRIBUTE_WIND_STRENGTH, vec![0.0f32; len] as Vec<f32>);
-                            mesh.insert_attribute(ATTRIBUTE_LIGHTING_COLOR, vec![[1.0_f32; 4]; len] as Vec<[f32; 4]>);
-
-                            entity_commands.insert(MaterialMeshBundle {
-                                mesh: meshes.add(mesh),
-                                material: asset_service.translucent_texture_atlas_material.clone(),
-                                ..default()
-                            });
+                            let entity = entity_commands.id();
+                            get_player_model(
+                                &mut entity_commands,
+                                &mut meshes,
+                                asset_service.translucent_texture_atlas_material.clone(),
+                                entity
+                            );
                         }
 
                         Aabb::new(
-                            Vector3::new(-0.35, -1.7, -0.35),
+                            Vector3::new(-0.35, 0.0, -0.35),
                             Vector3::new(0.7, 1.85, 0.7),
                         )
                     }

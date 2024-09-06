@@ -88,6 +88,6 @@ fn camera_player_sync(
         let mut camera_query = query.p0();
         let mut camera = camera_query.single_mut();
 
-        camera.translation = player_position;
+        camera.translation = player_position + Vec3::new(0.0, 1.70, 0.0);
     }
 }

@@ -3,7 +3,7 @@ use std::io::Cursor;
 use std::mem;
 use bevy::prelude::error;
 use crate::bistream::BiStream;
-use rc_shared::constants::UserId;
+use rc_shared::constants::{GameObjectId, UserId};
 use crate::events::connection::NetworkConnectionEvent;
 use crate::events::disconnect::NetworkDisconnectionEvent;
 use crate::server::user_connection::UserConnection;
@@ -16,9 +16,13 @@ use byteorder::{BigEndian, ReadBytesExt};
 use futures::FutureExt;
 use quinn::{Connection, ConnectionError, Endpoint, Incoming};
 use std::borrow::Borrow;
+use nalgebra::Quaternion;
 use tokio::sync::mpsc::error::TryRecvError;
 use tokio::sync::mpsc::unbounded_channel;
 use web_transport::Session;
+use rc_shared::game_objects::{GameObjectData, PlayerGameObjectData};
+use crate::protocol::clientbound::spawn_game_object::SpawnGameObject;
+use crate::protocol::Protocol;
 
 /// Enables new connection attempts
 pub fn update_system(
@@ -32,13 +36,20 @@ pub fn update_system(
         if let Some(new_connection) = server.new_conn_task.as_mut().unwrap().now_or_never() {
             // If the connection succeeded
             if let Ok(Some(new_conn)) = new_connection {
+
                 // Send announcement
                 let client = UserId(new_conn.user_id);
 
-                server.connections.insert(client, new_conn);
+                if server.connections.contains_key(&client) {
+                    warn!("Already connected user attempted to connect again. Terminating connection");
+                    new_conn.reliable.send(Protocol::Disconnect(String::from("User already connected."))).unwrap();
+                    mem::drop(new_conn);
+                } else {
+                    server.connections.insert(client, new_conn);
 
-                connection_event.send(NetworkConnectionEvent { client });
-                info!("Send connection event {:?}", server.connections.len());
+                    connection_event.send(NetworkConnectionEvent { client });
+                    info!("Send connection event {:?}", server.connections.len());
+                }
             }
 
             // Start new connection task

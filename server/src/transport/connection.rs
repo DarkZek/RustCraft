@@ -25,12 +25,6 @@ pub fn accept_connections(
             loading: true,
         };
 
-        if system.clients.contains_key(&connection_event.client) {
-            warn!("Already connected user attempted to connect again. Ignoring user");
-            // TODO: Disconnect user
-            return
-        }
-
         system.clients.insert(connection_event.client, user);
 
         // Immediately authorize

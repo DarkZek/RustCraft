@@ -1,8 +1,9 @@
 use bevy::{ecs::{event::EventWriter, system::{Commands, Query}}};
-use rc_networking::{protocol::{clientbound::{despawn_game_object::DespawnGameObject}, Protocol}, types::SendPacket};
+use rc_networking::{types::SendPacket};
 use rc_shared::game_objects::{GameObjectData, ItemDropGameObjectData, PlayerGameObjectData};
 use crate::game::{game_object::GameObject, inventory::Inventory, transform::Transform};
 use bevy::ecs::entity::Entity;
+use crate::systems::game_object::despawn::DespawnGameObject;
 
 const ITEM_COLLECTION_RADIUS: f32 = 2.0;
 
@@ -11,7 +12,7 @@ pub fn collect_items(
     mut items_query: Query<(Entity, &GameObject, &mut ItemDropGameObjectData, &Transform)>,
     mut inventory_query: Query<&mut Inventory>,
     mut command: Commands,
-    mut send_packet: EventWriter<SendPacket>
+    mut send_packet: EventWriter<SendPacket>,
 ) {
     for (entity, game_object, mut item_drop, transform) in items_query.iter_mut() {
 
@@ -32,9 +33,10 @@ pub fn collect_items(
 
                 // Prevent it from being collected twice
                 item_drop.item_stack.amount = 0;
-                command.get_entity(entity).unwrap().despawn();
 
-                send_packet.send(SendPacket(Protocol::DespawnGameObject(DespawnGameObject::new(game_object.id)), player_data.user_id));
+                command.entity(entity).insert(DespawnGameObject);
+
+                break;
             }
         }
     }

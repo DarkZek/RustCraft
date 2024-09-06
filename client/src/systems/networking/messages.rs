@@ -1,7 +1,7 @@
 
 use crate::game::inventory::Inventory;
 use bevy::prelude::*;
-
+use rc_networking::client::NetworkingClient;
 use rc_shared::item::types::ItemStack;
 use rc_shared::item::ItemStates;
 
@@ -13,7 +13,7 @@ pub fn messages_update(
     mut event_reader: EventReader<ReceivePacket>,
     mut app_state: ResMut<NextState<AppState>>,
     mut inventory: ResMut<Inventory>,
-    item_state: Res<ItemStates>
+    item_state: Res<ItemStates>,
 ) {
     for event in event_reader.read() {
         match &event.0 {
@@ -23,6 +23,10 @@ pub fn messages_update(
                 } else {
                     app_state.set(AppState::InGame);
                 }
+            }
+            Protocol::Disconnect(message) => {
+                warn!("Disconnected from server. Message: {}", message);
+                app_state.set(AppState::MainMenu);
             }
             Protocol::UpdateInventorySlot(slot) => {
                 if slot.id == "" {

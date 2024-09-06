@@ -39,6 +39,7 @@ fn get_channel(protocol: &Protocol) -> Channel {
         | Protocol::EntityRotated(_) => Channel::Unreliable,
 
         Protocol::BlockUpdate(_)
+        | Protocol::Disconnect(_)
         | Protocol::ChatSent(_)
         | Protocol::DespawnGameObject(_)
         | Protocol::SpawnGameObject(_)

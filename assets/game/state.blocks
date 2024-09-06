@@ -47719,7 +47719,7 @@
                  1.0
                ],
                "texture": "game/water",
-               "edge": true,
+               "edge": false,
                "direction": 1
              },
              {
