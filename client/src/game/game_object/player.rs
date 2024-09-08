@@ -1,9 +1,10 @@
 use bevy::asset::AssetContainer;
 use bevy::ecs::system::EntityCommands;
 use bevy::math::{EulerRot, Quat};
-use bevy::prelude::{Assets, BuildChildren, Component, default, Entity, GlobalTransform, Handle, InheritedVisibility, MaterialMeshBundle, Mesh, Query, Transform, Vec3, ViewVisibility, Visibility};
+use bevy::prelude::{Assets, BuildChildren, Color, Component, default, Entity, GlobalTransform, Handle, InheritedVisibility, MaterialMeshBundle, Mesh, Query, Text, TextSection, TextStyle, Transform, Vec3, ViewVisibility, Visibility};
 use bevy::render::mesh::PrimitiveTopology;
 use bevy::render::render_asset::RenderAssetUsages;
+use bevy_mod_billboard::BillboardTextBundle;
 use nalgebra::Vector3;
 use rc_shared::atlas::{TextureAtlasIndex};
 use rc_shared::block::face::Face;
@@ -96,6 +97,24 @@ pub fn get_player_model(
         let mut entity_commands = child_builder.spawn(());
         player_arm_right(&mut entity_commands, meshes, handle.clone());
         right_arm_entity = Some(entity_commands.id());
+    });
+
+    entity_commands.with_children(|child_builder| {
+        let entity = child_builder.spawn(BillboardTextBundle {
+            transform: Transform::from_translation(Vec3::new(0., 2.1, 0.))
+                .with_scale(Vec3::splat(0.0085)),
+            text: Text::from_sections([
+                TextSection {
+                    value: "DarkZek".to_string(),
+                    style: TextStyle {
+                        font_size: 40.0,
+                        font: Default::default(),
+                        color: Color::WHITE,
+                    }
+                }
+            ]),
+            ..default()
+        });
     });
 
     entity_commands.insert(PlayerGameObject {

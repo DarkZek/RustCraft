@@ -4,7 +4,9 @@ pub mod game;
 pub mod state;
 pub mod systems;
 pub mod utils;
+mod authentication;
 
+use bevy_mod_billboard::prelude::BillboardPlugin;
 use crate::game::events::GameEventsPlugin;
 use crate::game::game_object::GameObjectPlugin;
 use crate::game::interaction::highlight::{
@@ -33,6 +35,7 @@ use bevy::render::RenderPlugin;
 use rc_shared::block::BlockStatesPlugin;
 use rc_shared::item::{ItemStates, ItemStatesPlugin};
 use bevy::pbr::ExtendedMaterial;
+use crate::authentication::GameAuthentication;
 use crate::game::interaction::InteractionPlugin;
 use crate::systems::asset::material::chunk_extension::ChunkMaterialExtension;
 use crate::systems::asset::material::translucent_chunk_extension::TranslucentChunkMaterialExtension;
@@ -42,7 +45,10 @@ use crate::systems::asset::material::translucent_chunk_extension::TranslucentChu
 #[rustfmt::skip]
 fn main() {
 
+    let authentication = GameAuthentication::get();
+
     App::new()
+        .insert_resource(authentication)
         .add_plugins(
             DefaultPlugins
                 .set(LogPlugin {
@@ -63,6 +69,7 @@ fn main() {
                 })
                 .set(ImagePlugin::default_nearest()))
 
+        .add_plugins(BillboardPlugin)
         .add_plugins(TemporalAntiAliasPlugin)
 
         .insert_resource(AmbientLight {

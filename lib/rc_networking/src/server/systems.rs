@@ -59,13 +59,15 @@ pub fn update_system(
     }
 
     server.connections.retain(|userid, conn| {
+        let recv = conn.recv_err.try_recv();
+
         // Detect errors and disconnect from server
-        return if let Err(TryRecvError::Empty) = conn.recv_err.try_recv() {
+        return if let Err(TryRecvError::Empty) = &recv {
             // No events!
             true
         } else {
             // Either the writer was disconnected, or an error was given. Either way it's disconnected
-            warn!("Unexpected disconnect from user {:?}", userid);
+            warn!("Unexpected disconnect from user {:?}. {:?}", userid, recv);
             disconnection_event.send(NetworkDisconnectionEvent { client: *userid });
             false
         };

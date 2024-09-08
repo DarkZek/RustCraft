@@ -11,6 +11,7 @@ pub use native::BiStream;
 #[cfg(target_arch = "wasm32")]
 pub use wasm::BiStream;
 
+#[derive(Debug, Clone, Copy)]
 pub enum StreamError {
     Error,
 }

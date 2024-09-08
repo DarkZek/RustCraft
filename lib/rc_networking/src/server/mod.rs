@@ -106,8 +106,8 @@ impl From<&NetworkingServerConfig> for NetworkingServer {
 
         let transport_config = Arc::get_mut(&mut config.transport).unwrap();
         // transport_config.max_concurrent_uni_streams(0_u8.into());
-        transport_config.keep_alive_interval(Some(Duration::from_secs(1)));
-        transport_config.max_idle_timeout(Some(IdleTimeout::try_from(Duration::from_millis(2000)).unwrap()));
+        transport_config.keep_alive_interval(Some(Duration::from_millis(250)));
+        // transport_config.max_idle_timeout(Some(IdleTimeout::try_from(Duration::from_millis(2000)).unwrap()));
 
         // Runtime to run Quinn in
         let runtime = Runtime::new().unwrap();
