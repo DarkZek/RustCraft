@@ -10,10 +10,11 @@ use rc_shared::constants::UserId;
 use tokio::sync::mpsc::error::TryRecvError;
 use crate::client::native::NetworkingData;
 use crate::client::NetworkingClient;
+use crate::events::disconnect::NetworkDisconnectionEvent;
 
 pub fn update_system(
     mut client: ResMut<NetworkingClient>,
-    mut packets: EventReader<ReceivePacket>,
+    mut packets: EventReader<ReceivePacket>
 ) {
     // Facilitate pending connection conversion
     if client.data.pending_connection.is_some() {

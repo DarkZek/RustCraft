@@ -6,9 +6,9 @@ use bevy::app::App;
 use bevy::color::Color;
 use bevy::input::{ButtonInput, ButtonState};
 use bevy::input::keyboard::{Key, KeyboardInput};
+use bevy::log::Level;
 use bevy::prelude::{BackgroundColor, BuildChildren, Commands, default, Entity, Event, EventReader, FlexDirection, info, JustifyContent, KeyCode, Node, NodeBundle, Plugin, PositionType, Query, Res, ResMut, Resource, Startup, Style, Text, TextBundle, TextStyle, UiRect, Update, Val, Visibility};
 use bevy::ui::AlignItems;
-use bevy::utils::tracing::log::Level;
 use web_time::Instant;
 use rc_networking::protocol::Protocol;
 use rc_networking::types::ReceivePacket;
@@ -182,9 +182,9 @@ fn listen_for_messages(
     }
 
     for message in reader.read() {
-        if message.1 == Level::Error {
+        if message.1 == Level::ERROR {
             data.log_error(&message.0);
-        } else if message.1 == Level::Warn {
+        } else if message.1 == Level::WARN {
             data.log_warn(&message.0);
         } else {
             data.log(&message.0);

@@ -111,7 +111,8 @@ pub fn messages_update(
                                 &mut entity_commands,
                                 &mut meshes,
                                 asset_service.translucent_texture_atlas_material.clone(),
-                                entity
+                                entity,
+                                player_data.username.clone()
                             );
                         }
 

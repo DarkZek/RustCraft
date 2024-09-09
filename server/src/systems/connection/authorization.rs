@@ -57,11 +57,12 @@ pub fn authorization_event(
         let game_object_id = GameObjectId(GAME_OBJECT_ID_COUNTER.fetch_add(1, Ordering::SeqCst));
 
         // Store player game_object
-        transport
+        let game_user = transport
             .clients
             .get_mut(&client.user_id)
-            .unwrap()
-            .game_object_id = Some(game_object_id);
+            .unwrap();
+
+        game_user.game_object_id = Some(game_object_id);
 
         let entity = commands.spawn(inventory).id();
 
@@ -71,6 +72,7 @@ pub fn authorization_event(
             entity: Some(entity),
             data: GameObjectData::Player(PlayerGameObjectData {
                 user_id: client.user_id,
+                username: game_user.name.clone(),
             })
         });
 

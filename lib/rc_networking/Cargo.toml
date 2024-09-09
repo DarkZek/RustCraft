@@ -16,6 +16,7 @@ web-transport = { version = "0.6.0" }
 url = "2.5.2"
 nalgebra = { workspace = true }
 jsonwebtoken = { workspace = true }
+anyhow = "1.0.87"
 
 [dependencies.bevy]
 workspace = true

@@ -1,7 +1,6 @@
-
+use bevy::log::Level;
 use crate::game::inventory::Inventory;
 use bevy::prelude::*;
-use bevy::utils::tracing::log::Level;
 use crate::systems::ui::console::ConsoleLog;
 use rc_networking::client::NetworkingClient;
 use rc_shared::item::types::ItemStack;
@@ -29,7 +28,7 @@ pub fn messages_update(
             }
             Protocol::Disconnect(message) => {
                 warn!("Disconnected from server. Message: {}", message);
-                console_log.send(ConsoleLog(format!("Disconnected from server. Message: {}", message), Level::Warn));
+                console_log.send(ConsoleLog(format!("Disconnected from server. Message: {}", message), Level::WARN));
                 app_state.set(AppState::MainMenu);
             }
             Protocol::UpdateInventorySlot(slot) => {

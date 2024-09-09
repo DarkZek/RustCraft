@@ -37,7 +37,7 @@ pub async fn open_session(
         "session",
         &claims.username,
         claims.sub,
-        Duration::from_secs_f32(60.0)
+        Duration::from_days(1)
     );
 
     let response = OpenSessionResponse {

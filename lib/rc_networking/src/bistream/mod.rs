@@ -4,8 +4,10 @@ mod native;
 #[cfg(target_arch = "wasm32")]
 mod wasm;
 
+use std::fmt::{Display, Formatter};
 use bevy::log::debug;
-use bevy::prelude::info;
+use bevy::prelude::{info, warn};
+use thiserror::Error;
 use web_transport::{Error, RecvStream, SendStream};
 #[cfg(not(target_arch = "wasm32"))]
 pub use native::BiStream;
@@ -13,13 +15,21 @@ pub use native::BiStream;
 pub use wasm::BiStream;
 use crate::protocol::Protocol;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Error)]
 pub enum StreamError {
     Error,
+    StreamClosed,
+    MalformedPacket
+}
+
+impl Display for StreamError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", self)
+    }
 }
 
 /// Reads an exact amount of bytes from a RecvStream
-async fn read_exact(recv: &mut RecvStream, len: usize) -> Result<Vec<u8>, Error> {
+async fn read_exact(recv: &mut RecvStream, len: usize) -> Result<Vec<u8>, anyhow::Error> {
     // TODO: Remove copying here
     let mut chunk_data = Vec::new();
     while chunk_data.len() < len {
@@ -27,31 +37,42 @@ async fn read_exact(recv: &mut RecvStream, len: usize) -> Result<Vec<u8>, Error>
 
         debug!("[Task Pool] [Reader] Remaining length {}", remaining_len);
 
-        let mut data = recv.read(remaining_len).await?.unwrap().to_vec();
+        let Ok(Some(mut data)) = recv.read(remaining_len).await else {
+            return Err(StreamError::StreamClosed.into());
+        };
 
-        chunk_data.append(&mut data);
+        chunk_data.append(&mut data.to_vec());
     }
 
     Ok(chunk_data)
 }
 
 /// Writes a `Protocol` to some RecvStream
-pub async fn send_protocol(packet: &Protocol, send: &mut SendStream) -> Result<(), web_transport::Error> {
+pub async fn send_protocol(packet: &Protocol, send: &mut SendStream) -> Result<(), anyhow::Error> {
     let packet_data = bincode::serialize(&packet).unwrap();
 
     debug!("[Task Pool] [Writer] Sending packet length {}", packet_data.len());
 
-    send.write(bincode::serialize(&(packet_data.len() as u32)).unwrap().as_slice()).await?;
-    send.write(&*packet_data).await?;
+    if let Err(e) = send.write(bincode::serialize(&(packet_data.len() as u32)).unwrap().as_slice()).await {
+        warn!("Failed writing to stream: {:?}", e);
+        return Err(StreamError::Error.into());
+    }
+    if let Err(e) = send.write(&*packet_data).await {
+        warn!("Failed writing to stream: {:?}", e);
+        return Err(StreamError::Error.into());
+    }
 
     Ok(())
 }
 
 /// Reads a `Protocol` from some RecvStream
-pub async fn recv_protocol(recv: &mut RecvStream) -> Result<Protocol, web_transport::Error> {
+pub async fn recv_protocol(recv: &mut RecvStream) -> Result<Protocol, anyhow::Error> {
     let len_data = read_exact(recv, size_of::<u32>()).await?;
 
-    let len = bincode::deserialize::<u32>(&len_data).unwrap();
+    let len = match bincode::deserialize::<u32>(&len_data) {
+        Ok(v) => v,
+        Err(_) => return Err(StreamError::MalformedPacket.into())
+    };
 
     debug!("[Task Pool] [Reader] Received data length {}", len);
 
@@ -59,7 +80,10 @@ pub async fn recv_protocol(recv: &mut RecvStream) -> Result<Protocol, web_transp
 
     assert_eq!(chunk_data.len(), len as usize, "Chunk data was not equal for packet with length. Read: {} Expected: {}", chunk_data.len(), len);
 
-    let data = bincode::deserialize::<Protocol>(&chunk_data).unwrap();
+    let data = match bincode::deserialize::<Protocol>(&chunk_data) {
+        Ok(v) => v,
+        Err(_) => return Err(StreamError::MalformedPacket.into())
+    };
 
     Ok(data)
 }

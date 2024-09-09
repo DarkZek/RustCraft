@@ -24,7 +24,9 @@ fn error(message: &str) {
 #[derive(Resource)]
 pub struct GameAuthentication {
     pub account_id: u64,
-    pub username: String
+    pub username: String,
+    pub refresh_token: String,
+    pub session_token: String,
 }
 
 impl GameAuthentication {
@@ -58,6 +60,8 @@ impl GameAuthentication {
         GameAuthentication {
             username: token_data.claims.get("username").unwrap().as_str().unwrap().to_string(),
             account_id: token_data.claims.get("sub").unwrap().as_u64().unwrap(),
+            refresh_token: token,
+            session_token: String::new()
         }
     }
 }

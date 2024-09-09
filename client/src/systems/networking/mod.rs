@@ -11,7 +11,7 @@ use rc_shared::constants::{GameObjectId, UserId};
 use std::collections::HashMap;
 use std::net::SocketAddr;
 use crate::authentication::GameAuthentication;
-use crate::systems::networking::connect::{accept_server_connection_intent, connect_to_server, ConnectToServerIntent};
+use crate::systems::networking::connect::{accept_server_connection_intent, connect_to_server, ConnectToServerIntent, PendingServerConnection};
 
 mod chunk;
 mod location_sync;
@@ -24,6 +24,7 @@ impl Plugin for NetworkingPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(NetworkingClientPlugin)
             .add_event::<ConnectToServerIntent>()
+            .insert_resource(PendingServerConnection::new())
             // Once the game is in the Main Menu connect to server as we have no main screen yet
             .add_systems(Update, (accept_server_connection_intent, connect_to_server))
             .add_systems(Update, messages_update)

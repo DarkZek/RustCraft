@@ -1,7 +1,55 @@
 use crate::state::AppState;
 use bevy::prelude::*;
+use tokio::sync::mpsc::error::TryRecvError;
+use tokio::sync::mpsc::UnboundedReceiver;
+use crate::systems::api::ApiSystem;
+use crate::authentication::GameAuthentication;
+use crate::systems::api::ApiError;
+use crate::systems::api::open_session::OpenSessionResponse;
 
-pub fn set_loading(mut app_state: ResMut<NextState<AppState>>) {
+#[derive(Default)]
+pub struct LoadingLocal {
+    session: Option<UnboundedReceiver<Result<OpenSessionResponse, ApiError>>>
+}
+
+pub fn set_loading(
+    mut app_state: ResMut<NextState<AppState>>,
+    mut local: Local<LoadingLocal>,
+    api: ResMut<ApiSystem>,
+    mut game_authentication: ResMut<GameAuthentication>
+) {
+    if local.session.is_none() {
+        // Fetch session
+        let token = api.open_session(game_authentication.refresh_token.clone());
+        local.session = Some(token);
+        return;
+    }
+
+    let Some(session) = &mut local.session else {
+        return;
+    };
+
+    let data = match session.try_recv() {
+        Ok(v) => v,
+        Err(TryRecvError::Empty) => return,
+        Err(TryRecvError::Disconnected) => {
+            warn!("Failed opening session. No response");
+            std::process::exit(1);
+        }
+    };
+
+    let data = match data {
+        Ok(v) => v,
+        Err(e) => {
+            warn!("Api failed opening session. {:?}", e);
+            std::process::exit(1);
+        }
+    };
+
+    info!("Successfully fetched session token");
+
+    game_authentication.session_token = data.session_token;
+
     app_state.set(AppState::Loading);
 }
 

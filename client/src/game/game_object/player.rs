@@ -51,7 +51,8 @@ pub fn get_player_model(
     entity_commands: &mut EntityCommands,
     meshes: &mut Assets<Mesh>,
     handle: Handle<TranslucentChunkMaterial>,
-    parent_entity: Entity
+    parent_entity: Entity,
+    username: String
 ) {
 
     entity_commands.insert((
@@ -105,7 +106,7 @@ pub fn get_player_model(
                 .with_scale(Vec3::splat(0.0085)),
             text: Text::from_sections([
                 TextSection {
-                    value: "DarkZek".to_string(),
+                    value: username,
                     style: TextStyle {
                         font_size: 40.0,
                         font: Default::default(),

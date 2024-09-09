@@ -38,6 +38,7 @@ use bevy::pbr::ExtendedMaterial;
 use crate::authentication::GameAuthentication;
 use crate::game::disconnect::on_disconnect;
 use crate::game::interaction::InteractionPlugin;
+use crate::systems::api::ApiPlugin;
 use crate::systems::asset::material::chunk_extension::ChunkMaterialExtension;
 use crate::systems::asset::material::translucent_chunk_extension::TranslucentChunkMaterialExtension;
 
@@ -91,6 +92,7 @@ fn main() {
         .add_systems(Update, mouse_highlight_interaction)
         .add_systems(OnEnter(AppState::MainMenu), on_disconnect)
 
+        .add_plugins(ApiPlugin)
         .add_plugins(GameEventsPlugin)
         .add_plugins(ChunkPlugin)
         .add_plugins(InputPlugin)

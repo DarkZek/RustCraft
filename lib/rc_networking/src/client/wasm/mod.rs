@@ -61,7 +61,7 @@ impl NetworkingData {
         }
     }
 
-    pub fn connect(&mut self, url: Url, user_id: u64) {
+    pub fn connect(&mut self, url: Url, join_token: String) {
 
         if self.pending_connections_recv.is_some() {
             warn!("Tried to connect while connection occurring");
@@ -84,7 +84,7 @@ impl NetworkingData {
 
             let mut session = web_transport::Session::from(session);
 
-            let handshake_result = match negotiate_handshake(&mut session, UserId(user_id)).await {
+            let handshake_result = match negotiate_handshake(&mut session, join_token).await {
                 Ok(v) => v,
                 Err(e) => panic!("Server connection failed {:?}", e)
             };
