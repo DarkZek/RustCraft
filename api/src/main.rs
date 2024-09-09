@@ -10,6 +10,9 @@ use crate::open_session::open_session;
 use tower_http::trace::TraceLayer;
 use tracing::Level;
 use tracing_subscriber::filter::Targets;
+use http::header::{CONTENT_TYPE};
+use http::Method;
+use tower_http::cors::{Any, CorsLayer};
 
 mod login;
 mod join_server;
@@ -31,13 +34,19 @@ async fn main() {
         .with(targets)
         .init();
 
+    let cors = CorsLayer::new()
+        .allow_methods([Method::GET, Method::POST])
+        .allow_origin(Any)
+        .allow_headers([CONTENT_TYPE]);
+
     let app = Router::new()
         .route("/login", post(login))
         .route("/session", post(open_session))
         .route("/join", post(join_server))
         .layer(
             TraceLayer::new_for_http()
-        );
+        )
+        .layer(cors);
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     axum::serve(listener, app).await.unwrap();

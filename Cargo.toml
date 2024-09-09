@@ -1,10 +1,13 @@
 [workspace]
 resolver = "2"
 
-members = [ "api",
+members = [
     "client",
     "server",
     "tools/block_states"
+]
+exclude = [
+    "api"
 ]
 
 [workspace.dependencies]

@@ -1,9 +1,25 @@
 use std::collections::HashSet;
 use bevy::prelude::Resource;
 use jsonwebtoken::{Algorithm, DecodingKey, Validation};
+#[cfg(target_arch = "wasm32")]
+use web_sys::wasm_bindgen::prelude::wasm_bindgen;
 
 // TODO: Fetch from api
 static PUBLIC_KEY: &[u8] = include_bytes!("../../jwt.public.pem");
+
+#[cfg(target_arch = "wasm32")]
+#[wasm_bindgen]
+extern "C" {
+    // Use `js_namespace` here to bind `console.log(..)` instead of just
+    // `log(..)`
+    #[wasm_bindgen(js_namespace = console)]
+    fn error(s: &str);
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+fn error(message: &str) {
+    println!("{}", message)
+}
 
 #[derive(Resource)]
 pub struct GameAuthentication {
@@ -14,13 +30,13 @@ pub struct GameAuthentication {
 impl GameAuthentication {
     pub fn get() -> GameAuthentication {
         let Some(token) = get_token() else {
-            println!("No token provided.");
+            error("No token provided.");
             std::process::exit(1);
         };
 
         let mut validation = Validation::new(Algorithm::RS512);
         let mut set = HashSet::new();
-        set.insert(String::from("session"));
+        set.insert(String::from("refresh"));
         validation.aud = Some(set);
 
         let key = DecodingKey::from_rsa_pem(PUBLIC_KEY).unwrap();
@@ -33,7 +49,7 @@ impl GameAuthentication {
 
         let token_data = match result {
             Err(e) => {
-                println!("Failed to validate token. {:?}", e);
+                error(&format!("Failed to validate token. {:?}", e));
                 std::process::exit(1);
             }
             Ok(v) => v
@@ -50,9 +66,7 @@ impl GameAuthentication {
 fn get_token() -> Option<String> {
     let local_storage = web_sys::window().unwrap().local_storage().unwrap().unwrap();
 
-    let value = local_storage.get_item("token").unwrap();
-
-    value
+    local_storage.get_item("token").unwrap()
 }
 
 #[cfg(not(target_arch = "wasm32"))]

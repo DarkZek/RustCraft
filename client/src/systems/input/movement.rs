@@ -8,6 +8,7 @@ use nalgebra::Vector3;
 use rc_shared::block::BlockStates;
 use crate::systems::camera::freecam::Freecam;
 use crate::systems::camera::MainCamera;
+use crate::systems::ui::console::ConsoleData;
 
 const MOVEMENT_SPEED_POSITION: f32 = 2.4;
 const MOVEMENT_SPEED_VELOCITY: f32 = 15.0;
@@ -20,9 +21,10 @@ pub fn update_input_movement(
     time: Res<Time>,
     chunks: Res<ChunkSystem>,
     block_states: Res<BlockStates>,
-    freecam: Res<Freecam>
+    freecam: Res<Freecam>,
+    console_data: Res<ConsoleData>
 ) {
-    if !service.captured || freecam.enabled {
+    if !service.captured || freecam.enabled || console_data.capturing {
         return;
     }
 

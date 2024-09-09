@@ -9,6 +9,7 @@ use crate::systems::input::movement::update_input_movement;
 use bevy::prelude::*;
 use bevy::window::{CursorGrabMode, PresentMode, PrimaryWindow};
 use crate::systems::input::sprint::detect_sprinting;
+use crate::systems::ui::console::ConsoleData;
 
 pub struct InputPlugin;
 
@@ -37,6 +38,7 @@ fn grab_mouse(
     mouse: Res<ButtonInput<MouseButton>>,
     key: Res<ButtonInput<KeyCode>>,
     mut service: ResMut<InputSystem>,
+    console_data: Res<ConsoleData>
 ) {
     let Ok(mut window) = primary_query.get_single_mut() else {
         return;
@@ -50,7 +52,7 @@ fn grab_mouse(
         window.cursor.grab_mode = CursorGrabMode::Confined;
         service.captured = true;
     }
-    if key.just_pressed(KeyCode::Escape) {
+    if key.just_pressed(KeyCode::Escape) && !console_data.capturing {
         window.cursor.visible = true;
         window.cursor.grab_mode = CursorGrabMode::None;
         service.captured = false;

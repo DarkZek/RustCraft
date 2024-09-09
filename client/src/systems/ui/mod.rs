@@ -6,6 +6,7 @@ pub mod main_menu;
 pub mod debugging;
 pub mod equipped_item;
 mod main_menu_chunks;
+pub mod console;
 
 use crate::state::AppState;
 use crate::systems::ui::connecting::ConnectingData;
@@ -18,6 +19,7 @@ use crate::systems::ui::loading::{
 };
 use crate::systems::ui::main_menu::{button_system, destroy_main_menu, setup_main_menu};
 use bevy::prelude::*;
+use crate::systems::ui::console::ConsolePlugin;
 use crate::systems::ui::equipped_item::{setup_equipped_item, update_equipped_item_mesh};
 use crate::systems::ui::main_menu_chunks::{handle_loaded_main_menu_world, load_main_menu_world, MainMenuWorldState, remove_main_menu_world};
 
@@ -25,6 +27,8 @@ pub struct UIPlugin;
 
 impl Plugin for UIPlugin {
     fn build(&self, app: &mut App) {
+        app.add_plugins(ConsolePlugin);
+
         app.add_systems(OnEnter(AppState::InGame), setup_ui)
             // Main menu
             .add_systems(OnEnter(AppState::MainMenu), setup_main_menu)
