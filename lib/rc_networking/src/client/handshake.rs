@@ -3,7 +3,8 @@ use byteorder::{BigEndian, WriteBytesExt};
 use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver};
 use web_transport::{Error, RecvStream, Session};
 use rc_shared::constants::UserId;
-use crate::bistream::{BiStream, StreamError};
+use crate::bistream::{BiStream, recv_protocol, send_protocol, StreamError};
+use crate::protocol::Protocol;
 
 pub struct HandshakeResult {
     pub unreliable: BiStream,
@@ -13,7 +14,7 @@ pub struct HandshakeResult {
 }
 
 /// Negotiates a set of streams, and user id with the server
-pub async fn negotiate_handshake(session: &mut Session, user_id: UserId) -> Result<HandshakeResult, Error> {
+pub async fn negotiate_handshake(session: &mut Session, join_token: String) -> Result<HandshakeResult, Error> {
 
     let mut unreliable = session.accept_bi().await.unwrap();
     let mut reliable = session.accept_bi().await.unwrap();
@@ -45,16 +46,16 @@ pub async fn negotiate_handshake(session: &mut Session, user_id: UserId) -> Resu
 
     debug!("Verified streams");
 
-    let mut data = vec![];
-    data.write_u64::<BigEndian>(user_id.0).unwrap();
-    reliable.0.write(&data).await?;
+    send_protocol(&Protocol::Authorization(join_token), &mut reliable.0).await.unwrap();
+    let response = recv_protocol(&mut reliable.1).await.unwrap();
+    assert_eq!(response, Protocol::AuthorizationAccepted);
 
-    debug!("Sent UserId");
+    debug!("Provided authentication");
 
     let (send_err, err_recv) = unbounded_channel();
 
     let unreliable = BiStream::from_stream(unreliable.0, unreliable.1, send_err.clone());
-    let reliable = BiStream::from_stream(reliable.0, reliable.1, send_err.clone());
+    let mut reliable = BiStream::from_stream(reliable.0, reliable.1, send_err.clone());
     let chunk = BiStream::from_stream(chunk.0, chunk.1, send_err);
 
     debug!("Created bi streams");

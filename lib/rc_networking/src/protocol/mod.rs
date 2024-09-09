@@ -14,6 +14,7 @@ use crate::protocol::serverbound::request_chunk::RequestChunk;
 use self::clientbound::update_inventory::UpdateInventory;
 use self::clientbound::update_inventory_slot::UpdateInventorySlot;
 use serde::{Deserialize, Serialize};
+use crate::protocol::serverbound::player_chat::PlayerChat;
 
 pub mod clientbound;
 pub mod serverbound;
@@ -24,6 +25,8 @@ pub const ALPN: &[u8] = b"h3";
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 #[repr(C)]
 pub enum Protocol {
+    Authorization(String),
+    AuthorizationAccepted,
     PlayerMove(PlayerMove),
     EntityMoved(EntityMoved),
     PlayerRotate(PlayerRotate),
@@ -32,6 +35,7 @@ pub enum Protocol {
     BlockUpdate(BlockUpdate),
     ChatSent(ChatSent),
     ServerState(ServerState),
+    PlayerChat(PlayerChat),
     // Unused as networking solution does not support such large packets being sent so fast
     FullChunkUpdate(FullChunkUpdate),
     PartialChunkUpdate(PartialChunkUpdate),

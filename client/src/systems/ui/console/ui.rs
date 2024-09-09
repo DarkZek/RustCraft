@@ -136,6 +136,7 @@ pub fn setup_console_ui(
         text_history: text_history.unwrap(),
         text_history_children_texts: text_history_children_texts.unwrap(),
         text_history_children_items: text_history_children_items.unwrap(),
+        commands_executed: vec![],
     };
 
     commands.insert_resource(resource)

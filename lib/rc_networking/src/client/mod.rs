@@ -47,8 +47,8 @@ pub struct NetworkingClient {
 }
 
 impl NetworkingClient {
-    pub fn connect(&mut self, url: Url, user_id: u64) {
-        self.data.connect(url, user_id);
+    pub fn connect(&mut self, url: Url, join_token: String) {
+        self.data.connect(url, join_token);
     }
 
     pub fn disconnect(&mut self) {

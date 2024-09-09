@@ -36,7 +36,9 @@ use rc_shared::block::{BlockStates, BlockStatesPlugin};
 use rc_shared::item::{ItemStates, ItemStatesPlugin};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
+use rc_networking::protocol::Protocol;
 use crate::game::entity::EntityPlugin;
+use crate::systems::chat::broadcast_chat;
 
 static SHUTDOWN_BIT: AtomicBool = AtomicBool::new(false);
 static DUMMY_ATLAS: DummyAtlas = DummyAtlas;
@@ -87,15 +89,28 @@ fn main() {
         .add_systems(Startup, create_states)
         .add_systems(Update, generate_links)
         .add_systems(Update, propagate_inventories)
+        .add_systems(Update, broadcast_chat)
         // Run App
         .run();
 }
 
-pub fn detect_shutdowns(mut shutdown: EventWriter<AppExit>) {
-    if SHUTDOWN_BIT.load(Ordering::SeqCst) {
-        shutdown.send(AppExit::Success);
-        info!("Shutting down server");
+pub fn detect_shutdowns(
+    mut shutdown: EventWriter<AppExit>,
+    transport_system: ResMut<TransportSystem>,
+    mut send_packet: EventWriter<SendPacket>
+) {
+    if !SHUTDOWN_BIT.load(Ordering::SeqCst) {
+        return;
     }
+
+    // Notify clients
+    let packet = Protocol::Disconnect("Server closed.".to_string());
+    for client in transport_system.clients.keys() {
+        send_packet.send(SendPacket(packet.clone(), *client));
+    }
+
+    shutdown.send(AppExit::Success);
+    info!("Shutting down server");
 }
 
 pub fn create_states(

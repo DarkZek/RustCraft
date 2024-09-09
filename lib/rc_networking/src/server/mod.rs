@@ -25,6 +25,7 @@ use crate::protocol::ALPN;
 
 mod systems;
 mod user_connection;
+mod authorization;
 
 pub struct QuinnServerPlugin;
 

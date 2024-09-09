@@ -23,17 +23,10 @@ impl Plugin for ConnectionPlugin {
     }
 }
 
-/// A user who is yet to be authorized
 pub struct GameUser {
-    pub name: Option<String>,
+    pub name: String,
 
     pub user_id: UserId,
     pub game_object_id: Option<GameObjectId>,
     pub loading: bool,
-}
-
-impl GameUser {
-    pub fn set_name(&mut self, name: String) {
-        self.name = Some(name);
-    }
 }

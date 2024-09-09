@@ -1,6 +1,8 @@
 
 use crate::game::inventory::Inventory;
 use bevy::prelude::*;
+use bevy::utils::tracing::log::Level;
+use crate::systems::ui::console::ConsoleLog;
 use rc_networking::client::NetworkingClient;
 use rc_shared::item::types::ItemStack;
 use rc_shared::item::ItemStates;
@@ -13,6 +15,7 @@ pub fn messages_update(
     mut event_reader: EventReader<ReceivePacket>,
     mut app_state: ResMut<NextState<AppState>>,
     mut inventory: ResMut<Inventory>,
+    mut console_log: EventWriter<ConsoleLog>,
     item_state: Res<ItemStates>,
 ) {
     for event in event_reader.read() {
@@ -26,6 +29,7 @@ pub fn messages_update(
             }
             Protocol::Disconnect(message) => {
                 warn!("Disconnected from server. Message: {}", message);
+                console_log.send(ConsoleLog(format!("Disconnected from server. Message: {}", message), Level::Warn));
                 app_state.set(AppState::MainMenu);
             }
             Protocol::UpdateInventorySlot(slot) => {

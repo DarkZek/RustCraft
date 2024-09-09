@@ -10,37 +10,33 @@ use rc_networking::client::{NetworkingClient, NetworkingClientPlugin};
 use rc_shared::constants::{GameObjectId, UserId};
 use std::collections::HashMap;
 use std::net::SocketAddr;
+use crate::authentication::GameAuthentication;
+use crate::systems::networking::connect::{accept_server_connection_intent, connect_to_server, ConnectToServerIntent};
 
 mod chunk;
 mod location_sync;
-mod messages;
+pub mod messages;
+pub(crate) mod connect;
 
 pub struct NetworkingPlugin;
 
 impl Plugin for NetworkingPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(NetworkingClientPlugin)
+            .add_event::<ConnectToServerIntent>()
             // Once the game is in the Main Menu connect to server as we have no main screen yet
-            .add_systems(OnEnter(AppState::Connecting), connect_to_server)
+            .add_systems(Update, (accept_server_connection_intent, connect_to_server))
             .add_systems(Update, messages_update)
             .add_systems(Update, network_location_sync)
             .add_systems(Update, network_chunk_sync)
             .insert_resource(LastNetworkTranslationSync(Vec3::default()))
-            .insert_resource(LastNetworkRotationSync(Quat::default()))
-            .insert_resource(NetworkingSystem::default());
+            .insert_resource(LastNetworkRotationSync(Quat::default()));
+
+        let authentication = app.world().get_resource::<GameAuthentication>().unwrap();
+        let system = NetworkingSystem::new(authentication.account_id);
+
+        app.insert_resource(system);
     }
-}
-
-/// Connects to the local server instance
-pub fn connect_to_server(
-    mut client: ResMut<NetworkingClient>,
-    networking_system: Res<NetworkingSystem>
-) {
-    let server_addr = "https://test.marshalldoes.dev:25568".parse().unwrap();
-
-    info!("Connecting to server on {}", server_addr);
-
-    client.connect(server_addr, networking_system.user_id.0);
 }
 
 #[derive(Resource)]
@@ -49,14 +45,11 @@ pub struct NetworkingSystem {
     pub user_id: UserId
 }
 
-impl Default for NetworkingSystem {
-    fn default() -> Self {
-
-        let user_id = env!("USER_ID").parse::<u64>().unwrap();
-
+impl NetworkingSystem {
+    pub fn new(user_id: u64) -> Self {
         NetworkingSystem {
-            entity_mapping: Default::default(),
             user_id: UserId(user_id),
+            entity_mapping: Default::default()
         }
     }
 }

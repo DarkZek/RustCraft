@@ -2,7 +2,7 @@ use std::borrow::Cow;
 use std::io::Cursor;
 use std::mem;
 use bevy::prelude::error;
-use crate::bistream::BiStream;
+use crate::bistream::{BiStream, recv_protocol, send_protocol};
 use rc_shared::constants::{GameObjectId, UserId};
 use crate::events::connection::NetworkConnectionEvent;
 use crate::events::disconnect::NetworkDisconnectionEvent;
@@ -23,6 +23,7 @@ use web_transport::Session;
 use rc_shared::game_objects::{GameObjectData, PlayerGameObjectData};
 use crate::protocol::clientbound::spawn_game_object::SpawnGameObject;
 use crate::protocol::Protocol;
+use crate::server::authorization::check_authorization;
 
 /// Enables new connection attempts
 pub fn update_system(
@@ -38,17 +39,18 @@ pub fn update_system(
             if let Ok(Some(new_conn)) = new_connection {
 
                 // Send announcement
-                let client = UserId(new_conn.user_id);
+                let client = UserId(new_conn.user_authorization.sub);
 
                 if server.connections.contains_key(&client) {
                     warn!("Already connected user attempted to connect again. Terminating connection");
                     new_conn.reliable.send(Protocol::Disconnect(String::from("User already connected."))).unwrap();
                     mem::drop(new_conn);
                 } else {
+                    connection_event.send(NetworkConnectionEvent {
+                        client,
+                        username: new_conn.user_authorization.username.clone()
+                    });
                     server.connections.insert(client, new_conn);
-
-                    connection_event.send(NetworkConnectionEvent { client });
-                    info!("Send connection event {:?}", server.connections.len());
                 }
             }
 
@@ -167,15 +169,27 @@ pub async fn open_new_conn(endpoint: Endpoint) -> Option<UserConnection> {
 
     debug!("Sent validation packets");
 
-    let user_id = reliable.1.read(size_of::<u64>()).await.unwrap().unwrap();
-    let user_id = Cursor::new(user_id).read_u64::<BigEndian>().unwrap();
+    let authorization = recv_protocol(&mut reliable.1).await.unwrap();
 
-    debug!("Read user_id packet {:?}", user_id);
+    let Protocol::Authorization(token) = authorization else {
+        warn!("New connection attempted to skip authorization");
+        return None
+    };
+
+    trace!("Received authorization");
+
+    let user_authorization = match check_authorization(&token) {
+        Some(v) => v,
+        // Terminate connection
+        None => return None
+    };
+
+    send_protocol(&Protocol::AuthorizationAccepted, &mut reliable.0).await.unwrap();
 
     let (send_err, recv_err) = unbounded_channel();
 
     let unreliable = BiStream::from_stream(unreliable.0, unreliable.1, send_err.clone());
-    let reliable = BiStream::from_stream(reliable.0, reliable.1, send_err.clone());
+    let mut reliable = BiStream::from_stream(reliable.0, reliable.1, send_err.clone());
     let chunk = BiStream::from_stream(chunk.0, chunk.1, send_err);
 
     debug!("Successfully create BiStreams");
@@ -186,7 +200,7 @@ pub async fn open_new_conn(endpoint: Endpoint) -> Option<UserConnection> {
         reliable,
         chunk,
         recv_err,
-        user_id,
+        user_authorization,
     })
 }
 

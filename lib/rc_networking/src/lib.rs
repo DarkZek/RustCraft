@@ -41,6 +41,7 @@ fn get_channel(protocol: &Protocol) -> Channel {
         Protocol::BlockUpdate(_)
         | Protocol::Disconnect(_)
         | Protocol::ChatSent(_)
+        | Protocol::PlayerChat(_)
         | Protocol::DespawnGameObject(_)
         | Protocol::SpawnGameObject(_)
         | Protocol::UpdateLoading(_)
@@ -48,6 +49,8 @@ fn get_channel(protocol: &Protocol) -> Channel {
         | Protocol::ServerState(_)
         | Protocol::UpdateInventorySlot(_)
         | Protocol::UpdateInventory(_)
+        | Protocol::Authorization(_)
+        | Protocol::AuthorizationAccepted
         | Protocol::AcknowledgeChunk(_) => Channel::Reliable,
 
         Protocol::FullChunkUpdate(_) | Protocol::PartialChunkUpdate(_) => Channel::Chunk,

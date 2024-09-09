@@ -15,6 +15,7 @@ rc_shared = { path = '../rc_shared' }
 web-transport = { version = "0.6.0" }
 url = "2.5.2"
 nalgebra = { workspace = true }
+jsonwebtoken = { workspace = true }
 
 [dependencies.bevy]
 workspace = true

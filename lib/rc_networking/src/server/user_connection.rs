@@ -1,6 +1,7 @@
 use crate::bistream::{BiStream, StreamError};
 use tokio::sync::mpsc::UnboundedReceiver;
 use web_transport::Session;
+use crate::server::authorization::AuthorizationResult;
 
 /// Stores a users connection details
 pub struct UserConnection {
@@ -9,5 +10,5 @@ pub struct UserConnection {
     pub reliable: BiStream,
     pub chunk: BiStream,
     pub recv_err: UnboundedReceiver<StreamError>,
-    pub user_id: u64
+    pub user_authorization: AuthorizationResult
 }

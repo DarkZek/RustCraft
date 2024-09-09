@@ -145,6 +145,14 @@ impl ChunkSystem {
         }
     }
 
+    pub fn unload_all_chunks(&mut self, commands: &mut Commands) {
+        for (_, chunk) in self.chunks.drain() {
+            if let Some(handles) = chunk.handles {
+                commands.entity(handles.entity).despawn_recursive();
+            }
+        }
+    }
+
     pub fn unload_chunk(&mut self, position: Vector3<i32>, commands: &mut Commands) {
         if let Some(chunk) = self.chunks.remove(&position) {
             if let Some(handles) = chunk.handles {

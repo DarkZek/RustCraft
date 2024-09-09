@@ -23,8 +23,8 @@ fn error(message: &str) {
 
 #[derive(Resource)]
 pub struct GameAuthentication {
-    account_id: u64,
-    username: String
+    pub account_id: u64,
+    pub username: String
 }
 
 impl GameAuthentication {

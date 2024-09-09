@@ -37,7 +37,7 @@ pub async fn join_server(
         "join_server",
         &claims.username,
         claims.sub,
-        Duration::from_secs_f32(15.0)
+        Duration::from_secs_f32(15.0*100_000.0) // TODO: Shorten
     );
 
     let response = JoinServerResponse {

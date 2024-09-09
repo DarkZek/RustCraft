@@ -7,7 +7,7 @@ use futures::{AsyncReadExt, AsyncWriteExt};
 use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender};
 use tokio::sync::mpsc::error::{SendError, TryRecvError};
 use tokio::task::JoinHandle;
-use crate::bistream::{read_exact, StreamError};
+use crate::bistream::{read_exact, recv_protocol, send_protocol, StreamError};
 
 pub struct BiStream {
     out_send: UnboundedSender<Protocol>,
@@ -34,17 +34,8 @@ impl BiStream {
 
             while let Some(packet) = out_recv.recv().await {
                 let packet_data = bincode::serialize(&packet).unwrap();
-                if let Err(e) = send
-                    .write(bincode::serialize(&(packet_data.len() as u32)).unwrap().as_slice())
-                    .await
+                if let Err(e) = send_protocol(&packet, &mut send).await
                 {
-                    trace!("Network write stream failed: {:?}", e);
-                    // Exiting
-                    err2.send(StreamError::Error).unwrap();
-                    return send;
-                }
-
-                if let Err(e) = send.write(&packet_data).await {
                     trace!("Network write stream failed: {:?}", e);
                     // Exiting
                     err2.send(StreamError::Error).unwrap();
@@ -66,7 +57,7 @@ impl BiStream {
             debug!("[Task Pool] [Reader] Started");
 
             loop {
-                let len_data = match read_exact(&mut recv, size_of::<u32>()).await {
+                let data = match recv_protocol(&mut recv).await {
                     Ok(v) => v,
                     Err(e) => {
                         err.send(StreamError::Error).unwrap();
@@ -74,23 +65,6 @@ impl BiStream {
                         return recv;
                     }
                 };
-
-                debug!("[Task Pool] [Reader] Received data");
-
-                let len = bincode::deserialize::<u32>(&len_data).unwrap();
-
-                let mut chunk_data = match read_exact(&mut recv, len as usize).await {
-                    Ok(v) => v,
-                    Err(e) => {
-                        err.send(StreamError::Error).unwrap();
-                        trace!("Network stream exited: {:?}", e);
-                        return recv;
-                    }
-                };
-
-                assert_eq!(chunk_data.len(), len as usize, "Chunk data was not equal for packet with length. Read: {} Expected: {}", chunk_data.len(), len);
-
-                let data = bincode::deserialize::<Protocol>(&chunk_data).unwrap();
 
                 trace!("=> {:?}", data);
 
@@ -106,6 +80,13 @@ impl BiStream {
 
     pub fn try_recv(&mut self) -> Result<Protocol, TryRecvError> {
         self.in_recv.try_recv()
+    }
+
+    pub async fn recv(&mut self) -> Result<Protocol, TryRecvError> {
+        match self.in_recv.recv().await {
+            Some(v) => Ok(v),
+            None => Err(TryRecvError::Disconnected)
+        }
     }
 
     pub fn send(&self, message: Protocol) -> Result<(), SendError<Protocol>> {

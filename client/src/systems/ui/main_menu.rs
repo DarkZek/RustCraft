@@ -1,5 +1,6 @@
 use crate::state::AppState;
 use bevy::prelude::*;
+use crate::systems::networking::connect::ConnectToServerIntent;
 
 #[derive(Resource)]
 pub struct MainMenuData {
@@ -63,13 +64,15 @@ pub fn button_system(
         (&Interaction, &mut BackgroundColor),
         (Changed<Interaction>, With<Button>),
     >,
-    mut app_state: ResMut<NextState<AppState>>,
+    mut connection_intent: EventWriter<ConnectToServerIntent>
 ) {
     for (interaction, mut color) in &mut interaction_query {
         match *interaction {
             Interaction::Pressed => {
                 *color = PRESSED_BUTTON.into();
-                app_state.set(AppState::Connecting);
+                connection_intent.send(ConnectToServerIntent {
+                    address: "https://test.marshalldoes.dev:25568".parse().unwrap()
+                });
             }
             Interaction::Hovered => {
                 *color = HOVERED_BUTTON.into();

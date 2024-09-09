@@ -28,7 +28,7 @@ impl From<&GameObjectData> for GameObjectType {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Copy, Component)]
 pub struct PlayerGameObjectData {
-    pub user_id: UserId
+    pub user_id: UserId,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Component)]

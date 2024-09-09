@@ -18,16 +18,15 @@ pub fn accept_connections(
     mut authorization_writer: EventWriter<AuthorizationEvent>,
 ) {
     for connection_event in connection_event_reader.read() {
+
         let user = GameUser {
-            name: None,
+            name: connection_event.username.clone(),
             user_id: connection_event.client,
             game_object_id: None,
             loading: true,
         };
 
         system.clients.insert(connection_event.client, user);
-
-        // Immediately authorize
 
         authorization_writer.send(AuthorizationEvent {
             user_id: connection_event.client,

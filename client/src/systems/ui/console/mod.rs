@@ -1,13 +1,18 @@
 mod ui;
+mod executor;
 
 use std::collections::VecDeque;
 use bevy::app::App;
 use bevy::color::Color;
 use bevy::input::{ButtonInput, ButtonState};
 use bevy::input::keyboard::{Key, KeyboardInput};
-use bevy::prelude::{BackgroundColor, BuildChildren, Commands, default, Entity, EventReader, FlexDirection, info, JustifyContent, KeyCode, Node, NodeBundle, Plugin, PositionType, Query, Res, ResMut, Resource, Startup, Style, Text, TextBundle, TextStyle, UiRect, Update, Val, Visibility};
+use bevy::prelude::{BackgroundColor, BuildChildren, Commands, default, Entity, Event, EventReader, FlexDirection, info, JustifyContent, KeyCode, Node, NodeBundle, Plugin, PositionType, Query, Res, ResMut, Resource, Startup, Style, Text, TextBundle, TextStyle, UiRect, Update, Val, Visibility};
 use bevy::ui::AlignItems;
+use bevy::utils::tracing::log::Level;
 use web_time::Instant;
+use rc_networking::protocol::Protocol;
+use rc_networking::types::ReceivePacket;
+use crate::systems::ui::console::executor::{CommandExecuted, execute_commands};
 use crate::systems::ui::console::ui::{handle_keyboard_input, setup_console_ui, update_ui};
 
 pub struct ConsolePlugin;
@@ -16,9 +21,19 @@ impl Plugin for ConsolePlugin {
     fn build(&self, app: &mut App) {
         app
             .add_systems(Startup, setup_console_ui)
-            .add_systems(Update, (handle_keyboard_input, update_ui, expire_old));
+            .add_systems(Update, (
+                handle_keyboard_input,
+                update_ui,
+                expire_old,
+                execute_commands,
+                listen_for_messages
+            ))
+            .add_event::<ConsoleLog>();
     }
 }
+
+#[derive(Event)]
+pub struct ConsoleLog(pub String, pub Level);
 
 const MAX_CONSOLE_HISTORY: usize = 8;
 const CONSOLE_HISTORY_RETENTION_SECONDS: f32 = 12.0;
@@ -41,11 +56,19 @@ pub struct ConsoleData {
     text_history: Entity,
     text_history_children_texts: Vec<Entity>,
     text_history_children_items: Vec<Entity>,
+    commands_executed: Vec<CommandExecuted>
 }
 
 impl ConsoleData {
     pub fn execute_command(&mut self, command: &str) {
-        self.log(&format!("DarkZek: {}", command));
+
+        if !command.starts_with("/") {
+            // Send message
+            self.commands_executed.push(CommandExecuted::Message(command.to_string()));
+            return
+        }
+
+        self.log(&format!("Executing Command <{}>", command));
     }
 
     pub fn log(&mut self, message: &str) {
@@ -143,4 +166,28 @@ impl ConsoleData {
 
 fn expire_old(mut data: ResMut<ConsoleData>) {
     data.expire_old();
+}
+
+fn listen_for_messages(
+    mut messages: EventReader<ReceivePacket>,
+    mut data: ResMut<ConsoleData>,
+    mut reader: EventReader<ConsoleLog>
+) {
+    for message in messages.read() {
+        let Protocol::ChatSent(chat) = &message.0 else {
+            continue
+        };
+
+        data.log(&chat.message);
+    }
+
+    for message in reader.read() {
+        if message.1 == Level::Error {
+            data.log_error(&message.0);
+        } else if message.1 == Level::Warn {
+            data.log_warn(&message.0);
+        } else {
+            data.log(&message.0);
+        }
+    }
 }
