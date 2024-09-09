@@ -3,8 +3,6 @@ use crate::game::entity::{GameObject};
 use crate::systems::networking::NetworkingSystem;
 use crate::systems::physics::PhysicsObject;
 use bevy::prelude::*;
-use bevy::math::prelude::Cuboid;
-use bevy::utils::info;
 use nalgebra::Vector3;
 use rc_shared::game_objects::GameObjectData;
 use rc_shared::item::ItemStates;
@@ -18,7 +16,6 @@ use crate::game::game_object::player::{get_player_model, PlayerGameObject};
 use crate::game::game_object::Rotatable;
 use crate::game::player::Player;
 use crate::systems::asset::AssetService;
-use crate::systems::chunk::builder::{ATTRIBUTE_LIGHTING_COLOR, ATTRIBUTE_WIND_STRENGTH};
 
 pub fn messages_update(
     mut event_reader: EventReader<ReceivePacket>,
@@ -48,13 +45,13 @@ pub fn messages_update(
                 }
             }
             Protocol::EntityRotated(update) => {
-                if let Some(Ok((entity, mut game_object_variants))) = system
+                if let Some(Ok((entity, game_object_variants))) = system
                     .entity_mapping
                     .get(&update.entity)
                     .map(|v| entities.get_mut(*v))
                 {
                     let quat = Quat::from_xyzw(update.x, update.y, update.z, update.w);
-                    let (x, y, z) = quat.to_euler(EulerRot::YXZ);
+                    let (x, y, _) = quat.to_euler(EulerRot::YXZ);
 
                     if let Some(mut player) = game_object_variants {
                         player.rotate(x, y, &mut transforms);

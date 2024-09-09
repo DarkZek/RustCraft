@@ -1,14 +1,12 @@
 use crate::Protocol;
 use bevy::prelude::trace;
 
-use web_transport::{Error, RecvStream, SendStream};
-use std::mem::size_of;
+use web_transport::{RecvStream, SendStream};
 use bevy::log::debug;
-use futures::{AsyncReadExt, AsyncWriteExt};
 use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender};
 use tokio::sync::mpsc::error::{SendError, TryRecvError};
 use tokio::task::JoinHandle;
-use crate::bistream::{read_exact, recv_protocol, send_protocol, StreamError};
+use crate::bistream::{recv_protocol, send_protocol, StreamError};
 
 pub struct BiStream {
     out_handle: JoinHandle<SendStream>,

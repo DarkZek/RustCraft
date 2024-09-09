@@ -1,7 +1,7 @@
 use crate::atlas::Rotate;
 use crate::block::types::Block;
 use crate::block::BlockStates;
-use crate::chunk::{ChunkDataStorage, RawChunkData};
+use crate::chunk::ChunkDataStorage;
 use bevy::log::warn;
 use nalgebra::Vector3;
 use serde::{Deserialize, Serialize};

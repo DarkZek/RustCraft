@@ -7,7 +7,6 @@ use rc_shared::constants::UserId;
 use std::collections::{HashMap, HashSet};
 
 use std::net::{IpAddr, Ipv6Addr, SocketAddr};
-use std::str::FromStr;
 
 use crate::ServerConfig;
 use bevy::ecs::prelude::Resource;

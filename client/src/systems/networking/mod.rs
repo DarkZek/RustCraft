@@ -1,15 +1,12 @@
-use crate::state::AppState;
 use crate::systems::networking::chunk::network_chunk_sync;
 use crate::systems::networking::location_sync::{
     network_location_sync, LastNetworkRotationSync, LastNetworkTranslationSync,
 };
 use crate::systems::networking::messages::messages_update;
-use bevy::log::info;
 use bevy::prelude::*;
-use rc_networking::client::{NetworkingClient, NetworkingClientPlugin};
+use rc_networking::client::NetworkingClientPlugin;
 use rc_shared::constants::{GameObjectId, UserId};
 use std::collections::HashMap;
-use std::net::SocketAddr;
 use crate::authentication::GameAuthentication;
 use crate::systems::networking::connect::{accept_server_connection_intent, connect_to_server, ConnectToServerIntent, PendingServerConnection};
 

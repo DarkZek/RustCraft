@@ -1,6 +1,6 @@
 use bevy::{ecs::{event::EventWriter, system::{Commands, Query}}};
 use rc_networking::{types::SendPacket};
-use rc_shared::game_objects::{GameObjectData, ItemDropGameObjectData, PlayerGameObjectData};
+use rc_shared::game_objects::{ItemDropGameObjectData, PlayerGameObjectData};
 use crate::game::{game_object::GameObject, inventory::Inventory, transform::Transform};
 use bevy::ecs::entity::Entity;
 use crate::systems::game_object::despawn::DespawnGameObject;
@@ -12,7 +12,7 @@ pub fn collect_items(
     mut items_query: Query<(Entity, &GameObject, &mut ItemDropGameObjectData, &Transform)>,
     mut inventory_query: Query<&mut Inventory>,
     mut command: Commands,
-    mut send_packet: EventWriter<SendPacket>,
+    send_packet: EventWriter<SendPacket>,
 ) {
     for (entity, game_object, mut item_drop, transform) in items_query.iter_mut() {
 

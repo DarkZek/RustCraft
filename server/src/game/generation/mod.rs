@@ -12,10 +12,8 @@ use crate::game::generation::phase1::generate_environment_map;
 use crate::game::generation::phase2::generate_greybox_chunk;
 use crate::game::generation::phase3::decorate_chunk;
 use crate::game::generation::phase4::add_structures;
-use bevy::log::info;
 use bevy::prelude::trace;
 use nalgebra::Vector3;
-use rc_shared::CHUNK_SIZE;
 
 impl ChunkData {
     /// Works in 4 phases

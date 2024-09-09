@@ -2,7 +2,6 @@ use bevy::log::Level;
 use crate::game::inventory::Inventory;
 use bevy::prelude::*;
 use crate::systems::ui::console::ConsoleLog;
-use rc_networking::client::NetworkingClient;
 use rc_shared::item::types::ItemStack;
 use rc_shared::item::ItemStates;
 

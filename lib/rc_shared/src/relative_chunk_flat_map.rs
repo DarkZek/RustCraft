@@ -1,4 +1,4 @@
-use nalgebra::{Vector2, Vector3};
+use nalgebra::Vector2;
 use crate::CHUNK_SIZE;
 
 // Chunk data, with the ability to index slightly outside the bounds

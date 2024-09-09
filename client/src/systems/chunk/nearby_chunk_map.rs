@@ -255,7 +255,6 @@ pub struct NearbyChunkItemWithChunkMut<'a, T> {
 
 #[cfg(test)]
 mod tests {
-    use bevy::tasks::futures_lite::StreamExt;
     use nalgebra::{ Vector3};
     use crate::systems::chunk::nearby_chunk_map::NearbyChunkMap;
 

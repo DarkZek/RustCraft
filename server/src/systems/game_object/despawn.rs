@@ -2,7 +2,6 @@ use bevy::prelude::*;
 use nalgebra::Vector3;
 use rc_networking::protocol::Protocol;
 use rc_networking::types::SendPacket;
-use rc_shared::helpers::from_bevy_vec3;
 use crate::game::game_object::GameObject;
 use crate::helpers::global_to_local_position;
 use crate::systems::chunk::ChunkSystem;

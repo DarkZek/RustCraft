@@ -7,20 +7,17 @@ use crate::server::systems::{
 };
 use crate::server::user_connection::UserConnection;
 use crate::types::{ReceivePacket, SendPacket};
-use crate::*;
 use bevy::prelude::*;
-use quinn::{Endpoint, IdleTimeout, ServerConfig};
+use quinn::{Endpoint, ServerConfig};
 use std::collections::HashMap;
 use std::fs::File;
-use std::io::{BufReader, Cursor};
+use std::io::BufReader;
 use std::net::SocketAddr;
 use std::sync::Arc;
 use std::time::Duration;
-use rcgen::KeyPair;
-use rustls::pki_types::{CertificateDer, PrivateKeyDer, PrivatePkcs8KeyDer};
+use rustls::pki_types::{CertificateDer, PrivateKeyDer};
 use tokio::runtime::Runtime;
 use tokio::task::JoinHandle;
-use url::{Url};
 use crate::protocol::ALPN;
 
 mod systems;

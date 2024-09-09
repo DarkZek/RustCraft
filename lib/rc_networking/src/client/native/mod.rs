@@ -1,4 +1,3 @@
-use crate::bistream::BiStream;
 use crate::client::native::server_connection::ServerConnection;
 use crate::client::native::systems::{
     detect_shutdown_system, send_packets_system, update_system, write_packets_system,
@@ -9,17 +8,11 @@ use crate::events::disconnect::NetworkDisconnectionEvent;
 use crate::types::{ReceivePacket, SendPacket};
 use bevy::ecs::system::Resource;
 use bevy::prelude::{App, debug, Plugin, Update};
-use web_transport::{RecvStream};
-use std::net::SocketAddr;
 use std::sync::Arc;
-use byteorder::{BigEndian, WriteBytesExt};
-use futures::AsyncReadExt;
 use quinn::{ClientConfig, Endpoint};
 use rustls::RootCertStore;
 use tokio::runtime::Runtime;
-use tokio::sync::mpsc::unbounded_channel;
 use tokio::task::JoinHandle;
-use rc_shared::constants::UserId;
 use crate::client::handshake::{HandshakeResult, negotiate_handshake};
 use crate::protocol::ALPN;
 

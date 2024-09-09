@@ -1,4 +1,4 @@
-use rc_shared::chunk::{ChunkDataStorage, RawChunkData};
+use rc_shared::chunk::ChunkDataStorage;
 use rc_shared::CHUNK_SIZE;
 use serde::{Deserialize, Serialize};
 use std::sync::atomic::{AtomicU64, Ordering};
@@ -132,12 +132,12 @@ pub fn reconstructions() {
         }
     }
 
-    let partial_chunks = FullChunkUpdate::new(data, 0, 0, 0).to_partial();
+    let partial_chunks = FullChunkUpdate::new(ChunkDataStorage::Data(Box::new(data)), 0, 0, 0).to_partial();
 
     //assert_eq!(format!("{:?}", data), format!("{:?}", partial_chunks));
 
     assert_eq!(
-        data,
+        ChunkDataStorage::Data(Box::new(data)),
         FullChunkUpdate::from_partial(partial_chunks).unwrap().data
     );
 }

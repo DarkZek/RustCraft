@@ -1,4 +1,3 @@
-use bevy::asset::AssetContainer;
 use bevy::ecs::system::EntityCommands;
 use bevy::math::{EulerRot, Quat};
 use bevy::prelude::{Assets, BuildChildren, Color, Component, default, Entity, GlobalTransform, Handle, InheritedVisibility, MaterialMeshBundle, Mesh, Query, Text, TextSection, TextStyle, Transform, Vec3, ViewVisibility, Visibility};
@@ -30,18 +29,18 @@ impl Rotatable for PlayerGameObject {
         // Head transform
         let mut head_rot = transforms.get_mut(self.head_entity).unwrap();
 
-        let (x, mut y, z) = head_rot.rotation.to_euler(EulerRot::YXZ);
+        let (x, _, z) = head_rot.rotation.to_euler(EulerRot::YXZ);
 
-        y = pitch;
+        let y = pitch;
 
         head_rot.rotation = Quat::from_euler(EulerRot::YXZ, x, y, z);
 
         // Parent transform
         let mut parent_rot = transforms.get_mut(self.parent_entity).unwrap();
 
-        let (mut x, y, z) = parent_rot.rotation.to_euler(EulerRot::YXZ);
+        let (_, y, z) = parent_rot.rotation.to_euler(EulerRot::YXZ);
 
-        x = yaw;
+        let x = yaw;
 
         parent_rot.rotation = Quat::from_euler(EulerRot::YXZ, x, y, z);
     }
@@ -101,7 +100,7 @@ pub fn get_player_model(
     });
 
     entity_commands.with_children(|child_builder| {
-        let entity = child_builder.spawn(BillboardTextBundle {
+        child_builder.spawn(BillboardTextBundle {
             transform: Transform::from_translation(Vec3::new(0., 2.1, 0.))
                 .with_scale(Vec3::splat(0.0085)),
             text: Text::from_sections([

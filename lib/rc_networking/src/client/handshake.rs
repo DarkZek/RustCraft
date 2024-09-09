@@ -1,8 +1,6 @@
 use bevy::prelude::debug;
-use byteorder::{BigEndian, WriteBytesExt};
 use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver};
 use web_transport::{Error, RecvStream, Session};
-use rc_shared::constants::UserId;
 use crate::bistream::{BiStream, recv_protocol, send_protocol, StreamError};
 use crate::protocol::Protocol;
 
@@ -55,7 +53,7 @@ pub async fn negotiate_handshake(session: &mut Session, join_token: String) -> R
     let (send_err, err_recv) = unbounded_channel();
 
     let unreliable = BiStream::from_stream(unreliable.0, unreliable.1, send_err.clone());
-    let mut reliable = BiStream::from_stream(reliable.0, reliable.1, send_err.clone());
+    let reliable = BiStream::from_stream(reliable.0, reliable.1, send_err.clone());
     let chunk = BiStream::from_stream(chunk.0, chunk.1, send_err);
 
     debug!("Created bi streams");

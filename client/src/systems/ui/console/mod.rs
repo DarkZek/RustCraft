@@ -1,14 +1,10 @@
 mod ui;
 mod executor;
 
-use std::collections::VecDeque;
 use bevy::app::App;
 use bevy::color::Color;
-use bevy::input::{ButtonInput, ButtonState};
-use bevy::input::keyboard::{Key, KeyboardInput};
 use bevy::log::Level;
-use bevy::prelude::{BackgroundColor, BuildChildren, Commands, default, Entity, Event, EventReader, FlexDirection, info, JustifyContent, KeyCode, Node, NodeBundle, Plugin, PositionType, Query, Res, ResMut, Resource, Startup, Style, Text, TextBundle, TextStyle, UiRect, Update, Val, Visibility};
-use bevy::ui::AlignItems;
+use bevy::prelude::{Entity, Event, EventReader, Plugin, Query, ResMut, Resource, Startup, Update, Visibility};
 use web_time::Instant;
 use rc_networking::protocol::Protocol;
 use rc_networking::types::ReceivePacket;

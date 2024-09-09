@@ -1,7 +1,7 @@
 use bevy::color::Color;
 use bevy::input::ButtonState;
 use bevy::input::keyboard::{Key, KeyboardInput};
-use bevy::prelude::{AlignItems, BackgroundColor, BuildChildren, Commands, default, Entity, EventReader, FlexDirection, JustifyContent, KeyCode, NodeBundle, Query, ResMut, Style, Text, TextBundle, TextStyle, UiRect, Val, Visibility};
+use bevy::prelude::{BackgroundColor, BuildChildren, Commands, default, Entity, EventReader, FlexDirection, JustifyContent, KeyCode, NodeBundle, Query, ResMut, Style, Text, TextBundle, TextStyle, UiRect, Val, Visibility};
 use crate::systems::ui::console::{ConsoleData, MAX_CONSOLE_HISTORY};
 
 pub fn setup_console_ui(

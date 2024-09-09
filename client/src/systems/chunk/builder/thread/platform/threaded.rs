@@ -1,5 +1,3 @@
-use std::task::Poll;
-use bevy::prelude::warn;
 use tokio::runtime::{Builder, Runtime};
 use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender};
 use tokio::sync::mpsc::error::TryRecvError;
@@ -26,7 +24,7 @@ impl ChunkBuilderSchedulerTrait for ChunkBuilderScheduler {
         let (in_send, mut in_recv): (UnboundedSender<ChunkBuilderJob>, UnboundedReceiver<ChunkBuilderJob>) =
             unbounded_channel();
 
-        let (out_send, mut out_recv): (UnboundedSender<ChunkBuilderUpdate>, UnboundedReceiver<ChunkBuilderUpdate>) =
+        let (out_send, out_recv): (UnboundedSender<ChunkBuilderUpdate>, UnboundedReceiver<ChunkBuilderUpdate>) =
             unbounded_channel();
 
         let executor_handle = runtime.spawn(async move {

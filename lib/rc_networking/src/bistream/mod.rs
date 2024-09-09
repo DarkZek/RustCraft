@@ -6,9 +6,9 @@ mod wasm;
 
 use std::fmt::{Display, Formatter};
 use bevy::log::debug;
-use bevy::prelude::{info, warn};
+use bevy::prelude::warn;
 use thiserror::Error;
-use web_transport::{Error, RecvStream, SendStream};
+use web_transport::{RecvStream, SendStream};
 #[cfg(not(target_arch = "wasm32"))]
 pub use native::BiStream;
 #[cfg(target_arch = "wasm32")]
@@ -37,7 +37,7 @@ async fn read_exact(recv: &mut RecvStream, len: usize) -> Result<Vec<u8>, anyhow
 
         debug!("[Task Pool] [Reader] Remaining length {}", remaining_len);
 
-        let Ok(Some(mut data)) = recv.read(remaining_len).await else {
+        let Ok(Some(data)) = recv.read(remaining_len).await else {
             return Err(StreamError::StreamClosed.into());
         };
 

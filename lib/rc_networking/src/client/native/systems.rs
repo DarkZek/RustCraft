@@ -4,13 +4,11 @@ use crate::types::{ReceivePacket, SendPacket};
 use crate::{get_channel, Channel, Protocol};
 use bevy::app::AppExit;
 use bevy::log::{info, warn};
-use bevy::prelude::{EventReader, EventWriter, NonSendMut, Res, ResMut};
+use bevy::prelude::{EventReader, EventWriter, Res, ResMut};
 use futures::FutureExt;
 use rc_shared::constants::UserId;
 use tokio::sync::mpsc::error::TryRecvError;
-use crate::client::native::NetworkingData;
 use crate::client::NetworkingClient;
-use crate::events::disconnect::NetworkDisconnectionEvent;
 
 pub fn update_system(
     mut client: ResMut<NetworkingClient>,
@@ -91,7 +89,7 @@ pub fn detect_shutdown_system(
                 .connection
                 .close(0_u8.into(), "Closed");
         }
-        if let Some(mut endpoint) = client.data.endpoint.take() {
+        if let Some(endpoint) = client.data.endpoint.take() {
             endpoint.close(0_u8.into(), "Closed".as_bytes());
         }
         if let Some(runtime) = client.data.runtime.take() {

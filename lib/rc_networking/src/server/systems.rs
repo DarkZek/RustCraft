@@ -1,27 +1,21 @@
-use std::borrow::Cow;
-use std::io::Cursor;
 use std::mem;
 use bevy::prelude::error;
 use crate::bistream::{BiStream, recv_protocol, send_protocol};
-use rc_shared::constants::{GameObjectId, UserId};
+use rc_shared::constants::UserId;
 use crate::events::connection::NetworkConnectionEvent;
 use crate::events::disconnect::NetworkDisconnectionEvent;
 use crate::server::user_connection::UserConnection;
 use crate::server::NetworkingServer;
 use crate::types::{ReceivePacket, SendPacket};
 use crate::{get_channel, Channel};
-use bevy::log::{info, trace, warn};
+use bevy::log::{trace, warn};
 use bevy::prelude::{debug, EventReader, EventWriter, ResMut};
-use byteorder::{BigEndian, ReadBytesExt};
 use futures::FutureExt;
-use quinn::{Connection, ConnectionError, Endpoint, Incoming};
+use quinn::Endpoint;
 use std::borrow::Borrow;
-use nalgebra::Quaternion;
 use tokio::sync::mpsc::error::TryRecvError;
 use tokio::sync::mpsc::unbounded_channel;
 use web_transport::Session;
-use rc_shared::game_objects::{GameObjectData, PlayerGameObjectData};
-use crate::protocol::clientbound::spawn_game_object::SpawnGameObject;
 use crate::protocol::Protocol;
 use crate::server::authorization::check_authorization;
 
@@ -189,7 +183,7 @@ pub async fn open_new_conn(endpoint: Endpoint) -> Option<UserConnection> {
     let (send_err, recv_err) = unbounded_channel();
 
     let unreliable = BiStream::from_stream(unreliable.0, unreliable.1, send_err.clone());
-    let mut reliable = BiStream::from_stream(reliable.0, reliable.1, send_err.clone());
+    let reliable = BiStream::from_stream(reliable.0, reliable.1, send_err.clone());
     let chunk = BiStream::from_stream(chunk.0, chunk.1, send_err);
 
     debug!("Successfully create BiStreams");

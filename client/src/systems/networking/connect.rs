@@ -1,17 +1,13 @@
 use bevy::log::info;
-use bevy::prelude::{Event, EventReader, NextState, Res, ResMut, Resource, State, warn};
-use bevy::tasks::{IoTaskPool, TaskPool};
+use bevy::prelude::{Event, EventReader, NextState, Res, ResMut, Resource, warn};
 use reqwest::Url;
-use serde::{Deserialize, Serialize};
-use tokio::runtime::Builder;
-use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver};
+use tokio::sync::mpsc::UnboundedReceiver;
 use tokio::sync::mpsc::error::TryRecvError;
 use rc_networking::client::NetworkingClient;
 use crate::authentication::GameAuthentication;
 use crate::state::AppState;
 use crate::systems::api::{ApiError, ApiSystem};
 use crate::systems::api::join_token::GetJoinTokenResponse;
-use crate::systems::networking::NetworkingSystem;
 
 #[derive(Event)]
 pub struct ConnectToServerIntent {
@@ -39,7 +35,7 @@ pub fn accept_server_connection_intent(
     mut app_state: ResMut<NextState<AppState>>,
     api: ResMut<ApiSystem>,
     mut pending_server_connection: ResMut<PendingServerConnection>,
-    mut game_authentication: Res<GameAuthentication>
+    game_authentication: Res<GameAuthentication>
 ) {
 
     let entry = intent.read().next();

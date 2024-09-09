@@ -15,11 +15,8 @@ use nalgebra::Vector3;
 use rc_shared::block::BlockStates;
 use rc_shared::helpers::from_bevy_vec3;
 use std::collections::BinaryHeap;
-use std::mem;
 use std::sync::atomic::Ordering;
-use bevy::tasks::{AsyncComputeTaskPool, Task};
-use bevy::tasks::futures_lite::future;
-use bevy::tasks::block_on;
+use bevy::tasks::Task;
 use rc_shared::chunk::ChunkDataStorage;
 use crate::systems::camera::MainCamera;
 use crate::systems::chunk::builder::build_context::ChunkBuildContext;
@@ -167,11 +164,11 @@ pub fn mesh_scheduler(
         let chunk_entry = builder_data.chunks.pop().unwrap();
 
         if let Some(chunk) = chunks.chunks.get(&chunk_entry.chunk) {
-            let mut chunk = chunk.clone();
+            let chunk = chunk.clone();
 
             let cache = NearbyChunkCache::from_service(&chunks, chunk.position);
 
-            let mut context = ChunkBuildContext::new(&block_states, &cache);
+            let context = ChunkBuildContext::new(&block_states, &cache);
 
             builder_data.scheduler.schedule(ChunkBuilderJob {
                 chunk,

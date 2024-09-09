@@ -108,6 +108,7 @@ mod tests {
     use nalgebra::Vector3;
     use rc_shared::block::BlockStates;
     use rc_shared::block::types::Block;
+    use rc_shared::chunk::ChunkDataStorage;
     use rc_shared::viewable_direction::ViewableDirectionBitMap;
     use crate::systems::chunk::builder::build_context::{ChunkBuildContext, is_neighbor_block};
     use crate::systems::chunk::data::ChunkData;
@@ -158,7 +159,7 @@ mod tests {
         // Three chunks one at 0,0,0 and one at 0,1,0 and one at -1,0,0
         let data = [[[0; 16]; 16]; 16];
         chunks.insert(Vector3::new(0, 0, 0), ChunkData::new_handleless(
-            data,
+            ChunkDataStorage::Data(Box::new(data)),
             Vector3::new(0, 0, 0)
         ));
 
@@ -168,7 +169,7 @@ mod tests {
         data[0][1][0] = 1;
 
         chunks.insert(Vector3::new(0, 1, 0), ChunkData::new_handleless(
-            data,
+            ChunkDataStorage::Data(Box::new(data)),
             Vector3::new(0, 1, 0)
         ));
 
@@ -177,7 +178,7 @@ mod tests {
         data[15][0][0] = 1;
 
         chunks.insert(Vector3::new(-1, 0, 0), ChunkData::new_handleless(
-            data,
+            ChunkDataStorage::Data(Box::new(data)),
             Vector3::new(-1, 0, 0)
         ));
 
@@ -226,7 +227,7 @@ mod tests {
         // Three chunks one at 0,0,0 and one at 0,1,0 and one at -1,0,0
         let data = [[[0; 16]; 16]; 16];
         chunks.insert(Vector3::new(0, 0, 4), ChunkData::new_handleless(
-            data,
+            ChunkDataStorage::Data(Box::new(data)),
             Vector3::new(0, 0, 4)
         ));
 
@@ -236,7 +237,7 @@ mod tests {
         data[0][1][0] = 1;
 
         chunks.insert(Vector3::new(0, 1, 4), ChunkData::new_handleless(
-            data,
+            ChunkDataStorage::Data(Box::new(data)),
             Vector3::new(0, 1, 4)
         ));
 
@@ -245,7 +246,7 @@ mod tests {
         data[15][0][0] = 1;
 
         chunks.insert(Vector3::new(-1, 0, 4), ChunkData::new_handleless(
-            data,
+            ChunkDataStorage::Data(Box::new(data)),
             Vector3::new(-1, 0, 4)
         ));
 

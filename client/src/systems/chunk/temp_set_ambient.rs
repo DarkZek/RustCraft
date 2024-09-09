@@ -1,5 +1,4 @@
 use bevy::asset::Assets;
-use bevy::math::Vec4;
 use bevy::prelude::{Query, ResMut, Transform, With};
 use crate::systems::asset::AssetService;
 use crate::systems::asset::material::chunk_extension::ChunkMaterial;

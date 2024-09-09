@@ -8,7 +8,7 @@ use bevy::render::primitives::Aabb;
 use bevy::render::render_asset::RenderAssetUsages;
 use fnv::{FnvBuildHasher, FnvHashMap};
 use nalgebra::Vector3;
-use rc_shared::chunk::{ChunkDataStorage, ChunkSystemTrait, RawChunkData};
+use rc_shared::chunk::{ChunkDataStorage, ChunkSystemTrait};
 use rc_shared::CHUNK_SIZE;
 use std::collections::HashMap;
 use crate::state::AppState;
@@ -164,7 +164,7 @@ impl ChunkSystem {
         for x in (position.x - 1)..=(position.x + 1) {
             for y in (position.y - 1)..=(position.y + 1) {
                 for z in (position.z - 1)..=(position.z + 1) {
-                    if let Some(mut data) = self.chunks.get_mut(&Vector3::new(x, y, z)) {
+                    if let Some(data) = self.chunks.get_mut(&Vector3::new(x, y, z)) {
                         data.flags.add_flag(ChunkFlagsBitMap::AtEdge);
                     }
                 }

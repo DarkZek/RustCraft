@@ -178,7 +178,6 @@ fn calculate_color(color: &BlockLightRecord) -> [u8; 4] {
 mod tests {
     use std::{fs};
     use web_time::Instant;
-    use bevy_inspector_egui::egui::ahash::HashMapExt;
     use fnv::FnvHashMap;
     use rc_shared::block::BlockStates;
     use rc_shared::block::types::Block;
@@ -213,7 +212,7 @@ mod tests {
             emission: [0; 4],
         });
 
-        for i in 0..7 {
+        for _ in 0..7 {
             states.states.push(Block {
                 identifier: "mcv3::Stone".to_string(),
                 translucent: false,

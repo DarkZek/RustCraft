@@ -1,10 +1,6 @@
-use std::fs;
-use bevy::reflect::List;
-use bevy::tasks::futures_lite::StreamExt;
 use crate::game::generation::noise::SimplexNoise;
-use nalgebra::{Vector2, Vector3};
-use noise::{NoiseFn, Worley};
-use rc_shared::biome::{ChunkEnvironment, EnvironmentMap};
+use nalgebra::Vector3;
+use rc_shared::biome::EnvironmentMap;
 use rc_shared::chunk::RawChunkData;
 use rc_shared::CHUNK_SIZE;
 use rc_shared::relative_chunk_flat_map::RelativeChunkFlatMap;

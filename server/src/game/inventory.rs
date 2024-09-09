@@ -1,9 +1,8 @@
 use bevy::ecs::{component::Component, event::EventWriter, system::{Query}};
 use serde::{Deserialize, Serialize};
 use rc_networking::{protocol::{clientbound::update_inventory::UpdateInventory, Protocol}, types::SendPacket};
-use rc_shared::{game_objects::GameObjectData, item::types::ItemStack};
+use rc_shared::item::types::ItemStack;
 use rc_shared::game_objects::PlayerGameObjectData;
-use super::game_object::{GameObject};
 
 
 #[derive(Component, Deserialize, Serialize, Clone)]

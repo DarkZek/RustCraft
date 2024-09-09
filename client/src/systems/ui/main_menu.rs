@@ -1,4 +1,3 @@
-use crate::state::AppState;
 use bevy::prelude::*;
 use crate::systems::networking::connect::ConnectToServerIntent;
 

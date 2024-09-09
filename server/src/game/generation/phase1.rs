@@ -1,6 +1,6 @@
 use crate::game::generation::noise::SimplexNoise;
 use nalgebra::{Vector2, Vector3};
-use rc_shared::biome::{ChunkEnvironment, EnvironmentEntry, EnvironmentMap};
+use rc_shared::biome::{EnvironmentEntry, EnvironmentMap};
 use rc_shared::CHUNK_SIZE;
 
 pub fn generate_environment_map(seed: u32, pos: Vector3<i32>) -> EnvironmentMap {

@@ -4,7 +4,7 @@ use bevy::input::ButtonInput;
 use bevy::prelude::{info, KeyCode, Query, Res, ResMut, Transform, TypePath, warn, With};
 use nalgebra::{Vector3, Vector4};
 use serde::{Deserialize, Serialize};
-use rc_shared::chunk::{ChunkDataStorage, RawChunkData};
+use rc_shared::chunk::ChunkDataStorage;
 use rc_shared::helpers::{from_bevy_vec3, global_to_local_position};
 use crate::game::player::Player;
 use crate::systems::chunk::ChunkSystem;

@@ -52,7 +52,7 @@ impl NetworkingClient {
     }
 
     pub fn disconnect(&mut self) {
-        self.disconnect();
+        self.data.disconnect();
     }
 }
 

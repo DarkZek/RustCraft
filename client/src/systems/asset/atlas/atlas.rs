@@ -24,7 +24,7 @@ impl AtlasWrapper {
 }
 
 impl AtlasWrapper {
-    pub fn get<'a>(&'a self) -> RwLockReadGuard<'_, TextureAtlas> {
+    pub fn get(&self) -> RwLockReadGuard<TextureAtlas> {
         self.0.get().unwrap().read().unwrap()
     }
 

@@ -1,5 +1,4 @@
 use web_time::Instant;
-use crate::systems::asset::AssetService;
 use crate::systems::chunk::ChunkSystem;
 use crate::systems::physics::raycasts::do_raycast;
 use bevy::prelude::*;
@@ -13,7 +12,6 @@ use rc_networking::types::SendPacket;
 use rc_shared::aabb::Aabb;
 use rc_shared::block::BlockStates;
 use rc_shared::helpers::{from_bevy_vec3, global_to_local_position};
-use rc_shared::CHUNK_SIZE;
 use crate::game::entity::GameObject;
 use crate::game::interaction::MAX_INTERACTION_DISTANCE;
 use crate::systems::camera::freecam::Freecam;

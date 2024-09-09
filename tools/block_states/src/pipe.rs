@@ -4,16 +4,6 @@ use crate::loading::{
 };
 use nalgebra::Vector3;
 
-
-pub const BLOCK_SIDES: [Vector3<i32>; 6] = [
-    Vector3::new(0, 1, 0),
-    Vector3::new(0, -1, 0),
-    Vector3::new(-1, 0, 0),
-    Vector3::new(1, 0, 0),
-    Vector3::new(0, 0, -1),
-    Vector3::new(0, 0, 1),
-];
-
 pub fn pipe() -> Vec<DeserialisedBlock> {
     let mut states = Vec::new();
 

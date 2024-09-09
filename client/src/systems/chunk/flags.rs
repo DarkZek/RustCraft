@@ -1,6 +1,4 @@
 use std::fmt::{Debug, Formatter};
-use nalgebra::Vector3;
-use crate::systems::chunk::ChunkSystem;
 
 #[derive(Default, Clone, Copy, PartialEq, Eq)]
 pub struct ChunkFlags(pub u8);

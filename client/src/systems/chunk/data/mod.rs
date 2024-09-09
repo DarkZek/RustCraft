@@ -1,7 +1,7 @@
 use bevy::ecs::component::Component;
 use bevy::prelude::{Entity, Handle, Mesh};
 use nalgebra::Vector3;
-use rc_shared::chunk::{ChunkDataStorage, RawChunkData, RawLightingData};
+use rc_shared::chunk::{ChunkDataStorage, RawLightingData};
 use rc_shared::viewable_direction::ViewableDirection;
 use rc_shared::CHUNK_SIZE;
 use crate::systems::chunk::flags::ChunkFlags;
@@ -53,11 +53,11 @@ impl ChunkData {
     }
 
     pub fn new_handleless(
-        data: RawChunkData,
+        world: ChunkDataStorage,
         position: Vector3<i32>,
     ) -> ChunkData {
         ChunkData {
-            world: ChunkDataStorage::Data(Box::new(data)),
+            world,
             viewable_map: None,
             position,
             light_levels: [[[[255, 255, 255, 255]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE],
