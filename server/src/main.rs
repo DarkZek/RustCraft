@@ -110,7 +110,7 @@ pub fn detect_shutdowns(
     }
 
     shutdown.send(AppExit::Success);
-    info!("Shutting down server");
+    info!("Shutting down connection");
 }
 
 pub fn create_states(

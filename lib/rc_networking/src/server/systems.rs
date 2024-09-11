@@ -57,7 +57,7 @@ pub fn update_system(
     server.connections.retain(|userid, conn| {
         let recv = conn.recv_err.try_recv();
 
-        // Detect errors and disconnect from server
+        // Detect errors and disconnect from connection
         return if let Err(TryRecvError::Empty) = &recv {
             // No events!
             true
@@ -102,7 +102,7 @@ pub async fn open_new_conn(endpoint: Endpoint) -> Option<UserConnection> {
     let server_name = handshake.server_name.unwrap_or_default();
 
     debug!(
-        "received QUIC handshake: ip={} alpn={} server={}",
+        "received QUIC handshake: ip={} alpn={} connection={}",
         connecting.remote_address(),
         alpn,
         server_name,

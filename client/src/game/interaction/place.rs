@@ -4,7 +4,7 @@ use crate::systems::physics::raycasts::do_raycast;
 use bevy::prelude::*;
 use nalgebra::Vector3;
 use crate::game::inventory::Inventory;
-use crate::systems::chunk::builder::{RerenderChunkFlag, RerenderChunkFlagContext};
+use crate::systems::chunk::builder::{RerenderChunkRequest, RerenderChunkFlagContext};
 use rc_shared::constants::UserId;
 use rc_networking::protocol::Protocol;
 use rc_networking::protocol::serverbound::place_block::PlaceBlock;
@@ -27,7 +27,7 @@ pub fn mouse_interaction_place(
     freecam: Res<Freecam>,
     mouse_button_input: Res<ButtonInput<MouseButton>>,
     camera: Query<&Transform, With<MainCamera>>,
-    mut rerender_chunk_event: EventWriter<RerenderChunkFlag>,
+    mut rerender_chunk_event: EventWriter<RerenderChunkRequest>,
     mut chunks: ResMut<ChunkSystem>,
     blocks: Res<BlockStates>,
     mut inventory: ResMut<Inventory>,
@@ -95,7 +95,7 @@ pub fn mouse_interaction_place(
     chunk.world.set(inner_loc, block_type);
 
     // Rerender
-    rerender_chunk_event.send(RerenderChunkFlag {
+    rerender_chunk_event.send(RerenderChunkRequest {
         chunk: chunk_loc,
         context: RerenderChunkFlagContext::Surrounding,
     });

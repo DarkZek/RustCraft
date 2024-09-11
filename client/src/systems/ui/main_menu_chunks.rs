@@ -4,7 +4,7 @@ use bevy::prelude::{Camera, Commands, EventReader, EventWriter, Mesh, Query, Res
 use nalgebra::Vector3;
 use rc_shared::helpers::to_bevy_vec3;
 use crate::systems::asset::AssetService;
-use crate::systems::chunk::builder::{RerenderChunkFlag, RerenderChunkFlagContext};
+use crate::systems::chunk::builder::{RerenderChunkRequest, RerenderChunkFlagContext};
 use crate::systems::chunk::ChunkSystem;
 use crate::systems::chunk::static_world_data::StaticWorldData;
 
@@ -25,7 +25,7 @@ pub fn handle_loaded_main_menu_world(
     asset_service: Res<AssetService>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut data: ResMut<MainMenuWorldState>,
-    mut rerender_chunks: EventWriter<RerenderChunkFlag>,
+    mut rerender_chunks: EventWriter<RerenderChunkRequest>,
     mut query: Query<&mut Transform, With<Camera>>
 ) {
 
@@ -41,7 +41,7 @@ pub fn handle_loaded_main_menu_world(
         let (_, loaded_data) = assets.iter().next().unwrap();
 
         for chunk in loaded_data.data.clone() {
-            rerender_chunks.send(RerenderChunkFlag {
+            rerender_chunks.send(RerenderChunkRequest {
                 chunk: chunk.position,
                 context: RerenderChunkFlagContext::None,
             });

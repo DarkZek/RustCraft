@@ -10,7 +10,7 @@
       "identifier": "mcv3::DirtBlockItem",
       "name": "Dirt Block",
       "icon": "dirt",
-      "block_state": "mcv3::Water"
+      "block_state": "mcv3::Dirt"
     },
     {
       "identifier": "mcv3::LongGrassItem",

@@ -183,9 +183,10 @@ pub fn handle_keyboard_input(
 
         if ev.key_code == KeyCode::Enter {
 
-            // Cannot submit empty text
+            // Treat as exiting
             if data.prompt_text.is_empty() {
-                continue
+                data.uncapture(&mut visibility);
+                continue;
             }
 
             let text = data.prompt_text.clone();

@@ -29,7 +29,7 @@ impl PendingServerConnection {
     }
 }
 
-/// Connects to the local server instance
+/// Connects to the local connection instance
 pub fn accept_server_connection_intent(
     mut intent: EventReader<ConnectToServerIntent>,
     mut app_state: ResMut<NextState<AppState>>,
@@ -44,7 +44,7 @@ pub fn accept_server_connection_intent(
         return;
     };
 
-    info!("Connecting to server on {}", &intent.address);
+    info!("Connecting to connection on {}", &intent.address);
 
     app_state.set(AppState::Connecting);
 

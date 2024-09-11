@@ -26,14 +26,14 @@ pub fn update_system(
         }
     }
 
-    // Detect errors and disconnect from server
+    // Detect errors and disconnect from connection
     if client.data.connection.is_some() {
         if let Err(TryRecvError::Empty) = client.data.connection.as_mut().unwrap().err_recv.try_recv() {
             // No events!
         } else {
             // Either the writer was disconnected, or an error was given. Either way it's disconnected
             client.data.connection = None;
-            warn!("Disconnected from server");
+            warn!("Disconnected from connection");
         }
     }
 
@@ -83,7 +83,7 @@ pub fn detect_shutdown_system(
     mut bevy_shutdown: EventReader<AppExit>,
 ) {
     for _ in bevy_shutdown.read() {
-        info!("Shutting down server");
+        info!("Shutting down connection");
         if let Some(mut connection) = client.data.connection.take() {
             connection
                 .connection

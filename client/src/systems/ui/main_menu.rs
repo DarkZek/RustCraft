@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::systems::networking::connect::ConnectToServerIntent;
+use crate::systems::connection::connect::ConnectToServerIntent;
 
 #[derive(Resource)]
 pub struct MainMenuData {

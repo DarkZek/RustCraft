@@ -8,7 +8,9 @@ pub enum ChunkFlagsBitMap {
     /// Chunks at the edge of the world aren't meshed as we don't have enough culling information
     AtEdge = 0b00000001,
     /// Chunk contains no blocks
-    Empty = 0b00000010
+    Empty = 0b00000010,
+    /// Chunk has had mesh built if it needed it
+    Ready = 0b00000100
 }
 
 impl Debug for ChunkFlags {

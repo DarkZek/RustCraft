@@ -11,7 +11,7 @@ pub struct HandshakeResult {
     pub err_recv: UnboundedReceiver<StreamError>
 }
 
-/// Negotiates a set of streams, and user id with the server
+/// Negotiates a set of streams, and user id with the connection
 pub async fn negotiate_handshake(session: &mut Session, join_token: String) -> Result<HandshakeResult, Error> {
 
     let mut unreliable = session.accept_bi().await.unwrap();

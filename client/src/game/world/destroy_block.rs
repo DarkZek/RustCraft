@@ -1,6 +1,6 @@
 use crate::game::events::DestroyBlockEvent;
 use crate::game::inventory::Inventory;
-use crate::systems::chunk::builder::{RerenderChunkFlag, RerenderChunkFlagContext};
+use crate::systems::chunk::builder::{RerenderChunkRequest, RerenderChunkFlagContext};
 use crate::systems::chunk::ChunkSystem;
 use bevy::ecs::system::SystemState;
 use bevy::prelude::*;
@@ -83,7 +83,7 @@ pub fn destroy_block_system(
         }
 
         // Rerender
-        world.send_event(RerenderChunkFlag {
+        world.send_event(RerenderChunkRequest {
             chunk: chunk_loc,
             context: RerenderChunkFlagContext::Surrounding,
         });

@@ -27,6 +27,9 @@ pub fn request_chunks(
         return;
     }
 
+    #[cfg(target_arch = "wasm32")]
+    let render_distance = 4;
+    #[cfg(not(target_arch = "wasm32"))]
     let render_distance = 8;
 
     // Load new chunks

@@ -77,7 +77,7 @@ pub fn detect_shutdown_system(
     mut bevy_shutdown: EventReader<AppExit>,
 ) {
     for _ in bevy_shutdown.read() {
-        info!("Shutting down server");
+        info!("Shutting down connection");
         if let Some(mut connection) = client.data.connection.take() {
             connection
                 .connection

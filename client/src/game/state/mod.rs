@@ -1,4 +1,4 @@
-use crate::systems::chunk::builder::{RerenderChunkFlag, RerenderChunkFlagContext};
+use crate::systems::chunk::builder::{RerenderChunkRequest, RerenderChunkFlagContext};
 use crate::systems::chunk::ChunkSystem;
 use crate::systems::ui::loading::LoadingUIData;
 use bevy::prelude::{AssetServer, EventReader, EventWriter, Res, ResMut};
@@ -20,7 +20,7 @@ pub fn track_blockstate_changes(
     event: EventReader<BlockStatesUpdatedEvent>,
     loading: Option<ResMut<LoadingUIData>>,
     chunks: ResMut<ChunkSystem>,
-    mut rerender_chunks: EventWriter<RerenderChunkFlag>,
+    mut rerender_chunks: EventWriter<RerenderChunkRequest>,
 ) {
     if event.is_empty() {
         return;
@@ -28,7 +28,7 @@ pub fn track_blockstate_changes(
 
     // Rerender all chunks with new block states
     for (pos, _chunk) in &chunks.chunks {
-        rerender_chunks.send(RerenderChunkFlag {
+        rerender_chunks.send(RerenderChunkRequest {
             chunk: *pos,
             context: RerenderChunkFlagContext::None,
         });

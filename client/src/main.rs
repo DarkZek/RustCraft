@@ -41,7 +41,7 @@ use crate::game::interaction::InteractionPlugin;
 use crate::systems::api::ApiPlugin;
 use crate::systems::asset::material::chunk_extension::ChunkMaterialExtension;
 use crate::systems::asset::material::translucent_chunk_extension::TranslucentChunkMaterialExtension;
-
+use crate::systems::connection::ConnectionPlugin;
 // TODO: Performance - Make event based systems only run on event trigger https://docs.rs/bevy/latest/bevy/ecs/prelude/fn.on_event.html
 
 #[rustfmt::skip]
@@ -92,6 +92,7 @@ fn main() {
         .add_systems(Update, mouse_highlight_interaction)
         .add_systems(OnEnter(AppState::MainMenu), on_disconnect)
 
+        .add_plugins(ConnectionPlugin)
         .add_plugins(ApiPlugin)
         .add_plugins(GameEventsPlugin)
         .add_plugins(ChunkPlugin)

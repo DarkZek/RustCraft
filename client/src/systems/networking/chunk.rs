@@ -1,5 +1,5 @@
 use crate::systems::asset::AssetService;
-use crate::systems::chunk::builder::{RerenderChunkFlag, RerenderChunkFlagContext};
+use crate::systems::chunk::builder::{RerenderChunkRequest, RerenderChunkFlagContext};
 use crate::systems::chunk::ChunkSystem;
 use bevy::prelude::*;
 use bevy::utils::hashbrown::HashMap;
@@ -26,7 +26,7 @@ pub fn network_chunk_sync(
     mut meshes: ResMut<Assets<Mesh>>,
     mut asset_service: Res<AssetService>,
     mut chunk_service: ResMut<ChunkSystem>,
-    mut rerender_chunks: EventWriter<RerenderChunkFlag>,
+    mut rerender_chunks: EventWriter<RerenderChunkRequest>,
     mut chunk_cache: Local<ChunkSync>,
     mut send_response: EventWriter<SendPacket>,
 ) {
@@ -43,7 +43,7 @@ pub fn network_chunk_sync(
                     &mut meshes,
                 );
 
-                rerender_chunks.send(RerenderChunkFlag {
+                rerender_chunks.send(RerenderChunkRequest {
                     chunk: location,
                     context: RerenderChunkFlagContext::Surrounding,
                 });
@@ -88,7 +88,7 @@ pub fn network_chunk_sync(
                         &mut meshes,
                     );
 
-                    rerender_chunks.send(RerenderChunkFlag {
+                    rerender_chunks.send(RerenderChunkRequest {
                         chunk: location,
                         context: RerenderChunkFlagContext::Surrounding,
                     });
@@ -108,7 +108,7 @@ pub fn network_chunk_sync(
                     chunk.world.set(inner_loc, update.id);
 
                     // Rerender
-                    rerender_chunks.send(RerenderChunkFlag {
+                    rerender_chunks.send(RerenderChunkRequest {
                         chunk: chunk_loc,
                         context: RerenderChunkFlagContext::Surrounding,
                     });
@@ -128,7 +128,7 @@ pub fn network_chunk_sync(
                         &mut meshes,
                     );
 
-                    rerender_chunks.send(RerenderChunkFlag {
+                    rerender_chunks.send(RerenderChunkRequest {
                         chunk: chunk_loc,
                         context: RerenderChunkFlagContext::Surrounding,
                     });

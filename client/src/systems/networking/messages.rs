@@ -18,16 +18,9 @@ pub fn messages_update(
 ) {
     for event in event_reader.read() {
         match &event.0 {
-            Protocol::UpdateLoading(update) => {
-                if update.loading {
-                    app_state.set(AppState::Connecting);
-                } else {
-                    app_state.set(AppState::InGame);
-                }
-            }
             Protocol::Disconnect(message) => {
-                warn!("Disconnected from server. Message: {}", message);
-                console_log.send(ConsoleLog(format!("Disconnected from server. Message: {}", message), Level::WARN));
+                warn!("Disconnected from connection. Message: {}", message);
+                console_log.send(ConsoleLog(format!("Disconnected from connection. Message: {}", message), Level::WARN));
                 app_state.set(AppState::MainMenu);
             }
             Protocol::UpdateInventorySlot(slot) => {
