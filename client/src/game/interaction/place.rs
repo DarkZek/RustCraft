@@ -6,8 +6,8 @@ use nalgebra::Vector3;
 use crate::game::inventory::Inventory;
 use crate::systems::chunk::builder::{RerenderChunkFlag, RerenderChunkFlagContext};
 use rc_shared::constants::UserId;
-use rc_networking::protocol::clientbound::block_update::BlockUpdate;
 use rc_networking::protocol::Protocol;
+use rc_networking::protocol::serverbound::place_block::PlaceBlock;
 use rc_networking::types::SendPacket;
 use rc_shared::aabb::Aabb;
 use rc_shared::block::BlockStates;
@@ -109,7 +109,7 @@ pub fn mouse_interaction_place(
 
     // Send network update
     send_packet.send(SendPacket(
-        Protocol::BlockUpdate(BlockUpdate::new(block_type, pos.x, pos.y, pos.z)),
+        Protocol::PlaceBlock(PlaceBlock::new(pos.x, pos.y, pos.z)),
         UserId(0),
     ));
 }

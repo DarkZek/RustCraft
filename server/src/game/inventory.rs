@@ -21,6 +21,10 @@ impl Inventory {
             None
         }
     }
+    /// Gets the select block's, block id
+    pub fn selected_block(&self) -> Option<&ItemStack> {
+        self.hotbar[self.hotbar_slot as usize].as_ref()
+    }
 
     /// Takes one of the selected block and removes it from the inventory
     pub fn take_selected_block(&mut self) -> Option<u32> {

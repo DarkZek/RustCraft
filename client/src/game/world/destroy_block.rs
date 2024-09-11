@@ -6,8 +6,8 @@ use bevy::ecs::system::SystemState;
 use bevy::prelude::*;
 use nalgebra::Vector3;
 use rc_shared::constants::UserId;
-use rc_networking::protocol::clientbound::block_update::BlockUpdate;
 use rc_networking::protocol::Protocol;
+use rc_networking::protocol::serverbound::destroy_block::DestroyBlock;
 use rc_networking::types::SendPacket;
 use rc_shared::block::BlockStates;
 use rc_shared::chunk::ChunkSystemTrait;
@@ -90,8 +90,7 @@ pub fn destroy_block_system(
 
         // Send network update
         world.send_event(SendPacket(
-            Protocol::BlockUpdate(BlockUpdate::new(
-                0,
+            Protocol::DestroyBlock(DestroyBlock::new(
                 event.position.x,
                 event.position.y,
                 event.position.z,

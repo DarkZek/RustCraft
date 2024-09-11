@@ -51,6 +51,9 @@ fn get_channel(protocol: &Protocol) -> Channel {
         | Protocol::UpdateInventory(_)
         | Protocol::Authorization(_)
         | Protocol::AuthorizationAccepted
+        | Protocol::PlaceBlock(_)
+        | Protocol::DestroyBlock(_)
+        | Protocol::ChangeHotbarSlot(_)
         | Protocol::AcknowledgeChunk(_) => Channel::Reliable,
 
         Protocol::FullChunkUpdate(_) | Protocol::PartialChunkUpdate(_) => Channel::Chunk,

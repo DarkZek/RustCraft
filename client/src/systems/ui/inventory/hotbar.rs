@@ -1,6 +1,10 @@
 use crate::game::inventory::Inventory;
 use crate::systems::ui::inventory::InventoryUI;
 use bevy::prelude::*;
+use rc_networking::protocol::Protocol;
+use rc_networking::protocol::serverbound::change_hotbar_slot::ChangeHotbarSlot;
+use rc_networking::types::SendPacket;
+use rc_shared::constants::UserId;
 
 const HOTBAR_SLOTS: usize = 10;
 
@@ -142,6 +146,7 @@ pub fn update_hotbar_ui(
     mut images: Query<&mut UiImage>,
     mut texts: Query<&mut Text>,
     asset_server: Res<AssetServer>,
+    mut send_packet: EventWriter<SendPacket>
 ) {
     let (selected_slot_changed, hotbar_index) = get_hotbar_keypresses(&keys);
 
@@ -166,6 +171,11 @@ pub fn update_hotbar_ui(
             .unwrap();
 
         selected_hotbar_image.texture = inventory_ui.hotbar_selected_images.as_ref().unwrap().get(hotbar_index as usize).unwrap().clone().into();
+
+        send_packet.send(SendPacket(
+            Protocol::ChangeHotbarSlot(ChangeHotbarSlot::new(hotbar_index)),
+            UserId(0)
+        ));
     }
 
     if inventory_ui.hotbar_icons.is_none() {

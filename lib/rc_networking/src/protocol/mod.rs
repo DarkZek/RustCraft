@@ -14,6 +14,9 @@ use crate::protocol::serverbound::request_chunk::RequestChunk;
 use self::clientbound::update_inventory::UpdateInventory;
 use self::clientbound::update_inventory_slot::UpdateInventorySlot;
 use serde::{Deserialize, Serialize};
+use crate::protocol::serverbound::change_hotbar_slot::ChangeHotbarSlot;
+use crate::protocol::serverbound::destroy_block::DestroyBlock;
+use crate::protocol::serverbound::place_block::PlaceBlock;
 use crate::protocol::serverbound::player_chat::PlayerChat;
 
 pub mod clientbound;
@@ -36,6 +39,9 @@ pub enum Protocol {
     ChatSent(ChatSent),
     ServerState(ServerState),
     PlayerChat(PlayerChat),
+    PlaceBlock(PlaceBlock),
+    ChangeHotbarSlot(ChangeHotbarSlot),
+    DestroyBlock(DestroyBlock),
     // Unused as networking solution does not support such large packets being sent so fast
     FullChunkUpdate(FullChunkUpdate),
     PartialChunkUpdate(PartialChunkUpdate),

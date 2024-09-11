@@ -19,8 +19,9 @@ use rc_shared::item::types::ItemStack;
 use rc_shared::item::ItemStates;
 use rc_shared::viewable_direction::BLOCK_SIDES;
 use bevy::log::warn;
-use bevy::prelude::trace;
+use bevy::prelude::{info, trace};
 use crate::game::entity::{DirtyPosition, DirtyRotation};
+use crate::game::inventory::Inventory;
 
 pub fn receive_message_event(
     mut event_reader: EventReader<ReceivePacket>,
@@ -32,7 +33,8 @@ pub fn receive_message_event(
     mut ew: EventWriter<SpawnGameObjectRequest>,
     block_states: Res<BlockStates>,
     item_states: Res<ItemStates>,
-    mut commands: Commands
+    mut commands: Commands,
+    mut inventory: Query<&mut Inventory>,
 ) {
     for event in event_reader.read() {
         match &event.0 {
@@ -68,9 +70,67 @@ pub fn receive_message_event(
                     warn!("Player {:?} tried to move that wasn't spawned in", event.1);
                 }
             }
-            Protocol::BlockUpdate(packet) => {
+            Protocol::ChangeHotbarSlot(request) => {
+                let Some(game_object_id) = system.clients.get(&event.1).unwrap().game_object_id else {
+                    continue
+                };
+                let test = global.get_game_object(&game_object_id).unwrap();
+                let mut inventory = inventory.get_mut(test).unwrap();
+                inventory.hotbar_slot = request.slot;
+            }
+            Protocol::PlaceBlock(packet) => {
+                let Some(game_object_id) = system.clients.get(&event.1).unwrap().game_object_id else {
+                    continue
+                };
+                let test = global.get_game_object(&game_object_id).unwrap();
+                let mut inventory = inventory.get_mut(test).unwrap();
+
+                info!("placing {:?}", inventory.selected_block().map(|f| f.item.name.clone()));
+
+                let block = inventory.take_selected_block();
+
+                let Some(block_id) = block else {
+                    warn!("Client tried to place unplacable block");
+                    continue
+                };
+
                 // TODO: Don't trust user input
-                let packet = BlockUpdate::new(packet.id, packet.x, packet.y, packet.z);
+                let packet = BlockUpdate::new(block_id, packet.x, packet.y, packet.z);
+
+                for (client, _) in &system.clients {
+                    if *client == event.1 {
+                        continue;
+                    }
+                    event_writer.send(SendPacket(Protocol::BlockUpdate(packet), *client));
+                }
+
+                let (chunk_loc, inner_loc) =
+                    global_to_local_position(Vector3::new(packet.x, packet.y, packet.z));
+
+                // Store
+                let old_block_id = if let Some(chunk) = global.chunks.get_mut(&chunk_loc) {
+                    let block_id = chunk.world.get(inner_loc);
+                    // Found chunk! Update block
+                    chunk.world.set(inner_loc, packet.id);
+                    block_id
+                } else {
+                    warn!("{:?} attempted to place block in unloaded chunk. Skipping {:?}", event.1, chunk_loc);
+                    continue;
+                };
+
+                // Trigger block update for all surrounding blocks
+                block_update_writer.send(BlockUpdateEvent {
+                    pos: Vector3::new(packet.x, packet.y, packet.z),
+                });
+                for side in &BLOCK_SIDES {
+                    block_update_writer.send(BlockUpdateEvent {
+                        pos: Vector3::new(packet.x, packet.y, packet.z) + side,
+                    });
+                }
+            }
+            Protocol::DestroyBlock(packet) => {
+                // TODO: Don't trust user input
+                let packet = BlockUpdate::new(0, packet.x, packet.y, packet.z);
 
                 for (client, _) in &system.clients {
                     if *client == event.1 {
