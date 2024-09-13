@@ -31,9 +31,9 @@ execute_command() {
         3)
             echo "You selected WASM Client. Building..."
 
-            if ! command -v wasm-bindgen &> /dev/null
+            if ! command -v wasm-pack &> /dev/null
             then
-                echo "wasm-bindgen could not be found. Install using cargo install -f wasm-bindgen-cli"
+                echo "wasm-pack could not be found. Install via https://rustwasm.github.io/wasm-pack/installer/"
                 exit 1
             fi
 
