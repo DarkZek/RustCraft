@@ -70,7 +70,7 @@ pub fn button_system(
             Interaction::Pressed => {
                 *color = PRESSED_BUTTON.into();
                 connection_intent.send(ConnectToServerIntent {
-                    address: "https://test.marshalldoes.dev:25568".parse().unwrap()
+                    address: "https://home.marshalldoes.dev:25568".parse().unwrap()
                 });
             }
             Interaction::Hovered => {

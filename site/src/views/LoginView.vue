@@ -1,0 +1,65 @@
+<script lang="ts" setup>
+
+async function onSubmit(e) {
+  const username = e.target.elements.username.value
+
+  e.preventDefault()
+
+  let response = await fetch(
+      "http://localhost:3000/login",
+      {
+        method: "POST",
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ username })
+      }
+  )
+
+  const json = await response.json()
+
+  localStorage.setItem("token", json.refresh_token)
+
+  // Logged in!
+
+  window.location = "/"
+
+  return false
+}
+
+</script>
+
+<template>
+  <form
+      id="form"
+      @submit.prevent="onSubmit"
+  >
+    <h3>RustCraft Login</h3>
+    <input placeholder="Username" name="username" required>
+    <input type="submit" value="Submit">
+  </form>
+</template>
+
+<style scoped lang="scss">
+
+body {
+  background-image: url("dirt.svg");
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+form {
+  width: 600px;
+  max-width: 90vw;
+  display: flex;
+  flex-direction: column;
+}
+
+h3 {
+  text-align: center;
+  color: white;
+}
+
+</style>

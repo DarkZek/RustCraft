@@ -20,7 +20,7 @@ thiserror = "1.0.37"
 bitflags = "2.4.1"
 rand = "0.8.5"
 web-time = { workspace = true }
-bevy = { workspace = true, default-features = true, features = ["trace"] }
+bevy = { workspace = true, default-features = true }
 rmp-serde = { workspace = true }
 bevy_mod_billboard = { version = "0.7.0" }
 wasm-bindgen = "0.2.93"

@@ -172,7 +172,7 @@ fn generate_atlas(
                 if (row_width + width) <= ATLAS_WIDTH {
                     texture_numbers_x.push(row_width + width - 1);
 
-                    // Generate a list of locations that our textures exist inside of the src atlas texture. These are in the form 1/(X POS) because this is how it's expected in the shaders.
+                    // Generate a list of locations that our textures exist inside of the site atlas texture. These are in the form 1/(X POS) because this is how it's expected in the shaders.
                     atlas_index.insert(
                         name.split('.').next().unwrap().to_string(),
                         TextureAtlasIndex::new(

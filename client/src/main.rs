@@ -58,6 +58,16 @@ fn main() {
                     level: Level::INFO,
                     ..default()
                 })
+                .set(WindowPlugin {
+                    primary_window: Some(Window {
+                        fit_canvas_to_parent:true,
+                        #[cfg(target_arch = "wasm32")]
+                        canvas: Some("#game".into()),
+                        prevent_default_event_handling: false,
+                        ..default()
+                    }),
+                    ..default()
+                })
                 .set(RenderPlugin {
                     render_creation: RenderCreation::Automatic(WgpuSettings {
                         ..default()
