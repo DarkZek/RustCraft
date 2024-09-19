@@ -38,27 +38,38 @@ execute_command() {
             fi
 
             rm -Rf ./export/wasm_client
-            mkdir -p ./export/wasm_client/wasm
+            mkdir -p ./export/wasm_client/site/wasm
             export $(grep -v '^#' .env | xargs)
 
-            cp -R ./site/* ./export/wasm_client
-            rm -Rf ./export/wasm_client/wasm/*
+            cp -R ./site ./export/wasm_client
+            rm -Rf ./export/wasm_client/site/wasm/*
+            rm -Rf ./export/wasm_client/site/dist
             cd client
-            wasm-pack build --out-dir ../export/wasm_client/wasm/ --target bundler --release --bin rc_client
+            wasm-pack build --out-dir ../export/wasm_client/site/wasm/ --target bundler --release --bin rc_client
             cd ..
 
-            cp -R ./assets ./export/wasm_client/public/
+            cp -R ./assets ./export/wasm_client/site/public/
 
-            source .env
+            cd ./export/wasm_client/site/
 
-            cd ./export/wasm_client/
+            pwd
 
             npm i
             npm run build
 
-            cd ../../
+            if test -d ./dist; then
+              echo "Build failed"
+              exit
+            fi
 
-            echo "Exported site to ./export/wasm_client. Run 'docker-compose up' in it to start wasm"
+            cd ../../../
+
+            cp -R ./export/wasm_client/site/dist ./export/wasm_client
+            cp ./export/wasm_client/site/docker-compose.yml ./export/wasm_client/
+
+            rm -Rf ./export/wasm_client/site
+
+            echo "Exported site to ./export/wasm_client. Run 'docker compose up' in it to start wasm"
             ;;
         4)
             echo "You selected Server. Building..."
