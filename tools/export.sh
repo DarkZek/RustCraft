@@ -44,6 +44,7 @@ execute_command() {
             cp -R ./site ./export/wasm_client
             rm -Rf ./export/wasm_client/site/wasm/*
             rm -Rf ./export/wasm_client/site/dist
+            rm -Rf ./export/wasm_client/site/node_modules
             cd client
             wasm-pack build --out-dir ../export/wasm_client/site/wasm/ --target bundler --release --bin rc_client
             cd ..
@@ -66,6 +67,7 @@ execute_command() {
 
             cp -R ./export/wasm_client/site/dist ./export/wasm_client
             cp ./export/wasm_client/site/docker-compose.yml ./export/wasm_client/
+            cp ./export/wasm_client/site/nginx.conf ./export/wasm_client/
 
             rm -Rf ./export/wasm_client/site
 

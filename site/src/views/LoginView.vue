@@ -15,7 +15,7 @@ async function onSubmit(e: any) {
 
     // Logged in!
 
-    router.push({ name: 'play' })
+    setTimeout(() => router.push({ name: 'play' }), 100)
   } catch (e) {
     alert('An error occurred')
     console.log(e)

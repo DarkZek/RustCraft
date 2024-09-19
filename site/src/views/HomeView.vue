@@ -5,19 +5,16 @@ import { onMounted } from 'vue'
 async function load() {
   if (true) {
     const { __wbg_set_wasm } = await import("../../wasm/rc_client_bg.js")
-
-    onMounted(async () => {
-      const wasm = await import("../../wasm/rc_client_bg.wasm")
-      __wbg_set_wasm(wasm);
-      wasm.__wbindgen_start();
-    })
+    const wasm = await import("../../wasm/rc_client_bg.wasm")
+    __wbg_set_wasm(wasm);
+    wasm.__wbindgen_start();
   } else {
     const { create_placeholder_game } = await import("../../wasm/rc_client_bg.js")
     create_placeholder_game()
   }
 }
 
-load()
+onMounted(load)
 
 let router = useRouter()
 
