@@ -1,41 +1,36 @@
 <script lang="ts" setup>
+import { useRouter } from 'vue-router'
+import { login } from '../services/apiService'
 
-async function onSubmit(e) {
+const router = useRouter()
+
+async function onSubmit(e: any) {
   const username = e.target.elements.username.value
 
   e.preventDefault()
 
-  let response = await fetch(
-      "http://localhost:3000/login",
-      {
-        method: "POST",
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ username })
-      }
-  )
+  try {
+    const json = await login(username)
+    localStorage.setItem("token", json.data.refresh_token)
 
-  const json = await response.json()
+    // Logged in!
 
-  localStorage.setItem("token", json.refresh_token)
+    router.push({ name: 'play' })
+  } catch (e) {
+    alert('An error occurred')
+    console.log(e)
+  }
 
-  // Logged in!
-
-  window.location = "/"
-
-  return false
 }
 
 </script>
 
 <template>
   <form
-      id="form"
-      @submit.prevent="onSubmit"
+    id="form"
+    @submit.prevent="onSubmit"
   >
-    <h3>RustCraft Login</h3>
+    <h2>RustCraft Login</h2>
     <input placeholder="Username" name="username" required>
     <input type="submit" value="Submit">
   </form>
@@ -43,21 +38,16 @@ async function onSubmit(e) {
 
 <style scoped lang="scss">
 
-body {
-  background-image: url("dirt.svg");
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-}
-
 form {
-  width: 600px;
+  width: 400px;
   max-width: 90vw;
   display: flex;
   flex-direction: column;
+  margin: auto;
+  padding-top: 48px;
 }
 
-h3 {
+h2 {
   text-align: center;
   color: white;
 }

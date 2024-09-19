@@ -57,6 +57,8 @@ execute_command() {
             mkdir export/server
             cargo build --release --bin rc_server
             cp ./target/release/rc_server ./export/server/rc_server
+
+            echo "Exported site to ./export/rc_server"
             ;;
         *)
             echo "Invalid selection. Please try again."

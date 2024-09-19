@@ -1,10 +1,8 @@
-version: '2'
 services:
-  site:
-    build: .
-    command: npm run dev
-    volumes:
-      - .:/usr/app/
-      - /usr/app/node_modules
+  nginx:
+    image: nginx:latest
     ports:
-      - "80:3000"
+      - "3001:80"
+    volumes:
+      - ./dist:/usr/share/nginx/html
+      - ./nginx.conf:/etc/nginx/nginx.conf
