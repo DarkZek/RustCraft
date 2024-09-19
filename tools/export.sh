@@ -49,7 +49,13 @@ execute_command() {
 
             cp -R ./assets ./export/wasm_client/public/
 
-            echo "Exported site to ./export/wasm_client"
+            cd ./export/wasm_client/
+
+            npm run build
+
+            cd ../../
+
+            echo "Exported site to ./export/wasm_client. Run 'docker-compose up' in it to start wasm"
             ;;
         4)
             echo "You selected Server. Building..."
