@@ -57,7 +57,7 @@ execute_command() {
             npm i
             npm run build
 
-            if test -d ./dist; then
+            if [ ! -d ./dist ]; then
               echo "Build failed"
               exit
             fi
