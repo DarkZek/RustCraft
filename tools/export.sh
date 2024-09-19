@@ -49,8 +49,11 @@ execute_command() {
 
             cp -R ./assets ./export/wasm_client/public/
 
+            source .env
+
             cd ./export/wasm_client/
 
+            npm i
             npm run build
 
             cd ../../
