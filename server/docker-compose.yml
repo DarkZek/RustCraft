@@ -1,0 +1,7 @@
+services:
+  nginx:
+    build: .
+    ports:
+      - "25568:25568"
+    volumes:
+      - ./:/etc/rc_server/

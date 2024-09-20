@@ -20,7 +20,11 @@ execute_command() {
             cd ./api/
             cargo build --release
             cd ..
+
             cp ./api/target/release/api ./export/api/
+            cp ./api/docker-compose.yml ./export/api/
+            cp ./api/Dockerfile ./export/api/
+
             echo "Exported api binary to ./export/api/api"
             ;;
         2)
@@ -79,6 +83,9 @@ execute_command() {
             mkdir export/server
             cargo build --release --bin rc_server
             cp ./target/release/rc_server ./export/server/rc_server
+
+            cp ./server/docker-compose.yml ./export/server/
+            cp ./server/Dockerfile ./export/server/
 
             echo "Exported site to ./export/rc_server"
             ;;
