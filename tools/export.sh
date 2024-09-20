@@ -88,7 +88,7 @@ execute_command() {
             cp ./server/Dockerfile ./export/server/
             cp -R ./assets ./export/server/
 
-            echo "Exported site to ./export/rc_server"
+            echo "Exported site to ./export/server"
             ;;
         *)
             echo "Invalid selection. Please try again."
