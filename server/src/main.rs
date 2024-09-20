@@ -50,6 +50,8 @@ fn main() {
 
     info!("Rustcraft Server starting");
 
+    let assets_dir = option_env!("ASSETS_DIR").unwrap_or("./assets/");
+
     // Build App
     App::default()
         .insert_resource(load_config())

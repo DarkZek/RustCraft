@@ -86,6 +86,7 @@ execute_command() {
 
             cp ./server/docker-compose.yml ./export/server/
             cp ./server/Dockerfile ./export/server/
+            cp -R ./assets ./export/server/
 
             echo "Exported site to ./export/rc_server"
             ;;
