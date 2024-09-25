@@ -25,6 +25,7 @@ pub fn disconnection_event(
     query: Query<(&Transform, &Inventory)>,
 ) {
     for event in event_reader.read() {
+
         let entry = clients.clients.remove(&event.client).unwrap();
 
         let Some(game_object_id) = &entry.game_object_id else {

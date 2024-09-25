@@ -18,6 +18,7 @@ use crate::{TransportSystem, WorldData};
 use rc_shared::constants::GameObjectId;
 use crate::systems::game_object::spawn::SpawnGameObjectRequest;
 use rc_networking::types::SendPacket;
+use crate::events::join::PlayerSpawnEvent;
 use crate::game::world::deserialized_player::DeserializedPlayerData;
 
 pub fn authorization_event(
@@ -29,6 +30,7 @@ pub fn authorization_event(
     transforms: Query<&Transform>,
     mut chunk_system: ResMut<ChunkSystem>,
     mut spawn_game_object: EventWriter<SpawnGameObjectRequest>,
+    mut player_spawn_event: EventWriter<PlayerSpawnEvent>
 ) {
     for client in event_reader.read() {
         // Load player data
@@ -107,5 +109,9 @@ pub fn authorization_event(
 
         // List this user as still loading in content, so we know to send them a packet to close the loading screen once chunks have been sent
         transport.initialising_clients.insert(client.user_id);
+
+        player_spawn_event.send(PlayerSpawnEvent {
+            id: client.user_id,
+        });
     }
 }

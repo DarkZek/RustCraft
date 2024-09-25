@@ -43,7 +43,7 @@ execute_command() {
 
             rm -Rf ./export/wasm_client
             mkdir -p ./export/wasm_client/site/wasm
-            export $(grep -v '^#' .env | xargs)
+            export $(grep -v '^#' build.env | xargs)
 
             cp -R ./site ./export/wasm_client
             rm -Rf ./export/wasm_client/site/wasm/*

@@ -38,6 +38,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
 use rc_networking::protocol::Protocol;
 use crate::game::entity::EntityPlugin;
+use crate::game::join_message::{join_message, leave_message};
 use crate::systems::chat::broadcast_chat;
 
 static SHUTDOWN_BIT: AtomicBool = AtomicBool::new(false);
@@ -91,7 +92,7 @@ fn main() {
         .add_systems(Startup, create_states)
         .add_systems(Update, generate_links)
         .add_systems(Update, propagate_inventories)
-        .add_systems(Update, broadcast_chat)
+        .add_systems(Update, (broadcast_chat, join_message, leave_message))
         // Run App
         .run();
 }

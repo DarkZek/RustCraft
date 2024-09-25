@@ -15,6 +15,7 @@ use tokio::runtime::Runtime;
 use tokio::task::JoinHandle;
 use crate::client::handshake::{HandshakeResult, negotiate_handshake};
 use crate::protocol::ALPN;
+use crate::skip_verification::SkipServerVerification;
 
 mod server_connection;
 mod systems;
@@ -56,12 +57,21 @@ impl NetworkingData {
         let mut roots = RootCertStore::empty();
         roots.add_parsable_certificates(certificates);
 
-        let mut client_config = rustls::ClientConfig::builder_with_provider(Arc::new(
-            rustls::crypto::ring::default_provider(),
-        ))
-            .with_protocol_versions(&[&rustls::version::TLS13]).unwrap()
-            .with_root_certificates(roots)
-            .with_no_client_auth();
+        let mut client_config = if !std::env::args().any(|v| v == "--unsafe-networking") {
+            rustls::ClientConfig::builder_with_provider(Arc::new(
+                rustls::crypto::ring::default_provider(),
+            ))
+                .with_protocol_versions(&[&rustls::version::TLS13]).unwrap()
+                .with_root_certificates(roots)
+                .with_no_client_auth()
+        } else {
+            rustls::crypto::ring::default_provider().install_default().unwrap();
+
+            rustls::ClientConfig::builder()
+                .dangerous()
+                .with_custom_certificate_verifier(SkipServerVerification::new())
+                .with_no_client_auth()
+        };
 
         client_config.alpn_protocols = vec![ALPN.to_vec()];
 

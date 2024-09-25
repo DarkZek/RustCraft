@@ -1,7 +1,7 @@
 services:
-  nginx:
+  server:
     build: .
     ports:
-      - "25568:25568"
+      - "25568:25568/udp"
     volumes:
       - ./:/etc/rc_server/

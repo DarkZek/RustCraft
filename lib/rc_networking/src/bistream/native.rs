@@ -36,7 +36,7 @@ impl BiStream {
                 {
                     trace!("Network write stream failed: {:?}", e);
                     // Exiting
-                    err2.send(StreamError::Error).unwrap();
+                    let _ = err2.send(StreamError::Error);
                     return send;
                 }
 
@@ -58,7 +58,7 @@ impl BiStream {
                 let data = match recv_protocol(&mut recv).await {
                     Ok(v) => v,
                     Err(e) => {
-                        err.send(StreamError::Error).unwrap();
+                        let _ = err.send(StreamError::Error);
                         trace!("Network stream exited: {:?}", e);
                         return recv;
                     }

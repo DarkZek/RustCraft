@@ -85,8 +85,6 @@ pub fn receive_message_event(
                 let test = global.get_game_object(&game_object_id).unwrap();
                 let mut inventory = inventory.get_mut(test).unwrap();
 
-                info!("placing {:?}", inventory.selected_block().map(|f| f.item.name.clone()));
-
                 let block = inventory.take_selected_block();
 
                 let Some(block_id) = block else {

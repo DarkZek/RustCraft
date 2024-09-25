@@ -9,6 +9,8 @@ pub mod types;
 #[cfg(not(target_arch = "wasm32"))]
 pub mod server;
 pub mod bistream;
+#[cfg(not(target_arch = "wasm32"))]
+mod skip_verification;
 
 use protocol::Protocol;
 

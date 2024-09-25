@@ -132,7 +132,9 @@ pub fn messages_update(
             }
             Protocol::DespawnGameObject(packet) => {
                 if let Some(entity) = system.entity_mapping.remove(&packet.entity) {
-                    commands.entity(entity).despawn();
+                    commands.entity(entity).despawn_recursive();
+                } else {
+                    warn!("Attempted to despawn entity that was not spawned {:?}", packet);
                 }
             }
             _ => {}
