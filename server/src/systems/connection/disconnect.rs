@@ -51,6 +51,8 @@ pub fn disconnection_event(
                     inventory: inventory.clone()
                 };
 
+                fs::create_dir_all("./world/players").unwrap();
+
                 fs::write(
                     format!("./world/players/{}", entry.user_id.0),
                     serde_json::to_string(&data).unwrap(),

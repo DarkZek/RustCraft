@@ -11,7 +11,6 @@ pub struct ChunkBuilderScheduler {
     last_built: Instant
 }
 
-
 impl ChunkBuilderSchedulerTrait for ChunkBuilderScheduler {
     fn new(executor: ChunkBuilderExecutor) -> Self {
         Self {

@@ -136,5 +136,7 @@ fn fragment(
     out.color = main_pass_post_lighting_processing(pbr_input, out.color);
 #endif
 
+    out.color *= in.lighting;
+
     return out;
 }
