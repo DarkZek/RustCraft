@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import { onMounted } from 'vue'
+import { isActive } from '../services/apiService.js';
 
 async function load() {
   if (false) {
@@ -25,6 +26,15 @@ if (!navigator.gpu) {
 } else {
   onMounted(load)
 }
+
+isActive().then((v) => {
+  if (v) {
+    return
+  }
+
+  // Api is down
+  router.push({ name: 'inactive' })
+})
 
 </script>
 

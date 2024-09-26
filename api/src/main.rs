@@ -1,7 +1,7 @@
 #![feature(duration_constructors)]
 
 use axum::Router;
-use axum::routing::post;
+use axum::routing::{post, get};
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
 use crate::login::login;
@@ -40,6 +40,7 @@ async fn main() {
         .allow_headers([CONTENT_TYPE]);
 
     let app = Router::new()
+        .route("/", get(root))
         .route("/login", post(login))
         .route("/session", post(open_session))
         .route("/join", post(join_server))
@@ -52,4 +53,8 @@ async fn main() {
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3001").await.unwrap();
     axum::serve(listener, app).await.unwrap();
+}
+
+pub async fn root() -> String {
+    format!("Active")
 }

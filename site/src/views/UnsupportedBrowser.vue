@@ -1,11 +1,19 @@
 <script lang="ts" setup>
+import { useRouter } from 'vue-router';
+
+const router = useRouter()
 
 const webgpu = navigator.gpu === undefined
 const webtransport = window.WebTransport === undefined
 
-const data = []
+const data: string[] = []
 if (webgpu) { data.push('WebGPU') }
 if (webtransport) { data.push('WebTransport') }
+
+if (!webgpu && !webtransport) {
+    // Browser does support
+    router.push({ name: 'player' })
+}
 
 </script>
 

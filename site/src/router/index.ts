@@ -18,6 +18,11 @@ const router = createRouter({
       path: '/unsupported',
       name: 'unsupported',
       component: () => import('../views/UnsupportedBrowser.vue')
+    },
+    {
+      path: '/inactive',
+      name: 'inactive',
+      component: () => import('../views/InactiveError.vue')
     }
   ]
 })
