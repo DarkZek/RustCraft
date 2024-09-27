@@ -54,19 +54,12 @@ pub struct ConsoleData {
     text_history: Entity,
     text_history_children_texts: Vec<Entity>,
     text_history_children_items: Vec<Entity>,
-    commands_executed: Vec<CommandExecuted>
+    messages_sent: Vec<String>
 }
 
 impl ConsoleData {
     pub fn execute_command(&mut self, command: &str) {
-
-        if !command.starts_with("/") {
-            // Send message
-            self.commands_executed.push(CommandExecuted::Message(command.to_string()));
-            return
-        }
-
-        self.log(&format!("Executing Command <{}>", command));
+        self.messages_sent.push(command.to_string());
     }
 
     pub fn log(&mut self, message: &str) {

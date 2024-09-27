@@ -36,9 +36,9 @@ impl From<Channel> for u8 {
 fn get_channel(protocol: &Protocol) -> Channel {
     match protocol {
         Protocol::PlayerMove(_)
-        | Protocol::EntityMoved(_)
+        | Protocol::GameObjectMoved(_)
         | Protocol::PlayerRotate(_)
-        | Protocol::EntityRotated(_) => Channel::Unreliable,
+        | Protocol::GameObjectRotated(_) => Channel::Unreliable,
 
         Protocol::BlockUpdate(_)
         | Protocol::Disconnect(_)

@@ -31,7 +31,7 @@ pub fn messages_update(
 ) {
     for event in event_reader.read() {
         match &event.0 {
-            Protocol::EntityMoved(update) => {
+            Protocol::GameObjectMoved(update) => {
                 if let Some(Ok(mut transform)) = system
                     .entity_mapping
                     .get(&update.entity)
@@ -44,7 +44,7 @@ pub fn messages_update(
                     error!("Move event received before game_object created");
                 }
             }
-            Protocol::EntityRotated(update) => {
+            Protocol::GameObjectRotated(update) => {
                 if let Some(Ok((entity, game_object_variants))) = system
                     .entity_mapping
                     .get(&update.entity)

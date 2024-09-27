@@ -3,6 +3,7 @@ use crate::game::world::data::WorldData;
 
 use crate::{AppExit, ServerConfig};
 use bevy::prelude::*;
+use nalgebra::Vector3;
 use rc_shared::game_objects::{GameObjectType, ItemDropGameObjectData, PlayerGameObjectData};
 use crate::game::inventory::Inventory;
 
@@ -10,6 +11,8 @@ pub mod data;
 mod saving;
 pub mod serialized;
 pub mod deserialized_player;
+
+pub static WORLD_SPAWN_LOCATION: Vector3<f32> = Vector3::new(0.0, 20.0, 0.0);
 
 pub struct WorldPlugin;
 

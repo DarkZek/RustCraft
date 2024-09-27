@@ -37,6 +37,7 @@ use rc_shared::item::{ItemStates, ItemStatesPlugin};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
 use rc_networking::protocol::Protocol;
+use crate::game::commands::CommandsPlugin;
 use crate::game::entity::EntityPlugin;
 use crate::game::join_message::{join_message, leave_message};
 use crate::systems::chat::broadcast_chat;
@@ -77,6 +78,7 @@ fn main() {
         .add_plugins(GameObjectPlugin)
         .add_plugins(ConnectionPlugin)
         .add_plugins(EntityPlugin)
+        .add_plugins(CommandsPlugin)
         .add_plugins(BlockStatesPlugin {
             texture_atlas: &DUMMY_ATLAS,
         })

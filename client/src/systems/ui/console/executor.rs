@@ -13,14 +13,10 @@ pub fn execute_commands(
     mut data: ResMut<ConsoleData>,
     mut send_packet: EventWriter<SendPacket>
 ) {
-    for command in data.commands_executed.drain(..) {
-        match command {
-            CommandExecuted::Message(message) => {
-                let packet = Protocol::PlayerChat(PlayerChat {
-                    message
-                });
-                send_packet.send(SendPacket(packet, UserId(0)));
-            }
-        }
+    for message in data.messages_sent.drain(..) {
+        let packet = Protocol::PlayerChat(PlayerChat {
+            message
+        });
+        send_packet.send(SendPacket(packet, UserId(0)));
     }
 }

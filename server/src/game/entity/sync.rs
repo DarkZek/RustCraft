@@ -1,7 +1,7 @@
 use bevy::prelude::{Commands, Entity, EventWriter, Or, Query, Res, With};
 use nalgebra::Vector3;
-use rc_networking::protocol::clientbound::entity_moved::EntityMoved;
-use rc_networking::protocol::clientbound::entity_rotated::EntityRotated;
+use rc_networking::protocol::clientbound::game_object_moved::GameObjectMoved;
+use rc_networking::protocol::clientbound::game_object_rotated::GameObjectRotated;
 use rc_networking::protocol::Protocol;
 use rc_networking::types::SendPacket;
 use rc_shared::game_objects::PlayerGameObjectData;
@@ -52,8 +52,8 @@ pub fn sync_entities(
             // Send updates
             if position.is_some() {
                 ew.send(SendPacket(
-                    Protocol::EntityMoved(
-                        EntityMoved {
+                    Protocol::GameObjectMoved(
+                        GameObjectMoved {
                             entity: game_object.id,
                             x: transform.position.x,
                             y: transform.position.y,
@@ -66,8 +66,8 @@ pub fn sync_entities(
             }
             if rotation.is_some() {
                 ew.send(SendPacket(
-                    Protocol::EntityRotated(
-                        EntityRotated {
+                    Protocol::GameObjectRotated(
+                        GameObjectRotated {
                             entity: game_object.id,
                             x: transform.rotation.coords.x,
                             y: transform.rotation.coords.y,

@@ -2,8 +2,8 @@ use crate::protocol::clientbound::block_update::BlockUpdate;
 use crate::protocol::clientbound::chat::ChatSent;
 use crate::protocol::clientbound::chunk_update::{FullChunkUpdate, PartialChunkUpdate};
 use crate::protocol::clientbound::despawn_game_object::DespawnGameObject;
-use crate::protocol::clientbound::entity_moved::EntityMoved;
-use crate::protocol::clientbound::entity_rotated::EntityRotated;
+use crate::protocol::clientbound::game_object_moved::GameObjectMoved;
+use crate::protocol::clientbound::game_object_rotated::GameObjectRotated;
 use crate::protocol::clientbound::server_state::ServerState;
 use crate::protocol::clientbound::spawn_game_object::SpawnGameObject;
 use crate::protocol::clientbound::update_loading::UpdateLoading;
@@ -31,9 +31,9 @@ pub enum Protocol {
     Authorization(String),
     AuthorizationAccepted,
     PlayerMove(PlayerMove),
-    EntityMoved(EntityMoved),
+    GameObjectMoved(GameObjectMoved),
     PlayerRotate(PlayerRotate),
-    EntityRotated(EntityRotated),
+    GameObjectRotated(GameObjectRotated),
     DespawnGameObject(DespawnGameObject),
     BlockUpdate(BlockUpdate),
     ChatSent(ChatSent),

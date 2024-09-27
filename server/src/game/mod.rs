@@ -9,3 +9,4 @@ pub mod world;
 pub mod inventory;
 pub mod entity;
 pub mod join_message;
+pub mod commands;

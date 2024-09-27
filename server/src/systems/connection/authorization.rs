@@ -20,6 +20,7 @@ use crate::systems::game_object::spawn::SpawnGameObjectRequest;
 use rc_networking::types::SendPacket;
 use crate::events::join::PlayerSpawnEvent;
 use crate::game::world::deserialized_player::DeserializedPlayerData;
+use crate::game::world::WORLD_SPAWN_LOCATION;
 
 pub fn authorization_event(
     mut event_reader: EventReader<AuthorizationEvent>,
@@ -46,7 +47,7 @@ pub fn authorization_event(
 
             (transform, player_data.inventory)
         } else {
-            (Transform::from_translation(Vector3::new(0.0, 20.0, 0.0)), Inventory::default())
+            (Transform::from_translation(WORLD_SPAWN_LOCATION), Inventory::default())
         };
 
         // Recompute inventory
