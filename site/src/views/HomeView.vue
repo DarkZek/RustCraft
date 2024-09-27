@@ -1,29 +1,32 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { isActive } from '../services/apiService';
 import { loadGame } from '../utils/game';
+import { webgpuSupported, webtransportSupported } from '../utils/compatibility';
 
 let router = useRouter()
 
-if (!localStorage.getItem("token")) {
-  router.push({ name: 'login' })
-} else {
-    if (!(navigator as any).gpu) {
-      router.push({ name: 'unsupported' })
-    } else {
-      onMounted(loadGame)
-    }
-}
-
-isActive().then((v) => {
-  if (v) {
+async function start() {
+  if (!localStorage.getItem("token")) {
+    router.push({ name: 'login' })
     return
   }
 
-  // Api is down
-  router.push({ name: 'inactive' })
-})
+  if (!webgpuSupported || !webtransportSupported) {
+    router.push({ name: 'unsupported' })
+    return
+  }
+  
+  if (!await isActive()) {
+    // Api is down
+    router.push({ name: 'inactive' })
+    return
+  }
+
+  loadGame()
+}
+onMounted(start)
 
 </script>
 
