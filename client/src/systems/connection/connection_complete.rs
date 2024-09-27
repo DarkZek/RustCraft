@@ -1,11 +1,11 @@
-use bevy::prelude::{EventReader, info, NextState, Res, ResMut};
+use bevy::prelude::{EventReader, NextState, Res, ResMut};
 use crate::state::AppState;
 use crate::systems::chunk::builder::ChunkRebuiltEvent;
 use crate::systems::chunk::ChunkSystem;
 use crate::systems::chunk::flags::ChunkFlagsBitMap;
 
 pub fn detect_connection_complete(
-    mut packets: EventReader<ChunkRebuiltEvent>,
+    packets: EventReader<ChunkRebuiltEvent>,
     mut app_state: ResMut<NextState<AppState>>,
     chunks: Res<ChunkSystem>
 ) {

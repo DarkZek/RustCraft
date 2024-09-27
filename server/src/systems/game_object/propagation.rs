@@ -2,7 +2,7 @@ use crate::game::game_object::GameObject;
 use crate::game::transform::Transform;
 use crate::{EventWriter, PlayerSpawnEvent, WorldData};
 use bevy::log::warn;
-use bevy::prelude::{EventReader, info, Query, ResMut};
+use bevy::prelude::{EventReader, Query, ResMut};
 use rc_networking::protocol::clientbound::spawn_game_object::SpawnGameObject;
 use rc_networking::protocol::Protocol;
 use rc_networking::types::SendPacket;

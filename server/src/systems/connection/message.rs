@@ -19,7 +19,7 @@ use rc_shared::item::types::ItemStack;
 use rc_shared::item::ItemStates;
 use rc_shared::viewable_direction::BLOCK_SIDES;
 use bevy::log::warn;
-use bevy::prelude::{info, trace};
+use bevy::prelude::trace;
 use crate::game::entity::{DirtyPosition, DirtyRotation};
 use crate::game::inventory::Inventory;
 

@@ -1,5 +1,5 @@
 use bevy::app::{App, Update};
-use bevy::prelude::{in_state, IntoSystemConfigs, OnEnter, Plugin};
+use bevy::prelude::{in_state, IntoSystemConfigs, Plugin};
 use crate::state::AppState;
 use crate::systems::connection::connect::{accept_server_connection_intent, connect_to_server, ConnectToServerIntent, PendingServerConnection};
 use crate::systems::connection::connection_complete::{detect_connection_complete};

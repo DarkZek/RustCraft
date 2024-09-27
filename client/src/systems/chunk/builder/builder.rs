@@ -72,7 +72,7 @@ impl MeshBuilderContext {
         // Loop over all new chunks to render and add them to the list if the chunk exists and if its not already being rerendered
         for pos in rerender_chunks {
             // The chunk data exists
-            if let Some(mut chunk) = chunks.chunks.get_mut(&pos) {
+            if let Some(chunk) = chunks.chunks.get_mut(&pos) {
                 if chunk.flags.has_flag(ChunkFlagsBitMap::AtEdge) {
                     // At edge of loaded world. We can't know its visible direction yet, so don't build it
                     continue

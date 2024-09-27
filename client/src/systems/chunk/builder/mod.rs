@@ -5,8 +5,7 @@ pub mod build_context;
 pub mod thread;
 pub mod builder;
 
-use crate::systems::chunk::builder::entry::{MeshBuildEntry, PLAYER_POS};
-use crate::systems::chunk::builder::generate_mesh::UpdateChunkMesh;
+use crate::systems::chunk::builder::entry::PLAYER_POS;
 use crate::systems::chunk::nearby_cache::NearbyChunkCache;
 use crate::systems::chunk::ChunkSystem;
 use bevy::prelude::*;
@@ -15,16 +14,11 @@ use bevy::render::render_resource::VertexFormat;
 use nalgebra::Vector3;
 use rc_shared::block::BlockStates;
 use rc_shared::helpers::from_bevy_vec3;
-use std::collections::BinaryHeap;
 use std::sync::atomic::Ordering;
-use bevy::tasks::Task;
-use rc_shared::chunk::ChunkDataStorage;
 use crate::systems::camera::MainCamera;
 use crate::systems::chunk::builder::build_context::ChunkBuildContext;
 use crate::systems::chunk::builder::builder::MeshBuilderContext;
-use crate::systems::chunk::builder::lighting::{LightingUpdateData};
-use crate::systems::chunk::builder::thread::ChunkBuilderScheduler;
-use crate::systems::chunk::builder::thread::executor::{ChunkBuilderExecutor, ChunkBuilderJob};
+use crate::systems::chunk::builder::thread::executor::ChunkBuilderJob;
 use crate::systems::chunk::flags::ChunkFlagsBitMap;
 use crate::systems::chunk::builder::thread::ChunkBuilderSchedulerTrait;
 

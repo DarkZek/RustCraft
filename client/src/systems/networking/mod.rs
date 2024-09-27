@@ -8,7 +8,6 @@ use rc_networking::client::NetworkingClientPlugin;
 use rc_shared::constants::{GameObjectId, UserId};
 use std::collections::HashMap;
 use crate::authentication::GameAuthentication;
-use crate::systems::connection::connect::{accept_server_connection_intent, connect_to_server, ConnectToServerIntent, PendingServerConnection};
 
 mod chunk;
 mod location_sync;

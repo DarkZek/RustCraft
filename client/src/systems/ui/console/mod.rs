@@ -150,7 +150,7 @@ impl ConsoleData {
     }
 
     pub fn expire_old(&mut self) {
-        for (i, item) in self.history.iter_mut().enumerate() {
+        for (_, item) in self.history.iter_mut().enumerate() {
             if !item.expired && item.created_at.elapsed().as_secs_f32() > CONSOLE_HISTORY_RETENTION_SECONDS {
                 item.expired = true;
                 self.dirty = true;
