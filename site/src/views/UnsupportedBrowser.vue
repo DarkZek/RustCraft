@@ -3,7 +3,7 @@ import { useRouter } from 'vue-router';
 
 const router = useRouter()
 
-const webgpu = navigator.gpu === undefined
+const webgpu = (navigator as any).gpu === undefined
 const webtransport = window.WebTransport === undefined
 
 const data: string[] = []
