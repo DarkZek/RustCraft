@@ -33,12 +33,14 @@ pub struct ConsoleLog(pub String, pub Level);
 
 const MAX_CONSOLE_HISTORY: usize = 8;
 const CONSOLE_HISTORY_RETENTION_SECONDS: f32 = 12.0;
+const MAX_CHAT_LENGTH: usize = 200;
 
 struct HistoryItem {
     text_color: Color,
     background_color: Color,
     message: String,
-    created_at: Instant
+    created_at: Instant,
+    expired: bool
 }
 
 #[derive(Resource)]
@@ -73,6 +75,7 @@ impl ConsoleData {
             background_color: Color::srgba(0.0, 0.0, 0.0, 0.5),
             message: message.to_string(),
             created_at: Instant::now(),
+            expired: false,
         };
         self.history.insert(0, item);
 
@@ -89,6 +92,7 @@ impl ConsoleData {
             background_color: Color::srgba(1.0, 0.6, 0.3, 0.65),
             message: message.to_string(),
             created_at: Instant::now(),
+            expired: false,
         };
         self.history.insert(0, item);
 
@@ -105,6 +109,7 @@ impl ConsoleData {
             background_color: Color::srgba(0.8, 0.0, 0.0, 0.65),
             message: message.to_string(),
             created_at: Instant::now(),
+            expired: false,
         };
         self.history.insert(0, item);
 
@@ -121,6 +126,7 @@ impl ConsoleData {
             background_color,
             message: message.to_string(),
             created_at: Instant::now(),
+            expired: false,
         };
         self.history.insert(0, item);
 
@@ -134,28 +140,21 @@ impl ConsoleData {
     pub fn capture(&mut self, query: &mut Query<&mut Visibility>) {
         self.capturing = true;
         *query.get_mut(self.ui).unwrap() = Visibility::Visible;
+        self.dirty = true;
     }
 
     pub fn uncapture(&mut self, query: &mut Query<&mut Visibility>) {
         self.capturing = false;
         *query.get_mut(self.ui).unwrap() = Visibility::Hidden;
+        self.dirty = true;
     }
 
     pub fn expire_old(&mut self) {
-        let mut expired_starts = self.history.len();
-
-        for (i, item) in self.history.iter().enumerate() {
-            if item.created_at.elapsed().as_secs_f32() > CONSOLE_HISTORY_RETENTION_SECONDS {
-                // The youngest record that is expired
-                expired_starts = i;
-                break;
+        for (i, item) in self.history.iter_mut().enumerate() {
+            if !item.expired && item.created_at.elapsed().as_secs_f32() > CONSOLE_HISTORY_RETENTION_SECONDS {
+                item.expired = true;
+                self.dirty = true;
             }
-        }
-
-        // Pop off messages until we reach non expired
-        while self.history.len() > expired_starts {
-            self.history.pop();
-            self.dirty = true;
         }
     }
 }

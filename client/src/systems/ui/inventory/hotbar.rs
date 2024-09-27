@@ -5,6 +5,7 @@ use rc_networking::protocol::Protocol;
 use rc_networking::protocol::serverbound::change_hotbar_slot::ChangeHotbarSlot;
 use rc_networking::types::SendPacket;
 use rc_shared::constants::UserId;
+use crate::systems::ui::console::ConsoleData;
 
 const HOTBAR_SLOTS: usize = 10;
 
@@ -146,8 +147,10 @@ pub fn update_hotbar_ui(
     mut images: Query<&mut UiImage>,
     mut texts: Query<&mut Text>,
     asset_server: Res<AssetServer>,
-    mut send_packet: EventWriter<SendPacket>
+    mut send_packet: EventWriter<SendPacket>,
+    console_data: Res<ConsoleData>,
 ) {
+
     let (selected_slot_changed, hotbar_index) = get_hotbar_keypresses(&keys);
 
     if !selected_slot_changed && hotbar_index != inventory.hotbar_slot && !inventory.dirty {
@@ -156,7 +159,7 @@ pub fn update_hotbar_ui(
 
     inventory.dirty = false;
 
-    if selected_slot_changed {
+    if selected_slot_changed && !console_data.capturing {
         inventory.hotbar_slot = hotbar_index;
 
         let mut selected_hotbar_style = style

@@ -2,7 +2,7 @@ use bevy::color::Color;
 use bevy::input::ButtonState;
 use bevy::input::keyboard::{Key, KeyboardInput};
 use bevy::prelude::{BackgroundColor, BuildChildren, Commands, default, Entity, EventReader, FlexDirection, JustifyContent, KeyCode, NodeBundle, Query, ResMut, Style, Text, TextBundle, TextStyle, UiRect, Val, Visibility};
-use crate::systems::ui::console::{ConsoleData, MAX_CONSOLE_HISTORY};
+use crate::systems::ui::console::{ConsoleData, MAX_CHAT_LENGTH, MAX_CONSOLE_HISTORY};
 
 pub fn setup_console_ui(
     mut commands: Commands
@@ -167,6 +167,9 @@ pub fn handle_keyboard_input(
         }
 
         if let Key::Character(char) = &ev.logical_key {
+            if data.prompt_text.len() > MAX_CHAT_LENGTH {
+                continue
+            }
             data.prompt_text += char;
             data.dirty = true;
         }
@@ -215,15 +218,27 @@ pub fn update_ui(
         let text_entity = data.text_history_children_texts.get(i).unwrap().clone();
 
         if let Some(val) = data.history.get(i) {
-            update_history_item(
-                &mut query,
-                item_entity,
-                text_entity,
-                Some(Visibility::Visible),
-                Some(&val.message),
-                Some(val.text_color),
-                Some(val.background_color)
-            );
+            if !val.expired || data.capturing {
+                update_history_item(
+                    &mut query,
+                    item_entity,
+                    text_entity,
+                    Some(Visibility::Visible),
+                    Some(&val.message),
+                    Some(val.text_color),
+                    Some(val.background_color)
+                );
+            } else {
+                update_history_item(
+                    &mut query,
+                    item_entity,
+                    text_entity,
+                    Some(Visibility::Hidden),
+                    None,
+                    None,
+                    None
+                );
+            }
         } else {
             update_history_item(
                 &mut query,
