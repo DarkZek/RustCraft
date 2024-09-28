@@ -28,7 +28,7 @@ pub fn request_chunks(
     }
 
     #[cfg(target_arch = "wasm32")]
-    let render_distance = 4;
+    let render_distance = 6;
     #[cfg(not(target_arch = "wasm32"))]
     let render_distance = 8;
 

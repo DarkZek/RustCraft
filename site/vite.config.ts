@@ -20,5 +20,14 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
-  }
+  },
+  worker: {
+    format: "es",
+    plugins() {
+      return [
+        wasm(),
+        topLevelAwait(),
+      ]
+    }
+  },
 })

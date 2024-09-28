@@ -1,8 +1,9 @@
 use crate::atlas::TextureAtlasIndex;
 use crate::viewable_direction::ViewableDirectionBitMap;
 use nalgebra::Vector3;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Face {
     pub top_left: Vector3<f32>,
     pub top_right: Vector3<f32>,

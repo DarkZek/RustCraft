@@ -86,7 +86,7 @@ impl NetworkingData {
 
             let handshake_result = match negotiate_handshake(&mut session, join_token).await {
                 Ok(v) => v,
-                Err(e) => panic!("Server connection failed {:?}", e)
+                Err(e) => panic!("Server handshake failed {:?}", e)
             };
 
             let HandshakeResult {

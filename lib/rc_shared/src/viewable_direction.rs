@@ -7,7 +7,7 @@ use nalgebra::Vector3;
 use serde::{Deserialize, Serialize};
 use crate::CHUNK_SIZE;
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct ViewableDirection(pub u8);
 
 #[derive(Clone, Copy, PartialEq, Debug, Deserialize, Serialize)]

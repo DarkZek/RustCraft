@@ -38,16 +38,20 @@
 
 <body>
 <div id="game"></div>
-{{ NO_MODULE }}
 <script type="module">
-    // {{ MODULE }}
+    import wasm_bindgen, { start_game,  } from './api/wasm.js';
 
     async function run() {
+
+        const worker = new Worker("worker.js", { type: "module" })
+
         await wasm_bindgen("/api/wasm.wasm").catch(error => {
             if (!error.message.startsWith("Using exceptions for control flow, don't mind me. This isn't actually an error!")) {
                 throw error;
             }
         });
+
+        start_game(worker);
     }
 
     const reloadInterval = 1000;

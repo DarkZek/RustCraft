@@ -2,10 +2,12 @@ use crate::systems::chunk::builder::{ATTRIBUTE_LIGHTING_COLOR, ATTRIBUTE_WIND_ST
 use bevy::prelude::Mesh;
 use bevy::render::mesh::{Indices, VertexAttributeValues};
 use nalgebra::Vector3;
+use serde::{Deserialize, Serialize};
 use rc_shared::block::face::Face;
 use rc_shared::chunk::LightingColor;
 
 /// Stores all objects allowing for more ergonomic drawing of objects
+#[derive(Serialize, Deserialize)]
 pub struct DrawKit {
     pub positions: Vec<[f32; 3]>,
     pub indices: Vec<u32>,

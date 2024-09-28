@@ -1,6 +1,7 @@
 use std::fmt::{Debug, Formatter};
+use serde::{Deserialize, Serialize};
 
-#[derive(Default, Clone, Copy, PartialEq, Eq)]
+#[derive(Default, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ChunkFlags(pub u8);
 
 pub enum ChunkFlagsBitMap {

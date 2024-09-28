@@ -3,6 +3,7 @@ use crate::systems::chunk::builder::thread::executor::{ChunkBuilderExecutor, Chu
 pub mod unthreaded;
 #[cfg(not(target_arch = "wasm32"))]
 pub mod threaded;
+pub mod wasm;
 
 pub trait ChunkBuilderSchedulerTrait {
     fn new(executor: ChunkBuilderExecutor) -> Self;

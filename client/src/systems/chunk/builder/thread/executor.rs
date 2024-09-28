@@ -1,4 +1,5 @@
 use nalgebra::Vector3;
+use serde::{Deserialize, Serialize};
 use rc_shared::block::BlockStates;
 use crate::systems::chunk::builder::build_context::ChunkBuildContext;
 use crate::systems::chunk::builder::generate_mesh::UpdateChunkMesh;
@@ -7,7 +8,7 @@ use crate::systems::chunk::data::ChunkData;
 
 pub struct ChunkBuilderExecutor {
     pub requests: Vec<ChunkBuilderJob>,
-    block_states: BlockStates
+    pub block_states: BlockStates
 }
 
 impl ChunkBuilderExecutor {
@@ -44,11 +45,13 @@ impl ChunkBuilderExecutor {
     }
 }
 
+#[derive(Serialize, Deserialize)]
 pub struct ChunkBuilderJob {
     pub chunk: ChunkData,
     pub context: ChunkBuildContext
 }
 
+#[derive(Serialize, Deserialize)]
 pub struct ChunkBuilderUpdate {
     pub position: Vector3<i32>,
     pub mesh: UpdateChunkMesh,

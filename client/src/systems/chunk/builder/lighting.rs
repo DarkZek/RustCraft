@@ -5,12 +5,14 @@ use rc_shared::chunk::RawLightingData;
 use rc_shared::viewable_direction::BLOCK_SIDES;
 use rc_shared::CHUNK_SIZE;
 use std::collections::VecDeque;
+use serde::{Deserialize, Serialize};
 use web_time::Instant;
 use crate::systems::chunk::builder::build_context::ChunkBuildContext;
 use rc_shared::relative_chunk_map::RelativeChunkMap;
 
 const MAX_LIGHT_VALUE: usize = 16;
 
+#[derive(Serialize, Deserialize)]
 pub struct LightingUpdateData {
     pub data: RawLightingData,
 }

@@ -1,20 +1,23 @@
 use nalgebra::Vector3;
+use serde::{Deserialize, Serialize};
 use crate::systems::chunk::nearby_cache::NearbyChunkCache;
 use rc_shared::CHUNK_SIZE;
 use rc_shared::helpers::global_to_local_position;
+use crate::systems::chunk::condensed_spacial_data::CondensedSpacialData;
 use crate::systems::chunk::data::ChunkData;
 
 /// Stores information for each block in a 3x3 of chunk data centered on `position`
+#[derive(Deserialize, Serialize)]
 pub struct NearbyChunkMap<T: Sized + Copy> {
     position: Vector3<i32>,
-    pub data: [[[T; CHUNK_SIZE * 3]; CHUNK_SIZE * 3]; CHUNK_SIZE * 3]
+    pub data: CondensedSpacialData<T>
 }
 
 impl<T: Default + Copy> Default for NearbyChunkMap<T> {
     fn default() -> Self {
         NearbyChunkMap {
             position: Default::default(),
-            data: [[[T::default(); CHUNK_SIZE * 3]; CHUNK_SIZE * 3]; CHUNK_SIZE * 3],
+            data: CondensedSpacialData::new(CHUNK_SIZE * 3)
         }
     }
 }
@@ -23,13 +26,13 @@ impl<T: Default + Copy> NearbyChunkMap<T> {
     pub fn new_empty(position: Vector3<i32>) -> Self {
         NearbyChunkMap {
             position,
-            data: [[[T::default(); CHUNK_SIZE * 3]; CHUNK_SIZE * 3]; CHUNK_SIZE * 3],
+            data: CondensedSpacialData::new(CHUNK_SIZE * 3)
         }
     }
 }
 
 impl<T: Copy> NearbyChunkMap<T> {
-    pub fn new(position: Vector3<i32>, data: [[[T; CHUNK_SIZE * 3]; CHUNK_SIZE * 3]; CHUNK_SIZE * 3]) -> Self {
+    pub fn new(position: Vector3<i32>, data: CondensedSpacialData<T>) -> Self {
         NearbyChunkMap {
             position,
             data,
@@ -50,7 +53,7 @@ impl<T: Copy> NearbyChunkMap<T> {
                                 let index = world_to_index_unchecked(world_position, self.position);
 
                                 cb(NearbyChunkItem {
-                                    data: &self.data[index.x][index.y][index.z],
+                                    data: self.data.get(index).unwrap(),
                                     world_position,
                                     chunk_position: Vector3::new(chunk_x, chunk_y, chunk_z),
                                     block_position: Vector3::new(x, y, z),
@@ -77,7 +80,7 @@ impl<T: Copy> NearbyChunkMap<T> {
                                 let index = world_to_index_unchecked(world_position, self.position);
 
                                 cb(NearbyChunkItemMut {
-                                    data: &mut self.data[index.x][index.y][index.z],
+                                    data: self.data.get_mut(index).unwrap(),
                                     world_position,
                                     chunk_position: Vector3::new(chunk_x, chunk_y, chunk_z),
                                     block_position: Vector3::new(x, y, z),
@@ -107,7 +110,7 @@ impl<T: Copy> NearbyChunkMap<T> {
                                 let index = world_to_index_unchecked(world_position, self.position);
 
                                 cb(NearbyChunkItemWithChunkMut {
-                                    data: &mut self.data[index.x][index.y][index.z],
+                                    data: self.data.get_mut(index).unwrap(),
                                     world_position,
                                     chunk_position: Vector3::new(chunk_x, chunk_y, chunk_z),
                                     block_position: Vector3::new(x, y, z),
@@ -126,13 +129,7 @@ impl<T: Copy> NearbyChunkMap<T> {
 
         if let Some(index) = index {
             self.data
-                .get(index.x)
-                .map(|y| {
-                    y.get(index.y)
-                        .map(|z| z.get(index.z))
-                })
-                .flatten()
-                .flatten()
+                .get(index)
 
         } else {
             None
@@ -144,13 +141,7 @@ impl<T: Copy> NearbyChunkMap<T> {
 
         if let Some(index) = index {
             self.data
-                .get_mut(index.x)
-                .map(|y| {
-                    y.get_mut(index.y)
-                        .map(|z| z.get_mut(index.z))
-                })
-                .flatten()
-                .flatten()
+                .get_mut(index)
 
         } else {
             None
@@ -164,7 +155,7 @@ impl<T: Copy> NearbyChunkMap<T> {
         let (chunk_position, block_position) = global_to_local_position(world_position);
 
         NearbyChunkItem {
-            data: &self.data[index.x][index.y][index.z],
+            data: self.data.get(index).unwrap(),
             world_position,
             chunk_position,
             block_position,
@@ -178,7 +169,7 @@ impl<T: Copy> NearbyChunkMap<T> {
         let (chunk_position, block_position) = global_to_local_position(world_position);
 
         NearbyChunkItem {
-            data: &mut self.data[index.x][index.y][index.z],
+            data: self.data.get_mut(index).unwrap(),
             world_position,
             chunk_position,
             block_position,
@@ -256,13 +247,14 @@ pub struct NearbyChunkItemWithChunkMut<'a, T> {
 #[cfg(test)]
 mod tests {
     use nalgebra::{ Vector3};
+    use crate::systems::chunk::condensed_spacial_data::CondensedSpacialData;
     use crate::systems::chunk::nearby_chunk_map::NearbyChunkMap;
 
     #[test]
     fn check_positions() {
         let mut data: NearbyChunkMap<bool> = NearbyChunkMap::new(
             Vector3::new(1, 0, 0),
-            [[[false; 48]; 48]; 48]
+            CondensedSpacialData::from_slice([[[false; 48]; 48]; 48])
         );
 
         *data.get_position_mut(Vector3::new(17, 0, 0)).unwrap() = true;
@@ -283,7 +275,7 @@ mod tests {
     fn boundary_testing() {
         let mut data: NearbyChunkMap<bool> = NearbyChunkMap::new(
             Vector3::new(0, 0, 0),
-            [[[false; 48]; 48]; 48]
+            CondensedSpacialData::from_slice([[[false; 48]; 48]; 48])
         );
 
         assert_eq!(data.get_position_mut(Vector3::new(-16, 0, 0)).is_some(), true);

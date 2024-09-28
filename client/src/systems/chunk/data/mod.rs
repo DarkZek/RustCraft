@@ -1,6 +1,7 @@
 use bevy::ecs::component::Component;
 use bevy::prelude::{Entity, Handle, Mesh};
 use nalgebra::Vector3;
+use serde::{Deserialize, Serialize};
 use rc_shared::chunk::{ChunkDataStorage, RawLightingData};
 use rc_shared::viewable_direction::ViewableDirection;
 use rc_shared::CHUNK_SIZE;
@@ -8,7 +9,7 @@ use crate::systems::chunk::flags::ChunkFlags;
 
 pub mod viewable;
 
-#[derive(Debug, Component, Clone, PartialEq)]
+#[derive(Debug, Component, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ChunkData {
     pub position: Vector3<i32>,
 
@@ -21,6 +22,7 @@ pub struct ChunkData {
     pub light_levels: RawLightingData,
 
     // Always set except for during tests
+    #[serde(skip)]
     pub handles: Option<ChunkHandleData>,
 
     pub flags: ChunkFlags

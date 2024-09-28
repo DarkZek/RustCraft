@@ -1,11 +1,13 @@
 use std::collections::HashMap;
 use fnv::{FnvBuildHasher, FnvHashMap};
 use nalgebra::Vector3;
+use serde::{Deserialize, Serialize};
 use rc_shared::block::BlockStates;
 use rc_shared::chunk::LightingColor;
 use crate::systems::chunk::nearby_cache::NearbyChunkCache;
 use crate::systems::chunk::nearby_chunk_map::NearbyChunkMap;
 
+#[derive(Serialize, Deserialize)]
 pub struct ChunkBuildContext {
     // Location of all lights in the surrounding chunks
     pub lights: Vec<(Vector3<i32>, [u8; 4])>,
@@ -16,7 +18,7 @@ pub struct ChunkBuildContext {
     pub surrounding_data: HashMap<Vector3<i32>, ChunkBuildContextNeighborBlockData, FnvBuildHasher>
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ChunkBuildContextNeighborBlockData {
     pub light: LightingColor,
     pub is_transparent: bool

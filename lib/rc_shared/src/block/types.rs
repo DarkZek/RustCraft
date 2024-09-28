@@ -1,7 +1,8 @@
+use serde::{Deserialize, Serialize};
 use crate::aabb::Aabb;
 use crate::block::face::Face;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Block {
     pub identifier: String,
     pub translucent: bool,

@@ -2,6 +2,7 @@ use crate::game::block::Draw;
 use crate::systems::chunk::data::ChunkData;
 use bevy::ecs::component::Component;
 use nalgebra::Vector3;
+use serde::{Deserialize, Serialize};
 use rc_shared::block::BlockStates;
 use rc_shared::helpers::global_to_local_position;
 use rc_shared::viewable_direction::{ViewableDirection, BLOCK_SIDES};
@@ -9,7 +10,7 @@ use rc_shared::CHUNK_SIZE;
 use crate::systems::chunk::builder::build_context::ChunkBuildContext;
 use crate::utils::mesh::draw_kit::DrawKit;
 
-#[derive(Component)]
+#[derive(Component, Serialize, Deserialize)]
 pub struct UpdateChunkMesh {
     pub chunk: Vector3<i32>,
     pub opaque: DrawKit,

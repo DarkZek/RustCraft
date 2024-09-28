@@ -28,6 +28,7 @@ mod nearby_chunk_map;
 mod temp_set_ambient;
 pub mod flags;
 mod edge;
+mod condensed_spacial_data;
 
 pub struct ChunkPlugin;
 
