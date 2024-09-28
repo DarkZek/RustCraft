@@ -1,19 +1,14 @@
-use std::rc::Rc;
-use std::task::Poll;
-use std::cell::{OnceCell, RefCell};
-use bevy::prelude::{info, warn};
-use tokio::runtime::{Builder, Runtime};
-use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender};
-use tokio::sync::mpsc::error::TryRecvError;
+use bevy::prelude::{warn};
+use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver};
 use tokio::task::{JoinHandle};
 use wasm_bindgen::__rt::VectorIntoJsValue;
 use wasm_bindgen::{JsCast, JsValue};
 use wasm_bindgen::prelude::{Closure, wasm_bindgen};
 use crate::systems::chunk::builder::thread::executor::{ChunkBuilderExecutor, ChunkBuilderJob, ChunkBuilderUpdate};
 use crate::systems::chunk::builder::thread::platform::ChunkBuilderSchedulerTrait;
-use js_sys::{Uint8Array, Function};
+use js_sys::Uint8Array;
 use serde::{Deserialize, Serialize};
-use web_sys::{HtmlElement, HtmlInputElement, Event, MessageEvent, Worker, WorkerOptions, WorkerType};
+use web_sys::{Event, MessageEvent, Worker};
 use rc_shared::block::BlockStates;
 use rc_shared::block::types::Block;
 use std::borrow::BorrowMut;
@@ -29,13 +24,11 @@ pub struct ChunkBuilderScheduler {
 }
 
 impl ChunkBuilderSchedulerTrait for ChunkBuilderScheduler {
-    fn new(mut executor: ChunkBuilderExecutor) -> ChunkBuilderScheduler {
+    fn new(executor: ChunkBuilderExecutor) -> ChunkBuilderScheduler {
 
         let (send_chunks, recv_chunks) = unbounded_channel();
 
         let worker_handle = WASM_CONTEXT.get().unwrap().chunk_worker.clone();
-
-        let worker_handle_2 = worker_handle.clone();
 
         // Recieves a completed job from the worker
         let job_receive = Closure::<dyn FnMut(_)>::new(move |event: Event| {
@@ -64,7 +57,7 @@ impl ChunkBuilderSchedulerTrait for ChunkBuilderScheduler {
 
         let array = Uint8Array::from(worker_data.as_slice());
 
-        worker_handle.post_message(&*array);
+        worker_handle.post_message(&*array).unwrap();
 
         ChunkBuilderScheduler {
             worker_handle,
@@ -79,7 +72,7 @@ impl ChunkBuilderSchedulerTrait for ChunkBuilderScheduler {
         let array = Uint8Array::from(worker_data.as_slice());
 
         // TODO: Bundle multiple
-        self.worker_handle.borrow_mut().post_message(&*array);
+        let _ = self.worker_handle.borrow_mut().post_message(&*array);
     }
 
     fn poll(&mut self) -> Option<ChunkBuilderUpdate> {

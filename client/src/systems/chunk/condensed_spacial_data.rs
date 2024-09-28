@@ -1,4 +1,4 @@
-use bevy::prelude::{info, warn};
+use bevy::prelude::{warn};
 use nalgebra::Vector3;
 use serde::{Serialize, Deserialize};
 

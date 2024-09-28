@@ -1,5 +1,4 @@
-use std::cell::OnceCell;
-use std::sync::{Arc, OnceLock};
+use std::sync::OnceLock;
 use bevy_mod_billboard::prelude::BillboardPlugin;
 use crate::game::events::GameEventsPlugin;
 use crate::game::game_object::GameObjectPlugin;

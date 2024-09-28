@@ -88,7 +88,7 @@ pub fn authorization_event(
             transform.position.z as i32,
         ));
 
-        let chunk_load_radius = 3;
+        let chunk_load_radius = 5;
 
         // Load chunks around player
         for x in (player_chunk.x - chunk_load_radius)..(player_chunk.x + chunk_load_radius) {

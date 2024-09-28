@@ -7,6 +7,7 @@ pub mod debugging;
 pub mod equipped_item;
 mod main_menu_chunks;
 pub mod console;
+mod detect_close;
 
 use crate::state::AppState;
 use crate::systems::ui::connecting::ConnectingData;
@@ -20,6 +21,7 @@ use crate::systems::ui::loading::{
 use crate::systems::ui::main_menu::{button_system, destroy_main_menu, setup_main_menu};
 use bevy::prelude::*;
 use crate::systems::ui::console::ConsolePlugin;
+use crate::systems::ui::detect_close::detect_close;
 use crate::systems::ui::equipped_item::{setup_equipped_item, update_equipped_item_mesh};
 use crate::systems::ui::main_menu_chunks::{handle_loaded_main_menu_world, load_main_menu_world, MainMenuWorldState, remove_main_menu_world};
 
@@ -69,6 +71,7 @@ impl Plugin for UIPlugin {
             .add_systems(OnEnter(AppState::MainMenu), load_main_menu_world)
             .add_systems(OnExit(AppState::MainMenu), remove_main_menu_world)
             .add_systems(Update, handle_loaded_main_menu_world)
+            .add_systems(Update, detect_close)
             .insert_resource(MainMenuWorldState::default());
     }
 }

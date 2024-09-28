@@ -28,30 +28,33 @@ pub fn decorate_chunk(
 
                 let ground_level = *heightmap.get([absolute.x, absolute.z]).unwrap();
 
-                // Dirt
-                if absolute.y < ground_level && absolute.y > ground_level - 4 {
-                    world[x][y][z] = 1;
-                }
-                // Grass
-                if absolute.y == ground_level {
-                    world[x][y][z] = 2;
-                }
+                // Mountains without grass or dirt
+                if ground_level < 18 {
+                    // Dirt
+                    if absolute.y < ground_level && absolute.y > ground_level - 4 {
+                        world[x][y][z] = 1;
+                    }
+                    // Grass
+                    if absolute.y == ground_level {
+                        world[x][y][z] = 2;
+                    }
 
-                let tropic_sand = tropic_noise.sample_2d(absolute.x, absolute.z);
-                if absolute.y == ground_level && tropic_sand > 0.8 {
-                    world[x][y][z] = 8;
-                }
+                    let tropic_sand = tropic_noise.sample_2d(absolute.x, absolute.z);
+                    if absolute.y == ground_level && tropic_sand > 0.8 {
+                        world[x][y][z] = 8;
+                    }
 
-                // Long grass
-                if absolute.y == ground_level + 1
-                    && grass_noise.sample_2d(absolute.x, absolute.z) > 0.7
-                    && !(absolute.y - 1 == ground_level && tropic_sand > 0.8) // No sand beneath
-                {
-                    world[x][y][z] = 3;
+                    // Long grass
+                    if absolute.y == ground_level + 1
+                        && grass_noise.sample_2d(absolute.x, absolute.z) > 0.7
+                        && !(absolute.y - 1 == ground_level && tropic_sand > 0.8) // No sand beneath
+                    {
+                        world[x][y][z] = 3;
+                    }
                 }
 
                 if world[x][y][z] == 6 &&
-                    ruby_noise.sample_3d(absolute.x, absolute.y, absolute.z) > 0.78 {
+                    ruby_noise.sample_3d(absolute.x, absolute.y, absolute.z) > 0.82 {
                     world[x][y][z] = 76;
                 }
             }

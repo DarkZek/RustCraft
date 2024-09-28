@@ -103,7 +103,7 @@ pub fn mouse_interaction_destroy(
 
     let block_id = chunk.world.get(inner_loc);
 
-    if locals.left_clicking_started.unwrap().elapsed().as_millis() > 800 {
+    if locals.left_clicking_started.unwrap().elapsed().as_millis() > 400 {
         destroy_block_event.send(DestroyBlockEvent {
             player_triggered: true,
             position: ray.block,

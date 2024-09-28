@@ -32,6 +32,11 @@ pub fn add_structures(
     for x in (world_pos.x - CHUNK_SIZE as i32)..(world_pos.x + (2*CHUNK_SIZE as i32)) {
         for z in (world_pos.z - CHUNK_SIZE as i32)..(world_pos.z + (2*CHUNK_SIZE as i32)) {
             let ground_level = *heightmap.get([x, z]).unwrap();
+
+            if ground_level > 17 {
+                continue;
+            }
+
             let environment = *environment.get([x, z]).unwrap();
 
             let affects_chunk =

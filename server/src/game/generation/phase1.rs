@@ -1,3 +1,4 @@
+use bevy::prelude::info;
 use crate::game::generation::noise::SimplexNoise;
 use nalgebra::{Vector2, Vector3};
 use rc_shared::biome::{EnvironmentEntry, EnvironmentMap};
@@ -8,8 +9,9 @@ pub fn generate_environment_map(seed: u32, pos: Vector3<i32>) -> EnvironmentMap 
     let world_pos = Vector2::new(pos.x * CHUNK_SIZE as i32, pos.z * CHUNK_SIZE as i32);
 
     let mut map = EnvironmentMap::new_empty(
-        world_pos
-    , CHUNK_SIZE);
+        world_pos,
+        CHUNK_SIZE
+    );
 
     for x in (world_pos.x - CHUNK_SIZE as i32)..(world_pos.x + (CHUNK_SIZE as i32 * 2)) {
         for z in (world_pos.y - CHUNK_SIZE as i32)..(world_pos.y + (CHUNK_SIZE as i32 * 2)) {
@@ -26,7 +28,7 @@ pub fn generate_biome(seed: u32, pos: Vector3<i32>) -> EnvironmentEntry {
     let climate = climate_noise.sample_2d(pos.x, pos.z);
 
     let terrain = SimplexNoise::new(seed + 1)
-        .with_scale(180.0 * 16.0)
+        .with_scale(8.0 * 16.0)
         .sample_2d(pos.x, pos.z);
 
     let vegetation = SimplexNoise::new(seed + 2)

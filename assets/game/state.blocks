@@ -47568,7 +47568,7 @@
                  1.0,
                  1.0
                ],
-               "texture": "game/ruby",
+               "texture": "game/ruby_ore",
                "edge": true,
                "direction": 1
              },
@@ -47588,7 +47588,7 @@
                  0.0,
                  0.0
                ],
-               "texture": "game/ruby",
+               "texture": "game/ruby_ore",
                "edge": true,
                "direction": 2
              },
@@ -47608,7 +47608,7 @@
                  0.0,
                  1.0
                ],
-               "texture": "game/ruby",
+               "texture": "game/ruby_ore",
                "edge": true,
                "direction": 4
              },
@@ -47628,7 +47628,7 @@
                  0.0,
                  0.0
                ],
-               "texture": "game/ruby",
+               "texture": "game/ruby_ore",
                "edge": true,
                "direction": 8
              },
@@ -47648,7 +47648,7 @@
                  0.0,
                  0.0
                ],
-               "texture": "game/ruby",
+               "texture": "game/ruby_ore",
                "edge": true,
                "direction": 16
              },
@@ -47668,7 +47668,7 @@
                  0.0,
                  1.0
                ],
-               "texture": "game/ruby",
+               "texture": "game/ruby_ore",
                "edge": true,
                "direction": 32
              }

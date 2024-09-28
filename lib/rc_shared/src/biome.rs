@@ -10,8 +10,11 @@ pub type EnvironmentMap = RelativeChunkFlatMap<EnvironmentEntry>;
 
 #[derive(PartialEq, Debug, Copy, Clone, Default)]
 pub struct EnvironmentEntry {
+    // Warm to cold
     pub climate: f64,
+    // Hilly to flat
     pub terrain: f64,
+    // Dead to lush
     pub vegetation: f64,
 }
 
