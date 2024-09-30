@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import { onMounted, ref } from 'vue'
-import { isActive } from '../services/apiService';
-import { loadGame } from '../utils/game';
-import { webgpuSupported, webtransportSupported } from '../utils/compatibility';
+import { isActive } from '../services/apiService'
+import { loadGame } from '../utils/game'
+import { webgpuSupported, webtransportSupported } from '../utils/compatibility'
+import LoadingBar from '../components/LoadingBar.vue'
 
 let router = useRouter()
+
+const loading = ref(true)
 
 async function start() {
   if (!localStorage.getItem("token")) {
@@ -25,6 +28,7 @@ async function start() {
   }
 
   loadGame()
+  loading.value = false
 }
 onMounted(start)
 
@@ -32,6 +36,7 @@ onMounted(start)
 
 <template>
   <main>
+    <loading-bar v-if="loading" />
     <div id="game"></div>
   </main>
 </template>
@@ -47,4 +52,11 @@ canvas {
 canvas:focus {
   outline: none;
 }
+
+.loading-bar {
+  position: fixed;
+  inset: 0px;
+  margin: auto;
+}
+
 </style>

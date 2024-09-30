@@ -13,6 +13,7 @@
     "format": "prettier --write src"
   },
   "dependencies": {
+    "@fontsource/londrina-solid": "^5.1.0",
     "axios": "^1.7.7",
     "pinia": "^2.1.7",
     "vite-plugin-top-level-await": "^1.4.4",
