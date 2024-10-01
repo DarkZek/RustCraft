@@ -14,6 +14,8 @@ use crate::game::generation::phase3::decorate_chunk;
 use crate::game::generation::phase4::add_structures;
 use bevy::prelude::trace;
 use nalgebra::Vector3;
+use rc_shared::chunk::{ChunkDataStorage, RawChunkData};
+use rc_shared::CHUNK_SIZE;
 
 impl ChunkData {
     /// Works in 4 phases
@@ -45,12 +47,41 @@ impl ChunkData {
 
         let mut data = ChunkData::new(
             position,
-            chunk_data,
+            ChunkDataStorage::Data(Box::new(chunk_data)),
             Default::default(),
             Default::default()
         );
 
         data.optimise_data();
+
+        data
+    }
+
+    pub fn generate_canvas(position: Vector3<i32>) -> ChunkData {
+
+        let y_plane = 0;
+        let block_id = 1;
+
+        let chunk_data = if position.y == 0 {
+            let mut data = ChunkDataStorage::Data(Box::new([[[0; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE]));
+
+            for x in 0..CHUNK_SIZE {
+                for z in 0..CHUNK_SIZE {
+                    data.set(Vector3::new(x, y_plane, z), block_id);
+                }
+            }
+
+            data
+        } else {
+            ChunkDataStorage::Empty
+        };
+
+        let mut data = ChunkData::new(
+            position,
+            chunk_data,
+            Default::default(),
+            Default::default()
+        );
 
         data
     }

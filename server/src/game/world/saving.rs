@@ -15,11 +15,16 @@ use std::io::BufWriter;
 use std::str::FromStr;
 use std::sync::atomic::Ordering;
 use rc_shared::game_objects::{DebugGameObjectData, GameObjectData, GameObjectType, ItemDropGameObjectData, PlayerGameObjectData};
+use crate::config::WorldType;
 use crate::game::inventory::Inventory;
 use crate::game::world::deserialized_player::DeserializedPlayerData;
 
 impl WorldData {
-    pub fn load_spawn_chunks(&mut self, command: &mut Commands) {
+    pub fn load_spawn_chunks(
+        &mut self,
+        command: &mut Commands,
+        config: &ServerConfig
+    ) {
         // Load spawn area
         for x in -3..=3 {
             for y in 0..=5 {
@@ -31,21 +36,24 @@ impl WorldData {
                         data,
                         game_objects,
                     } = match Self::try_load_chunk(pos) {
-                        Ok(Some(chunk)) => chunk,
-                        Ok(None) => DeserializedChunkData {
-                            version: 0,
-                            data: ChunkData::generate(pos),
-                            game_objects: vec![],
-                        },
+                        Ok(Some(chunk)) => Some(chunk),
+                        Ok(None) => None,
                         Err(err) => {
                             error!("Error reading chunk data: {:?}", err);
-                            DeserializedChunkData {
-                                version: 0,
-                                data: ChunkData::generate(pos),
-                                game_objects: vec![],
-                            }
+                            None
                         }
-                    };
+                    }.unwrap_or_else(|| {
+                        // Generate the chunk
+                        let data = match config.world_type {
+                            WorldType::Regular => ChunkData::generate(pos),
+                            WorldType::Canvas => ChunkData::generate_canvas(pos)
+                        };
+                        DeserializedChunkData {
+                            version: 0,
+                            data,
+                            game_objects: vec![],
+                        }
+                    });
 
                     assert_eq!(version, 0);
 

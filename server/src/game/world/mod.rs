@@ -46,6 +46,10 @@ fn save_world(
     info!("Saved world.");
 }
 
-fn load_spawn_chunks(mut command: Commands, mut world: ResMut<WorldData>) {
-    world.load_spawn_chunks(&mut command);
+fn load_spawn_chunks(
+    mut command: Commands,
+    mut world: ResMut<WorldData>,
+    config: Res<ServerConfig>
+) {
+    world.load_spawn_chunks(&mut command, &config);
 }

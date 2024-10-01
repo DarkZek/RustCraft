@@ -12,6 +12,8 @@ use rc_networking::protocol::clientbound::chunk_update::FullChunkUpdate;
 use rc_networking::protocol::Protocol;
 use rc_networking::types::{ReceivePacket, SendPacket};
 use std::collections::{HashMap, HashSet};
+use crate::config::{ServerConfig, WorldType};
+use crate::game::world::serialized::DeserializedChunkData;
 
 const MAX_OUTSTANDING_CHUNK_REQUESTS: usize = 80;
 const CHUNKS_GENERATED_PER_TICK: usize = 40;
@@ -132,7 +134,11 @@ pub fn request_chunks(
     }
 }
 
-pub fn generate_chunks(mut system: ResMut<ChunkSystem>, mut world: ResMut<WorldData>) {
+pub fn generate_chunks(
+    mut system: ResMut<ChunkSystem>,
+    mut world: ResMut<WorldData>,
+    config: Res<ServerConfig>
+) {
     // Generate X chunks per loop
     let chunks_per_loop = system
         .generating_chunks
@@ -151,7 +157,23 @@ pub fn generate_chunks(mut system: ResMut<ChunkSystem>, mut world: ResMut<WorldD
     let iterator = build_chunks.iter();
 
     let chunks = iterator
-        .map(|pos| ChunkData::generate(*pos))
+        .map(|pos| {
+            // Try load chunk, or generate
+            match WorldData::try_load_chunk(*pos) {
+                Ok(Some(chunk)) => Some(chunk.data),
+                Ok(None) => None,
+                Err(err) => {
+                    error!("Error reading chunk data: {:?}", err);
+                    None
+                }
+            }.unwrap_or_else(|| {
+                // Generate the chunk
+                match config.world_type {
+                    WorldType::Regular => ChunkData::generate(*pos),
+                    WorldType::Canvas => ChunkData::generate_canvas(*pos)
+                }
+            })
+        })
         .collect::<Vec<ChunkData>>();
 
     for chunk in chunks {

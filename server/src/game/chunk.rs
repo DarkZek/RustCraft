@@ -14,13 +14,13 @@ pub struct ChunkData {
 impl ChunkData {
     pub fn new(
         position: Vector3<i32>,
-        world: RawChunkData,
+        world: ChunkDataStorage,
         metadata: ChunkMetadata,
         block_metadata: ChunkBlockMetadata,
     ) -> ChunkData {
         ChunkData {
             position,
-            world: ChunkDataStorage::Data(Box::new(world)),
+            world,
             block_metadata,
             metadata,
         }
