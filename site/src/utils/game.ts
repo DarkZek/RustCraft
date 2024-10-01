@@ -1,8 +1,16 @@
 import ChunkWorker from './worker?worker'
 
 export async function loadGame() {
-    const chunk_worker = new ChunkWorker()
-
-    const { start_game } = await import("../../wasm/rc_client.js")
-    start_game(chunk_worker);
+    return new Promise((resolve) => {
+        setTimeout(
+            async () => {
+                const chunk_worker = new ChunkWorker()
+    
+                const { start_game } = await import("../../wasm/rc_client.js")
+                start_game(chunk_worker);
+                resolve(true)
+            },
+            5000
+        )
+    })
 }

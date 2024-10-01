@@ -8,3 +8,4 @@ pub mod state;
 pub mod world;
 pub mod game_object;
 pub mod disconnect;
+pub mod game_mode;

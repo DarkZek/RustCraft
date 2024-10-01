@@ -54,11 +54,35 @@
       "icon": "dirt",
       "block_state": "mcv3::ImprovisedFurnace"
     },
+      {
+        "identifier": "mcv3::RubyItem",
+        "name": "Ruby Ore",
+        "icon": "ruby",
+        "block_state": "mcv3::RubyOre"
+      },
+     {
+       "identifier": "mcv3::DaffodilItem",
+       "name": "Daffodil Block",
+       "icon": "ruby",
+       "block_state": "mcv3::DaffodilBlock"
+     },
     {
-      "identifier": "mcv3::RubyItem",
+      "identifier": "mcv3::PlasterItem",
       "name": "Ruby",
       "icon": "ruby",
-      "block_state": "mcv3::RubyOre"
+      "block_state": "mcv3::PlasterBlock"
+    },
+    {
+      "identifier": "mcv3::PurpleLampItem",
+      "name": "Purple Lamp",
+      "icon": "ruby",
+      "block_state": "mcv3::PurpleLampBlock"
+    },
+    {
+      "identifier": "mcv3::StoneItem",
+      "name": "Stone Lamp",
+      "icon": "ruby",
+      "block_state": "mcv3::StoneBlock"
     }
   ]
 }

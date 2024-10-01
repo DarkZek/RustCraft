@@ -9,3 +9,4 @@ pub mod spawn_game_object;
 pub mod update_loading;
 pub mod update_inventory_slot;
 pub mod update_inventory;
+pub mod game_mode_update;

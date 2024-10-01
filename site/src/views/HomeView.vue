@@ -2,7 +2,6 @@
 import { useRouter } from 'vue-router'
 import { onMounted, ref } from 'vue'
 import { isActive } from '../services/apiService'
-import { loadGame } from '../utils/game'
 import { webgpuSupported, webtransportSupported } from '../utils/compatibility'
 import LoadingBar from '../components/LoadingBar.vue'
 
@@ -27,7 +26,9 @@ async function start() {
     return
   }
 
-  loadGame()
+  const { loadGame } = await import('../utils/game')
+
+  await loadGame()
   loading.value = false
 }
 onMounted(start)

@@ -10,5 +10,6 @@ pub mod game_objects;
 pub mod constants;
 pub mod relative_chunk_map;
 pub mod relative_chunk_flat_map;
+pub mod game_mode;
 
 pub const CHUNK_SIZE: usize = 16;

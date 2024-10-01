@@ -157,19 +157,19 @@ $tiles: 8;
 $test: ($squareSize + $padding) * 3;
 
 @keyframes tile {
-    #{0/$tiles*100%} {
+    #{math.div(0, $tiles)*100%} {
         opacity: 0.0;
         translate: (-$test * 0.0);
     }
-    #{1/$tiles*100%} {
+    #{math.div(1, $tiles)*100%} {
         opacity: 1.0;
         translate: (-$test * 0.33);
     }
-    #{2/$tiles*100%} {
+    #{math.div(2, $tiles)*100%} {
         opacity: 1.0;
         translate: (-$test * 0.66);
     }
-    #{3/$tiles*100%} {
+    #{math.div(3, $tiles)*100%} {
         opacity: 0.0;
         translate: (-$test * 1.0);
     }

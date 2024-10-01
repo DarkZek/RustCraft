@@ -756,7 +756,7 @@
       ]
     },
     {
-      "identifier": "mcv3::Stone",
+      "identifier": "mcv3::StoneBlock",
       "translucent": false,
       "full": true,
       "draw_betweens": false,
@@ -906,7 +906,7 @@
       "loot_table": [
         {
           "chance": 1.0,
-          "item": "mcv3::LampItem"
+          "item": "mcv3::StoneItem"
         }
       ]
     },
@@ -47836,6 +47836,435 @@
               0
             ],
             "loot_table": []
-          }
+          },
+       {
+         "identifier": "mcv3::PlasterBlock",
+         "translucent": false,
+         "full": true,
+         "draw_betweens": false,
+         "faces": [
+           {
+             "top_left": [
+               0.0,
+               1.0,
+               0.0
+             ],
+             "top_right": [
+               1.0,
+               1.0,
+               0.0
+             ],
+             "bottom_left": [
+               0.0,
+               1.0,
+               1.0
+             ],
+             "texture": "game/plaster",
+             "edge": true,
+             "direction": 1
+           },
+           {
+             "top_left": [
+               0.0,
+               0.0,
+               0.0
+             ],
+             "top_right": [
+               0.0,
+               0.0,
+               1.0
+             ],
+             "bottom_left": [
+               1.0,
+               0.0,
+               0.0
+             ],
+             "texture": "game/plaster",
+             "edge": true,
+             "direction": 2
+           },
+           {
+             "top_left": [
+               0.0,
+               0.0,
+               0.0
+             ],
+             "top_right": [
+               0.0,
+               1.0,
+               0.0
+             ],
+             "bottom_left": [
+               0.0,
+               0.0,
+               1.0
+             ],
+             "texture": "game/plaster",
+             "edge": true,
+             "direction": 4
+           },
+           {
+             "top_left": [
+               1.0,
+               0.0,
+               1.0
+             ],
+             "top_right": [
+               1.0,
+               1.0,
+               1.0
+             ],
+             "bottom_left": [
+               1.0,
+               0.0,
+               0.0
+             ],
+             "texture": "game/plaster",
+             "edge": true,
+             "direction": 8
+           },
+           {
+             "top_left": [
+               1.0,
+               0.0,
+               0.0
+             ],
+             "top_right": [
+               1.0,
+               1.0,
+               0.0
+             ],
+             "bottom_left": [
+               0.0,
+               0.0,
+               0.0
+             ],
+             "texture": "game/plaster",
+             "edge": true,
+             "direction": 16
+           },
+           {
+             "top_left": [
+               0.0,
+               0.0,
+               1.0
+             ],
+             "top_right": [
+               0.0,
+               1.0,
+               1.0
+             ],
+             "bottom_left": [
+               1.0,
+               0.0,
+               1.0
+             ],
+             "texture": "game/plaster",
+             "edge": true,
+             "direction": 32
+           }
+         ],
+         "colliders": [
+           {
+             "bottom_left": [
+               0.0,
+               0.0,
+               0.0
+             ],
+             "size": [
+               1.0,
+               1.0,
+               1.0
+             ],
+             "collidable": true
+           }
+         ],
+         "emission": [
+           0,
+           0,
+           0,
+           0
+         ],
+         "loot_table": [
+           {
+             "chance": 1.0,
+             "item": "mcv3::PlasterItem"
+           }
+         ]
+       },
+        {
+              "identifier": "mcv3::DaffodilBlock",
+              "translucent": true,
+              "full": false,
+              "draw_betweens": true,
+              "faces": [
+                {
+                  "top_left": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "top_right": [
+                    0.0,
+                    1.0,
+                    0.0
+                  ],
+                  "bottom_left": [
+                    1.0,
+                    0.0,
+                    1.0
+                  ],
+                  "texture": "game/daffodil",
+                  "edge": false,
+                  "direction": 1,
+                  "wind_strengths": [0.0, 1.0, 1.0, 0.0]
+                },
+                {
+                  "top_left": [
+                    1.0,
+                    0.0,
+                    1.0
+                  ],
+                  "top_right": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ],
+                  "bottom_left": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "texture": "game/daffodil",
+                  "edge": false,
+                  "direction": 1,
+                  "wind_strengths": [0.0, 1.0, 1.0, 0.0]
+                },
+                {
+                  "top_left": [
+                    0.0,
+                    0.0,
+                    1.0
+                  ],
+                  "top_right": [
+                    0.0,
+                    1.0,
+                    1.0
+                  ],
+                  "bottom_left": [
+                    1.0,
+                    0.0,
+                    0.0
+                  ],
+                  "texture": "game/daffodil",
+                  "edge": false,
+                  "direction": 1,
+                  "wind_strengths": [0.0, 1.0, 1.0, 0.0]
+                },
+                {
+                  "top_left": [
+                    1.0,
+                    0.0,
+                    0.0
+                  ],
+                  "top_right": [
+                    1.0,
+                    1.0,
+                    0.0
+                  ],
+                  "bottom_left": [
+                    0.0,
+                    0.0,
+                    1.0
+                  ],
+                  "texture": "game/daffodil",
+                  "edge": false,
+                  "direction": 1,
+                  "wind_strengths": [0.0, 1.0, 1.0, 0.0]
+                }
+              ],
+              "colliders": [
+                {
+                  "bottom_left": [
+                    0.2,
+                    0.0,
+                    0.2
+                  ],
+                  "size": [
+                    0.6,
+                    0.8,
+                    0.6
+                  ],
+                  "collidable": false
+                }
+              ],
+              "emission": [
+                0,
+                0,
+                0,
+                0
+              ],
+              "loot_table": [
+              {
+                   "chance": 1.0,
+                   "item": "mcv3::DaffodilItem"
+                 }
+              ]
+            },
+            {
+                  "identifier": "mcv3::PurpleLampBlock",
+                  "translucent": true,
+                  "full": false,
+                  "draw_betweens": true,
+                  "faces": [
+                    {
+                      "top_left": [
+                        0.25,
+                        0.75,
+                        0.25
+                      ],
+                      "top_right": [
+                        0.75,
+                        0.75,
+                        0.25
+                      ],
+                      "bottom_left": [
+                        0.25,
+                        0.75,
+                        0.75
+                      ],
+                      "texture": "game/lamp_bottom",
+                      "edge": false,
+                      "direction": 1
+                    },
+                    {
+                      "top_left": [
+                        0.75,
+                        0.0,
+                        0.25
+                      ],
+                      "top_right": [
+                        0.25,
+                        0.0,
+                        0.25
+                      ],
+                      "bottom_left": [
+                        0.75,
+                        0.0,
+                        0.75
+                      ],
+                      "texture": "game/lamp_bottom",
+                      "edge": true,
+                      "direction": 2
+                    },
+                    {
+                      "top_left": [
+                        0.25,
+                        0.0,
+                        0.25
+                      ],
+                      "top_right": [
+                        0.25,
+                        0.75,
+                        0.25
+                      ],
+                      "bottom_left": [
+                        0.25,
+                        0.0,
+                        0.75
+                      ],
+                      "texture": "game/lamp_side",
+                      "edge": false,
+                      "direction": 4
+                    },
+                    {
+                      "top_left": [
+                        0.75,
+                        0.0,
+                        0.75
+                      ],
+                      "top_right": [
+                        0.75,
+                        0.75,
+                        0.75
+                      ],
+                      "bottom_left": [
+                        0.75,
+                        0.0,
+                        0.25
+                      ],
+                      "texture": "game/lamp_side",
+                      "edge": false,
+                      "direction": 8
+                    },
+                    {
+                      "top_left": [
+                        0.75,
+                        0.0,
+                        0.25
+                      ],
+                      "top_right": [
+                        0.75,
+                        0.75,
+                        0.25
+                      ],
+                      "bottom_left": [
+                        0.25,
+                        0.0,
+                        0.25
+                      ],
+                      "texture": "game/lamp_side",
+                      "edge": false,
+                      "direction": 16
+                    },
+                    {
+                      "top_left": [
+                        0.25,
+                        0.0,
+                        0.75
+                      ],
+                      "top_right": [
+                        0.25,
+                        0.75,
+                        0.75
+                      ],
+                      "bottom_left": [
+                        0.75,
+                        0.0,
+                        0.75
+                      ],
+                      "texture": "game/lamp_side",
+                      "edge": false,
+                      "direction": 32
+                    }
+                  ],
+                  "colliders": [
+                    {
+                      "bottom_left": [
+                        0.25,
+                        0.0,
+                        0.25
+                      ],
+                      "size": [
+                        0.5,
+                        0.75,
+                        0.5
+                      ],
+                      "collidable": true
+                    }
+                  ],
+                  "emission": [
+                    255,
+                    80,
+                    180,
+                    16
+                  ],
+                  "loot_table": [
+                    {
+                      "chance": 1.0,
+                      "item": "mcv3::PurpleLampItem"
+                    }
+                  ]
+                }
   ]
 }
