@@ -9,7 +9,7 @@ edition = "2021"
 serde = { workspace = true }
 serde_json = { workspace = true }
 nalgebra = { workspace = true }
-fnv = "1.0.3"
+fnv = { workspace = true }
 rayon = "1.5.1"
 anyhow = "1.0.57"
 image = "0.23.14"

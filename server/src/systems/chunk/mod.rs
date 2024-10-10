@@ -3,7 +3,7 @@ use crate::{TransportSystem, WorldData};
 
 use bevy::prelude::*;
 
-use nalgebra::Vector3;
+use nalgebra::{Vector2, Vector3};
 use rayon::iter::ParallelIterator;
 use rayon::prelude::IntoParallelRefIterator;
 use rc_shared::constants::UserId;
@@ -12,6 +12,7 @@ use rc_networking::protocol::clientbound::chunk_update::FullChunkUpdate;
 use rc_networking::protocol::Protocol;
 use rc_networking::types::{ReceivePacket, SendPacket};
 use std::collections::{HashMap, HashSet};
+use rc_networking::protocol::clientbound::chunk_column_update::ChunkColumnUpdate;
 use crate::config::{ServerConfig, WorldType};
 use crate::game::world::serialized::DeserializedChunkData;
 
@@ -27,6 +28,7 @@ impl Plugin for ChunkPlugin {
             generating_chunks: Default::default(),
             requesting_chunks: Default::default(),
             chunk_outstanding_requests: Default::default(),
+            user_loaded_columns: Default::default()
         })
         .add_systems(Update, handle_disconnections)
         .add_systems(Update, get_chunk_requests)
@@ -38,6 +40,7 @@ impl Plugin for ChunkPlugin {
 #[derive(Resource)]
 pub struct ChunkSystem {
     pub user_loaded_chunks: HashMap<UserId, HashSet<Vector3<i32>>>,
+    pub user_loaded_columns: HashMap<UserId, HashSet<Vector2<i32>>>,
     pub generating_chunks: HashSet<Vector3<i32>>,
     pub requesting_chunks: HashMap<UserId, Vec<Vector3<i32>>>,
     // How many chunk requests have been send and are waiting acknowledgement
@@ -58,7 +61,8 @@ pub fn request_chunks(
         requesting_chunks,
         chunk_outstanding_requests,
         generating_chunks,
-        user_loaded_chunks
+        user_loaded_chunks,
+        user_loaded_columns
     } = &mut *system;
 
     // Remove packets received
@@ -72,7 +76,7 @@ pub fn request_chunks(
 
     for (user, chunks) in requesting_chunks {
         let Some(Some(game_object_id)) = transport.clients.get(&user).map(|v| v.game_object_id) else {
-            println!("has no game object");
+            error!("has no game object");
             continue
         };
 
@@ -117,6 +121,24 @@ pub fn request_chunks(
                 ));
 
                 user_loaded_chunks.get_mut(user).unwrap().insert(chunk.position);
+
+                // Send chunk column
+                let columns = user_loaded_columns.get_mut(user).unwrap();
+                let position = Vector2::new(chunk.position.x, chunk.position.z);
+                if !columns.contains(&position) {
+                    // Send chunk column update
+                    columns.insert(position);
+
+                    if let Some(data) = world.chunks_columns.get(&position) {
+                        send_packets.send(SendPacket(
+                            Protocol::ChunkColumnUpdate(ChunkColumnUpdate::new(
+                                position,
+                                data.clone()
+                            )),
+                            *user,
+                        ));
+                    }
+                }
 
                 // Increase outstanding acknowledgement requests
                 *chunk_outstanding_requests.get_mut(user).unwrap() += 1;
@@ -177,7 +199,7 @@ pub fn generate_chunks(
         .collect::<Vec<ChunkData>>();
 
     for chunk in chunks {
-        world.chunks.insert(chunk.position, chunk);
+        world.insert_chunk(chunk);
     }
 }
 

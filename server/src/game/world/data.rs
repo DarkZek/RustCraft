@@ -6,7 +6,7 @@ use crate::helpers::global_to_local_position;
 use bevy::ecs::entity::Entity;
 use bevy::ecs::prelude::Resource;
 
-use nalgebra::Vector3;
+use nalgebra::{Vector2, Vector3};
 use rc_shared::constants::GameObjectId;
 
 use std::collections::HashMap;
@@ -14,12 +14,14 @@ use std::fs;
 use std::fs::File;
 use std::io::BufReader;
 use std::sync::atomic::AtomicU64;
+use rc_shared::chunk_column::ChunkColumnData;
 
 pub static GAME_OBJECT_ID_COUNTER: AtomicU64 = AtomicU64::new(0);
 
 #[derive(Resource)]
 pub struct WorldData {
     pub chunks: HashMap<Vector3<i32>, ChunkData>,
+    pub chunks_columns: HashMap<Vector2<i32>, ChunkColumnData>,
     pub game_objects_mapping: HashMap<GameObjectId, Entity>,
     pub game_objects_chunks: HashMap<Vector3<i32>, HashMap<GameObjectId, Entity>>,
 }
@@ -28,6 +30,7 @@ impl Default for WorldData {
     fn default() -> Self {
         WorldData {
             chunks: Default::default(),
+            chunks_columns: Default::default(),
             game_objects_mapping: Default::default(),
             game_objects_chunks: Default::default(),
         }
@@ -35,6 +38,15 @@ impl Default for WorldData {
 }
 
 impl WorldData {
+    pub fn insert_chunk(
+        &mut self,
+        chunk: ChunkData
+    ) {
+        let column = Vector2::new(chunk.position.x, chunk.position.z);
+        self.chunks.insert(chunk.position, chunk);
+        self.update_column(column);
+    }
+
     pub fn insert_game_object(
         &mut self,
         game_object_id: GameObjectId,

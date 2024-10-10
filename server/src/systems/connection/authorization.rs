@@ -79,6 +79,7 @@ pub fn authorization_event(
         });
 
         chunk_system.user_loaded_chunks.insert(client.user_id, HashSet::default());
+        chunk_system.user_loaded_columns.insert(client.user_id, HashSet::default());
 
         let chunks = global.chunks.keys();
 

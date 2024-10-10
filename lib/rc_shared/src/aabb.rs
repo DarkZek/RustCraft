@@ -1,6 +1,9 @@
+use bevy::color::palettes::basic::RED;
+use bevy::math::Vec3;
+use bevy::prelude::{Gizmos, Transform};
 use crate::block::BlockStates;
 use crate::chunk::ChunkSystemTrait;
-use crate::helpers::global_to_local_position;
+use crate::helpers::{from_bevy_vec3, global_to_local_position, to_bevy_vec3};
 use nalgebra::Vector3;
 use serde::{Deserialize, Serialize};
 
@@ -204,6 +207,16 @@ impl Aabb {
         }
 
         proposed_delta
+    }
+
+    pub fn draw_gizmo(&self, gizmos: &mut Gizmos, offset: Vector3<f32>) {
+        // Get center point
+        let pos = self.bottom_left + self.size / 2.0;
+
+        gizmos.cuboid(
+            Transform::from_translation(to_bevy_vec3(pos + offset)).with_scale(to_bevy_vec3(self.size)),
+            RED,
+        );
     }
 }
 

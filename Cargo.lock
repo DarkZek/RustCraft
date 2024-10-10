@@ -4234,6 +4234,7 @@ version = "0.1.0"
 dependencies = [
  "bevy",
  "ctrlc",
+ "fnv",
  "nalgebra 0.33.0",
  "noise",
  "rand 0.8.5",

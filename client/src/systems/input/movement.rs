@@ -6,7 +6,7 @@ use crate::systems::physics::PhysicsObject;
 use bevy::prelude::*;
 use nalgebra::Vector3;
 use rc_shared::block::BlockStates;
-use crate::systems::camera::freecam::Freecam;
+use crate::systems::camera::Freecam;
 use crate::systems::camera::MainCamera;
 use crate::systems::ui::console::ConsoleData;
 

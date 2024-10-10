@@ -7,16 +7,17 @@ use bevy::render::mesh::PrimitiveTopology;
 use bevy::render::primitives::Aabb;
 use bevy::render::render_asset::RenderAssetUsages;
 use fnv::{FnvBuildHasher, FnvHashMap};
-use nalgebra::Vector3;
+use nalgebra::{Vector2, Vector3};
 use rc_shared::chunk::{ChunkDataStorage, ChunkSystemTrait};
 use rc_shared::CHUNK_SIZE;
 use std::collections::HashMap;
+use rc_shared::chunk_column::ChunkColumnData;
 use crate::state::AppState;
 use crate::systems::asset::parsing::message_pack::MessagePackAssetLoader;
 use crate::systems::chunk::builder::builder::setup_mesh_builder_context;
+use crate::systems::chunk::column::receive_column_updates;
 use crate::systems::chunk::flags::ChunkFlagsBitMap;
 use crate::systems::chunk::static_world_data::{save_surroundings_system, StaticWorldData};
-use crate::systems::chunk::temp_set_ambient::temp_set_ambient;
 
 pub mod builder;
 pub mod data;
@@ -25,10 +26,11 @@ pub mod nearby_cache;
 mod request;
 pub mod static_world_data;
 mod nearby_chunk_map;
-mod temp_set_ambient;
 pub mod flags;
 mod edge;
 mod condensed_spacial_data;
+mod column;
+mod nearby_column_cache;
 
 pub struct ChunkPlugin;
 
@@ -46,13 +48,14 @@ impl Plugin for ChunkPlugin {
             .init_asset::<StaticWorldData>()
             .init_asset_loader::<MessagePackAssetLoader<StaticWorldData>>()
             .add_systems(Update, save_surroundings_system)
-            .add_systems(Update, temp_set_ambient);
+            .add_systems(Update, receive_column_updates);
     }
 }
 
 #[derive(Resource)]
 pub struct ChunkSystem {
     pub chunks: HashMap<Vector3<i32>, ChunkData, FnvBuildHasher>,
+    pub chunk_columns: HashMap<Vector2<i32>, ChunkColumnData, FnvBuildHasher>,
 
     /// A list of all chunks that have rerender requests outstanding
     pub requested_chunks: Vec<Vector3<i32>>
@@ -62,6 +65,7 @@ impl ChunkSystem {
     pub fn new() -> ChunkSystem {
         ChunkSystem {
             chunks: FnvHashMap::default(),
+            chunk_columns: FnvHashMap::default(),
             requested_chunks: vec![]
         }
     }

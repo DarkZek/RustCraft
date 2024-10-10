@@ -17,6 +17,7 @@ rc_networking = { path = "../lib/rc_networking" }
 rand = "0.8.5"
 rustls = "0.23.12"
 ctrlc = { version = "3.2.3" }
+fnv = { workspace = true }
 
 [dependencies.bevy]
 workspace = true

@@ -57,7 +57,7 @@ impl WorldData {
 
                     assert_eq!(version, 0);
 
-                    self.chunks.insert(Vector3::new(x, y, z), data);
+                    self.insert_chunk(data);
 
                     for (id, game_object, transform, data) in game_objects {
                         let mut entity_commands = command.spawn(transform);

@@ -57,6 +57,7 @@ fn get_channel(protocol: &Protocol) -> Channel {
         | Protocol::DestroyBlock(_)
         | Protocol::ChangeHotbarSlot(_)
         | Protocol::GameModeUpdate(_)
+        | Protocol::ChunkColumnUpdate(_)
         | Protocol::AcknowledgeChunk(_) => Channel::Reliable,
 
         Protocol::FullChunkUpdate(_) | Protocol::PartialChunkUpdate(_) => Channel::Chunk,

@@ -37,6 +37,7 @@ use crate::systems::asset::material::translucent_chunk_extension::TranslucentChu
 use crate::systems::connection::ConnectionPlugin;
 use web_sys::Worker;
 use crate::game::game_mode::GameModePlugin;
+use crate::systems::debugging::DebuggingPlugin;
 
 #[rustfmt::skip]
 pub fn start() {
@@ -107,6 +108,7 @@ pub fn start() {
         .add_plugins(UIPlugin)
         .add_plugins(InventoryPlugin)
         .add_plugins(GameModePlugin)
+        .add_plugins(DebuggingPlugin)
 
         .insert_resource(ItemStates::new())
 

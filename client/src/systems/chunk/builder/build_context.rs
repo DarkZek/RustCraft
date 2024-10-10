@@ -1,11 +1,16 @@
 use std::collections::HashMap;
+use bevy::color::palettes::css::GREEN;
+use bevy::prelude::{Gizmos, info, Transform, Vec3};
 use fnv::{FnvBuildHasher, FnvHashMap};
-use nalgebra::Vector3;
+use nalgebra::{Vector2, Vector3};
 use serde::{Deserialize, Serialize};
 use rc_shared::block::BlockStates;
 use rc_shared::chunk::LightingColor;
+use rc_shared::CHUNK_SIZE;
+use rc_shared::helpers::to_bevy_vec3;
 use crate::systems::chunk::nearby_cache::NearbyChunkCache;
 use crate::systems::chunk::nearby_chunk_map::NearbyChunkMap;
+use crate::systems::chunk::nearby_column_cache::NearbyChunkColumnCache;
 
 #[derive(Serialize, Deserialize)]
 pub struct ChunkBuildContext {
@@ -29,7 +34,11 @@ impl ChunkBuildContext {
     pub fn new(
         states: &BlockStates,
         cache: &NearbyChunkCache,
+        column_cache: &NearbyChunkColumnCache
     ) -> ChunkBuildContext {
+
+        assert_eq!(Vector2::new(cache.position().x, cache.position().z), column_cache.position());
+
         let chunk_pos = cache.position();
 
         let mut lights = Vec::new();
@@ -66,6 +75,45 @@ impl ChunkBuildContext {
                 );
             }
         });
+
+        // TODO: Remove this
+        // Add skylight to array
+        let rebuild_chunk_pos = cache.position();
+        let y_range = ((rebuild_chunk_pos.y - 1) * CHUNK_SIZE as i32)..((rebuild_chunk_pos.y + 2) * CHUNK_SIZE as i32);
+
+        // Loop through all surrounding blocks
+        for chunk_x in (rebuild_chunk_pos.x - 1)..=(rebuild_chunk_pos.x + 1) {
+            for chunk_z in (rebuild_chunk_pos.z - 1)..=(rebuild_chunk_pos.z + 1) {
+
+                let Some(chunk) = column_cache.get_chunk(Vector2::new(chunk_x, chunk_z)) else {
+                  continue
+                };
+
+                for x in 0..CHUNK_SIZE {
+                    for z in 0..CHUNK_SIZE {
+
+                        // Fetch the y value of the skylight, and add a light if we need it
+                        let Some(y_value) = chunk.skylight_level[x][z] else {
+                            continue
+                        };
+
+                        // If light isn't applicable
+                        if y_range.contains(&y_value) {
+                            let pos = Vector3::new(
+                                (chunk_x * CHUNK_SIZE as i32) + x as i32,
+                                y_value,
+                                (chunk_z * CHUNK_SIZE as i32) + z as i32
+                            );
+
+                            lights.push((
+                                pos,
+                                [255, 205, 255, 10]
+                            ));
+                        }
+                    }
+                }
+            }
+        }
 
         ChunkBuildContext {
             lights,

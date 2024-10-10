@@ -1,5 +1,3 @@
-pub mod freecam;
-
 use bevy::color::palettes::tailwind::BLUE_300;
 use bevy::core_pipeline::bloom::BloomSettings;
 use crate::game::player::Player;
@@ -9,7 +7,6 @@ use bevy::pbr::ScreenSpaceAmbientOcclusionBundle;
 use bevy::prelude::*;
 use bevy::render::render_resource::TextureUsages;
 use bevy::render::view::GpuCulling;
-use crate::systems::camera::freecam::{Freecam, freecam_activation, freecam_movement};
 
 pub struct CameraPlugin;
 
@@ -17,9 +14,13 @@ impl Plugin for CameraPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, setup_camera)
             .add_systems(Update, camera_player_sync)
-            .insert_resource(Freecam::default())
-            .add_systems(Update, (freecam_activation, freecam_movement));
+            .insert_resource(Freecam::default());
     }
+}
+
+#[derive(Resource, Default)]
+pub struct Freecam {
+    pub enabled: bool
 }
 
 #[derive(Component)]

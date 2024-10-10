@@ -1,18 +1,16 @@
 use bevy::input::ButtonInput;
-use bevy::prelude::{info, KeyCode, Query, Res, ResMut, Resource, Time, Transform, With};
-use crate::systems::camera::MainCamera;
-
-#[derive(Resource, Default)]
-pub struct Freecam {
-    pub enabled: bool
-}
+use bevy::log::Level;
+use bevy::prelude::{EventWriter, info, KeyCode, Query, Res, ResMut, Resource, Time, Transform, With};
+use crate::systems::camera::{Freecam, MainCamera};
+use crate::systems::ui::console::ConsoleLog;
 
 static MOVEMENT_SPEED: f32 = 10.0;
 static BOOST_MOVEMENT_SPEED_MULTIPLIER: f32 = 10.0;
 
 pub fn freecam_activation(
     keys: Res<ButtonInput<KeyCode>>,
-    mut freecam: ResMut<Freecam>
+    mut freecam: ResMut<Freecam>,
+    mut log: EventWriter<ConsoleLog>
 ) {
     if !keys.just_pressed(KeyCode::F5) {
         return;
@@ -20,7 +18,7 @@ pub fn freecam_activation(
 
     freecam.enabled = !freecam.enabled;
 
-    info!("Freecam: {}", freecam.enabled);
+    log.send(ConsoleLog(format!("Freecam: {}", freecam.enabled), Level::INFO));
 }
 
 pub fn freecam_movement(

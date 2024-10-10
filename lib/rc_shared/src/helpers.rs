@@ -136,6 +136,12 @@ pub fn global_to_local_position(vector: Vector3<i32>) -> (Vector3<i32>, Vector3<
     (chunk_loc, inner_loc)
 }
 
+#[inline]
+pub fn local_to_global_position(chunk_pos: Vector3<i32>, block_pos: Vector3<usize>) -> (Vector3<i32>) {
+    // Locate block
+    (chunk_pos * CHUNK_SIZE as i32) + block_pos.cast::<i32>()
+}
+
 /// Converts from global block position referencing any block in the entire world, to local array indexing position of 0-CHUNK_SIZE and a position of the chunk in the world
 #[inline]
 pub fn global_f32_to_local_position(vector: Vector3<f32>) -> (Vector3<i32>, Vector3<usize>) {

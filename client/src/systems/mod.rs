@@ -7,3 +7,4 @@ pub mod physics;
 pub mod ui;
 pub mod api;
 pub mod connection;
+pub mod debugging;

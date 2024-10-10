@@ -4,7 +4,7 @@ mod executor;
 use bevy::app::App;
 use bevy::color::Color;
 use bevy::log::Level;
-use bevy::prelude::{Entity, Event, EventReader, Plugin, Query, ResMut, Resource, Startup, Update, Visibility};
+use bevy::prelude::{Entity, error, Event, EventReader, info, Plugin, Query, ResMut, Resource, Startup, Update, Visibility, warn};
 use web_time::Instant;
 use rc_networking::protocol::Protocol;
 use rc_networking::types::ReceivePacket;
@@ -172,10 +172,13 @@ fn listen_for_messages(
     for message in reader.read() {
         if message.1 == Level::ERROR {
             data.log_error(&message.0);
+            error!("{}", message.0);
         } else if message.1 == Level::WARN {
             data.log_warn(&message.0);
+            warn!("{}", message.0);
         } else {
             data.log(&message.0);
+            info!("{}", message.0);
         }
     }
 }

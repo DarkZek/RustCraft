@@ -14,6 +14,7 @@ use crate::protocol::serverbound::request_chunk::RequestChunk;
 use self::clientbound::update_inventory::UpdateInventory;
 use self::clientbound::update_inventory_slot::UpdateInventorySlot;
 use serde::{Deserialize, Serialize};
+use crate::protocol::clientbound::chunk_column_update::ChunkColumnUpdate;
 use crate::protocol::clientbound::game_mode_update::GameModeUpdate;
 use crate::protocol::serverbound::change_hotbar_slot::ChangeHotbarSlot;
 use crate::protocol::serverbound::destroy_block::DestroyBlock;
@@ -44,6 +45,7 @@ pub enum Protocol {
     ChangeHotbarSlot(ChangeHotbarSlot),
     DestroyBlock(DestroyBlock),
     GameModeUpdate(GameModeUpdate),
+    ChunkColumnUpdate(ChunkColumnUpdate),
     // Unused as networking solution does not support such large packets being sent so fast
     FullChunkUpdate(FullChunkUpdate),
     PartialChunkUpdate(PartialChunkUpdate),

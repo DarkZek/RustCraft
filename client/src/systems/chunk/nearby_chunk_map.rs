@@ -93,6 +93,7 @@ impl<T: Copy> NearbyChunkMap<T> {
         }
     }
 
+    /// Loops over every single block in every nearby chunk calling `cb` with its corresponding chunk data entry from `nearby_chunk_cache`
     pub fn for_each_mut_with_chunks<F>(&mut self, nearby_chunk_cache: &NearbyChunkCache, mut cb: F) where F: FnMut(NearbyChunkItemWithChunkMut<T>) {
         for chunk_x in (self.position.x - 1)..=(self.position.x + 1) {
             for chunk_y in (self.position.y - 1)..=(self.position.y + 1) {

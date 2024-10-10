@@ -20,6 +20,7 @@ bevy = { version = "0.14.1", features = ["multi_threaded"], default-features = f
 tokio = { version = "*", features = ["rt", "sync"] }
 jsonwebtoken = {version = "9", default-features = false, features = ["use_pem"] }
 web-time = "1.1.0"
+fnv = "1.0.7"
 
 [profile.dev]
 opt-level = 1

@@ -11,7 +11,7 @@ use crate::systems::chunk::ChunkSystem;
 use bevy::prelude::*;
 use bevy::render::mesh::MeshVertexAttribute;
 use bevy::render::render_resource::VertexFormat;
-use nalgebra::Vector3;
+use nalgebra::{Vector2, Vector3};
 use rc_shared::block::BlockStates;
 use rc_shared::helpers::from_bevy_vec3;
 use std::sync::atomic::Ordering;
@@ -21,6 +21,7 @@ use crate::systems::chunk::builder::builder::MeshBuilderContext;
 use crate::systems::chunk::builder::thread::executor::ChunkBuilderJob;
 use crate::systems::chunk::flags::ChunkFlagsBitMap;
 use crate::systems::chunk::builder::thread::ChunkBuilderSchedulerTrait;
+use crate::systems::chunk::nearby_column_cache::NearbyChunkColumnCache;
 
 pub const ATTRIBUTE_LIGHTING_COLOR: MeshVertexAttribute =
     MeshVertexAttribute::new("Lighting", 988540917, VertexFormat::Float32x4);
@@ -57,6 +58,7 @@ pub fn mesh_scheduler(
     camera: Query<&Transform, With<MainCamera>>,
     block_states: Res<BlockStates>,
     mut builder_data: ResMut<MeshBuilderContext>,
+    mut gizmos: Gizmos
 ) {
     // Update player location
     let pos = from_bevy_vec3(camera.single().translation);
@@ -83,13 +85,14 @@ pub fn mesh_scheduler(
             let chunk = chunk.clone();
 
             let cache = NearbyChunkCache::from_service(&chunks, chunk.position);
+            let column_cache = NearbyChunkColumnCache::from_service(&chunks, Vector2::new(chunk.position.x, chunk.position.z));
 
-            let context = ChunkBuildContext::new(&block_states, &cache);
+            let context = ChunkBuildContext::new(&block_states, &cache, &column_cache);
 
             builder_data.scheduler.schedule(ChunkBuilderJob {
                 chunk,
                 context
-            })
+            });
 
         } else {
             warn!("Chunk data for {:?} doesn't exist when trying to build chunk", chunk_entry.chunk);

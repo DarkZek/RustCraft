@@ -6,11 +6,13 @@ use bevy::prelude::*;
 use nalgebra::Vector3;
 use rc_shared::game_objects::{GameObjectType, ItemDropGameObjectData, PlayerGameObjectData};
 use crate::game::inventory::Inventory;
+use crate::game::world::column::propagate_chunk_columns;
 
 pub mod data;
 mod saving;
 pub mod serialized;
 pub mod deserialized_player;
+pub mod column;
 
 pub static WORLD_SPAWN_LOCATION: Vector3<f32> = Vector3::new(0.0, 20.0, 0.0);
 
@@ -20,6 +22,7 @@ impl Plugin for WorldPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Update, save_world)
             .add_systems(Startup, load_spawn_chunks)
+            .add_systems(Update, propagate_chunk_columns)
             .insert_resource(WorldData::default());
     }
 }
