@@ -2,6 +2,9 @@ use bevy::prelude::*;
 
 use std::f32::consts::PI;
 use web_time::{SystemTime, UNIX_EPOCH};
+use crate::systems::asset::AssetService;
+use crate::systems::asset::material::chunk_extension::ChunkMaterial;
+use crate::systems::asset::material::translucent_chunk_extension::TranslucentChunkMaterial;
 
 #[derive(Resource)]
 pub struct SunData {
@@ -53,7 +56,13 @@ pub fn setup_sun(
     });
 }
 
-pub fn update_sun(sundata: ResMut<SunData>, mut query: Query<&mut Transform>) {
+pub fn update_sun(
+    sundata: ResMut<SunData>,
+    mut query: Query<&mut Transform>,
+    asset_service: Res<AssetService>,
+    mut chunk_material: ResMut<Assets<ChunkMaterial>>,
+    mut translucent_chunk_material: ResMut<Assets<TranslucentChunkMaterial>>,
+) {
     let day_len_ms = 1000 * 60;
 
     let sun_distance = 600.0;
@@ -98,4 +107,8 @@ pub fn update_sun(sundata: ResMut<SunData>, mut query: Query<&mut Transform>) {
 
     //let mut transform = query.get_mut(sundata.directional_light).unwrap();
     //transform.rotation = rot;
+
+    // Set sunlight strength
+    chunk_material.get_mut(&asset_service.opaque_texture_atlas_material).unwrap().extension.uniform.sunlight_strength = (day_progress * std::f32::consts::PI).sin();
+    translucent_chunk_material.get_mut(&asset_service.translucent_texture_atlas_material).unwrap().extension.uniform.sunlight_strength = (day_progress * std::f32::consts::PI).sin();
 }

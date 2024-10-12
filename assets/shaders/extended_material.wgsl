@@ -27,7 +27,7 @@
 struct ChunkExtendedMaterial {
     time: f32,
     ambient_strength: f32,
-    _padding2: f32,
+    sunlight_strength: f32,
     _padding3: f32,
 }
 
@@ -98,11 +98,11 @@ fn vertex(vertex_no_morph: CustomVertexInput) -> CustomVertexOutput {
 
     let ambient = vec4(chunk_material.ambient_strength, chunk_material.ambient_strength, chunk_material.ambient_strength, 1.0);
 
-    let skylight_strength = (f32(vertex_no_morph.skylight.x) / 12.0);
+    let skylight_strength = (f32(vertex_no_morph.skylight.x) / 12.0) * chunk_material.sunlight_strength;
     let skylight_color = vec3(1.0, 0.9529, 0.9215);
 
     // Blend
-    let sum_strengths = skylight_strength + vertex_no_morph.lighting.w;
+    let sum_strengths = skylight_strength + vertex_no_morph.lighting.w + 0.01; // Prevent divide by zero
 
     // Proportionally mix colours depending on strengths
     let light_color = ((skylight_strength/sum_strengths) * skylight_color) + ((vertex_no_morph.lighting.w/sum_strengths) * vertex_no_morph.lighting.xyz);

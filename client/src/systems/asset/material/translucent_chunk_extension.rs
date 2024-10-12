@@ -19,7 +19,7 @@ pub struct ChunkMaterialUniform {
     // TODO: Use bevy globals.time
     pub time: f32,
     pub ambient_strength: f32,
-    pub _padding1: f32,
+    pub sunlight_strength: f32,
     pub _padding2: f32,
 }
 
