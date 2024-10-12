@@ -12,7 +12,7 @@ use rc_shared::game_objects::{GameObjectData, PlayerGameObjectData};
 use std::sync::atomic::Ordering;
 use crate::events::authorize::AuthorizationEvent;
 use crate::game::world::data::GAME_OBJECT_ID_COUNTER;
-use crate::helpers::global_to_local_position;
+use rc_shared::helpers::global_to_local_position;
 use crate::systems::chunk::ChunkSystem;
 use crate::{TransportSystem, WorldData};
 use rc_shared::constants::GameObjectId;

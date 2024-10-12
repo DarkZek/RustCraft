@@ -1,11 +1,11 @@
 use bevy::ecs::prelude::Component;
 use nalgebra::Vector3;
-use rc_shared::chunk::{ChunkBlockMetadata, ChunkDataStorage, ChunkMetadata, RawChunkData};
+use rc_shared::chunk::{ChunkBlockMetadata, ChunkDataStorage, ChunkMetadata, ChunkPosition, RawChunkData};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Component, Serialize, Deserialize, PartialEq, Clone)]
 pub struct ChunkData {
-    pub position: Vector3<i32>,
+    pub position: ChunkPosition,
     pub world: ChunkDataStorage,
     pub block_metadata: ChunkBlockMetadata,
     pub metadata: ChunkMetadata,
@@ -13,7 +13,7 @@ pub struct ChunkData {
 
 impl ChunkData {
     pub fn new(
-        position: Vector3<i32>,
+        position: ChunkPosition,
         world: ChunkDataStorage,
         metadata: ChunkMetadata,
         block_metadata: ChunkBlockMetadata,
@@ -26,7 +26,7 @@ impl ChunkData {
         }
     }
 
-    pub fn blank(position: Vector3<i32>) -> ChunkData {
+    pub fn blank(position: ChunkPosition) -> ChunkData {
         ChunkData {
             position,
             world: ChunkDataStorage::Empty,

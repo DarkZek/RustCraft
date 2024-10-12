@@ -2,7 +2,7 @@ use bevy::color::palettes::basic::YELLOW;
 use bevy::prelude::{Gizmos, Query, Res, Transform, Vec3, With};
 use nalgebra::{Vector2, Vector3};
 use rc_shared::CHUNK_SIZE;
-use rc_shared::helpers::{local_to_global_position, to_bevy_vec3};
+use rc_shared::helpers::to_bevy_vec3;
 use crate::systems::camera::MainCamera;
 use crate::systems::chunk::ChunkSystem;
 

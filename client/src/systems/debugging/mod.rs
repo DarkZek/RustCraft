@@ -1,11 +1,13 @@
 mod light_heightmap;
 pub mod freecam;
 mod game_object_hitboxes;
+mod chunk;
 
 use bevy::app::App;
 use bevy::input::ButtonState;
 use bevy::input::keyboard::KeyboardInput;
 use bevy::prelude::*;
+use crate::systems::debugging::chunk::draw_chunk_boundary;
 use crate::systems::debugging::freecam::{freecam_activation, freecam_movement};
 use crate::systems::debugging::game_object_hitboxes::draw_game_object_hitboxes;
 use crate::systems::debugging::light_heightmap::draw_skylight;
@@ -19,7 +21,7 @@ impl Plugin for DebuggingPlugin {
                 gizmos_enabled: false,
                 freecam: false,
             })
-            .add_systems(Update, (draw_skylight, draw_game_object_hitboxes).run_if(run_gizmos))
+            .add_systems(Update, (draw_skylight, draw_game_object_hitboxes, draw_chunk_boundary).run_if(run_gizmos))
             .add_systems(Update, freecam_movement)
             .add_systems(Startup, setup_gizmos)
             .add_systems(Update, (freecam_activation, control_gizmos));

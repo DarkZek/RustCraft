@@ -1,10 +1,10 @@
 use crate::game::update::BlockUpdateEvent;
-use crate::helpers::global_to_local_position;
 use crate::WorldData;
 use bevy::prelude::{EventReader, ResMut};
 use nalgebra::Vector3;
 use rc_shared::viewable_direction::{ViewableDirection};
 use rc_shared::CHUNK_SIZE;
+use rc_shared::helpers::global_to_local_position;
 
 pub fn generate_links(
     mut update_event: EventReader<BlockUpdateEvent>,

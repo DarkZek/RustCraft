@@ -1,9 +1,8 @@
 use bevy::color::palettes::basic::RED;
-use bevy::math::Vec3;
 use bevy::prelude::{Gizmos, Transform};
 use crate::block::BlockStates;
 use crate::chunk::ChunkSystemTrait;
-use crate::helpers::{from_bevy_vec3, global_to_local_position, to_bevy_vec3};
+use crate::helpers::{global_to_local_position, to_bevy_vec3};
 use nalgebra::Vector3;
 use serde::{Deserialize, Serialize};
 

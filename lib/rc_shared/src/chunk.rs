@@ -1,10 +1,16 @@
 use crate::{CHUNK_SIZE, MAX_LIGHT_VALUE};
-use nalgebra::Vector3;
+use nalgebra::{Vector2, Vector3};
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 
 pub type RawChunkData = [[[u32; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
 pub type RawLightingData = [[[LightingColor; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
+
+pub type ChunkPosition = Vector3<i32>;
+pub type ChunkColumnPosition = Vector2<i32>;
+pub type LocalBlockPosition = Vector3<usize>;
+pub type GlobalBlockPosition = Vector3<i32>;
+pub type BlockId = u32;
 
 pub type Metadata = serde_json::Value;
 
@@ -50,7 +56,7 @@ pub enum ChunkDataStorage {
 
 impl ChunkDataStorage {
     #[inline]
-    pub fn get(&self, pos: Vector3<usize>) -> u32 {
+    pub fn get(&self, pos: LocalBlockPosition) -> BlockId {
         match self {
             ChunkDataStorage::Data(data) => {
                 data[pos.x][pos.y][pos.z]
@@ -61,7 +67,7 @@ impl ChunkDataStorage {
     }
 
     #[inline]
-    pub fn set(&mut self, pos: Vector3<usize>, id: u32) {
+    pub fn set(&mut self, pos: LocalBlockPosition, id: BlockId) {
         match self {
             ChunkDataStorage::Data(_) => {}
             ChunkDataStorage::Empty => {

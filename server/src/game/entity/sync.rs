@@ -8,7 +8,7 @@ use rc_shared::game_objects::PlayerGameObjectData;
 use crate::game::entity::{DirtyPosition, DirtyRotation};
 use crate::game::game_object::GameObject;
 use crate::game::transform::Transform;
-use crate::helpers::global_to_local_position;
+use rc_shared::helpers::global_to_local_position;
 use crate::systems::chunk::ChunkSystem;
 
 pub fn sync_entities(

@@ -1,7 +1,6 @@
-use std::iter::{Iterator, Rev};
-use std::ops::Range;
-use bevy::prelude::info;
+use std::iter::{Iterator};
 use nalgebra::{Vector2, Vector3};
+use rc_shared::chunk::GlobalBlockPosition;
 use rc_shared::chunk_column::ChunkColumnData;
 use rc_shared::CHUNK_SIZE;
 use rc_shared::helpers::global_to_local_position;
@@ -62,7 +61,7 @@ impl WorldData {
     }
 
     // Block position updated at `pos`, update the column data
-    pub fn update_column_pos(&mut self, position: Vector3<i32>, block_id: usize) {
+    pub fn update_column_pos(&mut self, position: GlobalBlockPosition, block_id: u32) {
 
         let (chunk_pos, block_pos) = global_to_local_position(position);
 
@@ -73,14 +72,14 @@ impl WorldData {
             column_data.skylight_level[block_pos.x][block_pos.z] = None;
             column_data.dirty = true;
 
-            'outer: for chunk_y in CHUNK_CHECKING_RANGE {
+            for chunk_y in CHUNK_CHECKING_RANGE {
                 if let Some(chunk) = self.chunks.get(&Vector3::new(chunk_pos.x, chunk_y, chunk_pos.z)) {
-                    for y in CHUNK_SIZE..0 {
+                    for y in (0..CHUNK_SIZE).rev() {
                         let block_id = chunk.world.get(Vector3::new(block_pos.x, y, block_pos.z));
 
                         if block_id != 0 {
-                            column_data.skylight_level[block_pos.x][block_pos.z] = Some(position.y + 1);
-                            break 'outer;
+                            column_data.skylight_level[block_pos.x][block_pos.z] = Some((chunk_y * CHUNK_SIZE as i32) + y as i32 + 1);
+                            return;
                         }
                     }
                 }
@@ -89,7 +88,7 @@ impl WorldData {
             // Block placed
             let current_height_pos = column_data.skylight_level[block_pos.x][block_pos.z];
 
-            if current_height_pos.is_none() || current_height_pos.unwrap() > position.y {
+            if current_height_pos.is_none() || current_height_pos.unwrap() <= position.y {
                 column_data.skylight_level[block_pos.x][block_pos.z] = Some(position.y + 1);
                 column_data.dirty = true;
             }

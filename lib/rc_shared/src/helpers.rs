@@ -1,8 +1,8 @@
-use crate::chunk::LightingColor;
+use crate::chunk::{ChunkPosition, GlobalBlockPosition, LightingColor, LocalBlockPosition};
 use crate::CHUNK_SIZE;
 use bevy::prelude::Vec3;
 use nalgebra::{Point3, Vector3};
-use std::ops::Add;
+use std::ops::{Add, Range};
 
 /// Formats a u32 with American comma placement.
 ///
@@ -123,7 +123,7 @@ pub fn to_bevy_vec3(vector: Vector3<f32>) -> Vec3 {
 
 /// Converts from global block position referencing any block in the entire world, to local array indexing position of 0-CHUNK_SIZE and a position of the chunk in the world
 #[inline]
-pub fn global_to_local_position(vector: Vector3<i32>) -> (Vector3<i32>, Vector3<usize>) {
+pub fn global_to_local_position(vector: Vector3<i32>) -> (ChunkPosition, LocalBlockPosition) {
     // Locate block
     let inner_loc = Vector3::new(
         ((vector.x as usize % CHUNK_SIZE) + CHUNK_SIZE) % CHUNK_SIZE,
@@ -142,7 +142,7 @@ pub fn global_to_local_position(vector: Vector3<i32>) -> (Vector3<i32>, Vector3<
 }
 
 #[inline]
-pub fn local_to_global_position(chunk_pos: Vector3<i32>, block_pos: Vector3<usize>) -> (Vector3<i32>) {
+pub fn local_to_global_position(chunk_pos: Vector3<i32>, block_pos: Vector3<usize>) -> Vector3<i32> {
     // Locate block
     (chunk_pos * CHUNK_SIZE as i32) + block_pos.cast::<i32>()
 }
@@ -180,4 +180,17 @@ pub fn check_chunk_boundaries(pos: Vector3<usize>, dir: Vector3<i32>) -> bool {
 
         _ => panic!("Invalid direction"),
     }
+}
+
+/// Takes a `value` in range `input` and converts it to the range `output`
+pub fn map(input: Range<f32>, output: Range<f32>, value: f32) -> f32 {
+    let normalized = (value - input.start) / (input.end - input.start);
+    (normalized * (output.end - output.start)) + output.start
+}
+
+#[test]
+fn test_map() {
+    assert_eq!(map(0.0..1.0, 0.0..10.0, 0.3), 3.0);
+    assert_eq!(map(0.0..0.5, 0.0..10.0, 0.3), 6.0);
+    assert_eq!(map(0.0..0.5, 10.0..0.0, 0.3), 4.0);
 }

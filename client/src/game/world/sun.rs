@@ -6,6 +6,7 @@ use bevy::color::palettes::basic::BLACK;
 use bevy::color::palettes::tailwind::BLUE_300;
 use bevy::math::VectorSpace;
 use web_time::{SystemTime, UNIX_EPOCH};
+use rc_shared::time::daylight_amount;
 use crate::systems::asset::AssetService;
 use crate::systems::asset::material::chunk_extension::ChunkMaterial;
 use crate::systems::asset::material::translucent_chunk_extension::TranslucentChunkMaterial;
@@ -130,35 +131,4 @@ fn rotate_sun_moon_sprite(
         Vec3::new(1.0, 0.0, 0.0),
         (day_progress * -PI * 2.0) + (PI / 2.0),
     );
-}
-
-fn daylight_amount(t: f32) -> f32 {
-    match t {
-        0.0..0.5 => {
-            1.0
-        }
-        0.5..0.65 => {
-            map(0.5..0.65, 1.0..0.0, t)
-        }
-        0.65..0.85 => {
-            0.0
-        }
-        0.85..=1.0 => {
-            map(0.85..1.0, 0.0..1.0, t)
-        }
-        _ => panic!("Invalid input provided to daylight_amount")
-    }
-}
-
-/// Takes a `value` in range `input` and converts it to the range `output`
-fn map(input: Range<f32>, output: Range<f32>, value: f32) -> f32 {
-    let normalized = (value - input.start) / (input.end - input.start);
-    (normalized * (output.end - output.start)) + output.start
-}
-
-#[test]
-fn test_map() {
-    assert_eq!(map(0.0..1.0, 0.0..10.0, 0.3), 3.0);
-    assert_eq!(map(0.0..0.5, 0.0..10.0, 0.3), 6.0);
-    assert_eq!(map(0.0..0.5, 10.0..0.0, 0.3), 4.0);
 }

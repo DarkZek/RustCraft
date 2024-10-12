@@ -38,20 +38,24 @@ pub struct AssetService {
 }
 
 impl AssetService {
-    pub fn new(server: Res<AssetServer>, materials: &mut Assets<ChunkMaterial>, translucent_materials: &mut Assets<TranslucentChunkMaterial>) -> AssetService {
+    pub fn new(
+        server: Res<AssetServer>,
+        materials: &mut Assets<ChunkMaterial>,
+        translucent_materials: &mut Assets<TranslucentChunkMaterial>
+    ) -> AssetService {
         let opaque_texture_atlas_material = materials.add(ExtendedMaterial {
             base: StandardMaterial {
                 base_color: Color::from(RED),
                 ..default()
             },
-            extension: ChunkMaterialExtension { uniform: ChunkMaterialUniform { ambient_strength: 0.0, ..default() } },
+            extension: ChunkMaterialExtension { uniform: ChunkMaterialUniform { ambient_strength: 0.04, ..default() } },
         });
         let translucent_texture_atlas_material = translucent_materials.add(ExtendedMaterial {
             base: StandardMaterial {
                 base_color: Color::from(RED),
                 ..default()
             },
-            extension: TranslucentChunkMaterialExtension { uniform: ChunkMaterialUniform { time: 0.0, ambient_strength: 0.0, ..default() } },
+            extension: TranslucentChunkMaterialExtension { uniform: ChunkMaterialUniform { time: 0.0, ambient_strength: 0.04, ..default() } },
         });
 
         AssetService {

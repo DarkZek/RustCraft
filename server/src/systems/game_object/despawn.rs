@@ -3,7 +3,7 @@ use nalgebra::Vector3;
 use rc_networking::protocol::Protocol;
 use rc_networking::types::SendPacket;
 use crate::game::game_object::GameObject;
-use crate::helpers::global_to_local_position;
+use rc_shared::helpers::global_to_local_position;
 use crate::systems::chunk::ChunkSystem;
 use crate::transport::TransportSystem;
 

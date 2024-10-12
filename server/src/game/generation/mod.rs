@@ -76,7 +76,7 @@ impl ChunkData {
             ChunkDataStorage::Empty
         };
 
-        let mut data = ChunkData::new(
+        let data = ChunkData::new(
             position,
             chunk_data,
             Default::default(),

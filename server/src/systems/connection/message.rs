@@ -1,9 +1,9 @@
 use std::sync::atomic::Ordering;
 
 use crate::game::transform::Transform;
-use crate::game::update::BlockUpdateEvent;
+use crate::game::update::{BlockPokeEvent, BlockUpdateEvent};
 use crate::game::world::data::GAME_OBJECT_ID_COUNTER;
-use crate::helpers::global_to_local_position;
+use rc_shared::helpers::global_to_local_position;
 use crate::systems::game_object::spawn::SpawnGameObjectRequest;
 use crate::{TransportSystem, WorldData};
 use bevy::ecs::prelude::*;
@@ -30,6 +30,7 @@ pub fn receive_message_event(
     system: Res<TransportSystem>,
     mut transforms: Query<&mut Transform>,
     mut block_update_writer: EventWriter<BlockUpdateEvent>,
+    mut block_poke_writer: EventWriter<BlockPokeEvent>,
     mut ew: EventWriter<SpawnGameObjectRequest>,
     block_states: Res<BlockStates>,
     item_states: Res<ItemStates>,
@@ -119,9 +120,10 @@ pub fn receive_message_event(
                 // Trigger block update for all surrounding blocks
                 block_update_writer.send(BlockUpdateEvent {
                     pos: Vector3::new(packet.x, packet.y, packet.z),
+                    block_id
                 });
                 for side in &BLOCK_SIDES {
-                    block_update_writer.send(BlockUpdateEvent {
+                    block_poke_writer.send(BlockPokeEvent {
                         pos: Vector3::new(packet.x, packet.y, packet.z) + side,
                     });
                 }
@@ -154,10 +156,11 @@ pub fn receive_message_event(
                 // Trigger block update for all surrounding blocks
                 block_update_writer.send(BlockUpdateEvent {
                     pos: Vector3::new(packet.x, packet.y, packet.z),
+                    block_id: 0,
                 });
                 for side in &BLOCK_SIDES {
-                    block_update_writer.send(BlockUpdateEvent {
-                        pos: Vector3::new(packet.x, packet.y, packet.z) + side,
+                    block_poke_writer.send(BlockPokeEvent {
+                        pos: Vector3::new(packet.x, packet.y, packet.z) + side
                     });
                 }
 

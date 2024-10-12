@@ -1,6 +1,6 @@
 use nalgebra::Vector3;
-use rc_shared::chunk::RawChunkData;
-use crate::helpers::global_to_local_position;
+use rc_shared::chunk::{ChunkPosition, RawChunkData};
+use rc_shared::helpers::global_to_local_position;
 
 pub mod tree;
 
@@ -46,7 +46,7 @@ pub trait StructureGenerator {
 }
 
 fn try_place_block(
-    affected_chunk_pos: Vector3<i32>,
+    affected_chunk_pos: ChunkPosition,
     world: &mut RawChunkData,
     pos: Vector3<i32>,
     block: u32,
