@@ -72,5 +72,13 @@ impl ChunkData {
                 }
             }
         }
+
+        // Update surrounding blocks
+        for (pos, block_data) in &mut context.surrounding_data {
+            // Get data
+            if let Some(light_data) = data.get(*pos) {
+                block_data.light.skylight = *light_data;
+            }
+        }
     }
 }

@@ -33,9 +33,9 @@ impl ChunkData {
         let start = Instant::now();
 
         if context.lights.len() == 0 {
-            // return LightingUpdateData {
-            //     data: [[[LightingColor::default(); CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE],
-            // };
+            return LightingUpdateData {
+                data: [[[LightingColor::default(); CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE],
+            };
         }
 
         let lights_len = context.lights.len();
@@ -134,7 +134,6 @@ impl ChunkData {
         // Update context surrounding blocks with results of lighting pass
         for (pos, entry) in &mut context.surrounding_data {
             if let Some(lighting_data) = data.get(*pos) {
-                // entry.light.r = 255;
                 // If there's no lighting data for this block ignore it
                 if lighting_data.max_strength == 0 {
                     continue;
@@ -143,11 +142,6 @@ impl ChunkData {
                 entry.light = calculate_color(lighting_data);
             }
         }
-
-        self.build_skylighting(
-            context,
-            &mut out
-        );
 
         debug!(
             "Took {}ns to render {:?} with {} lights with flood fill",
@@ -185,11 +179,13 @@ mod tests {
     use std::{fs};
     use web_time::Instant;
     use fnv::FnvHashMap;
+    use nalgebra::Vector2;
     use rc_shared::block::BlockStates;
     use rc_shared::block::types::Block;
     use crate::systems::chunk::builder::build_context::ChunkBuildContext;
     use crate::systems::chunk::data::ChunkData;
     use crate::systems::chunk::nearby_cache::NearbyChunkCache;
+    use crate::systems::chunk::nearby_column_cache::NearbyChunkColumnCache;
     use crate::systems::chunk::static_world_data::StaticWorldData;
 
     #[test]
@@ -247,10 +243,11 @@ mod tests {
 
             for (pos, chunk) in &chunks {
                 let nearby_block_cache = NearbyChunkCache::from_map(&chunks, *pos);
+                let nearby_column_cache = NearbyChunkColumnCache::empty(Vector2::new(pos.x, pos.z));
 
                 let start = Instant::now();
 
-                let mut context = ChunkBuildContext::new(&states, &nearby_block_cache);
+                let mut context = ChunkBuildContext::new(&states, &nearby_block_cache, &nearby_column_cache);
 
                 chunk.build_lighting(&mut context);
                 total_time_nanos += start.elapsed().as_nanos();

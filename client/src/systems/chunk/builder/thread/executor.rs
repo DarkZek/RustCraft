@@ -30,7 +30,12 @@ impl ChunkBuilderExecutor {
             mut context
         } = job;
 
-        let lighting = chunk.build_lighting(&mut context);
+        let mut lighting = chunk.build_lighting(&mut context);
+
+        chunk.build_skylighting(
+            &mut context,
+            &mut lighting.data
+        );
 
         chunk.light_levels = lighting.data;
 

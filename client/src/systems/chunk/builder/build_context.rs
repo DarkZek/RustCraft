@@ -157,7 +157,7 @@ fn is_neighbor_block(relative_chunk_pos: Vector3<i32>, block_pos: Vector3<usize>
 #[cfg(test)]
 mod tests {
     use fnv::FnvHashMap;
-    use nalgebra::Vector3;
+    use nalgebra::{Vector2, Vector3};
     use rc_shared::block::BlockStates;
     use rc_shared::block::types::Block;
     use rc_shared::chunk::ChunkDataStorage;
@@ -165,6 +165,7 @@ mod tests {
     use crate::systems::chunk::builder::build_context::{ChunkBuildContext, is_neighbor_block};
     use crate::systems::chunk::data::ChunkData;
     use crate::systems::chunk::nearby_cache::NearbyChunkCache;
+    use crate::systems::chunk::nearby_column_cache::NearbyChunkColumnCache;
 
     #[test]
     fn neighbor_test_cases() {
@@ -235,10 +236,12 @@ mod tests {
         ));
 
         let chunk_cache = NearbyChunkCache::from_map(&chunks, Vector3::new(0, 0, 0));
+        let column_cache = NearbyChunkColumnCache::empty(Vector2::new(0, 0));
 
         let context = ChunkBuildContext::new(
             &states,
-            &chunk_cache
+            &chunk_cache,
+            &column_cache
         );
 
         assert!(context.surrounding_data.get(&Vector3::new(0, 16, 0)).is_some());
@@ -303,10 +306,12 @@ mod tests {
         ));
 
         let chunk_cache = NearbyChunkCache::from_map(&chunks, Vector3::new(0, 0, 4));
+        let column_cache = NearbyChunkColumnCache::empty(Vector2::new(0, 0));
 
         let context = ChunkBuildContext::new(
             &states,
-            &chunk_cache
+            &chunk_cache,
+            &column_cache
         );
 
         //println!("{:?}", context.surrounding_data);
