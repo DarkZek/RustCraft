@@ -1,6 +1,10 @@
 <script lang="ts" setup>
 import { useRouter } from 'vue-router';
 
+const props = defineProps<{
+    hide?: boolean,
+    overlay?: boolean
+}>()
 
 const router = useRouter()
 
@@ -9,6 +13,8 @@ const router = useRouter()
 <template>
     <div
         class="navigation-bar"
+        :hide="props.hide"
+        :overlay="props.overlay"
     >
         <div
             class="constraint"
@@ -41,8 +47,16 @@ const router = useRouter()
     min-height: 70px;
     max-height: 70px;
     width: 100vw;
-    position: absolute;
     padding: 14px 0px 8px 0px;
+    transition: translate 0.5s ease-in-out;
+
+    &[hide=true] {
+        translate: 0px -70px;
+    }
+
+    &[overlay=true] {
+        position: absolute;
+    }
 }
 
 .constraint {

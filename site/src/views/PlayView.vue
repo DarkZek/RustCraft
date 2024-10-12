@@ -5,10 +5,12 @@ import { isActive } from '../services/apiService'
 import { webgpuSupported, webtransportSupported } from '../utils/compatibility'
 import LoadingBar from '../components/LoadingBar.vue'
 import NavigationBar from '../components/NavigationBar.vue'
+import { nextTick } from 'vue'
 
 let router = useRouter()
 
 const loading = ref(true)
+const hideNav = ref(false)
 
 async function start() {
   if (!localStorage.getItem("token")) {
@@ -29,8 +31,11 @@ async function start() {
 
   const { loadGame } = await import('../utils/game')
 
-  await loadGame()
-  loading.value = false
+  nextTick(() => {
+    loading.value = false
+    hideNav.value = true
+  })
+  await loadGame()  
 }
 onMounted(start)
 
@@ -38,7 +43,7 @@ onMounted(start)
 
 <template>
   <main>
-    <navigation-bar />
+    <navigation-bar :hide="hideNav" :overlay="true" />
     <loading-bar v-if="loading" />
     <div id="game"></div>
   </main>
@@ -61,5 +66,4 @@ canvas:focus {
   inset: 0px;
   margin: auto;
 }
-
 </style>
