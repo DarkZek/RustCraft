@@ -3,13 +3,11 @@ use crate::game::world::data::WorldData;
 use crate::transport::TransportSystem;
 use bevy::app::App;
 use bevy::prelude::{Event, EventReader, EventWriter, Plugin, Res, ResMut, Update};
-use nalgebra::{Vector2, Vector3};
 use rc_networking::protocol::Protocol;
 use rc_networking::types::SendPacket;
 use rc_shared::block::BlockStates;
 use rc_shared::chunk::GlobalBlockPosition;
 use rc_shared::viewable_direction::BLOCK_SIDES;
-use rc_shared::helpers::global_to_local_position;
 
 /// Eventually turn this into a modular block update system
 

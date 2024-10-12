@@ -1,13 +1,10 @@
 use std::collections::HashMap;
-use bevy::color::palettes::css::GREEN;
-use bevy::prelude::{Gizmos, info, Transform, Vec3};
 use fnv::{FnvBuildHasher, FnvHashMap};
 use nalgebra::{Vector2, Vector3};
 use serde::{Deserialize, Serialize};
 use rc_shared::block::BlockStates;
 use rc_shared::chunk::LightingColor;
 use rc_shared::CHUNK_SIZE;
-use rc_shared::helpers::to_bevy_vec3;
 use crate::systems::chunk::nearby_cache::NearbyChunkCache;
 use crate::systems::chunk::nearby_chunk_map::NearbyChunkMap;
 use crate::systems::chunk::nearby_column_cache::NearbyChunkColumnCache;
@@ -17,7 +14,7 @@ pub struct ChunkBuildContext {
     // Location of all lights in the surrounding chunks
     pub lights: Vec<(Vector3<i32>, [u8; 4])>,
     // Location of all points of sunlight in the surrounding chunks
-    pub sunlight_points: Vec<(Vector3<i32>)>,
+    pub sunlight_points: Vec<Vector3<i32>>,
     // Translucency of all blocks in the surrounding chunks.
     // TODO: Convert this into a more compressed format?
     pub translucency_map: NearbyChunkMap<bool>,
@@ -107,9 +104,7 @@ impl ChunkBuildContext {
                                 (chunk_z * CHUNK_SIZE as i32) + z as i32
                             );
 
-                            sunlight_points.push((
-                                pos
-                            ));
+                            sunlight_points.push(pos);
                         }
                     }
                 }

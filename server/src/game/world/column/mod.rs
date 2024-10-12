@@ -1,5 +1,4 @@
 use bevy::prelude::{EventWriter, Res, ResMut};
-use nalgebra::Vector2;
 use rc_networking::protocol::clientbound::chunk_column_update::ChunkColumnUpdate;
 use rc_networking::protocol::Protocol;
 use rc_networking::types::SendPacket;

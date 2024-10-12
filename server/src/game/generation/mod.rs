@@ -14,7 +14,7 @@ use crate::game::generation::phase3::decorate_chunk;
 use crate::game::generation::phase4::add_structures;
 use bevy::prelude::trace;
 use nalgebra::Vector3;
-use rc_shared::chunk::{ChunkDataStorage, RawChunkData};
+use rc_shared::chunk::ChunkDataStorage;
 use rc_shared::CHUNK_SIZE;
 
 impl ChunkData {

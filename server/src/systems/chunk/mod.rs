@@ -14,7 +14,6 @@ use rc_networking::types::{ReceivePacket, SendPacket};
 use std::collections::{HashMap, HashSet};
 use rc_networking::protocol::clientbound::chunk_column_update::ChunkColumnUpdate;
 use crate::config::{ServerConfig, WorldType};
-use crate::game::world::serialized::DeserializedChunkData;
 
 const MAX_OUTSTANDING_CHUNK_REQUESTS: usize = 80;
 const CHUNKS_GENERATED_PER_TICK: usize = 40;

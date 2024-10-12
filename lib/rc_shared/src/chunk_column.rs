@@ -1,6 +1,4 @@
-use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
-use crate::chunk::{ChunkPosition, RawChunkData};
 use crate::CHUNK_SIZE;
 
 #[derive(Debug, Copy, Clone, PartialEq, Serialize, Deserialize)]

@@ -2,7 +2,6 @@ use bevy::pbr::NotShadowCaster;
 use bevy::prelude::{Assets, Camera, Camera3dBundle, ClearColorConfig, Commands, default, Entity, Handle, MaterialMeshBundle, Mesh, PerspectiveProjection, Query, Res, ResMut, Resource, Transform};
 use bevy::render::mesh::{PrimitiveTopology, VertexAttributeValues};
 use bevy::render::render_asset::RenderAssetUsages;
-use bevy::render::render_resource::VertexFormat::Uint8x4;
 use bevy::render::view::RenderLayers;
 use rc_shared::block::BlockStates;
 use rc_shared::item::ItemStates;

@@ -1,4 +1,3 @@
-use bevy::color::palettes::tailwind::BLUE_300;
 use bevy::core_pipeline::bloom::BloomSettings;
 use crate::game::player::Player;
 use bevy::core_pipeline::core_3d::Camera3dDepthLoadOp;

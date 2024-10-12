@@ -1,4 +1,4 @@
-use crate::chunk::{ChunkPosition, GlobalBlockPosition, LightingColor, LocalBlockPosition};
+use crate::chunk::{ChunkPosition, LightingColor, LocalBlockPosition};
 use crate::CHUNK_SIZE;
 use bevy::prelude::Vec3;
 use nalgebra::{Point3, Vector3};

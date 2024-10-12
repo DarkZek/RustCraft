@@ -1,7 +1,6 @@
 use bevy::prelude::*;
 
 use std::f32::consts::PI;
-use std::ops::Range;
 use bevy::color::palettes::basic::BLACK;
 use bevy::color::palettes::tailwind::BLUE_300;
 use bevy::math::VectorSpace;

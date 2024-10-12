@@ -1,4 +1,3 @@
-use bevy::prelude::info;
 use crate::game::generation::noise::SimplexNoise;
 use nalgebra::{Vector2, Vector3};
 use rc_shared::biome::{EnvironmentEntry, EnvironmentMap};

@@ -1,4 +1,3 @@
-use std::ops::Range;
 use crate::helpers::map;
 
 pub fn daylight_amount(t: f32) -> f32 {

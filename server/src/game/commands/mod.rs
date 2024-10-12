@@ -1,6 +1,6 @@
 use bevy::app::App;
 use bevy::ecs::system::SystemState;
-use bevy::prelude::{Event, EventReader, EventWriter, Plugin, Resource, Update, World};
+use bevy::prelude::{Event, EventReader, EventWriter, Plugin, Update, World};
 use nalgebra::Vector3;
 use rc_networking::protocol::clientbound::chat::ChatSent;
 use rc_networking::protocol::clientbound::game_object_moved::GameObjectMoved;

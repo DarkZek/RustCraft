@@ -8,7 +8,7 @@ use bevy::prelude::{Entity, error, Event, EventReader, info, Plugin, Query, ResM
 use web_time::Instant;
 use rc_networking::protocol::Protocol;
 use rc_networking::types::ReceivePacket;
-use crate::systems::ui::console::executor::{CommandExecuted, execute_commands};
+use crate::systems::ui::console::executor::execute_commands;
 use crate::systems::ui::console::ui::{handle_keyboard_input, setup_console_ui, update_ui};
 
 pub struct ConsolePlugin;

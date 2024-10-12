@@ -1,6 +1,5 @@
 use bevy::ecs::prelude::Component;
-use nalgebra::Vector3;
-use rc_shared::chunk::{ChunkBlockMetadata, ChunkDataStorage, ChunkMetadata, ChunkPosition, RawChunkData};
+use rc_shared::chunk::{ChunkBlockMetadata, ChunkDataStorage, ChunkMetadata, ChunkPosition};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Component, Serialize, Deserialize, PartialEq, Clone)]

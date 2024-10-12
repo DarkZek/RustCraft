@@ -1,8 +1,7 @@
 use std::collections::HashMap;
 use fnv::FnvBuildHasher;
-use crate::systems::chunk::data::ChunkData;
 use crate::systems::chunk::ChunkSystem;
-use nalgebra::{Vector2, Vector3};
+use nalgebra::Vector2;
 use rc_shared::chunk_column::ChunkColumnData;
 
 /// By using this lookup index using relative chunk positions from the first chunk we can lookup chunks with O(1) speed
