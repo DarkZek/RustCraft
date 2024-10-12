@@ -69,7 +69,7 @@ impl ChunkBuildContext {
             if is_neighbor_block(entry.chunk_position - chunk_pos, entry.block_position) {
                 surrounding_data.insert(entry.world_position,
                     ChunkBuildContextNeighborBlockData {
-                        light: [0; 4],
+                        light: LightingColor::default(),
                         is_transparent: block.translucent,
                     }
                 );

@@ -7,6 +7,7 @@ use bevy_mod_billboard::BillboardTextBundle;
 use nalgebra::Vector3;
 use rc_shared::atlas::{TextureAtlasIndex};
 use rc_shared::block::face::Face;
+use rc_shared::chunk::LightingColor;
 use rc_shared::viewable_direction::ViewableDirectionBitMap;
 use crate::game::game_object::Rotatable;
 use crate::systems::asset::atlas::atlas::TEXTURE_ATLAS;
@@ -157,7 +158,7 @@ fn player_head(
             direction: ViewableDirectionBitMap::Back,
             wind_strengths: None,
         },
-        [255; 4]
+        LightingColor::full()
     );
 
     let head_atlas_face = head_atlas.sub_index(&TextureAtlasIndex::new(
@@ -180,7 +181,7 @@ fn player_head(
             direction: ViewableDirectionBitMap::Front,
             wind_strengths: None,
         },
-        [255; 4]
+        LightingColor::full()
     );
 
     let head_atlas_top = head_atlas.sub_index(&TextureAtlasIndex::new(
@@ -203,7 +204,7 @@ fn player_head(
             direction: ViewableDirectionBitMap::Top,
             wind_strengths: None,
         },
-        [255; 4]
+        LightingColor::full()
     );
 
     let head_atlas_bottom = head_atlas.sub_index(&TextureAtlasIndex::new(
@@ -226,7 +227,7 @@ fn player_head(
             direction: ViewableDirectionBitMap::Bottom,
             wind_strengths: None,
         },
-        [255; 4]
+        LightingColor::full()
     );
 
     let head_atlas_left = head_atlas.sub_index(&TextureAtlasIndex::new(
@@ -249,7 +250,7 @@ fn player_head(
             direction: ViewableDirectionBitMap::Left,
             wind_strengths: None,
         },
-        [255; 4]
+        LightingColor::full()
     );
 
     let head_atlas_right = head_atlas.sub_index(&TextureAtlasIndex::new(
@@ -272,7 +273,7 @@ fn player_head(
             direction: ViewableDirectionBitMap::Right,
             wind_strengths: None,
         },
-        [255; 4]
+        LightingColor::full()
     );
 
     let mut mesh = Mesh::new(PrimitiveTopology::TriangleList, RenderAssetUsages::all());
@@ -315,7 +316,7 @@ fn player_body(
             direction: ViewableDirectionBitMap::Back,
             wind_strengths: None,
         },
-        [255; 4]
+        LightingColor::full()
     );
 
     let head_atlas_face = head_atlas.sub_index(&TextureAtlasIndex::new(
@@ -338,7 +339,7 @@ fn player_body(
             direction: ViewableDirectionBitMap::Front,
             wind_strengths: None,
         },
-        [255; 4]
+        LightingColor::full()
     );
 
     let head_atlas_top = head_atlas.sub_index(&TextureAtlasIndex::new(
@@ -361,7 +362,7 @@ fn player_body(
             direction: ViewableDirectionBitMap::Top,
             wind_strengths: None,
         },
-        [255; 4]
+        LightingColor::full()
     );
 
     let head_atlas_bottom = head_atlas.sub_index(&TextureAtlasIndex::new(
@@ -384,7 +385,7 @@ fn player_body(
             direction: ViewableDirectionBitMap::Bottom,
             wind_strengths: None,
         },
-        [255; 4]
+        LightingColor::full()
     );
 
     let head_atlas_left = head_atlas.sub_index(&TextureAtlasIndex::new(
@@ -407,7 +408,7 @@ fn player_body(
             direction: ViewableDirectionBitMap::Left,
             wind_strengths: None,
         },
-        [255; 4]
+        LightingColor::full()
     );
 
     let head_atlas_right = head_atlas.sub_index(&TextureAtlasIndex::new(
@@ -430,7 +431,7 @@ fn player_body(
             direction: ViewableDirectionBitMap::Right,
             wind_strengths: None,
         },
-        [255; 4]
+        LightingColor::full()
     );
 
     let mut mesh = Mesh::new(PrimitiveTopology::TriangleList, RenderAssetUsages::all());
@@ -474,7 +475,7 @@ fn  player_leg(
             direction: ViewableDirectionBitMap::Back,
             wind_strengths: None,
         },
-        [255; 4]
+        LightingColor::full()
     );
 
     let head_atlas_face = head_atlas.sub_index(&TextureAtlasIndex::new(
@@ -497,7 +498,7 @@ fn  player_leg(
             direction: ViewableDirectionBitMap::Front,
             wind_strengths: None,
         },
-        [255; 4]
+        LightingColor::full()
     );
 
     let head_atlas_top = head_atlas.sub_index(&TextureAtlasIndex::new(
@@ -520,7 +521,7 @@ fn  player_leg(
             direction: ViewableDirectionBitMap::Top,
             wind_strengths: None,
         },
-        [255; 4]
+        LightingColor::full()
     );
 
     let head_atlas_bottom = head_atlas.sub_index(&TextureAtlasIndex::new(
@@ -543,7 +544,7 @@ fn  player_leg(
             direction: ViewableDirectionBitMap::Bottom,
             wind_strengths: None,
         },
-        [255; 4]
+        LightingColor::full()
     );
 
     let head_atlas_left = head_atlas.sub_index(&TextureAtlasIndex::new(
@@ -566,7 +567,7 @@ fn  player_leg(
             direction: ViewableDirectionBitMap::Left,
             wind_strengths: None,
         },
-        [255; 4]
+        LightingColor::full()
     );
 
     let head_atlas_right = head_atlas.sub_index(&TextureAtlasIndex::new(
@@ -589,7 +590,7 @@ fn  player_leg(
             direction: ViewableDirectionBitMap::Right,
             wind_strengths: None,
         },
-        [255; 4]
+        LightingColor::full()
     );
 
     let mut mesh = Mesh::new(PrimitiveTopology::TriangleList, RenderAssetUsages::all());
@@ -632,7 +633,7 @@ fn player_arm_right(
             direction: ViewableDirectionBitMap::Back,
             wind_strengths: None,
         },
-        [255; 4]
+        LightingColor::full()
     );
 
     let head_atlas_face = head_atlas.sub_index(&TextureAtlasIndex::new(
@@ -655,7 +656,7 @@ fn player_arm_right(
             direction: ViewableDirectionBitMap::Front,
             wind_strengths: None,
         },
-        [255; 4]
+        LightingColor::full()
     );
 
     let head_atlas_top = head_atlas.sub_index(&TextureAtlasIndex::new(
@@ -678,7 +679,7 @@ fn player_arm_right(
             direction: ViewableDirectionBitMap::Top,
             wind_strengths: None,
         },
-        [255; 4]
+        LightingColor::full()
     );
 
     let head_atlas_bottom = head_atlas.sub_index(&TextureAtlasIndex::new(
@@ -701,7 +702,7 @@ fn player_arm_right(
             direction: ViewableDirectionBitMap::Bottom,
             wind_strengths: None,
         },
-        [255; 4]
+        LightingColor::full()
     );
 
     let head_atlas_left = head_atlas.sub_index(&TextureAtlasIndex::new(
@@ -724,7 +725,7 @@ fn player_arm_right(
             direction: ViewableDirectionBitMap::Left,
             wind_strengths: None,
         },
-        [255; 4]
+        LightingColor::full()
     );
 
     let head_atlas_right = head_atlas.sub_index(&TextureAtlasIndex::new(
@@ -747,7 +748,7 @@ fn player_arm_right(
             direction: ViewableDirectionBitMap::Right,
             wind_strengths: None,
         },
-        [255; 4]
+        LightingColor::full()
     );
 
     let mut mesh = Mesh::new(PrimitiveTopology::TriangleList, RenderAssetUsages::all());
@@ -790,7 +791,7 @@ fn player_arm_left(
             direction: ViewableDirectionBitMap::Back,
             wind_strengths: None,
         },
-        [255; 4]
+        LightingColor::full()
     );
 
     let head_atlas_face = head_atlas.sub_index(&TextureAtlasIndex::new(
@@ -813,7 +814,7 @@ fn player_arm_left(
             direction: ViewableDirectionBitMap::Front,
             wind_strengths: None,
         },
-        [255; 4]
+        LightingColor::full()
     );
 
     let head_atlas_top = head_atlas.sub_index(&TextureAtlasIndex::new(
@@ -836,7 +837,7 @@ fn player_arm_left(
             direction: ViewableDirectionBitMap::Top,
             wind_strengths: None,
         },
-        [255; 4]
+        LightingColor::full()
     );
 
     let head_atlas_bottom = head_atlas.sub_index(&TextureAtlasIndex::new(
@@ -859,7 +860,7 @@ fn player_arm_left(
             direction: ViewableDirectionBitMap::Bottom,
             wind_strengths: None,
         },
-        [255; 4]
+        LightingColor::full()
     );
 
     let head_atlas_left = head_atlas.sub_index(&TextureAtlasIndex::new(
@@ -882,7 +883,7 @@ fn player_arm_left(
             direction: ViewableDirectionBitMap::Left,
             wind_strengths: None,
         },
-        [255; 4]
+        LightingColor::full()
     );
 
     let head_atlas_right = head_atlas.sub_index(&TextureAtlasIndex::new(
@@ -905,7 +906,7 @@ fn player_arm_left(
             direction: ViewableDirectionBitMap::Right,
             wind_strengths: None,
         },
-        [255; 4]
+        LightingColor::full()
     );
 
     let mut mesh = Mesh::new(PrimitiveTopology::TriangleList, RenderAssetUsages::all());

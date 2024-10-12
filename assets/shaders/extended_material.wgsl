@@ -97,7 +97,17 @@ fn vertex(vertex_no_morph: CustomVertexInput) -> CustomVertexOutput {
     #endif
 
     let ambient = vec4(chunk_material.ambient_strength, chunk_material.ambient_strength, chunk_material.ambient_strength, 1.0);
-    out.lighting = vec4(vertex_no_morph.lighting.xyz, 1.0) + ambient;
+
+    let skylight_strength = (f32(vertex_no_morph.skylight.x) / 12.0);
+    let skylight_color = vec3(1.0, 0.9529, 0.9215);
+
+    // Blend
+    let sum_strengths = skylight_strength + vertex_no_morph.lighting.w;
+
+    // Proportionally mix colours depending on strengths
+    let light_color = ((skylight_strength/sum_strengths) * skylight_color) + ((vertex_no_morph.lighting.w/sum_strengths) * vertex_no_morph.lighting.xyz);
+
+    out.lighting += vec4(light_color, 0.0) + ambient;
 
     return out;
 }

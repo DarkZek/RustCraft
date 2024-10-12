@@ -49,28 +49,33 @@ pub fn lerp_color(c1: LightingColor, c2: LightingColor, t: f32) -> LightingColor
     if t == 0.0 {
         return c1;
     }
-    [
-        if c1[0] < c2[0] {
-            c1[0].lerp(c2[0], t)
+    LightingColor {
+        r: if c1.r < c2.r {
+            c1.r.lerp(c2.r, t)
         } else {
-            c2[0].lerp(c1[0], t)
+            c2.r.lerp(c1.r, t)
         },
-        if c1[1] < c2[1] {
-            c1[1].lerp(c2[1], t)
+        g: if c1.g < c2.g {
+            c1.g.lerp(c2.g, t)
         } else {
-            c2[1].lerp(c1[1], t)
+            c2.g.lerp(c1.g, t)
         },
-        if c1[2] < c2[2] {
-            c1[2].lerp(c2[2], t)
+        b: if c1.b < c2.b {
+            c1.b.lerp(c2.b, t)
         } else {
-            c2[2].lerp(c1[2], t)
+            c2.b.lerp(c1.b, t)
         },
-        if c1[3] < c2[3] {
-            c1[3].lerp(c2[3], t)
+        strength: if c1.strength < c2.strength {
+            c1.strength.lerp(c2.strength, t)
         } else {
-            c2[3].lerp(c1[3], t)
+            c2.strength.lerp(c1.strength, t)
         },
-    ]
+        skylight: if c1.skylight < c2.skylight {
+            c1.skylight.lerp(c2.skylight, t)
+        } else {
+            c2.skylight.lerp(c1.skylight, t)
+        },
+    }
 }
 
 /// Calculate the distance between two `Point3` points

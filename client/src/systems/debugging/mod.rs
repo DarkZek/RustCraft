@@ -31,5 +31,7 @@ fn setup_gizmos(
 fn control_gizmos(
     mut evr_kbd: EventReader<KeyboardInput>,
 ) {
+    for event in evr_kbd.read() {
 
+    }
 }

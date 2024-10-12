@@ -14,3 +14,5 @@ pub mod game_mode;
 pub mod chunk_column;
 
 pub const CHUNK_SIZE: usize = 16;
+
+pub const MAX_LIGHT_VALUE: usize = 16;

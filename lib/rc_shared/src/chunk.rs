@@ -1,4 +1,4 @@
-use crate::CHUNK_SIZE;
+use crate::{CHUNK_SIZE, MAX_LIGHT_VALUE};
 use nalgebra::Vector3;
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
@@ -11,7 +11,26 @@ pub type Metadata = serde_json::Value;
 pub type ChunkBlockMetadata = HashMap<Vector3<u8>, HashMap<String, Metadata>>;
 pub type ChunkMetadata = HashMap<String, Metadata>;
 
-pub type LightingColor = [u8; 4];
+#[derive(Copy, Clone, Debug, Default, Eq, PartialEq, Serialize, Deserialize)]
+pub struct LightingColor {
+    pub r: u8,
+    pub g: u8,
+    pub b: u8,
+    pub strength: u8,
+    pub skylight: u8
+}
+
+impl LightingColor {
+    pub fn full() -> LightingColor {
+        LightingColor {
+            r: 255,
+            g: 255,
+            b: 255,
+            strength: MAX_LIGHT_VALUE as u8,
+            skylight: 0,
+        }
+    }
+}
 
 pub trait ChunkSystemTrait {
     fn get_raw_chunk(&self, pos: &Vector3<i32>) -> Option<&ChunkDataStorage>;

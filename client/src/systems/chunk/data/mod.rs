@@ -2,7 +2,7 @@ use bevy::ecs::component::Component;
 use bevy::prelude::{Entity, Handle, Mesh};
 use nalgebra::Vector3;
 use serde::{Deserialize, Serialize};
-use rc_shared::chunk::{ChunkDataStorage, RawLightingData};
+use rc_shared::chunk::{ChunkDataStorage, LightingColor, RawLightingData};
 use rc_shared::viewable_direction::ViewableDirection;
 use rc_shared::CHUNK_SIZE;
 use crate::systems::chunk::flags::ChunkFlags;
@@ -42,7 +42,7 @@ impl ChunkData {
             world: data,
             viewable_map: None,
             position,
-            light_levels: [[[[255, 255, 255, 255]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE],
+            light_levels: [[[LightingColor::full(); CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE],
             handles: Some(ChunkHandleData {
                 entity,
                 opaque_entity,
@@ -62,7 +62,7 @@ impl ChunkData {
             world,
             viewable_map: None,
             position,
-            light_levels: [[[[255, 255, 255, 255]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE],
+            light_levels: [[[LightingColor::full(); CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE],
             handles: None,
             flags: Default::default(),
         }

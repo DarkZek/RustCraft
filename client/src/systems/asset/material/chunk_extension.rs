@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use bevy::render::mesh::{MeshVertexAttribute, MeshVertexBufferLayoutRef};
 use bevy::render::render_resource::{AsBindGroup, RenderPipelineDescriptor, ShaderRef, SpecializedMeshPipelineError};
 use crate::systems::asset::material::translucent_chunk_extension::ChunkMaterialUniform;
-use crate::systems::chunk::builder::ATTRIBUTE_LIGHTING_COLOR;
+use crate::systems::chunk::builder::{ATTRIBUTE_LIGHTING_COLOR, ATTRIBUTE_SKYLIGHT_STRENGTH};
 
 pub type ChunkMaterial = ExtendedMaterial<StandardMaterial, ChunkMaterialExtension>;
 
@@ -32,6 +32,7 @@ impl MaterialExtension for ChunkMaterialExtension {
     ) -> Result<(), SpecializedMeshPipelineError> {
 
         add_vertex_extension(layout, descriptor, ATTRIBUTE_LIGHTING_COLOR, 14);
+        add_vertex_extension(layout, descriptor, ATTRIBUTE_SKYLIGHT_STRENGTH, 16);
 
         Ok(())
     }
@@ -54,6 +55,6 @@ pub fn add_vertex_extension(
         attribute_layout.shader_location = shader_location;
         descriptor.vertex.buffers.get_mut(0).unwrap().attributes.push(attribute_layout);
     } else {
-        panic!("Attribute ATTRIBUTE_LIGHTING_COLOR not specified in a mesh")
+        panic!("Attribute {} not specified in a mesh", attribute.name)
     }
 }

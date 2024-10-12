@@ -4,6 +4,7 @@ use bevy::ecs::component::Component;
 use nalgebra::Vector3;
 use serde::{Deserialize, Serialize};
 use rc_shared::block::BlockStates;
+use rc_shared::chunk::LightingColor;
 use rc_shared::helpers::global_to_local_position;
 use rc_shared::viewable_direction::{ViewableDirection, BLOCK_SIDES};
 use rc_shared::CHUNK_SIZE;
@@ -63,7 +64,7 @@ impl ChunkData {
                             light_color[i] = if let Some(chunk) = context.surrounding_data.get(&world_position) {
                                 chunk.light
                             } else {
-                                [0; 4]
+                                LightingColor::default()
                             }
                         }
 

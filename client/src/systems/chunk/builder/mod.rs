@@ -25,7 +25,8 @@ use crate::systems::chunk::nearby_column_cache::NearbyChunkColumnCache;
 
 pub const ATTRIBUTE_LIGHTING_COLOR: MeshVertexAttribute =
     MeshVertexAttribute::new("Lighting", 988540917, VertexFormat::Float32x4);
-
+pub const ATTRIBUTE_SKYLIGHT_STRENGTH: MeshVertexAttribute =
+    MeshVertexAttribute::new("Skylight", 988540919, VertexFormat::Uint8x4);
 pub const ATTRIBUTE_WIND_STRENGTH: MeshVertexAttribute =
     MeshVertexAttribute::new("WindStrength", 988520913, VertexFormat::Float32);
 

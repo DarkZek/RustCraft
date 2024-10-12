@@ -32,7 +32,7 @@ impl ChunkBuilderSchedulerTrait for ChunkBuilderScheduler {
                 // 1:1 since the channel buffers inputs for us
                 executor.requests.push(job);
                 let update = executor.build().unwrap();
-                out_send.send(update).unwrap();
+                let _ = out_send.send(update);
             }
             0_usize
         });

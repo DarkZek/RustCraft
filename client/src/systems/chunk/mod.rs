@@ -1,9 +1,9 @@
 use crate::systems::asset::AssetService;
-use crate::systems::chunk::builder::{ATTRIBUTE_LIGHTING_COLOR, ATTRIBUTE_WIND_STRENGTH, ChunkRebuiltEvent, mesh_scheduler, mesh_updater, RerenderChunkRequest};
+use crate::systems::chunk::builder::{ATTRIBUTE_LIGHTING_COLOR, ATTRIBUTE_SKYLIGHT_STRENGTH, ATTRIBUTE_WIND_STRENGTH, ChunkRebuiltEvent, mesh_scheduler, mesh_updater, RerenderChunkRequest};
 use crate::systems::chunk::data::ChunkData;
 use crate::systems::chunk::request::request_chunks;
 use bevy::prelude::*;
-use bevy::render::mesh::PrimitiveTopology;
+use bevy::render::mesh::{PrimitiveTopology, VertexAttributeValues};
 use bevy::render::primitives::Aabb;
 use bevy::render::render_asset::RenderAssetUsages;
 use fnv::{FnvBuildHasher, FnvHashMap};
@@ -84,11 +84,12 @@ impl ChunkSystem {
         mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, vec![] as Vec<[f32; 3]>);
         mesh.insert_attribute(Mesh::ATTRIBUTE_NORMAL, vec![] as Vec<[f32; 3]>);
         mesh.insert_attribute(Mesh::ATTRIBUTE_UV_0, vec![] as Vec<[f32; 2]>);
-        mesh.insert_attribute(ATTRIBUTE_LIGHTING_COLOR, vec![] as Vec<[f32; 4]>);
+        mesh.insert_attribute(ATTRIBUTE_LIGHTING_COLOR, VertexAttributeValues::Float32x4(vec![]));
+        mesh.insert_attribute(ATTRIBUTE_SKYLIGHT_STRENGTH, VertexAttributeValues::Uint8x4(vec![]));
 
         let opaque = meshes.add(mesh.clone());
 
-        mesh.insert_attribute(ATTRIBUTE_WIND_STRENGTH, vec![] as Vec<f32>);
+        mesh.insert_attribute(ATTRIBUTE_WIND_STRENGTH, VertexAttributeValues::Float32(vec![]));
 
         let translucent = meshes.add(mesh);
 

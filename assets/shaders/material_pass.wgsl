@@ -29,6 +29,8 @@ struct CustomVertexInput {
     @location(15) wind_strength: f32,
 #endif
 
+    @location(16) skylight: vec4<u32>,
+
 #ifdef MORPH_TARGETS
     @builtin(vertex_index) index: u32,
 #endif

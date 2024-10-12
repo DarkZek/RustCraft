@@ -1,14 +1,15 @@
 use bevy::pbr::NotShadowCaster;
 use bevy::prelude::{Assets, Camera, Camera3dBundle, ClearColorConfig, Commands, default, Entity, Handle, MaterialMeshBundle, Mesh, PerspectiveProjection, Query, Res, ResMut, Resource, Transform};
-use bevy::render::mesh::PrimitiveTopology;
+use bevy::render::mesh::{PrimitiveTopology, VertexAttributeValues};
 use bevy::render::render_asset::RenderAssetUsages;
+use bevy::render::render_resource::VertexFormat::Uint8x4;
 use bevy::render::view::RenderLayers;
 use rc_shared::block::BlockStates;
 use rc_shared::item::ItemStates;
 use crate::game::game_object::mesh::generate_item_mesh;
 use crate::game::inventory::Inventory;
 use crate::systems::asset::AssetService;
-use crate::systems::chunk::builder::{ATTRIBUTE_LIGHTING_COLOR, ATTRIBUTE_WIND_STRENGTH};
+use crate::systems::chunk::builder::{ATTRIBUTE_LIGHTING_COLOR, ATTRIBUTE_SKYLIGHT_STRENGTH, ATTRIBUTE_WIND_STRENGTH};
 
 /// Used by the view model camera and the player's equipped item.
 /// The light sources belong to both layers
@@ -45,8 +46,9 @@ pub fn setup_equipped_item(
     ));
 
     let mut empty_mesh = Mesh::new(PrimitiveTopology::TriangleList, RenderAssetUsages::all());
-    empty_mesh.insert_attribute(ATTRIBUTE_WIND_STRENGTH, vec![] as Vec<f32>);
-    empty_mesh.insert_attribute(ATTRIBUTE_LIGHTING_COLOR, vec![] as Vec<[f32; 4]>);
+    empty_mesh.insert_attribute(ATTRIBUTE_WIND_STRENGTH, VertexAttributeValues::Float32(vec![]));
+    empty_mesh.insert_attribute(ATTRIBUTE_LIGHTING_COLOR, VertexAttributeValues::Float32x4(vec![]));
+    empty_mesh.insert_attribute(ATTRIBUTE_SKYLIGHT_STRENGTH, VertexAttributeValues::Uint8x4(vec![]));
 
     // Spawn the player's right arm.
     let mesh_entity = commands.spawn((
@@ -89,8 +91,9 @@ pub fn update_equipped_item_mesh(
     } else {
         let mut mesh = Mesh::new(PrimitiveTopology::TriangleList, RenderAssetUsages::all());
 
-        mesh.insert_attribute(ATTRIBUTE_WIND_STRENGTH, vec![] as Vec<f32>);
-        mesh.insert_attribute(ATTRIBUTE_LIGHTING_COLOR, vec![] as Vec<[f32; 4]>);
+        mesh.insert_attribute(ATTRIBUTE_WIND_STRENGTH, VertexAttributeValues::Float32(vec![]));
+        mesh.insert_attribute(ATTRIBUTE_LIGHTING_COLOR, VertexAttributeValues::Float32x4(vec![]));
+        mesh.insert_attribute(ATTRIBUTE_SKYLIGHT_STRENGTH, VertexAttributeValues::Uint8x4(vec![]));
 
         mesh
     };

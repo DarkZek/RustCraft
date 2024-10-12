@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use bevy::render::mesh::MeshVertexBufferLayoutRef;
 use bevy::render::render_resource::{AsBindGroup, RenderPipelineDescriptor, ShaderRef, ShaderType, SpecializedMeshPipelineError};
 use crate::systems::asset::material::chunk_extension::add_vertex_extension;
-use crate::systems::chunk::builder::{ATTRIBUTE_LIGHTING_COLOR, ATTRIBUTE_WIND_STRENGTH};
+use crate::systems::chunk::builder::{ATTRIBUTE_LIGHTING_COLOR, ATTRIBUTE_SKYLIGHT_STRENGTH, ATTRIBUTE_WIND_STRENGTH};
 
 pub type TranslucentChunkMaterial = ExtendedMaterial<StandardMaterial, TranslucentChunkMaterialExtension>;
 
@@ -42,6 +42,7 @@ impl MaterialExtension for TranslucentChunkMaterialExtension {
     ) -> Result<(), SpecializedMeshPipelineError> {
         add_vertex_extension(layout, descriptor, ATTRIBUTE_LIGHTING_COLOR, 14);
         add_vertex_extension(layout, descriptor, ATTRIBUTE_WIND_STRENGTH, 15);
+        add_vertex_extension(layout, descriptor, ATTRIBUTE_SKYLIGHT_STRENGTH, 16);
 
         descriptor.vertex.shader_defs
             .push("IS_TRANSLUCENT".into());

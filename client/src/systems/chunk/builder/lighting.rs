@@ -1,16 +1,14 @@
 use crate::systems::chunk::data::ChunkData;
 use bevy::log::{debug};
 use nalgebra::Vector3;
-use rc_shared::chunk::RawLightingData;
+use rc_shared::chunk::{LightingColor, RawLightingData};
 use rc_shared::viewable_direction::BLOCK_SIDES;
-use rc_shared::CHUNK_SIZE;
+use rc_shared::{CHUNK_SIZE, MAX_LIGHT_VALUE};
 use std::collections::VecDeque;
 use serde::{Deserialize, Serialize};
 use web_time::Instant;
 use crate::systems::chunk::builder::build_context::ChunkBuildContext;
 use rc_shared::relative_chunk_map::RelativeChunkMap;
-
-const MAX_LIGHT_VALUE: usize = 16;
 
 #[derive(Serialize, Deserialize)]
 pub struct LightingUpdateData {
@@ -36,7 +34,7 @@ impl ChunkData {
 
         if context.lights.len() == 0 {
             return LightingUpdateData {
-                data: [[[[0 as u8; 4]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE],
+                data: [[[LightingColor::default(); CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE],
             };
         }
 
@@ -114,7 +112,7 @@ impl ChunkData {
         }
 
         // Combine strengths
-        let mut out = [[[[0u8; 4]; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
+        let mut out = [[[LightingColor::default(); CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
 
         for x in 0..CHUNK_SIZE {
             for y in 0..CHUNK_SIZE {
@@ -157,21 +155,22 @@ impl ChunkData {
     }
 }
 
-fn calculate_color(color: &BlockLightRecord) -> [u8; 4] {
-    let mut out_color = [
-        (color.weighted_cumulative_r / color.cumulative_strength) as u8,
-        (color.weighted_cumulative_g / color.cumulative_strength) as u8,
-        (color.weighted_cumulative_b / color.cumulative_strength) as u8,
-        color.max_strength
-    ];
+fn calculate_color(color: &BlockLightRecord) -> LightingColor {
+    let mut out_color = LightingColor {
+        r: (color.weighted_cumulative_r / color.cumulative_strength) as u8,
+        g: (color.weighted_cumulative_g / color.cumulative_strength) as u8,
+        b: (color.weighted_cumulative_b / color.cumulative_strength) as u8,
+        strength: color.max_strength,
+        skylight: 0,
+    };
 
     // Light falloff based off max strength
-    out_color[0] =
-        (out_color[0] as u32 * color.max_strength as u32 / MAX_LIGHT_VALUE as u32) as u8;
-    out_color[1] =
-        (out_color[1] as u32 * color.max_strength as u32 / MAX_LIGHT_VALUE as u32) as u8;
-    out_color[2] =
-        (out_color[2] as u32 * color.max_strength as u32 / MAX_LIGHT_VALUE as u32) as u8;
+    out_color.r =
+        (out_color.r as u32 * color.max_strength as u32 / MAX_LIGHT_VALUE as u32) as u8;
+    out_color.g =
+        (out_color.g as u32 * color.max_strength as u32 / MAX_LIGHT_VALUE as u32) as u8;
+    out_color.b =
+        (out_color.b as u32 * color.max_strength as u32 / MAX_LIGHT_VALUE as u32) as u8;
 
     out_color
 }
