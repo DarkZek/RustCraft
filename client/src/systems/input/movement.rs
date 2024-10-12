@@ -6,8 +6,8 @@ use crate::systems::physics::PhysicsObject;
 use bevy::prelude::*;
 use nalgebra::Vector3;
 use rc_shared::block::BlockStates;
-use crate::systems::camera::Freecam;
 use crate::systems::camera::MainCamera;
+use crate::systems::debugging::DebuggingInfo;
 use crate::systems::ui::console::ConsoleData;
 
 const MOVEMENT_SPEED_POSITION: f32 = 2.4;
@@ -21,10 +21,10 @@ pub fn update_input_movement(
     time: Res<Time>,
     chunks: Res<ChunkSystem>,
     block_states: Res<BlockStates>,
-    freecam: Res<Freecam>,
+    debugging: Res<DebuggingInfo>,
     console_data: Res<ConsoleData>
 ) {
-    if !service.captured || freecam.enabled || console_data.capturing {
+    if !service.captured || debugging.freecam || console_data.capturing {
         return;
     }
 

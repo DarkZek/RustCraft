@@ -14,8 +14,8 @@ use rc_shared::block::BlockStates;
 use rc_shared::helpers::{from_bevy_vec3, global_to_local_position};
 use crate::game::entity::GameObject;
 use crate::game::interaction::MAX_INTERACTION_DISTANCE;
-use crate::systems::camera::Freecam;
 use crate::systems::camera::MainCamera;
+use crate::systems::debugging::DebuggingInfo;
 use crate::systems::physics::PhysicsObject;
 
 pub struct MouseInteractionLocals {
@@ -24,7 +24,7 @@ pub struct MouseInteractionLocals {
 }
 
 pub fn mouse_interaction_place(
-    freecam: Res<Freecam>,
+    debugging: Res<DebuggingInfo>,
     mouse_button_input: Res<ButtonInput<MouseButton>>,
     camera: Query<&Transform, With<MainCamera>>,
     mut rerender_chunk_event: EventWriter<RerenderChunkRequest>,
@@ -35,7 +35,7 @@ pub fn mouse_interaction_place(
     game_objects: Query<&PhysicsObject, With<GameObject>>,
 ) {
 
-    if freecam.enabled || !mouse_button_input.just_pressed(MouseButton::Right) {
+    if debugging.freecam || !mouse_button_input.just_pressed(MouseButton::Right) {
         return
     }
 

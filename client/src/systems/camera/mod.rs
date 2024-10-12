@@ -7,20 +7,15 @@ use bevy::pbr::ScreenSpaceAmbientOcclusionBundle;
 use bevy::prelude::*;
 use bevy::render::render_resource::TextureUsages;
 use bevy::render::view::GpuCulling;
+use crate::systems::debugging::DebuggingInfo;
 
 pub struct CameraPlugin;
 
 impl Plugin for CameraPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, setup_camera)
-            .add_systems(Update, camera_player_sync)
-            .insert_resource(Freecam::default());
+            .add_systems(Update, camera_player_sync);
     }
-}
-
-#[derive(Resource, Default)]
-pub struct Freecam {
-    pub enabled: bool
 }
 
 #[derive(Component)]
@@ -65,7 +60,7 @@ fn camera_player_sync(
         Query<&mut Transform, (With<Transform>, With<MainCamera>)>,
         Query<&mut Transform, (With<Player>, Changed<Transform>)>,
     )>,
-    freecam: Res<Freecam>
+    debugging: Res<DebuggingInfo>
 ) {
     if query.p0().is_empty() || query.p1().is_empty() {
         return;
@@ -81,7 +76,7 @@ fn camera_player_sync(
         player.rotation = camera_rotation;
     }
 
-    if !freecam.enabled {
+    if !debugging.freecam {
         // Update position
         let player_position = query.p1().single().translation;
 

@@ -3,11 +3,12 @@ use crate::systems::chunk::ChunkSystem;
 use crate::systems::physics::raycasts::do_raycast;
 use bevy::prelude::*;
 use nalgebra::Vector3;
+use crate::systems::debugging::DebuggingInfo;
 use crate::game::events::DestroyBlockEvent;
 use rc_shared::block::BlockStates;
 use rc_shared::helpers::{from_bevy_vec3, global_to_local_position, to_bevy_vec3};
 use crate::game::interaction::MAX_INTERACTION_DISTANCE;
-use crate::systems::camera::{Freecam, MainCamera};
+use crate::systems::camera::MainCamera;
 
 #[derive(Default, Resource)]
 pub struct MouseInteractionResource {
@@ -28,7 +29,7 @@ fn stop_clicking(
 }
 
 pub fn mouse_interaction_destroy(
-    freecam: Res<Freecam>,
+    debugging_info: Res<DebuggingInfo>,
     mouse_button_input: Res<ButtonInput<MouseButton>>,
     mut transforms: ParamSet<(
         Query<(&mut Transform, &mut Visibility), Without<MainCamera>>,
@@ -40,7 +41,7 @@ pub fn mouse_interaction_destroy(
     mut locals: ResMut<MouseInteractionResource>
 ) {
 
-    if freecam.enabled {
+    if debugging_info.freecam {
         return;
     }
 
