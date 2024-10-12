@@ -4,6 +4,7 @@ mod lighting;
 pub mod build_context;
 pub mod thread;
 pub mod builder;
+mod skylight;
 
 use crate::systems::chunk::builder::entry::PLAYER_POS;
 use crate::systems::chunk::nearby_cache::NearbyChunkCache;
@@ -58,8 +59,7 @@ pub fn mesh_scheduler(
     mut chunks: ResMut<ChunkSystem>,
     camera: Query<&Transform, With<MainCamera>>,
     block_states: Res<BlockStates>,
-    mut builder_data: ResMut<MeshBuilderContext>,
-    mut gizmos: Gizmos
+    mut builder_data: ResMut<MeshBuilderContext>
 ) {
     // Update player location
     let pos = from_bevy_vec3(camera.single().translation);

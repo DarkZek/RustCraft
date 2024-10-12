@@ -14,7 +14,7 @@ pub struct DebuggingPlugin;
 impl Plugin for DebuggingPlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_systems(Update, (draw_skylight, draw_game_object_hitboxes))
+            // .add_systems(Update, (draw_skylight, draw_game_object_hitboxes))
             .add_systems(Update, (freecam_activation, freecam_movement))
             .add_systems(Startup, setup_gizmos);
     }

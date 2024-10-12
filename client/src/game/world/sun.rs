@@ -1,10 +1,14 @@
 use bevy::prelude::*;
 
 use std::f32::consts::PI;
+use bevy::color::palettes::basic::BLACK;
+use bevy::color::palettes::tailwind::BLUE_300;
+use bevy::math::VectorSpace;
 use web_time::{SystemTime, UNIX_EPOCH};
 use crate::systems::asset::AssetService;
 use crate::systems::asset::material::chunk_extension::ChunkMaterial;
 use crate::systems::asset::material::translucent_chunk_extension::TranslucentChunkMaterial;
+use crate::systems::camera::MainCamera;
 
 #[derive(Resource)]
 pub struct SunData {
@@ -62,6 +66,7 @@ pub fn update_sun(
     asset_service: Res<AssetService>,
     mut chunk_material: ResMut<Assets<ChunkMaterial>>,
     mut translucent_chunk_material: ResMut<Assets<TranslucentChunkMaterial>>,
+    mut camera: Query<&mut Camera, With<MainCamera>>
 ) {
     let day_len_ms = 1000 * 60;
 
@@ -109,6 +114,12 @@ pub fn update_sun(
     //transform.rotation = rot;
 
     // Set sunlight strength
-    chunk_material.get_mut(&asset_service.opaque_texture_atlas_material).unwrap().extension.uniform.sunlight_strength = (day_progress * std::f32::consts::PI).sin();
-    translucent_chunk_material.get_mut(&asset_service.translucent_texture_atlas_material).unwrap().extension.uniform.sunlight_strength = (day_progress * std::f32::consts::PI).sin();
+    let strength = ((day_progress - 0.5) * std::f32::consts::PI).sin().abs();
+    let sunlight_strength = (strength + 0.01) * 0.98;
+    chunk_material.get_mut(&asset_service.opaque_texture_atlas_material).unwrap().extension.uniform.sunlight_strength = sunlight_strength;
+    translucent_chunk_material.get_mut(&asset_service.translucent_texture_atlas_material).unwrap().extension.uniform.sunlight_strength = sunlight_strength;
+
+    camera.single_mut().clear_color = ClearColorConfig::Custom(Color::from(BLACK.lerp(BLUE_300, strength)));
+
+    // println!("{} {} {}", strength, sunlight_strength, day_progress);
 }

@@ -33,9 +33,9 @@ impl ChunkData {
         let start = Instant::now();
 
         if context.lights.len() == 0 {
-            return LightingUpdateData {
-                data: [[[LightingColor::default(); CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE],
-            };
+            // return LightingUpdateData {
+            //     data: [[[LightingColor::default(); CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE],
+            // };
         }
 
         let lights_len = context.lights.len();
@@ -134,7 +134,7 @@ impl ChunkData {
         // Update context surrounding blocks with results of lighting pass
         for (pos, entry) in &mut context.surrounding_data {
             if let Some(lighting_data) = data.get(*pos) {
-
+                // entry.light.r = 255;
                 // If there's no lighting data for this block ignore it
                 if lighting_data.max_strength == 0 {
                     continue;
@@ -143,6 +143,11 @@ impl ChunkData {
                 entry.light = calculate_color(lighting_data);
             }
         }
+
+        self.build_skylighting(
+            context,
+            &mut out
+        );
 
         debug!(
             "Took {}ns to render {:?} with {} lights with flood fill",

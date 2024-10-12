@@ -16,6 +16,8 @@ use crate::systems::chunk::nearby_column_cache::NearbyChunkColumnCache;
 pub struct ChunkBuildContext {
     // Location of all lights in the surrounding chunks
     pub lights: Vec<(Vector3<i32>, [u8; 4])>,
+    // Location of all points of sunlight in the surrounding chunks
+    pub sunlight_points: Vec<(Vector3<i32>)>,
     // Translucency of all blocks in the surrounding chunks.
     // TODO: Convert this into a more compressed format?
     pub translucency_map: NearbyChunkMap<bool>,
@@ -76,8 +78,8 @@ impl ChunkBuildContext {
             }
         });
 
-        // TODO: Remove this
         // Add skylight to array
+        let mut sunlight_points = vec![];
         let rebuild_chunk_pos = cache.position();
         let y_range = ((rebuild_chunk_pos.y - 1) * CHUNK_SIZE as i32)..((rebuild_chunk_pos.y + 2) * CHUNK_SIZE as i32);
 
@@ -105,9 +107,8 @@ impl ChunkBuildContext {
                                 (chunk_z * CHUNK_SIZE as i32) + z as i32
                             );
 
-                            lights.push((
-                                pos,
-                                [255, 205, 255, 10]
+                            sunlight_points.push((
+                                pos
                             ));
                         }
                     }
@@ -117,6 +118,7 @@ impl ChunkBuildContext {
 
         ChunkBuildContext {
             lights,
+            sunlight_points,
             translucency_map,
             surrounding_data,
         }

@@ -31,7 +31,6 @@ fn setup_camera(mut commands: Commands) {
     let mut camera = commands
         .spawn(Camera3dBundle {
             camera: Camera {
-                clear_color: ClearColorConfig::Custom(Color::from(BLUE_300)),
                 ..default()
             },
             camera_3d: Camera3d {

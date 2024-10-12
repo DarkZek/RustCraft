@@ -93,7 +93,7 @@ struct CustomVertexOutput {
 struct ChunkExtendedMaterial {
     time: f32,
     _padding1: f32,
-    sunlight_strength: f32,
+    skylight_strength: f32,
     _padding3: f32,
 }
 
