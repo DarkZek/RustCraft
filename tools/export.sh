@@ -14,18 +14,7 @@ execute_command() {
     mkdir export
     case $1 in
         1)
-            echo "You selected API. Building..."
-            rm -Rf ./export/api
-            mkdir export/api
-            cd ./api/
-            cargo build --release
-            cd ..
-
-            cp ./api/target/release/api ./export/api/
-            cp ./api/docker-compose.yml ./export/api/
-            cp ./api/Dockerfile ./export/api/
-
-            echo "Exported api binary to ./export/api/api"
+            echo "To build api cd into ./api and run 'docker compose build' and 'docker compose up' to run"
             ;;
         2)
             echo "You selected Client. Building..."

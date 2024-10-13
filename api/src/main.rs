@@ -1,5 +1,8 @@
 #![feature(duration_constructors)]
 
+use std::cell::OnceCell;
+use std::fs;
+use std::sync::OnceLock;
 use axum::Router;
 use axum::routing::{post, get};
 use tracing_subscriber::layer::SubscriberExt;
@@ -20,11 +23,15 @@ mod jwt;
 mod open_session;
 mod error;
 
-static PRIVATE_KEY: &[u8] = include_bytes!("../../jwt.private.pem");
-static PUBLIC_KEY: &[u8] = include_bytes!("../../jwt.public.pem");
+static PRIVATE_KEY: OnceLock<Vec<u8>> = OnceLock::new();
+static PUBLIC_KEY: OnceLock<Vec<u8>> = OnceLock::new();
 
 #[tokio::main]
 async fn main() {
+
+    // Include jwt keys
+    PRIVATE_KEY.set(std::env::var("JWT_PRIVATE_KEY").expect("JWT_PRIVATE_KEY not set").into_bytes()).unwrap();
+    PUBLIC_KEY.set(std::env::var("JWT_PUBLIC_KEY").expect("JWT_PUBLIC_KEY not set").into_bytes()).unwrap();
 
     let targets = Targets::new()
         .with_default(Level::TRACE);

@@ -26,7 +26,7 @@ pub fn jwt_sign(audience: &str, username: &str, subject: u64, validity: Duration
         exp: expires.duration_since(UNIX_EPOCH).unwrap().as_secs(),
     };
 
-    let key = EncodingKey::from_rsa_pem(PRIVATE_KEY).unwrap();
+    let key = EncodingKey::from_rsa_pem(PRIVATE_KEY.get().unwrap()).unwrap();
 
     jsonwebtoken::encode(
         &header,
@@ -41,7 +41,7 @@ pub fn jwt_validate(token: String, audience: &str) -> Result<Claims, Error> {
     set.insert(String::from(audience));
     validation.aud = Some(set);
 
-    let key = DecodingKey::from_rsa_pem(PUBLIC_KEY).unwrap();
+    let key = DecodingKey::from_rsa_pem(PUBLIC_KEY.get().unwrap()).unwrap();
 
     let result = jsonwebtoken::decode::<Claims>(
         &token,
