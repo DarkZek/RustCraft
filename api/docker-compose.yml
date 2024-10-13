@@ -6,3 +6,8 @@ services:
     environment:
       - JWT_PRIVATE_KEY
       - JWT_PUBLIC_KEY
+    healthcheck:
+      test: 'wget -qO- http://localhost:3001 || exit 1'
+      interval: 4s
+      timeout: 2s
+      retries: 5
