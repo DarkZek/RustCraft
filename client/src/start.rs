@@ -39,6 +39,7 @@ use crate::systems::connection::ConnectionPlugin;
 use web_sys::Worker;
 use crate::game::game_mode::GameModePlugin;
 use crate::systems::debugging::DebuggingPlugin;
+use crate::systems::wasm::WasmPlugin;
 
 #[rustfmt::skip]
 pub fn start() {
@@ -126,6 +127,7 @@ pub fn start() {
         })
         .add_plugins(ItemStatesPlugin)
         .add_plugins(GameObjectPlugin)
+        .add_plugins(WasmPlugin)
 
         .add_systems(Startup, create_states)
         .add_systems(Update, track_blockstate_changes)

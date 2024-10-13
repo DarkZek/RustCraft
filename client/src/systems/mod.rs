@@ -8,4 +8,4 @@ pub mod ui;
 pub mod api;
 pub mod connection;
 pub mod debugging;
-mod wasm;
+pub mod wasm;

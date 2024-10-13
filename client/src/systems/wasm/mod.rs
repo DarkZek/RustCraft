@@ -1,8 +1,10 @@
 use bevy::app::{App, PostUpdate};
-use bevy::prelude::{Local, Plugin};
+use bevy::prelude::{EventWriter, info, Local, NextState, OnEnter, Plugin, ResMut};
 use wasm_bindgen::closure::Closure;
 use wasm_bindgen::JsValue;
 use crate::start::WASM_CONTEXT;
+use crate::state::AppState;
+use crate::systems::connection::connect::ConnectToServerIntent;
 
 pub struct WasmPlugin;
 
@@ -13,13 +15,24 @@ impl Plugin for WasmPlugin {
     }
     #[cfg(target_arch = "wasm32")]
     fn build(&self, app: &mut App) {
-        app.add_systems(PostUpdate, run_started_callback);
+        app
+            .add_systems(PostUpdate, run_started_callback)
+            .add_systems(OnEnter(AppState::MainMenu), temp_skip_loading);
     }
 }
 
 #[derive(Default)]
 struct StartedContext {
     started: bool
+}
+
+fn temp_skip_loading(
+    mut connection_intent: EventWriter<ConnectToServerIntent>
+) {
+    info!("Skipped main menu");
+    connection_intent.send(ConnectToServerIntent {
+        address: env!("SERVER_URL").parse().unwrap()
+    });
 }
 
 fn run_started_callback(
@@ -29,6 +42,8 @@ fn run_started_callback(
     if context.started {
         return
     }
+
+    info!("Successfully started");
 
     context.started = true;
 
