@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useRouter } from 'vue-router'
 import { Icon } from '@iconify/vue'
-import RcButton from './elements/RCButton.vue';
+import RcButton from './elements/RcButton.vue';
 
 const router = useRouter()
 
