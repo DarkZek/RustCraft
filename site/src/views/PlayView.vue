@@ -4,8 +4,7 @@ import { onMounted, ref } from 'vue'
 import { isActive } from '../services/apiService'
 import { webgpuSupported, webtransportSupported } from '../utils/compatibility'
 import LoadingBar from '../components/LoadingBar.vue'
-import NavigationBar from '../components/NavigationBar.vue'
-import { nextTick } from 'vue'
+import GameNavigationBar from '../components/GameNavigationBar.vue'
 
 let router = useRouter()
 
@@ -31,11 +30,10 @@ async function start() {
 
   const { loadGame } = await import('../utils/game')
 
-  nextTick(() => {
+  await loadGame(() => {
     loading.value = false
     hideNav.value = true
-  })
-  await loadGame()  
+  })  
 }
 onMounted(start)
 
@@ -43,7 +41,7 @@ onMounted(start)
 
 <template>
   <main>
-    <navigation-bar :hide="hideNav" :overlay="true" />
+    <game-navigation-bar :hide="hideNav" />
     <loading-bar v-if="loading" />
     <div id="game"></div>
   </main>

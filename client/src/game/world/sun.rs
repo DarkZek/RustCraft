@@ -61,7 +61,7 @@ pub fn setup_sun(
     });
 }
 
-const DAY_LEN_MS: u128 = 1000*60;
+const DAY_LEN_MS: u128 = 1000*120;
 
 const SUN_DISTANCE: f32 = 600.0;
 

@@ -51,7 +51,11 @@
             }
         });
 
-        start_game(worker);
+        start_game(worker, onLoaded);
+    }
+
+    function onLoaded() {
+        alert('loaded')
     }
 
     const reloadInterval = 1000;

@@ -28,6 +28,7 @@ if (!webgpuSupported && !webtransportSupported) {
 .center {
     text-align: center;
     margin-top: 20vh;
+    font-family: "Londrina Solid";
 }
 
 </style>

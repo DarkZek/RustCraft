@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 import { useRouter } from 'vue-router'
 import { login } from '../services/apiService'
+import NavigationBar from '../components/NavigationBar.vue'
+import RcSubmitButton from '../components/elements/RcSubmitButton.vue'
 
 const router = useRouter()
 
@@ -26,14 +28,18 @@ async function onSubmit(e: any) {
 </script>
 
 <template>
-  <form
-    id="form"
-    @submit.prevent="onSubmit"
-  >
-    <h2>RustCraft Login</h2>
-    <input placeholder="Username" name="username" required>
-    <input type="submit" value="Submit">
-  </form>
+  <main>
+    <navigation-bar />
+    <form
+      id="form"
+      @submit.prevent="onSubmit"
+    >
+      <h1>Login</h1>
+      <input placeholder="Username" name="username" required>
+      <br>
+      <rc-submit-button label="Submit" />
+    </form>
+  </main>
 </template>
 
 <style scoped lang="scss">
@@ -47,9 +53,10 @@ form {
   padding-top: 48px;
 }
 
-h2 {
+h1 {
   text-align: center;
   color: white;
+  font-family: "Londrina Solid";
 }
 
 </style>

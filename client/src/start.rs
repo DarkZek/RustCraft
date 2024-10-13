@@ -28,6 +28,7 @@ use bevy::render::RenderPlugin;
 use rc_shared::block::BlockStatesPlugin;
 use rc_shared::item::{ItemStates, ItemStatesPlugin};
 use bevy::pbr::ExtendedMaterial;
+use wasm_bindgen::JsValue;
 use crate::authentication::GameAuthentication;
 use crate::game::disconnect::on_disconnect;
 use crate::game::interaction::InteractionPlugin;
@@ -141,5 +142,6 @@ unsafe impl Sync for WasmContext {}
 pub static WASM_CONTEXT: OnceLock<WasmContext> = OnceLock::new();
 
 pub struct WasmContext {
-    pub chunk_worker: Worker
+    pub chunk_worker: Worker,
+    pub startup_callback: js_sys::Function
 }

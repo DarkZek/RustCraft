@@ -28,7 +28,7 @@ pub fn main() {
 
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
-pub fn start_game(worker: JsValue) {
+pub fn start_game(worker: JsValue, startup_callback: js_sys::Function) {
     use web_sys::Worker;
     use crate::start::{WASM_CONTEXT, WasmContext};
 
@@ -38,7 +38,8 @@ pub fn start_game(worker: JsValue) {
 
     // Store worker
     WASM_CONTEXT.set(WasmContext {
-        chunk_worker
+        chunk_worker,
+        startup_callback
     });
 
     start::start();

@@ -1,19 +1,27 @@
 <script lang="ts" setup>
 import { useRouter } from 'vue-router'
-import { Icon } from '@iconify/vue'
-import RcButton from './elements/RCButton.vue';
+import { ref } from 'vue'
+
+const props = defineProps<{
+    hide?: boolean
+}>()
 
 const router = useRouter()
 
 </script>
 
 <template>
+    <!-- Recieves hover events to trigger the navigation bar -->
     <div
-        class="navigation-bar"
+        class="navigation-trigger"
+        :hide="props.hide"
     >
         <div
-            class="constraint">
-            <div>
+            class="navigation-bar"
+        >
+            <div
+                class="constraint"
+            >
                 <div
                     class="logo"
                     @click="router.push({ name: 'home' })"
@@ -25,19 +33,12 @@ const router = useRouter()
                     <span class="title">RustCraft</span>
                 </div>
                 <span class="links">
-                    <router-link :to="{ name: 'play' }">Play</router-link>
+                    <router-link :to="{ name: 'home' }">Home</router-link>
                     <span class="dot">•</span>
                     <router-link :to="{ name: 'download' }">Download</router-link>
                     <span class="dot">•</span>
                     <router-link :to="{ name: 'faq' }">FAQ</router-link>
                 </span>
-                <div class="spacer" />
-                <rc-button
-                    @click.prevent="router.push({ name: 'login' })"
-                >
-                    <Icon icon="mingcute:happy-line" />
-                    Login
-                </rc-button>
             </div>
         </div>
     </div>
@@ -45,27 +46,31 @@ const router = useRouter()
 
 <style lang="scss" scoped>
 
+.navigation-trigger {
+    padding-bottom: 70px;
+    position: absolute;
+    transition: translate 0.5s ease-in-out;
+    translate: 0px -70px !important;
+
+    &:hover, &[hide=false] {
+        translate: 0px 0px !important;
+    }
+}
+
 .navigation-bar {
-    background: var(--color-primary);
+    background: #6100FF;
     min-height: 70px;
     max-height: 70px;
     width: 100vw;
     padding: 14px 0px 8px 0px;
-    transition: translate 0.5s ease-in-out;
-    display: flex;
-    justify-content: center;
 }
 
 .constraint {
     max-width: 802px;
+    margin: auto;
     font-family: "Londrina Solid";
     color: white;
-    flex-grow: 1;
-    padding: 0px 16px;
-
-    > div {
-        display: flex;
-    }
+    display: flex;
 }
 
 .dot {
@@ -102,11 +107,6 @@ const router = useRouter()
     a:hover {
         color: #d2b6ff;
     }
-}
-
-.spacer {
-    display: flex;
-    flex-grow: 1;
 }
 
 </style>
