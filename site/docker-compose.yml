@@ -1,8 +1,21 @@
 services:
-  nginx:
-    image: nginx:latest
+  client_wasm:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      additional_contexts:
+        repo: ../
+      args:
+        SERVER_URL:
+        API_URL:
     ports:
-      - "3801:80"
-    volumes:
-      - ./dist:/usr/share/nginx/html
-      - ./nginx.conf:/etc/nginx/nginx.conf
+      - "3002:80"
+    healthcheck:
+      test: 'wget -qO- http://localhost:3002 || exit 1'
+      interval: 4s
+      timeout: 2s
+      retries: 5
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.rcApi.rule=Host(`rustcraft.marshalldoes.dev`) && PathPrefix(`/`)"
+      - traefik.http.routers.rcApi.entryPoints=http
