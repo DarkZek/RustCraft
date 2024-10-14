@@ -11,7 +11,3 @@ services:
       interval: 4s
       timeout: 2s
       retries: 5
-    labels:
-      - traefik.enable=true
-      - "traefik.http.routers.rcApi.rule=Host(`apirustcraft.marshalldoes.dev`) && PathPrefix(`/`)"
-      - traefik.http.routers.rcApi.entryPoints=http
