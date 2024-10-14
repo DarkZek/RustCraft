@@ -16,7 +16,3 @@ services:
       interval: 4s
       timeout: 2s
       retries: 5
-    labels:
-      - traefik.enable=true
-      - "traefik.http.routers.rcClient.rule=Host(`rustcraft.marshalldoes.dev`) && PathPrefix(`/`)"
-      - traefik.http.routers.rcClient.entryPoints=http
