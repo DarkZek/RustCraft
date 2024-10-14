@@ -41,3 +41,6 @@ tokio = { workspace = true, features = ["rt", "rt-multi-thread", "sync"] }
 
 [lib]
 crate-type = ["cdylib", "rlib"]
+
+[profile.release]
+lto = true
