@@ -2,6 +2,7 @@ FROM rustlang/rust:nightly
 
 ARG SERVER_URL
 ARG API_URL
+ARG PUBLIC_JWT_KEY
 
 # nightly wasm
 RUN apt update
