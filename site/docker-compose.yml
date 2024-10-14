@@ -18,5 +18,5 @@ services:
       retries: 5
     labels:
       - traefik.enable=true
-      - "traefik.http.routers.rcApi.rule=Host(`io4kcsgggg0c4cwgsgswgc8c.marshalldoes.dev`) && PathPrefix(`/`)"
-      - traefik.http.routers.rcApi.entryPoints=http
+      - "traefik.http.routers.rcClient.rule=Host(`rustcraft.marshalldoes.dev`) && PathPrefix(`/`)"
+      - traefik.http.routers.rcClient.entryPoints=http
