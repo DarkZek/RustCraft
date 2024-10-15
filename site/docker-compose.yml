@@ -12,7 +12,7 @@ services:
     ports:
       - "3002:80"
     healthcheck:
-      test: 'wget -qO- http://localhost:3002 || exit 1'
+      test: 'wget -qO- http://localhost:80 || exit 1'
       interval: 4s
       timeout: 2s
       retries: 5
