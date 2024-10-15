@@ -2,9 +2,9 @@ services:
   api:
     build:
       context: .
-      args:
-        JWT_PRIVATE_KEY:
-        JWT_PUBLIC_KEY:
+    environment:
+      JWT_PRIVATE_KEY:
+      JWT_PUBLIC_KEY:
     ports:
       - "3001:3001"
     healthcheck:
