@@ -27,6 +27,8 @@ RUN cp -R /build/client/pkg/* /build/site/wasm
 
 WORKDIR /build/site
 
+RUN cp -R /build/assets /build/site/public/
+
 RUN npm i
 RUN npm run build
 

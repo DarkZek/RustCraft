@@ -6,7 +6,6 @@ services:
       additional_contexts:
         repo: ../
       args:
-        API_URL:
         PUBLIC_JWT_KEY:
         SSL_CERTIFICATE:
         SSL_PRIVATE_KEY:
