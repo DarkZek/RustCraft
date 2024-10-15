@@ -80,10 +80,7 @@ impl From<&NetworkingServerConfig> for NetworkingServer {
             panic!("Passing in custom certificate unsupported");
         }
 
-        let (certificates, private_key) = get_certificates(
-            "cert.pem",
-            "key.pem"
-        );
+        let (certificates, private_key) = get_certificates();
 
         let mut config = rustls::ServerConfig::builder_with_provider(Arc::new(
             rustls::crypto::ring::default_provider(),
@@ -127,23 +124,19 @@ impl From<&NetworkingServerConfig> for NetworkingServer {
     }
 }
 
-fn get_certificates(cert_file: &str, private_key_file: &str) -> (Vec<CertificateDer<'static>>, PrivateKeyDer<'static>) {
+fn get_certificates() -> (Vec<CertificateDer<'static>>, PrivateKeyDer<'static>) {
 
-    let Ok(mut cert) = File::open(cert_file) else {
-        panic!("Certificate {} file does not exist", cert_file)
-    };
-    let Ok(mut private_key) = File::open(private_key_file) else {
-        panic!("Private key {} file does not exist", private_key_file)
-    };
+    let mut cert = env!("SSL_CERTIFICATE").as_bytes();
+    let mut private_key = env!("SSL_PRIVATE_KEY").as_bytes();
 
     let certs = rustls_pemfile::certs(&mut BufReader::new(&mut cert))
         .collect::<Result<Vec<_>, _>>()
-        .unwrap();
+        .expect("Invalid certificate");
 
     let private_key =
         rustls_pemfile::private_key(&mut BufReader::new(&mut private_key))
-            .unwrap()
-            .unwrap();
+            .expect("Invalid private key")
+            .expect("Invalid private key");
 
     (certs, private_key)
 }

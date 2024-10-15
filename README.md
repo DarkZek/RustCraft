@@ -4,20 +4,52 @@ Rustcraft is a Voxel Game with the goal of providing a fun, new and feature pack
 
 ## Installation
 
-Right now there are no stable releases, you have to build it yourself.\
+Right now there are no stable releases, you have to build it yourself.
 
-#### Install
+### Build
 
-To build run the command in the respective folder
+##### Client (Native)
 
-`cd Client && cargo build --release`
+TODO
 
-`cd ./client && WASM_SERVER_RUNNER_DIRECTORY=./client/site/ && WASM_SERVER_RUNNER_CUSTOM_INDEX_HTML=index.html && cargo run --target wasm32-unknown-unknown`
+##### Client (WASM)
 
-## Contributing
-Issues are welcome, as are pull requests and any code contributions.
+```bash
+cd ./site && docker compose up
+```
 
-It is recommended for your own sanity that you read the [wgpu-rs](https://sotrh.github.io/learn-wgpu/) book, the [Bevy Cheatbook](https://bevy-cheatbook.github.io/) book and the official [Rust Book](https://doc.rust-lang.org/stable/book/) to make sure that you understand the technology behind the project before contributing :)
+##### Server
 
-## License
-[GNUv3](https://www.gnu.org/licenses/gpl-3.0.en.html)
+```bash
+cd ./server && docker compose up
+```
+
+##### API
+
+```bash
+cd ./api && docker compose up
+```
+
+### Develop
+
+##### Client (Native)
+
+TODO
+
+##### Client (WASM)
+
+```bash
+cargo run --bin rc_client --target wasm32-unknown-unknown
+```
+
+##### Server
+
+```bash
+cargo run --bin rc_server
+```
+
+##### API
+
+```bash
+cd ./api && cargo run
+```

@@ -3,8 +3,6 @@ use bevy::prelude::warn;
 use jsonwebtoken::{Algorithm, DecodingKey, Validation};
 use serde::{Deserialize, Serialize};
 
-static PUBLIC_KEY: &[u8] = include_bytes!("../../../../jwt.public.pem");
-
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AuthorizationResult {
     pub aud: String,
@@ -19,7 +17,7 @@ pub fn check_authorization(token: &str) -> Option<AuthorizationResult> {
     set.insert(String::from("join_server"));
     validation.aud = Some(set);
 
-    let key = DecodingKey::from_rsa_pem(PUBLIC_KEY).unwrap();
+    let key = DecodingKey::from_rsa_pem(env!("PUBLIC_JWT_KEY").as_bytes()).unwrap();
 
     let result = jsonwebtoken::decode::<AuthorizationResult>(
         &token,
