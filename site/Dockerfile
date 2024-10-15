@@ -1,8 +1,12 @@
 FROM rustlang/rust:nightly
 
+# Client
 ARG SERVER_URL
 ARG API_URL
 ARG PUBLIC_JWT_KEY
+
+# Site
+ARG VITE_API_URL
 
 # nightly wasm
 RUN apt update

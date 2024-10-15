@@ -9,6 +9,7 @@ services:
         SERVER_URL:
         API_URL:
         PUBLIC_JWT_KEY:
+        VITE_API_URL:
     ports:
       - "3002:80"
     healthcheck:
