@@ -30,7 +30,7 @@ pub fn physics_location_sync(
 
 /// Syncs all of the changed PhysicsObjects to the transform
 pub fn physics_rotation_sync(
-    mut game_object_data: Query<&PlayerGameObject>,
+    game_object_data: Query<&PlayerGameObject>,
     mut transforms: Query<&mut Transform>,
     mut query: Query<(Entity, &PhysicsObject)>,
     interpolation: Res<PhysicsInterpolation>
@@ -46,7 +46,7 @@ pub fn physics_rotation_sync(
         let quat: Quat = rotation.into();
         let (x, y, _) = quat.to_euler(EulerRot::YXZ);
 
-        if let Ok(mut player) = game_object_data.get(entity) {
+        if let Ok(player) = game_object_data.get(entity) {
             player.rotate(x, y, &mut transforms);
         } else {
             // transforms.get_mut(entity).unwrap().rotation = quat;

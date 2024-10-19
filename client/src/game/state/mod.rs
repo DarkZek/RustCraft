@@ -1,42 +1,32 @@
-use crate::systems::chunk::builder::{RerenderChunkRequest, RerenderChunkFlagContext};
-use crate::systems::chunk::ChunkSystem;
 use crate::systems::ui::loading::LoadingUIData;
-use bevy::prelude::{AssetServer, EventReader, EventWriter, Res, ResMut};
-use rc_shared::block::event::BlockStatesUpdatedEvent;
+use bevy::prelude::{AssetServer, EventReader, Res, ResMut};
 use rc_shared::block::BlockStates;
 use rc_shared::item::event::ItemStatesUpdatedEvent;
 use rc_shared::item::ItemStates;
 
 pub fn create_states(
     server: Res<AssetServer>,
-    mut block_states: ResMut<BlockStates>,
     mut item_states: ResMut<ItemStates>,
 ) {
-    block_states.load_states("game/state.blocks".to_string(), &server);
     item_states.load_states("game/state.items".to_string(), &server);
 }
 
-pub fn track_blockstate_changes(
-    event: EventReader<BlockStatesUpdatedEvent>,
-    loading: Option<ResMut<LoadingUIData>>,
-    chunks: ResMut<ChunkSystem>,
-    mut rerender_chunks: EventWriter<RerenderChunkRequest>,
+pub fn trigger_load_blockstates(
+    mut loading: Option<ResMut<LoadingUIData>>,
+    mut states: ResMut<BlockStates>,
 ) {
-    if event.is_empty() {
-        return;
+    let Some(mut loading) = loading else {
+        return
+    };
+
+    // Load block states if the texture atlas has been completed and we haven't already done the block states
+    if !loading.texture_atlas || loading.block_states {
+        return
     }
 
-    // Rerender all chunks with new block states
-    for (pos, _chunk) in &chunks.chunks {
-        rerender_chunks.send(RerenderChunkRequest {
-            chunk: *pos,
-            context: RerenderChunkFlagContext::None,
-        });
-    }
+    states.calculate_states();
 
-    if let Some(mut loading) = loading {
-        loading.block_states = true;
-    }
+    loading.block_states = true;
 }
 
 pub fn track_itemstate_changes(

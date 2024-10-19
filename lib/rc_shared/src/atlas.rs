@@ -1,8 +1,68 @@
+use std::collections::HashMap;
 use crate::helpers::Lerp;
 use nalgebra::Vector2;
 use serde::{Deserialize, Serialize};
 use std::f32::consts::PI;
 use std::ops::Mul;
+use std::sync::{OnceLock, RwLock, RwLockReadGuard};
+use bevy::asset::Handle;
+use bevy::prelude::Image;
+use fnv::FnvBuildHasher;
+
+pub static TEXTURE_ATLAS: AtlasWrapper = AtlasWrapper::new();
+
+pub struct AtlasWrapper(OnceLock<RwLock<TextureAtlas>>);
+
+impl AtlasWrapper {
+    pub const fn new() -> AtlasWrapper {
+        AtlasWrapper(OnceLock::new())
+    }
+}
+
+impl AtlasWrapper {
+    pub fn get(&self) -> RwLockReadGuard<TextureAtlas> {
+        self.0.get().unwrap().read().unwrap()
+    }
+
+    pub fn set(&self, value: TextureAtlas) {
+        let _ = self.0.set(RwLock::new(value));
+    }
+}
+
+impl TextureAtlasTrait for AtlasWrapper {
+    fn exists(&self) -> bool {
+        self.0.get().is_some()
+    }
+
+    fn get_entry(&self, name: &str) -> Option<TextureAtlasIndex> {
+        self.0
+            .get()
+            .unwrap()
+            .read()
+            .unwrap()
+            .index
+            .get(name)
+            .map(|v| *v)
+    }
+}
+
+pub struct TextureAtlas {
+    pub image: Handle<Image>,
+    pub index: HashMap<String, TextureAtlasIndex, FnvBuildHasher>,
+}
+
+impl TextureAtlas {
+    pub fn blank() -> TextureAtlas {
+        TextureAtlas {
+            image: Default::default(),
+            index: Default::default(),
+        }
+    }
+
+    pub fn get_image(&self) -> &Handle<Image> {
+        &self.image
+    }
+}
 
 pub trait TextureAtlasTrait {
     fn exists(&self) -> bool;

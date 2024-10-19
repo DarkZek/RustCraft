@@ -20,6 +20,7 @@ use rc_shared::item::ItemStates;
 use rc_shared::viewable_direction::BLOCK_SIDES;
 use bevy::log::warn;
 use bevy::prelude::trace;
+use rc_shared::block::blocks::get_blocks;
 use crate::game::entity::{DirtyPosition, DirtyRotation};
 use crate::game::inventory::Inventory;
 
@@ -197,8 +198,12 @@ fn calculate_drops(
 ) -> Vec<ItemStack> {
     let mut drop = Vec::new();
 
-    for drops in block_states.loot_tables.get(block_id as usize).unwrap() {
-        if let Some(item) = item_states.states.get(drops.item_id) {
+    let blocks = get_blocks();
+    let block_index = *block_states.block_index.get(block_id as usize).unwrap();
+    let block_lookup = blocks.get(block_index).unwrap();
+    // TODO: Get block id properly
+    for drops in (block_lookup.get_loot)(0) {
+        if let Some((i, item)) = item_states.get_by_id(&drops.item_identifier) {
             let mut amount = drops.chance.floor() as u32;
 
             // Partial chance means partial chance to get the drop

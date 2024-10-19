@@ -34,6 +34,7 @@ use rc_shared::item::{ItemStates, ItemStatesPlugin};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
 use rc_networking::protocol::Protocol;
+use rc_shared::atlas::{TEXTURE_ATLAS, TextureAtlas};
 use rc_shared::PHYSICS_SYNC_RATE_SECONDS;
 use crate::game::commands::CommandsPlugin;
 use crate::game::entity::EntityPlugin;
@@ -44,12 +45,13 @@ use crate::systems::chat::broadcast_chat;
 extern crate dotenvy_macro;
 
 static SHUTDOWN_BIT: AtomicBool = AtomicBool::new(false);
-static DUMMY_ATLAS: DummyAtlas = DummyAtlas;
 
 fn main() {
     let _ = ctrlc::set_handler(move || {
         let _ = SHUTDOWN_BIT.store(true, Ordering::SeqCst);
     });
+
+    TEXTURE_ATLAS.set(TextureAtlas::blank());
 
     info!("Rustcraft Server starting");
 
@@ -81,9 +83,8 @@ fn main() {
         .add_plugins(ConnectionPlugin)
         .add_plugins(EntityPlugin)
         .add_plugins(CommandsPlugin)
-        .add_plugins(BlockStatesPlugin {
-            texture_atlas: &DUMMY_ATLAS,
-        })
+        .add_plugins(BlockStatesPlugin)
+        .add_systems(Startup, load_block_states)
         .add_plugins(ItemStatesPlugin)
         .add_plugins(BlockUpdatePlugin)
         .add_event::<ReceivePacket>()
@@ -122,9 +123,13 @@ pub fn detect_shutdowns(
 
 pub fn create_states(
     server: Res<AssetServer>,
-    mut block_states: ResMut<BlockStates>,
     mut item_states: ResMut<ItemStates>,
 ) {
-    block_states.load_states("game/state.blocks".to_string(), &server);
     item_states.load_states("game/state.items".to_string(), &server);
+}
+
+pub fn load_block_states(
+    mut states: ResMut<BlockStates>
+) {
+    states.calculate_states()
 }

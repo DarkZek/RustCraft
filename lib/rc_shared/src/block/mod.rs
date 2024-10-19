@@ -1,61 +1,39 @@
-mod changes;
-pub mod deserialisation;
-pub mod event;
 pub mod face;
-mod loader;
 pub mod types;
+pub mod blocks;
+mod uid;
 
 use crate::atlas::TextureAtlasTrait;
-use crate::block::changes::{track_blockstate_changes, track_itemstate_changes};
-use crate::block::deserialisation::BlockStatesFile;
-use crate::block::event::BlockStatesUpdatedEvent;
-use crate::block::loader::BlockStateAssetLoader;
 use crate::block::types::{Block, LootTableEntry};
 use bevy::log::warn;
-use bevy::prelude::{App, AssetApp, AssetServer, Handle, Plugin, Resource, Update};
+use bevy::prelude::{App, AssetApp, AssetServer, Handle, Plugin, Resource, Startup, Update};
 use bevy::reflect::TypePath;
-
 use std::sync::OnceLock;
+use crate::block::blocks::get_blocks;
 
-static TEXTURE_ATLAS: OnceLock<&'static (dyn TextureAtlasTrait + Sync)> = OnceLock::new();
-
-pub struct BlockStatesPlugin {
-    pub texture_atlas: &'static (dyn TextureAtlasTrait + Sync),
-}
+pub struct BlockStatesPlugin;
 
 impl Plugin for BlockStatesPlugin {
     fn build(&self, app: &mut App) {
-        // Update reference
-        let _ = TEXTURE_ATLAS.set(self.texture_atlas);
-
-        app.init_asset::<BlockStatesFile>()
-            .init_asset_loader::<BlockStateAssetLoader>()
-            .add_event::<BlockStatesUpdatedEvent>()
-            .insert_resource(BlockStates::new())
-            .add_systems(Update, track_blockstate_changes)
-            .add_systems(Update, track_itemstate_changes);
+        app
+            .insert_resource(BlockStates::new());
     }
 }
 
 #[derive(Debug, Clone, TypePath, Resource)]
 pub struct BlockStates {
+    pub block_index: Vec<usize>,
     pub states: Vec<Block>,
-    pub loot_tables: Vec<Vec<LootTableEntry>>,
-    /// Used to tell the blockstates to recalculate, only used when the blockstates are ready but waiting on the texture atlas to finish deserialisation
-    pub recalculate_full: bool,
     /// Used to recalculate type mapping from identifier to index when items list is updated
     pub recalculate_items: bool,
-    pub asset: Option<Handle<BlockStatesFile>>,
 }
 
 impl BlockStates {
     pub fn new() -> BlockStates {
         BlockStates {
+            block_index: vec![],
             states: vec![],
-            loot_tables: vec![],
-            recalculate_full: false,
             recalculate_items: false,
-            asset: None,
         }
     }
 
@@ -79,7 +57,13 @@ impl BlockStates {
         None
     }
 
-    pub fn load_states(&mut self, path: String, asset_server: &AssetServer) {
-        self.asset = Some(asset_server.load(path));
+    pub fn calculate_states(&mut self) {
+        self.states.clear();
+
+        for (i, block) in get_blocks().iter().enumerate() {
+            let mut blocks = (block.get_variants)();
+            self.block_index.append(&mut vec![i; blocks.len()]);
+            self.states.append(&mut blocks);
+        }
     }
 }

@@ -10,3 +10,5 @@ bevy = { workspace = true, default-features = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 nalgebra = { workspace = true }
+fnv = { workspace = true }
+rand = { workspace = true }

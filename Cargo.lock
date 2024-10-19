@@ -1286,15 +1286,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "block_states"
-version = "0.1.0"
-dependencies = [
- "nalgebra 0.31.4",
- "serde",
- "serde_json",
-]
-
-[[package]]
 name = "blocking"
 version = "1.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3130,23 +3121,6 @@ dependencies = [
 
 [[package]]
 name = "nalgebra"
-version = "0.31.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "20bd243ab3dbb395b39ee730402d2e5405e448c75133ec49cc977762c4cba3d1"
-dependencies = [
- "approx",
- "matrixmultiply",
- "nalgebra-macros 0.1.0",
- "num-complex",
- "num-rational 0.4.2",
- "num-traits",
- "serde",
- "simba 0.7.3",
- "typenum",
-]
-
-[[package]]
-name = "nalgebra"
 version = "0.33.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3c4b5f057b303842cf3262c27e465f4c303572e7f6b0648f60e16248ac3397f4"
@@ -3154,24 +3128,13 @@ dependencies = [
  "approx",
  "glam",
  "matrixmultiply",
- "nalgebra-macros 0.2.2",
+ "nalgebra-macros",
  "num-complex",
  "num-rational 0.4.2",
  "num-traits",
  "serde",
- "simba 0.9.0",
+ "simba",
  "typenum",
-]
-
-[[package]]
-name = "nalgebra-macros"
-version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "01fcc0b8149b4632adc89ac3b7b31a12fb6099a0317a4eb2ebff574ef7de7218"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 1.0.109",
 ]
 
 [[package]]
@@ -4203,7 +4166,7 @@ dependencies = [
  "image 0.23.14",
  "js-sys",
  "jsonwebtoken",
- "nalgebra 0.33.0",
+ "nalgebra",
  "rand 0.8.5",
  "rayon",
  "rc_networking",
@@ -4231,7 +4194,7 @@ dependencies = [
  "dotenvy_macro",
  "futures",
  "jsonwebtoken",
- "nalgebra 0.33.0",
+ "nalgebra",
  "quinn",
  "rc_shared",
  "rcgen",
@@ -4257,7 +4220,7 @@ dependencies = [
  "ctrlc",
  "dotenvy_macro",
  "fnv",
- "nalgebra 0.33.0",
+ "nalgebra",
  "noise",
  "rand 0.8.5",
  "rayon",
@@ -4274,7 +4237,9 @@ name = "rc_shared"
 version = "0.1.0"
 dependencies = [
  "bevy",
- "nalgebra 0.33.0",
+ "fnv",
+ "nalgebra",
+ "rand 0.8.5",
  "serde",
  "serde_json",
 ]
@@ -4747,19 +4712,6 @@ name = "shlex"
 version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0fda2ff0d084019ba4d7c6f371c95d8fd75ce3524c3cb8fb653a3023f6323e64"
-
-[[package]]
-name = "simba"
-version = "0.7.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2f3fd720c48c53cace224ae62bef1bbff363a70c68c4802a78b5cc6159618176"
-dependencies = [
- "approx",
- "num-complex",
- "num-traits",
- "paste",
- "wide",
-]
 
 [[package]]
 name = "simba"

@@ -50,5 +50,5 @@ fn run_started_callback(
     let context = JsValue::null();
     let array = js_sys::Array::new();
 
-    WASM_CONTEXT.get().unwrap().startup_callback.apply(&context, &array);
+    WASM_CONTEXT.get().unwrap().startup_callback.apply(&context, &array).unwrap();
 }

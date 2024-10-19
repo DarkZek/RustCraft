@@ -1,1 +1,0 @@
-A collection of scripts used to generate entries into the Blockstates file.

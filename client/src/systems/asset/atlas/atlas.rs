@@ -1,130 +1,75 @@
 use crate::systems::asset::atlas::resource_packs::ResourcePack;
-use bevy::prelude::*;
 use bevy::render::render_asset::RenderAssetUsages;
 use bevy::render::render_resource::{Extent3d, TextureDimension, TextureFormat};
 use fnv::{FnvBuildHasher, FnvHashMap};
 use image::{DynamicImage, GenericImageView, ImageBuffer, Rgba};
-use rc_shared::atlas::{TextureAtlasIndex, TextureAtlasTrait};
+use rc_shared::atlas::{TextureAtlas, TextureAtlasIndex, TextureAtlasTrait};
 
 use std::collections::HashMap;
 
 use std::sync::{OnceLock, RwLock, RwLockReadGuard};
+use bevy::prelude::{Assets, error, Image, ResMut};
 
 pub const ATLAS_WIDTH: u32 = 4096 / 4;
 pub const ATLAS_HEIGHT: u32 = 4096 / 4;
 
-pub static TEXTURE_ATLAS: AtlasWrapper = AtlasWrapper::new();
-
-pub struct AtlasWrapper(OnceLock<RwLock<TextureAtlas>>);
-
-impl AtlasWrapper {
-    pub const fn new() -> AtlasWrapper {
-        AtlasWrapper(OnceLock::new())
-    }
-}
-
-impl AtlasWrapper {
-    pub fn get(&self) -> RwLockReadGuard<TextureAtlas> {
-        self.0.get().unwrap().read().unwrap()
-    }
-
-    pub fn set(&self, value: TextureAtlas) {
-        let _ = TEXTURE_ATLAS.0.set(RwLock::new(value));
-    }
-}
-
-impl TextureAtlasTrait for AtlasWrapper {
-    fn exists(&self) -> bool {
-        self.0.get().is_some()
-    }
-
-    fn get_entry(&self, name: &str) -> Option<TextureAtlasIndex> {
-        self.0
-            .get()
-            .unwrap()
-            .read()
-            .unwrap()
-            .index
-            .get(name)
-            .map(|v| *v)
-    }
-}
-
-pub struct TextureAtlas {
-    image: Handle<Image>,
-    pub index: HashMap<String, TextureAtlasIndex, FnvBuildHasher>,
-}
-
-impl TextureAtlas {
     /// Generate a a new texture atlas from a list of textures and a resources directory
-    pub fn new(
-        _resource_pack: &ResourcePack,
-        textures: &mut HashMap<String, DynamicImage, FnvBuildHasher>,
-        assets: &mut ResMut<Assets<Image>>,
-    ) -> TextureAtlas {
-        let mut atlas_index: HashMap<String, TextureAtlasIndex, FnvBuildHasher> =
-            FnvHashMap::default();
-        let mut atlas_img = None;
+pub fn new_atlas(
+    _resource_pack: &ResourcePack,
+    textures: &mut HashMap<String, DynamicImage, FnvBuildHasher>,
+    assets: &mut ResMut<Assets<Image>>,
+) -> TextureAtlas {
+    let mut atlas_index: HashMap<String, TextureAtlasIndex, FnvBuildHasher> =
+        FnvHashMap::default();
+    let mut atlas_img = None;
 
-        // If reading cache didnt work then remake it
-        if atlas_img.is_none() {
-            let mut textures = sort_textures(textures);
+    // If reading cache didnt work then remake it
+    if atlas_img.is_none() {
+        let mut textures = sort_textures(textures);
 
-            // Add error texture
-            textures.push((
-                String::from("game/error"),
-                DynamicImage::ImageRgba8(gen_invalid_texture()),
-            ));
+        // Add error texture
+        textures.push((
+            String::from("game/error"),
+            DynamicImage::ImageRgba8(gen_invalid_texture()),
+        ));
 
-            let atlas = generate_atlas(textures, &mut atlas_index);
+        let atlas = generate_atlas(textures, &mut atlas_index);
 
-            // if settings.atlas_cache_writing {
-            //     write_cached_atlas(
-            //         &path,
-            //         &atlas_path,
-            //         &atlas_index_path,
-            //         &atlas_info_path,
-            //         &atlas_index,
-            //         zip_name,
-            //         &atlas,
-            //         resource_pack,
-            //     );
-            // }
+        // if settings.atlas_cache_writing {
+        //     write_cached_atlas(
+        //         &path,
+        //         &atlas_path,
+        //         &atlas_index_path,
+        //         &atlas_info_path,
+        //         &atlas_index,
+        //         zip_name,
+        //         &atlas,
+        //         resource_pack,
+        //     );
+        // }
 
-            atlas_img = Some(DynamicImage::ImageRgba8(atlas));
-        }
-
-        let atlas_img = atlas_img.unwrap();
-
-        let image = Image::new(
-            Extent3d {
-                width: atlas_img.width(),
-                height: atlas_img.height(),
-                depth_or_array_layers: 1,
-            },
-            TextureDimension::D2,
-            atlas_img.into_bytes(),
-            TextureFormat::Rgba8UnormSrgb,
-            RenderAssetUsages::all()
-        );
-
-        let image = assets.add(image);
-
-        TextureAtlas {
-            image,
-            index: atlas_index,
-        }
+        atlas_img = Some(DynamicImage::ImageRgba8(atlas));
     }
 
-    pub fn blank() -> TextureAtlas {
-        TextureAtlas {
-            image: Default::default(),
-            index: Default::default(),
-        }
-    }
+    let atlas_img = atlas_img.unwrap();
 
-    pub fn get_image(&self) -> &Handle<Image> {
-        &self.image
+    let image = Image::new(
+        Extent3d {
+            width: atlas_img.width(),
+            height: atlas_img.height(),
+            depth_or_array_layers: 1,
+        },
+        TextureDimension::D2,
+        atlas_img.into_bytes(),
+        TextureFormat::Rgba8UnormSrgb,
+        RenderAssetUsages::all()
+    );
+
+    let image = assets.add(image);
+
+    TextureAtlas {
+        image,
+        index: atlas_index,
     }
 }
 

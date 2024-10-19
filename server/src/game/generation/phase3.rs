@@ -55,7 +55,7 @@ pub fn decorate_chunk(
 
                 if world[x][y][z] == 6 &&
                     ruby_noise.sample_3d(absolute.x, absolute.y, absolute.z) > 0.82 {
-                    world[x][y][z] = 76;
+                    // world[x][y][z] = 76;
                 }
             }
         }

@@ -1,4 +1,3 @@
-use crate::systems::asset::atlas::atlas::{TextureAtlas, TEXTURE_ATLAS};
 use crate::systems::asset::atlas::resource_packs::{ResourcePackData, ResourcePacks};
 use crate::systems::asset::AssetService;
 use crate::systems::ui::loading::LoadingUIData;
@@ -6,6 +5,8 @@ use crate::systems::ui::loading::LoadingUIData;
 use bevy::prelude::*;
 use bevy::color::palettes::basic::WHITE;
 use bevy::pbr::ExtendedMaterial;
+use rc_shared::atlas::TEXTURE_ATLAS;
+use crate::systems::asset::atlas::atlas::new_atlas;
 use crate::systems::asset::material::translucent_chunk_extension::ChunkMaterialUniform;
 use crate::systems::asset::material::chunk_extension::{ChunkMaterialExtension, ChunkMaterial};
 use crate::systems::asset::material::translucent_chunk_extension::{TranslucentChunkMaterial, TranslucentChunkMaterialExtension};
@@ -47,7 +48,7 @@ pub fn build_texture_atlas(
     };
 
     // Build the texture atlas
-    let atlas = TextureAtlas::new(pack, &mut textures.images, &mut images);
+    let atlas = new_atlas(pack, &mut textures.images, &mut images);
 
     info!("Generated texture atlas");
     TEXTURE_ATLAS.set(atlas);

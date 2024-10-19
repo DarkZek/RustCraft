@@ -60,7 +60,7 @@ fn do_pipes_temp(
         let block = block_states.get_block(block_id as usize);
 
         // Pipe check (TEMP)
-        if block.identifier != "mcv3::Pipe" {
+        if block.identifier != "mcv3::block::Pipe" {
             continue;
         }
 

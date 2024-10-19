@@ -4,85 +4,85 @@
       "identifier": "mcv3::GrassBlockItem",
       "name": "Grass Block",
       "icon": "grass",
-      "block_state": "mcv3::Grass"
+      "block_state": "mcv3::block::Grass"
     },
     {
       "identifier": "mcv3::DirtBlockItem",
       "name": "Dirt Block",
       "icon": "dirt",
-      "block_state": "mcv3::Dirt"
+      "block_state": "mcv3::block::Dirt"
     },
     {
       "identifier": "mcv3::LongGrassItem",
       "name": "Long Grass",
       "icon": "long_grass",
-      "block_state": "mcv3::LongGrass"
+      "block_state": "mcv3::block::LongGrass"
     },
     {
       "identifier": "mcv3::LeavesItem",
       "name": "Leaves",
       "icon": "tree_leaves",
-      "block_state": "mcv3::Leaves"
+      "block_state": "mcv3::block::Leaves"
     },
     {
       "identifier": "mcv3::WoodLogItem",
       "name": "Wood Log",
       "icon": "wood_log",
-      "block_state": "mcv3::Wood"
+      "block_state": "mcv3::block::WoodLog"
     },
     {
       "identifier": "mcv3::LampItem",
       "name": "Lamp",
       "icon": "lamp",
-      "block_state": "mcv3::Lamp"
+      "block_state": "mcv3::block::Lamp"
     },
     {
       "identifier": "mcv3::ItemSpawnerItem",
       "name": "Item Spawner",
       "icon": "itemspawner",
-      "block_state": "mcv3::ItemSpawnerBlock"
+      "block_state": "mcv3::block::ItemSpawnerBlock"
     },
     {
       "identifier": "mcv3::PipeItem",
       "name": "Pipe",
       "icon": "tree_leaves",
-      "block_state": "mcv3::Pipe"
+      "block_state": "mcv3::block::Pipe"
     },
     {
       "identifier": "mcv3::ImprovisedFurnaceItem",
       "name": "Improvised Furnace",
       "icon": "dirt",
-      "block_state": "mcv3::ImprovisedFurnace"
+      "block_state": "mcv3::block::ImprovisedFurnace"
     },
       {
         "identifier": "mcv3::RubyItem",
         "name": "Ruby Ore",
         "icon": "ruby",
-        "block_state": "mcv3::RubyOre"
+        "block_state": "mcv3::block::RubyOre"
       },
      {
        "identifier": "mcv3::DaffodilItem",
        "name": "Daffodil Block",
        "icon": "ruby",
-       "block_state": "mcv3::DaffodilBlock"
+       "block_state": "mcv3::block::DaffodilBlock"
      },
     {
       "identifier": "mcv3::PlasterItem",
       "name": "Ruby",
       "icon": "ruby",
-      "block_state": "mcv3::PlasterBlock"
+      "block_state": "mcv3::block::PlasterBlock"
     },
     {
       "identifier": "mcv3::PurpleLampItem",
       "name": "Purple Lamp",
       "icon": "ruby",
-      "block_state": "mcv3::PurpleLampBlock"
+      "block_state": "mcv3::block::PurpleLampBlock"
     },
     {
       "identifier": "mcv3::StoneItem",
       "name": "Stone Lamp",
       "icon": "ruby",
-      "block_state": "mcv3::StoneBlock"
+      "block_state": "mcv3::block::StoneBlock"
     }
   ]
 }

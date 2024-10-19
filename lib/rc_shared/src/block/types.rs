@@ -17,5 +17,5 @@ pub struct Block {
 #[derive(Clone, Debug)]
 pub struct LootTableEntry {
     pub chance: f32,
-    pub item_id: usize,
+    pub item_identifier: String,
 }

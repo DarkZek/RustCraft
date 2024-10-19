@@ -1,4 +1,3 @@
-use crate::block::event::BlockStatesUpdatedEvent;
 use crate::block::BlockStates;
 use crate::item::deserialisation::ItemStatesFile;
 use crate::item::event::ItemStatesUpdatedEvent;
@@ -58,15 +57,10 @@ pub fn track_itemstate_changes(
 
 /// Copies the blockstate indexes to the respective drops
 pub fn track_blockstate_changes(
-    mut events: EventReader<BlockStatesUpdatedEvent>,
     assets: ResMut<Assets<ItemStatesFile>>,
     mut states: ResMut<ItemStates>,
     block_states: ResMut<BlockStates>,
 ) {
-    for _ in events.read() {
-        states.recalculate_blocks = true;
-    }
-
     // Don't recompute until type states have been set
     if states.states.len() == 0 || block_states.states.len() == 0 {
         return;
@@ -75,7 +69,7 @@ pub fn track_blockstate_changes(
     if states.recalculate_blocks {
         info!("Reloading type block ids");
 
-        // Copy data over to blockstates, with full amount of data like normals and looking up texture atlas indexes
+        // Copy data over to itemstates, with full amount of data like normals and looking up texture atlas indexes
         let (_, asset) = assets.iter().next().unwrap();
 
         let len = asset.states.len();
@@ -92,7 +86,7 @@ pub fn track_blockstate_changes(
                 let item = states.states.get_mut(item_id).unwrap();
                 item.block_state = None;
                 warn!(
-                    "Item id '{}' tried to reference non-existant block identifier '{}'",
+                    "Item id '{}' tried to reference non-existent block identifier '{}'",
                     item.identifier,
                     asset.states.get(item_id).unwrap().block_state
                 );

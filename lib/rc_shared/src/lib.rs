@@ -1,3 +1,6 @@
+#![feature(const_for)]
+#![feature(const_trait_impl)]
+
 pub mod aabb;
 pub mod atlas;
 pub mod biome;

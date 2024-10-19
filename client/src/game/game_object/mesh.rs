@@ -1,4 +1,4 @@
-use bevy::prelude::Mesh;
+use bevy::prelude::{Mesh, warn};
 use bevy::render::mesh::PrimitiveTopology;
 use bevy::render::render_asset::RenderAssetUsages;
 use nalgebra::Vector3;
@@ -31,7 +31,8 @@ pub fn generate_item_mesh(
             &mut draw_kit
         );
     } else {
-       panic!("Block state not set for entity");
+        // TODO: Handle more gracefully by spawning an empty mesh
+        panic!("Block state not set for item {}", item.identifier);
     }
 
     for pos in &mut draw_kit.positions {

@@ -90,6 +90,17 @@ impl ViewableDirectionBitMap {
             }
         }
     }
+
+    pub fn to_normal(&self) -> Vector3<f32> {
+        match self {
+            ViewableDirectionBitMap::Top => Vector3::new(0.0, 1.0, 0.0),
+            ViewableDirectionBitMap::Bottom => Vector3::new(0.0, -1.0, 0.0),
+            ViewableDirectionBitMap::Front => Vector3::new(0.0, 0.0, -1.0),
+            ViewableDirectionBitMap::Back => Vector3::new(0.0, 0.0, 1.0),
+            ViewableDirectionBitMap::Left => Vector3::new(-1.0, 0.0, 0.0),
+            ViewableDirectionBitMap::Right => Vector3::new(1.0, 0.0, 0.0),
+        }
+    }
 }
 
 impl ViewableDirection {

@@ -6,10 +6,9 @@ use crate::game::interaction::highlight::{
     mouse_highlight_interaction, setup_highlights, HighlightData,
 };
 use crate::game::inventory::InventoryPlugin;
-use crate::game::state::{create_states, track_blockstate_changes, track_itemstate_changes};
+use crate::game::state::{create_states, trigger_load_blockstates, track_itemstate_changes};
 use crate::game::world::WorldPlugin;
 use crate::state::AppState;
-use crate::systems::asset::atlas::atlas::TEXTURE_ATLAS;
 use crate::systems::asset::atlas::resource_packs::{ResourcePackData, ResourcePacks};
 use crate::systems::asset::parsing::json::JsonAssetLoader;
 use crate::systems::asset::parsing::pack::ResourcePackAssetLoader;
@@ -37,6 +36,7 @@ use crate::systems::asset::material::chunk_extension::ChunkMaterialExtension;
 use crate::systems::asset::material::translucent_chunk_extension::TranslucentChunkMaterialExtension;
 use crate::systems::connection::ConnectionPlugin;
 use web_sys::Worker;
+use crate::systems::ui::loading::LoadingUIData;
 use rc_shared::PHYSICS_SYNC_RATE_SECONDS;
 use crate::game::game_mode::GameModePlugin;
 use crate::systems::debugging::DebuggingPlugin;
@@ -124,15 +124,13 @@ pub fn start() {
         .init_asset_loader::<JsonAssetLoader<ResourcePacks>>()
         .init_asset_loader::<ResourcePackAssetLoader>()
 
-        .add_plugins(BlockStatesPlugin {
-            texture_atlas: &TEXTURE_ATLAS
-        })
+        .add_plugins(BlockStatesPlugin)
         .add_plugins(ItemStatesPlugin)
         .add_plugins(GameObjectPlugin)
         .add_plugins(WasmPlugin)
 
         .add_systems(Startup, create_states)
-        .add_systems(Update, track_blockstate_changes)
+        .add_systems(Update, trigger_load_blockstates)
         .add_systems(Update, track_itemstate_changes)
 
         // Asset deserialisation

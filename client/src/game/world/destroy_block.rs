@@ -25,14 +25,13 @@ fn get_destroy_block_providers(
     vec![|block_id: u32, _pos: Vector3<i32>, world: &mut World| {
         let block_states = world.get_resource::<BlockStates>().unwrap();
 
-        let ctable_id = block_states.get_by_id("mcv3::ConstructionTable").unwrap().0 as u32;
-        let wood_id = block_states.get_by_id("mcv3::Wood").unwrap().0 as u32;
+        let wood_id = block_states.get_by_id("mcv3::block::WoodLog").unwrap().0 as u32;
         let mut inventory = world.get_resource_mut::<Inventory>().unwrap();
 
         // If block is wood, and we're holding wood, make construction table
         if inventory.selected_block_id() == Some(wood_id) && block_id == wood_id {
             inventory.take_selected_block();
-            return DestroyBlockCommand::Replace(ctable_id);
+            return DestroyBlockCommand::Replace(wood_id);
         }
 
         DestroyBlockCommand::Skip

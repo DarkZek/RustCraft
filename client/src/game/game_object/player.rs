@@ -5,12 +5,11 @@ use bevy::render::mesh::PrimitiveTopology;
 use bevy::render::render_asset::RenderAssetUsages;
 use bevy_mod_billboard::BillboardTextBundle;
 use nalgebra::Vector3;
-use rc_shared::atlas::{TextureAtlasIndex};
+use rc_shared::atlas::{TEXTURE_ATLAS, TextureAtlasIndex};
 use rc_shared::block::face::Face;
 use rc_shared::chunk::LightingColor;
 use rc_shared::viewable_direction::ViewableDirectionBitMap;
 use crate::game::game_object::Rotatable;
-use crate::systems::asset::atlas::atlas::TEXTURE_ATLAS;
 use crate::systems::asset::material::translucent_chunk_extension::TranslucentChunkMaterial;
 use crate::utils::mesh::draw_kit::DrawKit;
 

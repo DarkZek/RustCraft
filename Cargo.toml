@@ -3,8 +3,7 @@ resolver = "2"
 
 members = [
     "client",
-    "server",
-    "tools/block_states"
+    "server"
 ]
 exclude = [
     "api"
@@ -22,6 +21,7 @@ jsonwebtoken = {version = "9", default-features = false, features = ["use_pem"] 
 web-time = "1.1.0"
 fnv = "1.0.7"
 dotenvy_macro = "0.15.7"
+rand = "0.8.5"
 
 [profile.dev]
 opt-level = 1
