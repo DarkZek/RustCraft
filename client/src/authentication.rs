@@ -3,9 +3,10 @@ use bevy::prelude::Resource;
 use jsonwebtoken::{Algorithm, DecodingKey, Validation};
 #[cfg(target_arch = "wasm32")]
 use web_sys::wasm_bindgen::prelude::wasm_bindgen;
+use dotenvy_macro::dotenv;
 
 // TODO: Fetch from api
-static PUBLIC_KEY: &[u8] = env!("PUBLIC_JWT_KEY").as_bytes();
+static PUBLIC_KEY: &[u8] = dotenv!("PUBLIC_JWT_KEY").as_bytes();
 
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]

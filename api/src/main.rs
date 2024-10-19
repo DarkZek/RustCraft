@@ -16,6 +16,7 @@ use tracing_subscriber::filter::Targets;
 use http::header::{CONTENT_TYPE};
 use http::Method;
 use tower_http::cors::{Any, CorsLayer};
+use dotenvy::from_filename;
 
 mod login;
 mod join_server;
@@ -28,10 +29,11 @@ static PUBLIC_KEY: OnceLock<Vec<u8>> = OnceLock::new();
 
 #[tokio::main]
 async fn main() {
+    from_filename("../.env").unwrap();
 
     // Include jwt keys
-    PRIVATE_KEY.set(std::env::var("JWT_PRIVATE_KEY").expect("JWT_PRIVATE_KEY not set").into_bytes()).unwrap();
-    PUBLIC_KEY.set(std::env::var("JWT_PUBLIC_KEY").expect("JWT_PUBLIC_KEY not set").into_bytes()).unwrap();
+    PRIVATE_KEY.set(std::env::var("PRIVATE_JWT_KEY").expect("JWT_PRIVATE_KEY not set").into_bytes()).unwrap();
+    PUBLIC_KEY.set(std::env::var("PUBLIC_JWT_KEY").expect("JWT_PUBLIC_KEY not set").into_bytes()).unwrap();
 
     let targets = Targets::new()
         .with_default(Level::TRACE);

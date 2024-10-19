@@ -82,7 +82,9 @@ pub fn update_sun(
         % day_len_ms;
 
     // 0 is sunrise, 0.25 is midday, 0.5 is sunset, 0.75 is midnight
-    let day_progress = time as f32 / day_len_ms as f32;
+    let mut day_progress = time as f32 / day_len_ms as f32;
+
+    day_progress = 0.25;
 
     rotate_sun_moon_sprite(
         day_progress + 0.75 - 0.1,

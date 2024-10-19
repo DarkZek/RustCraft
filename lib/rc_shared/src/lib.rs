@@ -17,3 +17,5 @@ pub mod time;
 pub const CHUNK_SIZE: usize = 16;
 
 pub const MAX_LIGHT_VALUE: usize = 16;
+
+pub const PHYSICS_SYNC_RATE_SECONDS: f64 = 1.0 / 20.0;

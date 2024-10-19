@@ -3,10 +3,9 @@ use crate::game::entity::{GameObject};
 use crate::systems::networking::NetworkingSystem;
 use crate::systems::physics::PhysicsObject;
 use bevy::prelude::*;
-use nalgebra::Vector3;
+use nalgebra::{Quaternion, Vector3};
 use rc_shared::game_objects::GameObjectData;
 use rc_shared::item::ItemStates;
-
 use rc_networking::protocol::Protocol;
 use rc_networking::types::ReceivePacket;
 use rc_shared::aabb::Aabb;
@@ -19,8 +18,6 @@ use crate::systems::asset::AssetService;
 
 pub fn messages_update(
     mut event_reader: EventReader<ReceivePacket>,
-    mut entities: Query<(Entity, Option<&mut PlayerGameObject>)>,
-    mut transforms: Query<&mut Transform>,
     mut physics_objects: Query<&mut PhysicsObject>,
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
@@ -45,22 +42,18 @@ pub fn messages_update(
                 }
             }
             Protocol::GameObjectRotated(update) => {
-                if let Some(Ok((entity, game_object_variants))) = system
+                let Some(entity) = system
                     .entity_mapping
-                    .get(&update.entity)
-                    .map(|v| entities.get_mut(*v))
-                {
-                    let quat = Quat::from_xyzw(update.x, update.y, update.z, update.w);
-                    let (x, y, _) = quat.to_euler(EulerRot::YXZ);
+                    .get(&update.entity) else {
+                    continue
+                };
 
-                    if let Some(mut player) = game_object_variants {
-                        player.rotate(x, y, &mut transforms);
-                    } else {
-                        transforms.get_mut(entity).unwrap().rotation = quat;
-                    }
-                } else {
-                    error!("Rotate event received before game_object created");
-                }
+                let Ok(mut physics) = physics_objects.get_mut(*entity) else {
+                    warn!("Received GameObjectRotated event for unspawned game object");
+                    continue
+                };
+
+                physics.rotation = Quaternion::new(update.w, update.x, update.y, update.z);
             }
             Protocol::SpawnGameObject(entity) => {
                 if system.entity_mapping.contains_key(&entity.id) {
@@ -69,12 +62,7 @@ pub fn messages_update(
                 }
 
                 let mut entity_commands = commands
-                    .spawn(Transform::from_rotation(Quat::from_xyzw(
-                        entity.rot[0],
-                        entity.rot[1],
-                        entity.rot[2],
-                        entity.rot[3],
-                    )));
+                    .spawn(Transform::default());
                 entity_commands.insert(GameObject {
                     data: entity.data.clone()
                 });
@@ -121,6 +109,7 @@ pub fn messages_update(
                     _ => unimplemented!()
                 };
 
+                // TODO: Include rotation
                 let mut physics = PhysicsObject::new(
                     Vector3::new(entity.loc[0], entity.loc[1], entity.loc[2]),
                     aabb,

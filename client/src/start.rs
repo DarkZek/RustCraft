@@ -37,6 +37,7 @@ use crate::systems::asset::material::chunk_extension::ChunkMaterialExtension;
 use crate::systems::asset::material::translucent_chunk_extension::TranslucentChunkMaterialExtension;
 use crate::systems::connection::ConnectionPlugin;
 use web_sys::Worker;
+use rc_shared::PHYSICS_SYNC_RATE_SECONDS;
 use crate::game::game_mode::GameModePlugin;
 use crate::systems::debugging::DebuggingPlugin;
 use crate::systems::wasm::WasmPlugin;
@@ -48,6 +49,7 @@ pub fn start() {
 
     App::new()
         .insert_resource(authentication)
+        .insert_resource(Time::<Fixed>::from_seconds(PHYSICS_SYNC_RATE_SECONDS))
         .add_plugins(
             DefaultPlugins
                 .set(LogPlugin {

@@ -24,11 +24,8 @@ use crate::systems::tick::tick;
 use crate::transport::{TransportPlugin, TransportSystem};
 use bevy::app::{App, AppExit, ScheduleRunnerPlugin, Startup};
 use bevy::log::{info, Level, LogPlugin};
-use bevy::prelude::{
-    default, AssetPlugin, AssetServer, EventWriter, PluginGroup, PreUpdate, Res, ResMut, Update,
-};
+use bevy::prelude::{default, AssetPlugin, AssetServer, EventWriter, PluginGroup, PreUpdate, Res, ResMut, Update, Time, Fixed};
 use bevy::MinimalPlugins;
-
 use crate::events::join::PlayerSpawnEvent;
 use crate::game::pipes::generate_links;
 use rc_networking::types::{ReceivePacket, SendPacket};
@@ -37,10 +34,14 @@ use rc_shared::item::{ItemStates, ItemStatesPlugin};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
 use rc_networking::protocol::Protocol;
+use rc_shared::PHYSICS_SYNC_RATE_SECONDS;
 use crate::game::commands::CommandsPlugin;
 use crate::game::entity::EntityPlugin;
 use crate::game::join_message::{join_message, leave_message};
 use crate::systems::chat::broadcast_chat;
+
+#[macro_use]
+extern crate dotenvy_macro;
 
 static SHUTDOWN_BIT: AtomicBool = AtomicBool::new(false);
 static DUMMY_ATLAS: DummyAtlas = DummyAtlas;
@@ -52,11 +53,12 @@ fn main() {
 
     info!("Rustcraft Server starting");
 
-    let assets_dir = option_env!("ASSETS_DIR").unwrap_or("./assets/");
+    let assets_dir = dotenv!("ASSETS_DIR");
 
     // Build App
     App::default()
         .insert_resource(load_config())
+        .insert_resource(Time::<Fixed>::from_seconds(PHYSICS_SYNC_RATE_SECONDS))
         .add_plugins(
             MinimalPlugins.set(ScheduleRunnerPlugin::run_loop(Duration::from_secs_f64(
                 1.0 / 200.0,

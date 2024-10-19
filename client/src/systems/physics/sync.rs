@@ -1,9 +1,64 @@
 use crate::systems::physics::PhysicsObject;
 use bevy::prelude::*;
+use nalgebra::{Quaternion, Vector3};
+use rc_shared::helpers::{from_bevy_vec3, to_bevy_vec3};
+use crate::game::game_object::player::PlayerGameObject;
+use crate::game::game_object::Rotatable;
+use crate::systems::physics::interpolate::PhysicsInterpolation;
 
 /// Syncs all of the changed PhysicsObjects to the transform
-pub fn physics_sync(mut query: Query<(&mut Transform, &PhysicsObject), Changed<PhysicsObject>>) {
+pub fn physics_location_sync(
+    mut query: Query<(&mut Transform, &PhysicsObject)>,
+    interpolation: Res<PhysicsInterpolation>
+) {
     for (mut transform, object) in query.iter_mut() {
-        transform.translation = Vec3::new(object.position.x, object.position.y, object.position.z);
+        let before: Vector3<f32> = object.previous_position;
+        let after: Vector3<f32> = object.position;
+
+        let current = from_bevy_vec3(transform.translation);
+
+        // If we're already in the desired state
+        if after == current {
+            continue;
+        }
+
+        let translation = before.lerp(&after, interpolation.amount);
+
+        transform.translation = to_bevy_vec3(translation);
+    }
+}
+
+/// Syncs all of the changed PhysicsObjects to the transform
+pub fn physics_rotation_sync(
+    mut game_object_data: Query<&PlayerGameObject>,
+    mut transforms: Query<&mut Transform>,
+    mut query: Query<(Entity, &PhysicsObject)>,
+    interpolation: Res<PhysicsInterpolation>
+) {
+    for (entity, physics_object) in query.iter_mut() {
+        let before: Quaternion<f32> = physics_object.previous_rotation;
+        let after: Quaternion<f32> = physics_object.rotation;
+
+        // TODO: Check if position is already achieved
+
+        let rotation = before.lerp(&after, interpolation.amount);
+
+        let quat: Quat = rotation.into();
+        let (x, y, _) = quat.to_euler(EulerRot::YXZ);
+
+        if let Ok(mut player) = game_object_data.get(entity) {
+            player.rotate(x, y, &mut transforms);
+        } else {
+            // transforms.get_mut(entity).unwrap().rotation = quat;
+        }
+    }
+}
+
+pub fn update_last_position(
+    mut query: Query<(&mut PhysicsObject)>,
+) {
+    for mut object in query.iter_mut() {
+        object.previous_position = object.position;
+        object.previous_rotation = object.rotation;
     }
 }

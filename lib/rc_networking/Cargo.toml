@@ -17,6 +17,7 @@ url = "2.5.2"
 nalgebra = { workspace = true }
 jsonwebtoken = { workspace = true }
 anyhow = "1.0.87"
+dotenvy_macro = { workspace = true }
 
 [dependencies.bevy]
 workspace = true

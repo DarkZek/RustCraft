@@ -26,7 +26,7 @@ pub struct PlayerGameObject {
 }
 
 impl Rotatable for PlayerGameObject {
-    fn rotate(&mut self, yaw: f32, pitch: f32, transforms: &mut Query<&mut Transform>) {
+    fn rotate(&self, yaw: f32, pitch: f32, transforms: &mut Query<&mut Transform>) {
         // Head transform
         let mut head_rot = transforms.get_mut(self.head_entity).unwrap();
 

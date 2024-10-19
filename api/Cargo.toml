@@ -18,3 +18,4 @@ tower-http = { version = "0.5.2", features = ["trace", "cors"] }
 tracing = "0.1.40"
 tokio = { version = "1.40.0", features = ["rt-multi-thread"] }
 http = "1.1.0"
+dotenvy = { version = "0.15.7" }

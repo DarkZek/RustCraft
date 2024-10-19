@@ -7,6 +7,7 @@ use bevy::prelude::*;
 use rc_networking::client::NetworkingClientPlugin;
 use rc_shared::constants::{GameObjectId, UserId};
 use std::collections::HashMap;
+use nalgebra::{Quaternion, Vector3};
 use crate::authentication::GameAuthentication;
 
 mod chunk;
@@ -21,7 +22,7 @@ impl Plugin for NetworkingPlugin {
             .add_systems(Update, messages_update)
             .add_systems(Update, network_location_sync)
             .add_systems(Update, network_chunk_sync)
-            .insert_resource(LastNetworkTranslationSync(Vec3::default()))
+            .insert_resource(LastNetworkTranslationSync(Vector3::default()))
             .insert_resource(LastNetworkRotationSync(Quat::default()));
 
         let authentication = app.world().get_resource::<GameAuthentication>().unwrap();

@@ -1,3 +1,4 @@
+use dotenvy_macro::dotenv;
 use std::collections::HashSet;
 use bevy::prelude::warn;
 use jsonwebtoken::{Algorithm, DecodingKey, Validation};
@@ -17,7 +18,7 @@ pub fn check_authorization(token: &str) -> Option<AuthorizationResult> {
     set.insert(String::from("join_server"));
     validation.aud = Some(set);
 
-    let key = DecodingKey::from_rsa_pem(env!("PUBLIC_JWT_KEY").as_bytes()).unwrap();
+    let key = DecodingKey::from_rsa_pem(dotenv!("PUBLIC_JWT_KEY").as_bytes()).unwrap();
 
     let result = jsonwebtoken::decode::<AuthorizationResult>(
         &token,

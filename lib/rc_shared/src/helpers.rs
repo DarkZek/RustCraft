@@ -1,7 +1,7 @@
 use crate::chunk::{ChunkPosition, LightingColor, LocalBlockPosition};
 use crate::CHUNK_SIZE;
-use bevy::prelude::Vec3;
-use nalgebra::{Point3, Vector3};
+use bevy::prelude::{Quat, Vec3};
+use nalgebra::{Point3, Quaternion, Vector3, Vector4};
 use std::ops::{Add, Range};
 
 /// Formats a u32 with American comma placement.

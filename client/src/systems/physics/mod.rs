@@ -1,28 +1,35 @@
 use crate::state::AppState;
 use crate::systems::chunk::ChunkSystem;
 use crate::systems::physics::simulate::physics_tick;
-use crate::systems::physics::sync::physics_sync;
+use crate::systems::physics::sync::{physics_location_sync, physics_rotation_sync, update_last_position};
 use bevy::ecs::component::Component;
-use bevy::prelude::{in_state, FixedUpdate, IntoSystemConfigs};
+use bevy::prelude::{in_state, FixedUpdate, IntoSystemConfigs, Update, FixedPreUpdate};
 use bevy::prelude::{App, Plugin};
-use nalgebra::Vector3;
+use nalgebra::{Quaternion, Vector3};
 use rc_shared::aabb::Aabb;
 use rc_shared::block::BlockStates;
+use crate::systems::physics::interpolate::{calculate_interpolation_amount, PhysicsInterpolation};
 
 pub mod raycasts;
 mod simulate;
 mod sync;
+mod interpolate;
 
 pub struct PhysicsPlugin;
 
 impl Plugin for PhysicsPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
+        app
+        .add_systems(
             FixedUpdate,
-            (physics_tick, physics_sync)
-                .chain()
+            physics_tick
                 .run_if(in_state(AppState::InGame)),
-        );
+        )
+        .insert_resource(PhysicsInterpolation {
+            amount: 0.0,
+        })
+        .add_systems(Update, (calculate_interpolation_amount, physics_location_sync, physics_rotation_sync))
+        .add_systems(FixedPreUpdate, update_last_position);
     }
 }
 
@@ -31,6 +38,8 @@ impl Plugin for PhysicsPlugin {
 pub struct PhysicsObject {
     pub position: Vector3<f32>,
     pub previous_position: Vector3<f32>,
+    pub rotation: Quaternion<f32>,
+    pub previous_rotation: Quaternion<f32>,
     pub velocity: Vector3<f32>,
     pub collider: Aabb,
     pub gravity: bool,
@@ -43,6 +52,8 @@ impl PhysicsObject {
         PhysicsObject {
             position,
             previous_position: position,
+            rotation: Default::default(),
+            previous_rotation: Default::default(),
             velocity: Vector3::zeros(),
             collider,
             gravity: false,

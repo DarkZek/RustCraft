@@ -1,3 +1,4 @@
+use dotenvy_macro::dotenv;
 use rc_shared::constants::UserId;
 use crate::events::connection::NetworkConnectionEvent;
 use crate::events::disconnect::NetworkDisconnectionEvent;
@@ -126,8 +127,8 @@ impl From<&NetworkingServerConfig> for NetworkingServer {
 
 fn get_certificates() -> (Vec<CertificateDer<'static>>, PrivateKeyDer<'static>) {
 
-    let mut cert = env!("SSL_CERTIFICATE").as_bytes();
-    let mut private_key = env!("SSL_PRIVATE_KEY").as_bytes();
+    let mut cert = dotenv!("SSL_CERTIFICATE").trim().as_bytes();
+    let mut private_key = dotenv!("SSL_PRIVATE_KEY").trim().as_bytes();
 
     let certs = rustls_pemfile::certs(&mut BufReader::new(&mut cert))
         .collect::<Result<Vec<_>, _>>()

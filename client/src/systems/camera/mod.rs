@@ -57,7 +57,7 @@ fn setup_camera(mut commands: Commands) {
 fn camera_player_sync(
     mut query: ParamSet<(
         Query<&mut Transform, (With<Transform>, With<MainCamera>)>,
-        Query<&mut Transform, (With<Player>, Changed<Transform>)>,
+        Query<&mut Transform, (With<Player>)>,
     )>,
     debugging: Res<DebuggingInfo>
 ) {
