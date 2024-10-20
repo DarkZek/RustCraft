@@ -30,7 +30,7 @@ use crate::block::blocks::wood_log::WoodLogBlock;
 use crate::block::uid::hash_uid;
 use crate::viewable_direction::ViewableDirectionBitMap;
 
-// Convert to const oncecell
+// TODO: Convert to const oncecell
 pub fn get_blocks() -> Vec<BlockLookup> {
     vec![
         BlockLookup::from_block_impl::<AirBlock>(),

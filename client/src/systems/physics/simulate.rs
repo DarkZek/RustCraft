@@ -24,7 +24,7 @@ pub fn physics_tick(
     debugging_uidata.physics_ticks += 1;
 
     for mut object in query.iter_mut() {
-        let test = object.position.clone();
+        let current_position = object.position.clone();
 
         if object.gravity {
             object.velocity.y -= GRAVITY_STRENGTH * time.delta_seconds();
@@ -35,15 +35,15 @@ pub fn physics_tick(
         object.translate_with_collision_detection(proposed_delta, &chunks, &block_states);
 
         // Proposed delta is small so hit a wall, remove velocity
-        if f32::abs(test.x - object.position.x) < 0.001 {
+        if f32::abs(current_position.x - object.position.x) < 0.001 {
             object.velocity.x = 0.0;
         }
 
-        if f32::abs(test.y - object.position.y) < 0.001 {
+        if f32::abs(current_position.y - object.position.y) < 0.001 {
             object.velocity.y = 0.0;
         }
 
-        if f32::abs(test.z - object.position.z) < 0.001 {
+        if f32::abs(current_position.z - object.position.z) < 0.001 {
             object.velocity.z = 0.0;
         }
 

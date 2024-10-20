@@ -31,7 +31,7 @@ pub fn update_input_movement(
     let camera = camera.single();
 
     let Ok((mut player_physics, player)) = player.get_single_mut() else {
-        println!("NO PLAYER");
+        warn!("No player to control");
         return;
     };
 
@@ -81,6 +81,7 @@ pub fn update_input_movement(
     proposed_delta = proposed_delta.normalize();
 
     player_physics.velocity += proposed_delta * MOVEMENT_SPEED_VELOCITY * time.delta_seconds() * flying_multiplier * sprinting_multiplier;
+
     proposed_delta *= MOVEMENT_SPEED_POSITION * time.delta_seconds() * flying_multiplier * sprinting_multiplier;
 
     player_physics.translate_with_collision_detection(proposed_delta, &chunks, &block_states);

@@ -1,19 +1,18 @@
+use bevy::app::PreUpdate;
 use crate::state::AppState;
 use crate::systems::chunk::ChunkSystem;
 use crate::systems::physics::simulate::physics_tick;
 use crate::systems::physics::sync::{physics_location_sync, physics_rotation_sync, update_last_position};
 use bevy::ecs::component::Component;
-use bevy::prelude::{in_state, FixedUpdate, IntoSystemConfigs, Update, FixedPreUpdate};
+use bevy::prelude::{in_state, FixedUpdate, IntoSystemConfigs, Update, FixedPreUpdate, FixedPostUpdate};
 use bevy::prelude::{App, Plugin};
 use nalgebra::{Quaternion, Vector3};
 use rc_shared::aabb::Aabb;
 use rc_shared::block::BlockStates;
-use crate::systems::physics::interpolate::{calculate_interpolation_amount, PhysicsInterpolation};
 
 pub mod raycasts;
 mod simulate;
 mod sync;
-mod interpolate;
 
 pub struct PhysicsPlugin;
 
@@ -25,10 +24,7 @@ impl Plugin for PhysicsPlugin {
             physics_tick
                 .run_if(in_state(AppState::InGame)),
         )
-        .insert_resource(PhysicsInterpolation {
-            amount: 0.0,
-        })
-        .add_systems(Update, (calculate_interpolation_amount, physics_location_sync, physics_rotation_sync))
+        .add_systems(Update, (physics_location_sync, physics_rotation_sync))
         .add_systems(FixedPreUpdate, update_last_position);
     }
 }
