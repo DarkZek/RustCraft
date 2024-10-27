@@ -1,5 +1,5 @@
 use nalgebra::Vector3;
-use rc_shared::block::types::Block;
+use rc_shared::block::types::VisualBlock;
 use rc_shared::chunk::LightingColor;
 use rc_shared::viewable_direction::{AxisAlignedDirection, ViewableDirection};
 use crate::utils::mesh::draw_kit::DrawKit;
@@ -14,7 +14,7 @@ pub trait Draw {
     );
 }
 
-impl Draw for Block {
+impl Draw for VisualBlock {
     fn draw(
         &self,
         pos: Vector3<f32>,

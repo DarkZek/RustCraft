@@ -20,7 +20,6 @@ use rc_shared::item::ItemStates;
 use rc_shared::viewable_direction::BLOCK_SIDES;
 use bevy::log::warn;
 use bevy::prelude::trace;
-use rc_shared::block::blocks::get_blocks;
 use crate::game::entity::{DirtyPosition, DirtyRotation};
 use crate::game::inventory::Inventory;
 
@@ -89,10 +88,12 @@ pub fn receive_message_event(
 
                 let block = inventory.take_selected_block();
 
-                let Some(block_id) = block else {
+                let Some(block_definition_index) = block else {
                     warn!("Client tried to place unplacable block");
                     continue
                 };
+
+                let block_id = block_states.get_id_by_definition(block_definition_index).unwrap();
 
                 // TODO: Don't trust user input
                 let packet = BlockUpdate::new(block_id, packet.x, packet.y, packet.z);
@@ -198,11 +199,8 @@ fn calculate_drops(
 ) -> Vec<ItemStack> {
     let mut drop = Vec::new();
 
-    let blocks = get_blocks();
-    let block_index = *block_states.block_index.get(block_id as usize).unwrap();
-    let block_lookup = blocks.get(block_index).unwrap();
-    // TODO: Get block id properly
-    for drops in (block_lookup.get_loot)(0) {
+    let block = block_states.get_block_from_id(block_id);
+    for drops in block.get_loot() {
         if let Some((i, item)) = item_states.get_by_id(&drops.item_identifier) {
             let mut amount = drops.chance.floor() as u32;
 

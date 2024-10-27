@@ -1,6 +1,6 @@
 use crate::atlas::Rotate;
-use crate::block::types::Block;
-use crate::block::BlockStates;
+use crate::block::types::VisualBlock;
+use crate::block::{BlockStates, WorldBlock};
 use crate::chunk::ChunkDataStorage;
 use bevy::log::warn;
 use nalgebra::Vector3;
@@ -150,37 +150,39 @@ impl From<ViewableDirectionBitMap> for AxisAlignedDirection {
 pub fn calculate_chunk_viewable(
     block_states: &BlockStates,
     world: &ChunkDataStorage,
-    block: &Block,
+    block: &WorldBlock,
     pos: Vector3<usize>,
 ) -> ViewableDirection {
     let mut direction: u8 = 0;
 
+    let identifier = block.get_identifier();
+
     if pos.y != CHUNK_SIZE - 1
-        && should_draw_betweens(block_states, world, pos, Vector3::new(0, 1, 0), block)
+        && should_draw_betweens(block_states, world, pos, Vector3::new(0, 1, 0), identifier)
     {
         direction += ViewableDirectionBitMap::Top as u8;
     }
 
-    if pos.y != 0 && should_draw_betweens(block_states, world, pos, Vector3::new(0, -1, 0), block) {
+    if pos.y != 0 && should_draw_betweens(block_states, world, pos, Vector3::new(0, -1, 0), identifier) {
         direction += ViewableDirectionBitMap::Bottom as u8;
     }
 
-    if pos.x != CHUNK_SIZE - 1 && should_draw_betweens(block_states, world, pos, Vector3::new(1, 0, 0), block)
+    if pos.x != CHUNK_SIZE - 1 && should_draw_betweens(block_states, world, pos, Vector3::new(1, 0, 0), identifier)
     {
         direction += ViewableDirectionBitMap::Right as u8;
     }
 
-    if pos.x != 0 && should_draw_betweens(block_states, world, pos, Vector3::new(-1, 0, 0), block) {
+    if pos.x != 0 && should_draw_betweens(block_states, world, pos, Vector3::new(-1, 0, 0), identifier) {
         direction += ViewableDirectionBitMap::Left as u8;
     }
 
     if pos.z != CHUNK_SIZE - 1
-        && should_draw_betweens(block_states, world, pos, Vector3::new(0, 0, 1), block)
+        && should_draw_betweens(block_states, world, pos, Vector3::new(0, 0, 1), identifier)
     {
         direction += ViewableDirectionBitMap::Back as u8;
     }
 
-    if pos.z != 0 && should_draw_betweens(block_states, world, pos, Vector3::new(0, 0, -1), block) {
+    if pos.z != 0 && should_draw_betweens(block_states, world, pos, Vector3::new(0, 0, -1), identifier) {
         direction += ViewableDirectionBitMap::Front as u8;
     }
 
@@ -192,7 +194,7 @@ fn should_draw_betweens(
     world: &ChunkDataStorage,
     pos: Vector3<usize>,
     offset: Vector3<isize>,
-    src_block: &Block,
+    src_block_identifier: &str,
 ) -> bool {
     let block_pos = Vector3::new(
         (pos[0] as isize + offset[0]) as usize,
@@ -205,15 +207,16 @@ fn should_draw_betweens(
         return true;
     }
 
-    let block = block_states.get_block(block_id as usize);
+    let block = block_states.get_block_from_id(block_id);
+    let visual_block = block.draw();
 
     // If its the same block we don't want borders drawn between them, or if they're both waterlogged
-    if (block.translucent) && block.identifier == src_block.identifier {
-        return block.draw_betweens;
+    if (visual_block.translucent) && block.get_identifier() == src_block_identifier {
+        return visual_block.draw_betweens;
     }
-    if !block.full {
+    if !visual_block.full {
         return true;
     }
 
-    block.translucent
+    visual_block.translucent
 }

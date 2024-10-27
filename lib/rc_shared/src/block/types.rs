@@ -3,8 +3,7 @@ use crate::aabb::Aabb;
 use crate::block::face::Face;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Block {
-    pub identifier: String,
+pub struct VisualBlock {
     pub translucent: bool,
     pub full: bool,
     pub draw_betweens: bool,

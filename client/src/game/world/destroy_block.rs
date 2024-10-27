@@ -9,13 +9,13 @@ use rc_shared::constants::UserId;
 use rc_networking::protocol::Protocol;
 use rc_networking::protocol::serverbound::destroy_block::DestroyBlock;
 use rc_networking::types::SendPacket;
-use rc_shared::block::BlockStates;
+use rc_shared::block::{BlockId, BlockStates};
 use rc_shared::chunk::ChunkSystemTrait;
 use rc_shared::helpers::global_to_local_position;
 
 enum DestroyBlockCommand {
     Skip,
-    Replace(u32),
+    Replace(BlockId),
     Prevent,
 }
 
@@ -25,13 +25,14 @@ fn get_destroy_block_providers(
     vec![|block_id: u32, _pos: Vector3<i32>, world: &mut World| {
         let block_states = world.get_resource::<BlockStates>().unwrap();
 
-        let wood_id = block_states.get_by_id("mcv3::block::WoodLog").unwrap().0 as u32;
+        let destroyed_definition_index = block_states.get_definition_index_by_id(block_id).unwrap();
+        let wood_id = BlockStates::get_definition_index_by_identifier("mcv3::block::WoodLog").unwrap();
         let mut inventory = world.get_resource_mut::<Inventory>().unwrap();
 
         // If block is wood, and we're holding wood, make construction table
-        if inventory.selected_block_id() == Some(wood_id) && block_id == wood_id {
+        if inventory.selected_block_definition_index() == Some(wood_id) && destroyed_definition_index == wood_id {
             inventory.take_selected_block();
-            return DestroyBlockCommand::Replace(wood_id);
+            return DestroyBlockCommand::Replace(1);
         }
 
         DestroyBlockCommand::Skip

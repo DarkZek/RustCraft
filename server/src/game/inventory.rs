@@ -1,6 +1,7 @@
 use bevy::ecs::{component::Component, event::EventWriter, system::{Query}};
 use serde::{Deserialize, Serialize};
 use rc_networking::{protocol::{clientbound::update_inventory::UpdateInventory, Protocol}, types::SendPacket};
+use rc_shared::block::BlockDefinitionIndex;
 use rc_shared::item::types::ItemStack;
 use rc_shared::game_objects::PlayerGameObjectData;
 
@@ -13,23 +14,16 @@ pub struct Inventory {
 }
 
 impl Inventory {
-    /// Gets the select block's, block id
-    pub fn selected_block_id(&self) -> Option<u32> {
-        if let Some(val) = &self.hotbar[self.hotbar_slot as usize] {
-            val.item.block_state
-        } else {
-            None
-        }
-    }
+    /// Gets the selec
     /// Gets the select block's, block id
     pub fn selected_block(&self) -> Option<&ItemStack> {
         self.hotbar[self.hotbar_slot as usize].as_ref()
     }
 
     /// Takes one of the selected block and removes it from the inventory
-    pub fn take_selected_block(&mut self) -> Option<u32> {
+    pub fn take_selected_block(&mut self) -> Option<BlockDefinitionIndex> {
         if let Some(val) = &mut self.hotbar[self.hotbar_slot as usize] {
-            let block_state = val.item.block_state;
+            let block_state = val.item.block_definition_index;
 
             // Reduce amount
             val.amount -= 1;

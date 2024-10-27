@@ -1,15 +1,15 @@
-use crate::block::types::Block;
-use crate::block::blocks::{BlockImpl, BlockUid};
+use crate::block::BlockId;
+use crate::block::types::VisualBlock;
+use crate::block::blocks::{BlockImpl};
 
 pub struct AirBlock;
 
 impl BlockImpl for AirBlock {
     const IDENTIFIER: &'static str = "mcv3::block::Air";
 
-    fn get_variants() -> Vec<Block> {
+    fn get_variants() -> Vec<VisualBlock> {
         vec![
-            Block {
-                identifier: "mcv3::block::Air".to_string(),
+            VisualBlock {
                 translucent: true,
                 full: false,
                 draw_betweens: false,
@@ -21,7 +21,7 @@ impl BlockImpl for AirBlock {
         ]
     }
 
-    fn parse_block_state(id: BlockUid) -> Self {
+    fn parse_block_state(id: BlockId) -> Self {
         Self
     }
 }

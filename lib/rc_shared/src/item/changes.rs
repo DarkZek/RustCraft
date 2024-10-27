@@ -1,10 +1,11 @@
-use crate::block::BlockStates;
+use crate::block::{BlockDefinitionIndex, BlockStates};
 use crate::item::deserialisation::ItemStatesFile;
 use crate::item::event::ItemStatesUpdatedEvent;
 use crate::item::types::ItemType;
 use crate::item::ItemStates;
 use bevy::log::{info, warn};
 use bevy::prelude::{AssetEvent, Assets, EventReader, EventWriter, ResMut};
+use crate::block::definition::BLOCK_DEFINITIONS;
 
 /// Copies the itemstate asset to the Resource
 pub fn track_itemstate_changes(
@@ -40,7 +41,7 @@ pub fn track_itemstate_changes(
                 identifier: item.identifier.clone(),
                 name: item.name.clone(),
                 icon: item.icon.clone(),
-                block_state: None,
+                block_definition_index: None,
             };
 
             new_item_states.push(new_item);
@@ -62,7 +63,7 @@ pub fn track_blockstate_changes(
     block_states: ResMut<BlockStates>,
 ) {
     // Don't recompute until type states have been set
-    if states.states.len() == 0 || block_states.states.len() == 0 {
+    if states.states.len() == 0 || block_states.block_index.len() == 0 {
         return;
     }
 
@@ -75,16 +76,17 @@ pub fn track_blockstate_changes(
         let len = asset.states.len();
 
         for item_id in 0..len {
-            if let Some((block_id, _)) = block_states
-                .states
+            if let Some((definition_index, _)) = BLOCK_DEFINITIONS
+                .get()
+                .unwrap()
                 .iter()
                 .enumerate()
                 .find(|(_, v)| v.identifier == asset.states.get(item_id).unwrap().block_state)
             {
-                states.states.get_mut(item_id).unwrap().block_state = Some(block_id as u32);
+                states.states.get_mut(item_id).unwrap().block_definition_index = Some(BlockDefinitionIndex(definition_index));
             } else {
                 let item = states.states.get_mut(item_id).unwrap();
-                item.block_state = None;
+                item.block_definition_index = None;
                 warn!(
                     "Item id '{}' tried to reference non-existent block identifier '{}'",
                     item.identifier,

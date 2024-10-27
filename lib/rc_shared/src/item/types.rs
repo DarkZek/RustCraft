@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use crate::block::BlockDefinitionIndex;
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
 pub struct ItemStack {
@@ -19,5 +20,5 @@ pub struct ItemType {
     pub icon: String,
 
     // The block that will be created if placed
-    pub block_state: Option<u32>,
+    pub block_definition_index: Option<BlockDefinitionIndex>,
 }

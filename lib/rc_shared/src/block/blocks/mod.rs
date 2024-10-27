@@ -1,79 +1,28 @@
-mod air;
-mod dirt;
-mod grass;
-mod long_grass;
-mod wood_log;
-mod leaves;
-mod stone;
-mod lamp;
-mod sand;
-mod plaster;
-mod water;
-mod pipe;
+pub(crate) mod air;
+pub(crate) mod dirt;
+pub(crate) mod grass;
+pub(crate) mod long_grass;
+pub(crate) mod wood_log;
+pub(crate) mod leaves;
+pub(crate) mod stone;
+pub(crate) mod lamp;
+pub(crate) mod sand;
+pub(crate) mod plaster;
+pub(crate) mod water;
+pub(crate) mod pipe;
 
-use crate::block::blocks::stone::StoneBlock;
 use nalgebra::Vector3;
 use crate::atlas::{TEXTURE_ATLAS, TextureAtlasIndex};
+use crate::block::BlockId;
 use crate::block::face::Face;
-use crate::block::types::{Block, LootTableEntry};
-use crate::block::blocks::air::AirBlock;
-use crate::block::blocks::dirt::DirtBlock;
-use crate::block::blocks::grass::GrassBlock;
-use crate::block::blocks::lamp::LampBlock;
-use crate::block::blocks::leaves::LeavesBlock;
-use crate::block::blocks::long_grass::LongGrassBlock;
-use crate::block::blocks::pipe::PipeBlock;
-use crate::block::blocks::plaster::PlasterBlock;
-use crate::block::blocks::sand::SandBlock;
-use crate::block::blocks::water::WaterBlock;
-use crate::block::blocks::wood_log::WoodLogBlock;
-use crate::block::uid::hash_uid;
+use crate::block::types::{VisualBlock, LootTableEntry};
 use crate::viewable_direction::ViewableDirectionBitMap;
-
-// TODO: Convert to const oncecell
-pub fn get_blocks() -> Vec<BlockLookup> {
-    vec![
-        BlockLookup::from_block_impl::<AirBlock>(),
-        BlockLookup::from_block_impl::<DirtBlock>(),
-        BlockLookup::from_block_impl::<GrassBlock>(),
-        BlockLookup::from_block_impl::<LongGrassBlock>(),
-        BlockLookup::from_block_impl::<WoodLogBlock>(),
-        BlockLookup::from_block_impl::<LeavesBlock>(),
-        BlockLookup::from_block_impl::<StoneBlock>(),
-        BlockLookup::from_block_impl::<LampBlock>(),
-        BlockLookup::from_block_impl::<SandBlock>(),
-        BlockLookup::from_block_impl::<PipeBlock>(),
-        BlockLookup::from_block_impl::<PlasterBlock>(),
-        BlockLookup::from_block_impl::<WaterBlock>(),
-    ]
-}
-
-pub type BlockUid = u64;
-
-pub struct BlockLookup {
-    pub uid: BlockUid,
-    pub identifier: &'static str,
-    pub get_variants: fn() -> Vec<Block>,
-    pub get_loot: fn(BlockUid) -> Vec<LootTableEntry>,
-    pub on_destroy: fn(BlockUid),
-}
-
-impl BlockLookup {
-    pub fn from_block_impl<T: BlockImpl>() -> Self {
-        Self {
-            uid: hash_uid(&T::IDENTIFIER),
-            identifier: T::IDENTIFIER,
-            get_variants: T::get_variants,
-            on_destroy: |uid| T::parse_block_state(uid).on_destroy(),
-            get_loot: |uid| T::parse_block_state(uid).get_loot()
-        }
-    }
-}
 
 pub trait BlockImpl {
     const IDENTIFIER: &'static str;
-    fn get_variants() -> Vec<Block>;
-    fn parse_block_state(id: BlockUid) -> Self;
+    fn get_variants() -> Vec<VisualBlock>;
+    fn parse_block_state(id: BlockId) -> Self;
+    fn draw(&self) -> VisualBlock { Self::get_variants().pop().unwrap() }
     fn on_destroy(&self) {}
     fn get_loot(&self) -> Vec<LootTableEntry> { vec![] }
 }

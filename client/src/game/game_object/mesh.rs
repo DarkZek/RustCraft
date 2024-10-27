@@ -23,8 +23,13 @@ pub fn generate_item_mesh(
 
     let (_, item) = item_states.get_by_id(identifier).unwrap();
 
-    if let Some(block) = item.block_state {
-        block_states.get_block(block as usize).draw(
+    if let Some(block) = item.block_definition_index {
+        let block_definition = BlockStates::get_definition_by_index(block).unwrap();
+
+        // Get variant 0
+        let visual_block = block_definition.draw(0);
+
+        visual_block.draw(
             Vector3::new(-0.5, 0.0, -0.5),
             ViewableDirectionBitMap::FULL,
             [LightingColor::full(); 6],

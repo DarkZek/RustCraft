@@ -181,7 +181,7 @@ mod tests {
     use fnv::FnvHashMap;
     use nalgebra::Vector2;
     use rc_shared::block::BlockStates;
-    use rc_shared::block::types::Block;
+    use rc_shared::block::types::VisualBlock;
     use crate::systems::chunk::builder::build_context::ChunkBuildContext;
     use crate::systems::chunk::data::ChunkData;
     use crate::systems::chunk::nearby_cache::NearbyChunkCache;
@@ -203,7 +203,7 @@ mod tests {
 
         let mut states = BlockStates::new();
 
-        states.states.push(Block {
+        states.states.push(VisualBlock {
             identifier: "mcv3::Air".to_string(),
             translucent: true,
             full: false,
@@ -215,7 +215,7 @@ mod tests {
         });
 
         for _ in 0..7 {
-            states.states.push(Block {
+            states.states.push(VisualBlock {
                 identifier: "mcv3::Stone".to_string(),
                 translucent: false,
                 full: true,
@@ -226,7 +226,7 @@ mod tests {
                 emission: [0; 4],
             });
         }
-        states.states.push(Block {
+        states.states.push(VisualBlock {
             identifier: "mcv3::Lamp".to_string(),
             translucent: true,
             full: true,

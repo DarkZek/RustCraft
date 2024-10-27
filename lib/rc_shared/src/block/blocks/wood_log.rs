@@ -1,9 +1,10 @@
 use nalgebra::Vector3;
 use crate::aabb::Aabb;
 use crate::atlas::{TEXTURE_ATLAS, TextureAtlasIndex};
+use crate::block::BlockId;
 use crate::block::face::Face;
-use crate::block::types::{Block, LootTableEntry};
-use crate::block::blocks::{BlockImpl, BlockUid, get_full_block_faces};
+use crate::block::types::{VisualBlock, LootTableEntry};
+use crate::block::blocks::{BlockImpl, get_full_block_faces};
 use crate::viewable_direction::ViewableDirectionBitMap;
 
 pub struct WoodLogBlock;
@@ -11,14 +12,13 @@ pub struct WoodLogBlock;
 impl BlockImpl for WoodLogBlock {
     const IDENTIFIER: &'static str = "mcv3::block::WoodLog";
 
-    fn get_variants() -> Vec<Block> {
+    fn get_variants() -> Vec<VisualBlock> {
         let texture_y = *TEXTURE_ATLAS.get().index.get("game/wood_top").unwrap_or(&TextureAtlasIndex::default());
         let texture_side = *TEXTURE_ATLAS.get().index.get("game/wood_log").unwrap_or(&TextureAtlasIndex::default());
 
         vec![
-            Block {
+            VisualBlock {
                 // TODO: Refactor code to use `BlockImpl::IDENTIFIER`
-                identifier: "mcv3::block::WoodLog".to_string(),
                 translucent: false,
                 full: true,
                 draw_betweens: false,
@@ -101,7 +101,7 @@ impl BlockImpl for WoodLogBlock {
         ]
     }
 
-    fn parse_block_state(id: BlockUid) -> Self {
+    fn parse_block_state(id: BlockId) -> Self {
         Self
     }
 

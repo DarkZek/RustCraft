@@ -14,7 +14,8 @@ use std::fs;
 use std::fs::File;
 use std::io::BufReader;
 use std::sync::atomic::AtomicU64;
-use rc_shared::chunk::{BlockId, ChunkColumnPosition, ChunkPosition, GlobalBlockPosition};
+use rc_shared::block::BlockId;
+use rc_shared::chunk::{ChunkColumnPosition, ChunkPosition, GlobalBlockPosition};
 use rc_shared::chunk_column::ChunkColumnData;
 
 pub static GAME_OBJECT_ID_COUNTER: AtomicU64 = AtomicU64::new(0);

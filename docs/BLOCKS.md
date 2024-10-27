@@ -1,26 +1,40 @@
-## How should we store block states
+### Definitions
 
-### Definition
-One "Block" can generate any number of "Block States".
+#### WorldBlock
+A block with enough context to create a specific block variant from.
 
-A Block State is a variant of a block which encoded to a single number (id) in range `0-n`
+Fields:
+- BlockDefinition
+- RelativeBlockId
 
-Blocks need to map this id back into the "Block Variant" which is aware of what the id means to determine how to render the block
+#### BlockStates
+A store for all blocks, used for lookups.
 
-#### Example:
+Fields:
+- BlockId to BlockDefinition+RelativeBlockId map
+- BlockDefinitionIndex to BlockId map
 
-"Dirt" block that stores three potential states, Bare, Grassy or Snowy. It can also have a true/false flag that it is a half block.
-It will have 3*2=6 separate block states, where 0,1,2 map to Bare, Grassy and Snowy, and 3,4,5 map to Half Bare, Half Grassy, Half Snowy.
+#### BlockId
+An identifer for a specific variant of a block. Globally unique across every block and variant
 
-### Problems
+Fields:
+- index
 
-#### Need a way to migrate between block state versions
+#### RelativeBlockId
+An identifer for a specific variant of a single block. Unique across every variant of a single block
 
-We can hash the contents of the blockstates list & identifiers and store that with the chunk data. If they're different, lookup a migration script from & to the hashes.
+Fields:
+- index
 
-#### Need to a sequential list of all block states from blocks
+#### BlockDefinition
+Stores references to BlockImpl functions and constructs each BlockImpl struct from its RelativeBlockId to create the variant
 
-Loop over all blocks and precompute all of their block states, storing them in a large fast lookup list, at the cost of memory consumption.
+#### BlockImpl
+Defines how a block functions and the variants it covers
 
-#### How to translate from/to Block State to Block Variant
+Fields:
 
+Any fields for the variant, eg `is_snowy` for grass
+
+#### VisualBlock
+Stores all of the sources required to visualise a block, returned upon draw

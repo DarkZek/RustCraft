@@ -57,10 +57,13 @@ fn do_pipes_temp(
     for event in update_event.read() {
         let block_id = world_data.get_block_id(event.pos).unwrap();
 
-        let block = block_states.get_block(block_id as usize);
+        let definition_id = block_states.get_definition_index_by_id(block_id).unwrap();
+        let block_start_id = block_states.get_id_by_definition(definition_id).unwrap();
+
+        let block = block_states.get_block_from_id(block_id);
 
         // Pipe check (TEMP)
-        if block.identifier != "mcv3::block::Pipe" {
+        if block.get_identifier() != "mcv3::block::Pipe" {
             continue;
         }
 
@@ -77,7 +80,7 @@ fn do_pipes_temp(
             }
         }
 
-        world_data.set_block_id(event.pos, val + 10);
+        world_data.set_block_id(event.pos, val + block_start_id);
 
         // Notify all clients
         for (uid, _) in &clients.clients {

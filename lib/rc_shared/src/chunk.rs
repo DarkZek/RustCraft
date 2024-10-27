@@ -2,6 +2,7 @@ use crate::{CHUNK_SIZE, MAX_LIGHT_VALUE};
 use nalgebra::{Vector2, Vector3};
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
+use crate::block::BlockId;
 
 pub type RawChunkData = [[[u32; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
 pub type RawLightingData = [[[LightingColor; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE];
@@ -10,7 +11,6 @@ pub type ChunkPosition = Vector3<i32>;
 pub type ChunkColumnPosition = Vector2<i32>;
 pub type LocalBlockPosition = Vector3<usize>;
 pub type GlobalBlockPosition = Vector3<i32>;
-pub type BlockId = u32;
 
 pub type Metadata = serde_json::Value;
 

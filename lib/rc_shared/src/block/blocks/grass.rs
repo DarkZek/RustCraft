@@ -1,9 +1,10 @@
 use nalgebra::Vector3;
 use crate::aabb::Aabb;
 use crate::atlas::{TEXTURE_ATLAS, TextureAtlasIndex};
+use crate::block::BlockId;
 use crate::block::face::Face;
-use crate::block::types::{Block, LootTableEntry};
-use crate::block::blocks::{BlockImpl, BlockUid, get_full_block_faces};
+use crate::block::types::{VisualBlock, LootTableEntry};
+use crate::block::blocks::{BlockImpl};
 use crate::viewable_direction::ViewableDirectionBitMap;
 
 pub struct GrassBlock;
@@ -11,15 +12,13 @@ pub struct GrassBlock;
 impl BlockImpl for GrassBlock {
     const IDENTIFIER: &'static str = "mcv3::block::Grass";
 
-    fn get_variants() -> Vec<Block> {
+    fn get_variants() -> Vec<VisualBlock> {
         let texture_top = *TEXTURE_ATLAS.get().index.get("game/grass_top").unwrap_or(&TextureAtlasIndex::default());
         let texture_side = *TEXTURE_ATLAS.get().index.get("game/grass_side").unwrap_or(&TextureAtlasIndex::default());
         let texture_bottom = *TEXTURE_ATLAS.get().index.get("game/dirt").unwrap_or(&TextureAtlasIndex::default());
 
         vec![
-            Block {
-                // TODO: Refactor code to use `BlockImpl::IDENTIFIER`
-                identifier: "mcv3::block::Grass".to_string(),
+            VisualBlock {
                 translucent: false,
                 full: true,
                 draw_betweens: false,
@@ -102,7 +101,7 @@ impl BlockImpl for GrassBlock {
         ]
     }
 
-    fn parse_block_state(id: BlockUid) -> Self {
+    fn parse_block_state(id: BlockId) -> Self {
         Self
     }
 

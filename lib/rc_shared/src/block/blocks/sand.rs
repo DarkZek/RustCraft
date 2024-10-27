@@ -1,17 +1,17 @@
 use nalgebra::Vector3;
 use crate::aabb::Aabb;
-use crate::block::types::Block;
-use crate::block::blocks::{BlockImpl, BlockUid, get_full_block_faces};
+use crate::block::BlockId;
+use crate::block::types::VisualBlock;
+use crate::block::blocks::{BlockImpl, get_full_block_faces};
 
 pub struct SandBlock;
 
 impl BlockImpl for SandBlock {
     const IDENTIFIER: &'static str = "mcv3::block::Sand";
 
-    fn get_variants() -> Vec<Block> {
+    fn get_variants() -> Vec<VisualBlock> {
         vec![
-            Block {
-                identifier: "mcv3::block::Sand".to_string(),
+            VisualBlock {
                 translucent: false,
                 full: true,
                 draw_betweens: false,
@@ -33,7 +33,7 @@ impl BlockImpl for SandBlock {
         ]
     }
 
-    fn parse_block_state(id: BlockUid) -> Self {
+    fn parse_block_state(id: BlockId) -> Self {
         Self
     }
 }

@@ -1,9 +1,10 @@
 use nalgebra::Vector3;
 use crate::aabb::Aabb;
 use crate::atlas::{TEXTURE_ATLAS, TextureAtlasIndex};
+use crate::block::BlockId;
 use crate::block::face::Face;
-use crate::block::types::Block;
-use crate::block::blocks::{BlockImpl, BlockUid};
+use crate::block::types::VisualBlock;
+use crate::block::blocks::{BlockImpl};
 use crate::viewable_direction::ViewableDirectionBitMap;
 
 pub struct PipeBlock;
@@ -11,12 +12,11 @@ pub struct PipeBlock;
 impl BlockImpl for PipeBlock {
     const IDENTIFIER: &'static str = "mcv3::block::Pipe";
 
-    fn get_variants() -> Vec<Block> {
+    fn get_variants() -> Vec<VisualBlock> {
         pipe()
             .into_iter()
             .map(|face| {
-                Block {
-                    identifier: "mcv3::block::Pipe".to_string(),
+                VisualBlock {
                     translucent: true,
                     full: true,
                     draw_betweens: false,
@@ -36,10 +36,10 @@ impl BlockImpl for PipeBlock {
                     emission: [0; 4],
                 }
             })
-            .collect::<Vec<Block>>()
+            .collect::<Vec<VisualBlock>>()
     }
 
-    fn parse_block_state(id: BlockUid) -> Self {
+    fn parse_block_state(id: BlockId) -> Self {
         Self
     }
 }

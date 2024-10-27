@@ -52,7 +52,7 @@ impl<'a> ChunkData {
             for z in 0..CHUNK_SIZE {
                 for y in 0..CHUNK_SIZE {
                     let pos = Vector3::new(x, y, z);
-                    let block = block_states.get_block(self.world.get(pos) as usize);
+                    let block = block_states.get_block_from_id(self.world.get(pos));
 
                     let mut viewable =
                         calculate_chunk_viewable(block_states, &self.world, &block, pos);

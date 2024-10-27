@@ -17,7 +17,7 @@ impl ChunkBuilderSchedulerTrait for ChunkBuilderScheduler {
 
         let runtime = Builder::new_multi_thread()
             .thread_name("chunk-builder")
-            .worker_threads(1)
+            .worker_threads(2)
             .build()
             .unwrap();
 

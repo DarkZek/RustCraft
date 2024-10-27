@@ -45,7 +45,7 @@ impl ChunkData {
 
                     // Isn't air and is visible from at least one side
                     if block_id != 0 && viewable != 0 {
-                        let block = block_states.get_block(block_id as usize);
+                        let block = block_states.get_block_from_id(block_id);
 
                         let mut light_color = [self.light_levels[x][y][z]; 6];
 
@@ -68,11 +68,12 @@ impl ChunkData {
                             }
                         }
 
-                        block.draw(
+                        let visual_block = block.draw();
+                        visual_block.draw(
                             Vector3::new(x as f32, y as f32, z as f32),
                             ViewableDirection(viewable),
                             light_color,
-                            if block.translucent {
+                            if visual_block.translucent {
                                 &mut translucent
                             } else {
                                 &mut opaque

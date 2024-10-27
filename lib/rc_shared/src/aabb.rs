@@ -139,9 +139,9 @@ impl Aabb {
                         let block_id = chunk_data.get(block_pos);
 
                         // Fetch block information
-                        let block_data = blocks.get_block(block_id as usize);
+                        let block_data = blocks.get_block_from_id(block_id);
 
-                        for collider in &block_data.collision_boxes {
+                        for collider in &block_data.draw().collision_boxes {
                             let collider = collider.offset(Vector3::new(
                                 block.x as f32,
                                 block.y as f32,

@@ -81,10 +81,12 @@ pub fn do_raycast(
         if let Some(chunk_data) = last_chunk {
             let block_id = chunk_data.world.get(local_pos);
             if block_id != 0 {
-                let collided_block = blocks.get_block(block_id as usize);
+                let collided_block = blocks.get_block_from_id(block_id);
+
+                let visual_block = collided_block.draw();
 
                 // Don't bother real aabb check if we know its a full block
-                if collided_block.full {
+                if visual_block.full {
                     // Solid block
                     return Some(RaycastResult {
                         block,
@@ -94,7 +96,7 @@ pub fn do_raycast(
                 }
 
                 // Loop through colliders on the block and see if the blocks collider is hit
-                for collider in &collided_block.bounding_boxes {
+                for collider in &visual_block.bounding_boxes {
                     if collider
                         .offset(block.cast::<f32>())
                         .ray_collides(starting_position, direction)

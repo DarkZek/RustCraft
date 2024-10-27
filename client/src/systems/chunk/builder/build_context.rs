@@ -50,17 +50,19 @@ impl ChunkBuildContext {
                 return;
             };
 
-            let block = states.get_block(
-                chunk.world.get(entry.block_position) as usize
+            let block = states.get_block_from_id(
+                chunk.world.get(entry.block_position)
             );
 
-            *entry.data = block.translucent;
+            let visual_block = block.draw();
+
+            *entry.data = visual_block.translucent;
 
             // Store all lights in surrounding chunks
-            if block.emission[3] != 0 {
+            if visual_block.emission[3] != 0 {
                 lights.push((
                     entry.world_position,
-                    block.emission,
+                    visual_block.emission,
                 ));
             }
 
@@ -69,7 +71,7 @@ impl ChunkBuildContext {
                 surrounding_data.insert(entry.world_position,
                     ChunkBuildContextNeighborBlockData {
                         light: LightingColor::default(),
-                        is_transparent: block.translucent,
+                        is_transparent: visual_block.translucent,
                     }
                 );
             }
@@ -154,7 +156,7 @@ mod tests {
     use fnv::FnvHashMap;
     use nalgebra::{Vector2, Vector3};
     use rc_shared::block::BlockStates;
-    use rc_shared::block::types::Block;
+    use rc_shared::block::types::VisualBlock;
     use rc_shared::chunk::ChunkDataStorage;
     use rc_shared::viewable_direction::ViewableDirectionBitMap;
     use crate::systems::chunk::builder::build_context::{ChunkBuildContext, is_neighbor_block};
@@ -180,8 +182,7 @@ mod tests {
 
         let mut states = BlockStates::new();
 
-        states.states.push(Block {
-            identifier: "mcv3::Air".to_string(),
+        states.states.push(VisualBlock {
             translucent: true,
             full: false,
             draw_betweens: false,
@@ -191,8 +192,7 @@ mod tests {
             emission: [0; 4],
         });
 
-        states.states.push(Block {
-            identifier: "mcv3::Stone".to_string(),
+        states.states.push(VisualBlock {
             translucent: false,
             full: true,
             draw_betweens: false,
@@ -250,7 +250,7 @@ mod tests {
 
         let mut states = BlockStates::new();
 
-        states.states.push(Block {
+        states.states.push(VisualBlock {
             identifier: "mcv3::Air".to_string(),
             translucent: true,
             full: false,
@@ -261,7 +261,7 @@ mod tests {
             emission: [0; 4],
         });
 
-        states.states.push(Block {
+        states.states.push(VisualBlock {
             identifier: "mcv3::Stone".to_string(),
             translucent: false,
             full: true,

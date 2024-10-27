@@ -57,7 +57,7 @@ pub fn mouse_interaction_place(
 
     let ray = cast.unwrap();
 
-    let Some(block_type) = inventory.selected_block_id() else {
+    let Some(block_definition_index) = inventory.selected_block_definition_index() else {
         return
     };
 
@@ -91,8 +91,18 @@ pub fn mouse_interaction_place(
         return
     }
 
+    let Some(block_id) = blocks.get_id_by_definition(block_definition_index) else {
+        warn!("Block definition does not exist");
+        return
+    };
+
+    // Lookup block definition
+    let definition = BlockStates::get_definition_by_index(block_definition_index).unwrap();
+
+    info!("Placing {:?}", definition.identifier);
+
     // Found chunk! Update block
-    chunk.world.set(inner_loc, block_type);
+    chunk.world.set(inner_loc, block_id);
 
     // Rerender
     rerender_chunk_event.send(RerenderChunkRequest {

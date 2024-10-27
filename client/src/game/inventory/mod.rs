@@ -1,4 +1,6 @@
 use bevy::prelude::*;
+use rc_shared::block::BlockDefinitionIndex;
+use rc_shared::block::definition::BlockDefinition;
 use rc_shared::item::types::ItemStack;
 
 pub struct InventoryPlugin;
@@ -17,9 +19,11 @@ pub struct Inventory {
 }
 
 impl Inventory {
-    /// Gets the select block's, block id
-    pub fn selected_block_id(&self) -> Option<u32> {
-        self.selected_item().map(|f| f.item.block_state).flatten()
+    /// Gets the block definition
+    pub fn selected_block_definition_index(&self) -> Option<BlockDefinitionIndex> {
+        self.selected_item()
+            .map(|f| f.item.block_definition_index)
+            .flatten()
     }
 
     /// Gets the select block's, block id
@@ -28,9 +32,9 @@ impl Inventory {
     }
 
     /// Takes one of the selected block and removes it from the inventory
-    pub fn take_selected_block(&mut self) -> Option<u32> {
+    pub fn take_selected_block(&mut self) -> Option<BlockDefinitionIndex> {
         if let Some(val) = &mut self.hotbar[self.hotbar_slot as usize] {
-            let block_state = val.item.block_state;
+            let block_state = val.item.block_definition_index;
 
             // Reduce amount
             val.amount -= 1;

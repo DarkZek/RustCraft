@@ -10,7 +10,7 @@ use js_sys::Uint8Array;
 use serde::{Deserialize, Serialize};
 use web_sys::{Event, MessageEvent, Worker};
 use rc_shared::block::BlockStates;
-use rc_shared::block::types::Block;
+use rc_shared::block::types::VisualBlock;
 use std::borrow::BorrowMut;
 use crate::start::WASM_CONTEXT;
 
@@ -50,7 +50,7 @@ impl ChunkBuilderSchedulerTrait for ChunkBuilderScheduler {
 
         // Send init data
         let init = InitWasmChunkExecutor {
-            blocks: executor.block_states.states.clone()
+            blocks: unimplemented!("Fucking wasm")
         };
 
         let worker_data = bincode::serialize(&init).unwrap();
@@ -84,7 +84,7 @@ impl ChunkBuilderSchedulerTrait for ChunkBuilderScheduler {
 
 #[derive(Serialize, Deserialize)]
 struct InitWasmChunkExecutor {
-    blocks: Vec<Block>
+    blocks: Vec<VisualBlock>
 }
 
 #[wasm_bindgen]
@@ -122,11 +122,13 @@ impl WasmChunkExecutor {
     }
 }
 
+// TODO: Use shared memory instead
+// https://blog.scottlogic.com/2019/07/15/multithreaded-webassembly.html
 impl From<InitWasmChunkExecutor> for WasmChunkExecutor {
     fn from(value: InitWasmChunkExecutor) -> Self {
         let mut block_states = BlockStates::new();
 
-        block_states.states = value.blocks;
+        block_states.calculate_states();
 
         let executor = ChunkBuilderExecutor::new(block_states);
 

@@ -1,15 +1,12 @@
 use std::collections::HashSet;
 use std::hash::{BuildHasher, Hash};
-use std::ops::BitXor;
-use std::process::id;
-use fnv::{FnvBuildHasher, FnvHasher};
+use fnv::FnvBuildHasher;
 use rand::distributions::Alphanumeric;
 use rand::Rng;
-use crate::block::blocks::BlockUid;
 
 // Calculates a hash from an identifier that is `const`
 // Const is currently super limiting so it's pretty much no-std. Lame
-pub fn hash_uid(identifier: &str) -> BlockUid {
+pub fn hash_uid(identifier: &str) -> u64 {
     FnvBuildHasher::default().hash_one(identifier)
 }
 
