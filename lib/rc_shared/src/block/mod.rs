@@ -46,7 +46,7 @@ pub struct BlockStates {
     // A lookup table from a block definition index, to a block id
     pub(crate) block_id: Vec<BlockId>,
     // Visual block lookups are a very hot path, so this caches visual blocks
-    pub(crate) visual_block_cache: Vec<Option<Box<VisualBlock>>>,
+    pub visual_block_cache: Vec<Option<Box<VisualBlock>>>,
     /// Used to recalculate type mapping from identifier to index when items list is updated
     pub recalculate_items: bool,
 }

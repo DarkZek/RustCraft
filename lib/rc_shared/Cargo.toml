@@ -12,3 +12,10 @@ serde_json = { workspace = true }
 nalgebra = { workspace = true }
 fnv = { workspace = true }
 rand = { workspace = true }
+
+[dev-dependencies]
+criterion = "0.5.1"
+
+[[bench]]
+name = "blocks"
+harness = false
