@@ -1,5 +1,6 @@
 #![feature(const_for)]
 #![feature(const_trait_impl)]
+#![feature(sync_unsafe_cell)]
 
 pub mod aabb;
 pub mod atlas;

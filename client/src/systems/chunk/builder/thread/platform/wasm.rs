@@ -12,6 +12,7 @@ use web_sys::{Event, MessageEvent, Worker};
 use rc_shared::block::BlockStates;
 use rc_shared::block::types::VisualBlock;
 use std::borrow::BorrowMut;
+use rc_shared::atlas::{TEXTURE_ATLAS, TextureAtlas};
 use crate::start::WASM_CONTEXT;
 
 unsafe impl Sync for ChunkBuilderScheduler {}
@@ -50,7 +51,7 @@ impl ChunkBuilderSchedulerTrait for ChunkBuilderScheduler {
 
         // Send init data
         let init = InitWasmChunkExecutor {
-            blocks: unimplemented!("Fucking wasm")
+            temp: 0
         };
 
         let worker_data = bincode::serialize(&init).unwrap();
@@ -84,7 +85,8 @@ impl ChunkBuilderSchedulerTrait for ChunkBuilderScheduler {
 
 #[derive(Serialize, Deserialize)]
 struct InitWasmChunkExecutor {
-    blocks: Vec<VisualBlock>
+    // TODO: Replace this with Shared memory between workers
+    temp: u64
 }
 
 #[wasm_bindgen]
@@ -126,6 +128,7 @@ impl WasmChunkExecutor {
 // https://blog.scottlogic.com/2019/07/15/multithreaded-webassembly.html
 impl From<InitWasmChunkExecutor> for WasmChunkExecutor {
     fn from(value: InitWasmChunkExecutor) -> Self {
+        TEXTURE_ATLAS.set(TextureAtlas::blank());
         let mut block_states = BlockStates::new();
 
         block_states.calculate_states();

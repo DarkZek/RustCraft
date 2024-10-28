@@ -12,6 +12,7 @@ serde_json = { workspace = true }
 nalgebra = { workspace = true }
 fnv = { workspace = true }
 rand = { workspace = true }
+sparse_set = "0.8.2"
 
 [dev-dependencies]
 criterion = "0.5.1"

@@ -5,6 +5,8 @@ mod uid;
 pub mod definition;
 mod bench;
 
+use std::cell::{RefCell, SyncUnsafeCell, UnsafeCell};
+use std::mem;
 use std::ops::Deref;
 use crate::atlas::TextureAtlasTrait;
 use crate::block::types::{VisualBlock, LootTableEntry};
@@ -13,6 +15,7 @@ use bevy::prelude::{App, AssetApp, AssetServer, Handle, Plugin, Resource, Startu
 use bevy::reflect::TypePath;
 use std::sync::OnceLock;
 use serde::{Deserialize, Serialize};
+use sparse_set::SparseSet;
 use crate::block::definition::{BLOCK_DEFINITIONS, BlockDefinition, set_blocks};
 
 pub struct BlockStatesPlugin;
@@ -45,8 +48,6 @@ pub struct BlockStates {
     pub(crate) block_index: Vec<(BlockDefinitionIndex, BlockId)>,
     // A lookup table from a block definition index, to a block id
     pub(crate) block_id: Vec<BlockId>,
-    // Visual block lookups are a very hot path, so this caches visual blocks
-    pub visual_block_cache: Vec<Option<Box<VisualBlock>>>,
     /// Used to recalculate type mapping from identifier to index when items list is updated
     pub recalculate_items: bool,
 }
@@ -56,7 +57,6 @@ impl BlockStates {
         BlockStates {
             block_index: vec![],
             block_id: vec![],
-            visual_block_cache: vec![],
             recalculate_items: false,
         }
     }
@@ -66,6 +66,7 @@ impl BlockStates {
             let definition = BLOCK_DEFINITIONS.get().unwrap().get(index.0).unwrap();
 
             WorldBlock {
+                block_definition_index: *index,
                 definition,
                 block_id: *block_id
             }
@@ -74,6 +75,7 @@ impl BlockStates {
             let definition = BLOCK_DEFINITIONS.get().unwrap().get(0).unwrap();
 
             WorldBlock {
+                block_definition_index: BlockDefinitionIndex(0),
                 definition,
                 block_id: 0
             }
@@ -84,6 +86,7 @@ impl BlockStates {
         for (i, definition) in BLOCK_DEFINITIONS.get().unwrap().iter().enumerate() {
             if definition.identifier == name {
                 let block = WorldBlock {
+                    block_definition_index: BlockDefinitionIndex(i),
                     definition,
                     block_id: 0
                 };
@@ -131,14 +134,13 @@ impl BlockStates {
                 .map(|t| (BlockDefinitionIndex(i), t.0 as u32)).collect::<Vec<(BlockDefinitionIndex, BlockId)>>();
             self.block_index.append(&mut indexes);
         }
-
-        self.visual_block_cache = vec![None; self.block_index.len()];
     }
 }
 
 /// A block in the context of the world
 /// Stores a block definition along with its block uid
 pub struct WorldBlock {
+    block_definition_index: BlockDefinitionIndex,
     definition: &'static BlockDefinition,
     block_id: BlockId
 }
@@ -150,8 +152,29 @@ impl WorldBlock {
     }
 
     #[inline]
-    pub fn draw(&self) -> VisualBlock {
-        self.definition.draw(self.block_id)
+    pub fn draw(&self) -> &VisualBlock {
+        // Lookup global block index
+        let index = self.block_definition_index.0 + self.block_id as usize;
+
+        unsafe {
+            let mut cache = CACHE.get().as_ref().unwrap();
+
+            let block = match cache.get(index) {
+                Some(v) => v,
+                None => {
+                    let visual_block = self.definition.draw(self.block_id);
+
+                    // It doesn't matter if another thread writes this at the same time because
+                    // `visual_block` always returns the same value for the same `block_id`
+                    let mut mut_cache = CACHE.get().as_mut().unwrap();
+                    mut_cache.insert(index, visual_block);
+
+                    cache.get(index).unwrap()
+                }
+            };
+
+            block
+        }
     }
 
     #[inline]
@@ -159,3 +182,5 @@ impl WorldBlock {
         self.definition.get_loot(self.block_id)
     }
 }
+
+pub static CACHE: SyncUnsafeCell<SparseSet<usize, VisualBlock>> = SyncUnsafeCell::new(SparseSet::new());
