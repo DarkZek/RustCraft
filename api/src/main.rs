@@ -29,7 +29,7 @@ static PUBLIC_KEY: OnceLock<Vec<u8>> = OnceLock::new();
 
 #[tokio::main]
 async fn main() {
-    from_filename("../.env").unwrap();
+    from_filename("../.env");
 
     // Include jwt keys
     PRIVATE_KEY.set(std::env::var("PRIVATE_JWT_KEY").expect("JWT_PRIVATE_KEY not set").into_bytes()).unwrap();
