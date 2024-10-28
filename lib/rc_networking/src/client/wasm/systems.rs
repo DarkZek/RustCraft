@@ -11,9 +11,11 @@ use rc_shared::constants::UserId;
 use tokio::sync::mpsc::error::TryRecvError;
 use crate::client::NetworkingClient;
 use crate::client::wasm::server_connection::ServerConnection;
+use crate::events::disconnect::NetworkDisconnectionEvent;
 
 pub fn update_system(
     mut client: ResMut<NetworkingClient>,
+    mut disconnection: EventWriter<NetworkDisconnectionEvent>
 ) {
     // Facilitate pending connection conversion
     if let Some(pending_connections_recv) = &mut client.data.pending_connections_recv {
@@ -33,6 +35,7 @@ pub fn update_system(
                     TryRecvError::Disconnected => {
                         warn!("Pending connection failed");
                         client.data.pending_connections_recv = None;
+                        disconnection.send(NetworkDisconnectionEvent { client: UserId(0) });
                     }
                 }
             }
@@ -47,6 +50,7 @@ pub fn update_system(
             // Either the writer was disconnected, or an error was given. Either way it's disconnected
             client.data.connection = None;
             warn!("Disconnected from connection");
+            disconnection.send(NetworkDisconnectionEvent { client: UserId(0) });
         }
     }
 }

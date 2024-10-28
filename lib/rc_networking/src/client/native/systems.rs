@@ -9,10 +9,12 @@ use futures::FutureExt;
 use rc_shared::constants::UserId;
 use tokio::sync::mpsc::error::TryRecvError;
 use crate::client::NetworkingClient;
+use crate::events::disconnect::NetworkDisconnectionEvent;
 
 pub fn update_system(
     mut client: ResMut<NetworkingClient>,
-    mut packets: EventReader<ReceivePacket>
+    mut packets: EventReader<ReceivePacket>,
+    mut disconnection: EventWriter<NetworkDisconnectionEvent>
 ) {
     // Facilitate pending connection conversion
     if client.data.pending_connection.is_some() {
@@ -34,6 +36,7 @@ pub fn update_system(
             // Either the writer was disconnected, or an error was given. Either way it's disconnected
             client.data.connection = None;
             warn!("Disconnected from connection");
+            disconnection.send(NetworkDisconnectionEvent { client: UserId(0) });
         }
     }
 
@@ -42,6 +45,7 @@ pub fn update_system(
             // Disconnect
             client.data.connection = None;
             warn!("Server shutting down");
+            disconnection.send(NetworkDisconnectionEvent { client: UserId(0) });
         }
     }
 }

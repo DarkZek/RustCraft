@@ -40,6 +40,7 @@ use crate::systems::ui::loading::LoadingUIData;
 use rc_shared::PHYSICS_SYNC_RATE_SECONDS;
 use crate::game::game_mode::GameModePlugin;
 use crate::systems::debugging::DebuggingPlugin;
+use crate::systems::post_processing::PostProcessPlugin;
 use crate::systems::wasm::WasmPlugin;
 
 #[rustfmt::skip]
@@ -93,6 +94,8 @@ pub fn start() {
 
         // Networking
         .add_plugins(NetworkingPlugin)
+
+        .add_plugins(PostProcessPlugin)
 
         // Interaction
         .add_plugins(InteractionPlugin)

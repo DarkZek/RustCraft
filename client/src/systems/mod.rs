@@ -9,3 +9,4 @@ pub mod api;
 pub mod connection;
 pub mod debugging;
 pub mod wasm;
+pub mod post_processing;

@@ -9,6 +9,7 @@ use bevy::render::view::GpuCulling;
 use rc_shared::helpers::to_bevy_vec3;
 use crate::systems::debugging::DebuggingInfo;
 use crate::systems::physics::PhysicsObject;
+use crate::systems::post_processing::settings::PostProcessSettings;
 
 pub struct CameraPlugin;
 
@@ -25,23 +26,29 @@ pub struct MainCamera;
 fn setup_camera(mut commands: Commands) {
     // Spawn camera
     let mut camera = commands
-        .spawn(Camera3dBundle {
-            camera: Camera {
+        .spawn((
+            Camera3dBundle {
+                camera: Camera {
+                    ..default()
+                },
+                camera_3d: Camera3d {
+                    depth_load_op: Camera3dDepthLoadOp::Clear(0.0),
+                    depth_texture_usages: TextureUsages::RENDER_ATTACHMENT.into(),
+                    ..default()
+                },
+                projection: Projection::Perspective(PerspectiveProjection {
+                    fov: std::f32::consts::PI / 3.0,
+                    near: 0.1,
+                    far: 1000.0,
+                    aspect_ratio: 1.0,
+                }),
                 ..default()
             },
-            camera_3d: Camera3d {
-                depth_load_op: Camera3dDepthLoadOp::Clear(0.0),
-                depth_texture_usages: TextureUsages::RENDER_ATTACHMENT.into(),
+            PostProcessSettings {
+                intensity: 0.02,
                 ..default()
-            },
-            projection: Projection::Perspective(PerspectiveProjection {
-                fov: std::f32::consts::PI / 3.0,
-                near: 0.1,
-                far: 1000.0,
-                aspect_ratio: 1.0,
-            }),
-            ..default()
-        });
+            }
+        ));
 
     camera.insert(MainCamera);
 
