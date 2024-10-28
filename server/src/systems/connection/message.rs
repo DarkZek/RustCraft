@@ -93,7 +93,7 @@ pub fn receive_message_event(
                     continue
                 };
 
-                let block_id = block_states.get_id_by_definition(block_definition_index).unwrap();
+                let block_id = block_states.get_start_id_by_definition(block_definition_index).unwrap();
 
                 // TODO: Don't trust user input
                 let packet = BlockUpdate::new(block_id, packet.x, packet.y, packet.z);

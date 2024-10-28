@@ -12,7 +12,9 @@ use web_sys::{Event, MessageEvent, Worker};
 use rc_shared::block::BlockStates;
 use rc_shared::block::types::VisualBlock;
 use std::borrow::BorrowMut;
-use rc_shared::atlas::{TEXTURE_ATLAS, TextureAtlas};
+use std::collections::HashMap;
+use fnv::FnvBuildHasher;
+use rc_shared::atlas::{TEXTURE_ATLAS, TextureAtlas, TextureAtlasIndex};
 use crate::start::WASM_CONTEXT;
 
 unsafe impl Sync for ChunkBuilderScheduler {}
@@ -51,7 +53,7 @@ impl ChunkBuilderSchedulerTrait for ChunkBuilderScheduler {
 
         // Send init data
         let init = InitWasmChunkExecutor {
-            temp: 0
+            atlas_map: TEXTURE_ATLAS.get().index.clone()
         };
 
         let worker_data = bincode::serialize(&init).unwrap();
@@ -86,7 +88,7 @@ impl ChunkBuilderSchedulerTrait for ChunkBuilderScheduler {
 #[derive(Serialize, Deserialize)]
 struct InitWasmChunkExecutor {
     // TODO: Replace this with Shared memory between workers
-    temp: u64
+    atlas_map: HashMap<String, TextureAtlasIndex, FnvBuildHasher>
 }
 
 #[wasm_bindgen]
@@ -128,7 +130,11 @@ impl WasmChunkExecutor {
 // https://blog.scottlogic.com/2019/07/15/multithreaded-webassembly.html
 impl From<InitWasmChunkExecutor> for WasmChunkExecutor {
     fn from(value: InitWasmChunkExecutor) -> Self {
-        TEXTURE_ATLAS.set(TextureAtlas::blank());
+
+        let mut atlas = TextureAtlas::blank();
+        atlas.index = value.atlas_map;
+        TEXTURE_ATLAS.set(atlas);
+
         let mut block_states = BlockStates::new();
 
         block_states.calculate_states();

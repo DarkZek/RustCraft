@@ -7,7 +7,7 @@ use crate::events::connection::NetworkConnectionEvent;
 use crate::events::disconnect::NetworkDisconnectionEvent;
 use crate::types::{ReceivePacket, SendPacket};
 use bevy::ecs::system::Resource;
-use bevy::prelude::{App, debug, Plugin, Update};
+use bevy::prelude::{App, debug, error, Plugin, Update};
 use std::sync::Arc;
 use quinn::{ClientConfig, Endpoint};
 use rustls::RootCertStore;
@@ -94,11 +94,19 @@ impl NetworkingData {
     /// Open a new endpoint connection to an address
     pub fn connect(&mut self, url: Url, join_token: String) {
         // TODO: Move this into one async block
-        let mut endpoint = self
+        let endpoint = self
             .runtime
             .as_mut()
             .unwrap()
-            .block_on(async { Endpoint::client((std::net::Ipv6Addr::UNSPECIFIED, 0).into()).unwrap() });
+            .block_on(async { Endpoint::client((std::net::Ipv6Addr::UNSPECIFIED, 0).into()) });
+
+        let mut endpoint = match endpoint {
+            Ok(v) => v,
+            Err(e) => {
+                error!("Failed to connect to {}. Error: {:?}", url, e);
+                return
+            }
+        };
 
         endpoint.set_default_client_config(self.client_config.clone());
 

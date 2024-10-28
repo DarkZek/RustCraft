@@ -33,7 +33,6 @@ impl BiStream {
             trace!("[Task Pool] [Writer] Started");
 
             while let Some(packet) = out_recv.recv().await {
-                let packet_data = bincode::serialize(&packet).unwrap();
                 if let Err(e) = send_protocol(&packet, &mut send).await
                 {
                     trace!("Network write stream failed: {:?}", e);

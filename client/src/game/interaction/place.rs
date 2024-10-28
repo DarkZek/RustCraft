@@ -91,7 +91,7 @@ pub fn mouse_interaction_place(
         return
     }
 
-    let Some(block_id) = blocks.get_id_by_definition(block_definition_index) else {
+    let Some(block_id) = blocks.get_start_id_by_definition(block_definition_index) else {
         warn!("Block definition does not exist");
         return
     };

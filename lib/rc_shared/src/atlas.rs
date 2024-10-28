@@ -46,6 +46,7 @@ impl TextureAtlasTrait for AtlasWrapper {
     }
 }
 
+#[derive(Clone)]
 pub struct TextureAtlas {
     pub image: Handle<Image>,
     pub index: HashMap<String, TextureAtlasIndex, FnvBuildHasher>,

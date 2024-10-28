@@ -46,7 +46,7 @@ pub type BlockId = u32;
 pub struct BlockStates {
     // A lookup table from a block index, to a block definition index & block uid
     pub(crate) block_index: Vec<(BlockDefinitionIndex, BlockId)>,
-    // A lookup table from a block definition index, to a block id
+    // A lookup table from a block definition index, to a start block id
     pub(crate) block_id: Vec<BlockId>,
     /// Used to recalculate type mapping from identifier to index when items list is updated
     pub recalculate_items: bool,
@@ -98,7 +98,7 @@ impl BlockStates {
     }
 
     /// Gets the beginning of the block id's for a block definition
-    pub fn get_id_by_definition(&self, block_definition_index: BlockDefinitionIndex) -> Option<BlockId> {
+    pub fn get_start_id_by_definition(&self, block_definition_index: BlockDefinitionIndex) -> Option<BlockId> {
         self.block_id.get(block_definition_index.0).map(|t| *t)
     }
 
@@ -126,13 +126,20 @@ impl BlockStates {
         set_blocks();
         self.block_index.clear();
 
+        let mut block_id = 0;
         for (i, block) in BLOCK_DEFINITIONS.get().unwrap().iter().enumerate() {
+            self.block_id.push(block_id);
+
             let mut variants = block.get_variants_len();
+
+            block_id += variants as u32;
+
             let mut indexes = (0..variants)
                 .into_iter()
                 .enumerate()
                 .map(|t| (BlockDefinitionIndex(i), t.0 as u32)).collect::<Vec<(BlockDefinitionIndex, BlockId)>>();
             self.block_index.append(&mut indexes);
+
         }
     }
 }

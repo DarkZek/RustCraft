@@ -2,7 +2,7 @@ use crate::game::world::data::WorldData;
 
 use crate::transport::TransportSystem;
 use bevy::app::App;
-use bevy::prelude::{Event, EventReader, EventWriter, Plugin, Res, ResMut, Update};
+use bevy::prelude::{Event, EventReader, EventWriter, info, Plugin, Res, ResMut, Update};
 use rc_networking::protocol::Protocol;
 use rc_networking::types::SendPacket;
 use rc_shared::block::BlockStates;
@@ -58,7 +58,7 @@ fn do_pipes_temp(
         let block_id = world_data.get_block_id(event.pos).unwrap();
 
         let definition_id = block_states.get_definition_index_by_id(block_id).unwrap();
-        let block_start_id = block_states.get_id_by_definition(definition_id).unwrap();
+        let block_start_id = block_states.get_start_id_by_definition(definition_id).unwrap();
 
         let block = block_states.get_block_from_id(block_id);
 
