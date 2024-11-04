@@ -40,7 +40,7 @@
       "identifier": "mcv3::ItemSpawnerItem",
       "name": "Item Spawner",
       "icon": "itemspawner",
-      "block_state": "mcv3::block::ItemSpawnerBlock"
+      "block_state": "mcv3::block::ItemSpawner"
     },
     {
       "identifier": "mcv3::PipeItem",
@@ -64,25 +64,31 @@
        "identifier": "mcv3::DaffodilItem",
        "name": "Daffodil Block",
        "icon": "ruby",
-       "block_state": "mcv3::block::DaffodilBlock"
+       "block_state": "mcv3::block::Daffodil"
      },
     {
       "identifier": "mcv3::PlasterItem",
       "name": "Ruby",
       "icon": "ruby",
-      "block_state": "mcv3::block::PlasterBlock"
+      "block_state": "mcv3::block::Plaster"
     },
     {
       "identifier": "mcv3::PurpleLampItem",
       "name": "Purple Lamp",
       "icon": "ruby",
-      "block_state": "mcv3::block::PurpleLampBlock"
+      "block_state": "mcv3::block::PurpleLamp"
     },
     {
-      "identifier": "mcv3::StoneItem",
-      "name": "Stone Lamp",
-      "icon": "ruby",
-      "block_state": "mcv3::block::StoneBlock"
+        "identifier": "mcv3::StoneItem",
+        "name": "Stone Lamp",
+        "icon": "ruby",
+        "block_state": "mcv3::block::Stone"
+    },
+    {
+        "identifier": "mcv3::WaterItem",
+        "name": "Water",
+        "icon": "ruby",
+        "block_state": "mcv3::block::Water"
     }
   ]
 }
