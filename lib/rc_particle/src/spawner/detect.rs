@@ -1,19 +1,36 @@
 use bevy::prelude::*;
+use bevy::render::mesh::PrimitiveTopology;
+use bevy::render::render_asset::RenderAssetUsages;
 use crate::spawner::{ParticleSpawner, ParticleSpawnerMeta};
 
 pub fn detect_spawner(
-    query: Query<Entity, Added<ParticleSpawner>>,
+    query: Query<(Entity, &ParticleSpawner), Added<ParticleSpawner>>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut commands: Commands,
     time: Res<Time>
 ) {
-    for entity in query.iter() {
+    for (entity, spawner) in query.iter() {
+
+        let mut mesh: Mesh = Rectangle::from_length(0.2).into();
+
+        let mut uv_coordinates = vec![];
+        uv_coordinates
+            .push([spawner.texture.u_min, spawner.texture.v_max]);
+        uv_coordinates
+            .push([spawner.texture.u_min, spawner.texture.v_min]);
+        uv_coordinates
+            .push([spawner.texture.u_max, spawner.texture.v_max]);
+        uv_coordinates
+            .push([spawner.texture.u_max, spawner.texture.v_min]);
+
+        mesh.insert_attribute(Mesh::ATTRIBUTE_UV_0, uv_coordinates);
+
         commands
             .entity(entity)
             .insert(ParticleSpawnerMeta {
                 i: 0,
                 simulated_to: time.elapsed().as_nanos(),
-                mesh: meshes.add(Cuboid::from_length(0.2))
+                mesh: meshes.add(mesh)
             });
     }
 }

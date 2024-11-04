@@ -73,7 +73,6 @@ pub fn update_equipped_item_mesh(
     mut meshes: ResMut<Assets<Mesh>>,
     query: Query<&Handle<Mesh>>,
     mut data: ResMut<EquippedItemData>,
-    block_states: Res<BlockStates>,
     item_states: Res<ItemStates>,
     inventory: Res<Inventory>
 ) {
@@ -86,7 +85,7 @@ pub fn update_equipped_item_mesh(
     data.equipped_identifier = identifier.map(|t| t.clone());
 
     let mesh = if let Some(identifier) = &data.equipped_identifier {
-        generate_item_mesh(identifier, &block_states, &item_states)
+        generate_item_mesh(identifier, &item_states)
     } else {
         let mut mesh = Mesh::new(PrimitiveTopology::TriangleList, RenderAssetUsages::all());
 

@@ -13,7 +13,6 @@ const ITEM_SCALING_FACTOR: f32 = 4.0;
 
 pub fn generate_item_mesh(
     identifier: &str,
-    block_states: &BlockStates,
     item_states: &ItemStates
 ) -> Mesh {
 

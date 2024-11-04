@@ -5,6 +5,7 @@ use crate::systems::ui::loading::LoadingUIData;
 use bevy::prelude::*;
 use bevy::color::palettes::basic::WHITE;
 use bevy::pbr::ExtendedMaterial;
+use rc_particle::ParticleResource;
 use rc_shared::atlas::TEXTURE_ATLAS;
 use crate::systems::asset::atlas::atlas::new_atlas;
 use crate::systems::asset::material::translucent_chunk_extension::ChunkMaterialUniform;
@@ -29,7 +30,7 @@ pub fn build_texture_atlas(
     mut images: ResMut<Assets<Image>>,
     mut materials: ResMut<Assets<ChunkMaterial>>,
     mut translucent_materials: ResMut<Assets<TranslucentChunkMaterial>>,
-    mut loading: ResMut<LoadingUIData>,
+    mut loading: ResMut<LoadingUIData>
 ) {
     if *stage != AtlasLoadingStage::AwaitingPack
         || data.len() == 0

@@ -106,6 +106,7 @@ pub fn start() {
         .add_systems(OnEnter(AppState::MainMenu), on_disconnect)
 
         .add_plugins(ParticlePlugin)
+        .add_systems(OnExit(AppState::Loading), rc_particle::setup_resource_with_atlas)
         .add_plugins(ConnectionPlugin)
         .add_plugins(ApiPlugin)
         .add_plugins(GameEventsPlugin)

@@ -21,7 +21,6 @@ pub fn messages_update(
     mut physics_objects: Query<&mut PhysicsObject>,
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
-    block_states: Res<BlockStates>,
     item_states: Res<ItemStates>,
     mut system: ResMut<NetworkingSystem>,
     asset_service: Res<AssetService>
@@ -73,7 +72,7 @@ pub fn messages_update(
                         let identifier = &item.item_stack.item.identifier;
 
                         entity_commands.insert(MaterialMeshBundle {
-                            mesh: meshes.add(generate_item_mesh(identifier, &block_states, &item_states)),
+                            mesh: meshes.add(generate_item_mesh(identifier, &item_states)),
                             material: asset_service.translucent_texture_atlas_material.clone(),
                             ..default()
                         });
