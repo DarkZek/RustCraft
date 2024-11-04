@@ -1,3 +1,4 @@
+#![feature(trivial_bounds)]
 mod spawner;
 mod particle;
 mod material;

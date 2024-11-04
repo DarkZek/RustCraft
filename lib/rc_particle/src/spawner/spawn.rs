@@ -1,6 +1,7 @@
 
 use std::time::Duration;
 use bevy::prelude::*;
+use rc_shared::helpers::to_bevy_vec3;
 use crate::material::ParticleResource;
 use crate::particle::Particle;
 use crate::spawner::{ParticleSpawner, ParticleSpawnerMeta};
@@ -28,9 +29,7 @@ pub fn do_spawn(
             // Spawn
             let mut translation: Vec3 = transform.translation;
 
-            let x = created.as_nanos() as f64 / 1_000_000_000.0;
-
-            translation += Vec3::new(x.sin() as f32, x.cos() as f32, 0.0);
+            translation += to_bevy_vec3(spawner.area.get_offset(spawner_meta.i));
 
             let transform = Transform::from_translation(translation);
 
@@ -45,6 +44,8 @@ pub fn do_spawn(
                 ttl: spawner.ttl.clone(),
                 created
             });
+
+            spawner_meta.i += 1;
         }
     }
 }

@@ -4395,6 +4395,7 @@ version = "0.1.0"
 dependencies = [
  "bevy",
  "nalgebra",
+ "rand 0.8.5",
  "rc_shared",
 ]
 

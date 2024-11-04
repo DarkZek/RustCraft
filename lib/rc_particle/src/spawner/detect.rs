@@ -10,8 +10,8 @@ pub fn detect_spawner(
     for entity in query.iter() {
         commands
             .entity(entity)
-            .insert(
-                ParticleSpawnerMeta {
+            .insert(ParticleSpawnerMeta {
+                i: 0,
                 simulated_to: time.elapsed().as_nanos(),
                 mesh: meshes.add(Cuboid::from_length(0.2))
             });

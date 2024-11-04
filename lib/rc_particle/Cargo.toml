@@ -7,3 +7,4 @@ edition = "2021"
 bevy = { workspace = true, default-features = true }
 rc_shared = { path = "../rc_shared" }
 nalgebra = { workspace = true }
+rand = { workspace = true }
