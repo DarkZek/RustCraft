@@ -33,8 +33,6 @@ pub fn grab_mouse(
         window.cursor.grab_mode = CursorGrabMode::None;
         service.captured = false;
     }
-
-    info!("Capturing {} Grab {:?}", service.captured, window.cursor.grab_mode);
 }
 
 pub fn grab_mouse_on_play(

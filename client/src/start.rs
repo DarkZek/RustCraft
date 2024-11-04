@@ -36,6 +36,7 @@ use crate::systems::asset::material::chunk_extension::ChunkMaterialExtension;
 use crate::systems::asset::material::translucent_chunk_extension::TranslucentChunkMaterialExtension;
 use crate::systems::connection::ConnectionPlugin;
 use web_sys::Worker;
+use rc_particle::ParticlePlugin;
 use crate::systems::ui::loading::LoadingUIData;
 use rc_shared::PHYSICS_SYNC_RATE_SECONDS;
 use crate::game::game_mode::GameModePlugin;
@@ -104,6 +105,7 @@ pub fn start() {
         .add_systems(Update, mouse_highlight_interaction)
         .add_systems(OnEnter(AppState::MainMenu), on_disconnect)
 
+        .add_plugins(ParticlePlugin)
         .add_plugins(ConnectionPlugin)
         .add_plugins(ApiPlugin)
         .add_plugins(GameEventsPlugin)

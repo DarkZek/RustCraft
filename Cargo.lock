@@ -4346,6 +4346,7 @@ dependencies = [
  "rand 0.8.5",
  "rayon",
  "rc_networking",
+ "rc_particle",
  "rc_shared",
  "reqwest",
  "rmp-serde",
@@ -4386,6 +4387,15 @@ dependencies = [
  "web-time",
  "web-transport",
  "web-transport-quinn",
+]
+
+[[package]]
+name = "rc_particle"
+version = "0.1.0"
+dependencies = [
+ "bevy",
+ "nalgebra",
+ "rc_shared",
 ]
 
 [[package]]
