@@ -1,6 +1,8 @@
 pub mod spawn;
 pub mod despawn;
 pub mod detect;
+pub mod simulation;
+pub mod expire;
 
 use std::time::Duration;
 use bevy::prelude::{Component, Handle, Mesh};
@@ -8,6 +10,7 @@ use nalgebra::Vector3;
 use rand::Rng;
 use rc_shared::aabb::Aabb;
 use rc_shared::atlas::TextureAtlasIndex;
+use crate::spawner::simulation::ParticleSimulationSettings;
 
 // TODO: Make transform a required component
 #[derive(Component)]
@@ -18,14 +21,19 @@ pub struct ParticleSpawner {
     pub spawn_rate: f32,
     /// Texture
     pub texture: TextureAtlasIndex,
-    /// Time to live
-    pub ttl: Duration,
+    /// Time to live of each particle
+    pub particle_ttl: Duration,
+    /// Time to live of spawner
+    pub expires: Duration,
+    // Simulation settings
+    pub simulation: Option<ParticleSimulationSettings>
 }
 
 #[derive(Component)]
 pub(crate) struct ParticleSpawnerMeta {
     pub i: usize,
     pub simulated_to: u128,
+    pub spawned_at: f32,
     pub mesh: Handle<Mesh>
 }
 

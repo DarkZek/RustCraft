@@ -5,6 +5,7 @@ use rc_shared::helpers::to_bevy_vec3;
 use crate::material::ParticleResource;
 use crate::particle::Particle;
 use crate::spawner::{ParticleSpawner, ParticleSpawnerMeta};
+use crate::spawner::simulation::ParticleSimulationData;
 
 pub fn do_spawn(
     mut query: Query<(&Transform, &ParticleSpawner, &mut ParticleSpawnerMeta)>,
@@ -33,17 +34,25 @@ pub fn do_spawn(
 
             let transform = Transform::from_translation(translation);
 
-            commands.spawn(
+            let mut entity_commands = commands.spawn(
                 PbrBundle {
                     mesh: spawner_meta.mesh.clone(),
                     material: resource.material.clone(),
                     transform,
                     ..default()
                 }
-            ).insert(Particle {
-                ttl: spawner.ttl.clone(),
+            );
+            entity_commands.insert(Particle {
+                ttl: spawner.particle_ttl.clone(),
                 created
             });
+
+            if let Some(sim_settings) = &spawner.simulation {
+                entity_commands.insert(ParticleSimulationData {
+                    velocity: sim_settings.initial_velocity.clone(),
+                    settings: *sim_settings
+                });
+            }
 
             spawner_meta.i += 1;
         }
