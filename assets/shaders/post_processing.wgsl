@@ -1,23 +1,3 @@
-// This shader computes the chromatic aberration effect
-
-// Since post processing is a fullscreen effect, we use the fullscreen vertex shader provided by bevy.
-// This will import a vertex shader that renders a single fullscreen triangle.
-//
-// A fullscreen triangle is a single triangle that covers the entire screen.
-// The box in the top left in that diagram is the screen. The 4 x are the corner of the screen
-//
-// Y axis
-//  1 |  x-----x......
-//  0 |  |  s  |  . ´
-// -1 |  x_____x´
-// -2 |  :  .´
-// -3 |  :´
-//    +---------------  X axis
-//      -1  0  1  2  3
-//
-// As you can see, the triangle ends up bigger than the screen.
-//
-// You don't need to worry about this too much since bevy will compute the correct UVs for you.
 #import bevy_core_pipeline::fullscreen_vertex_shader::FullscreenVertexOutput
 
 @group(0) @binding(0) var screen_texture: texture_2d<f32>;
@@ -34,23 +14,36 @@ struct PostProcessSettings {
 
 @fragment
 fn fragment(in: FullscreenVertexOutput) -> @location(0) vec4<f32> {
-    let depth = textureSample(depth_texture, texture_sampler, in.uv);
-
     let frame = textureSample(screen_texture, texture_sampler, in.uv);
 
-    if (depth == 0) {
-        return frame;
-    }
-
-    let visibility = clamp(depth * 800.0, 0.0, 1.0);
+    var depth_buffer_value = textureSample(depth_texture, texture_sampler, in.uv);
 
     let background = vec3(0.3764706, 0.67254903, 0.99215686);
 
+    if (depth_buffer_value == 0) {
+        return vec4(background, 1.0);
+    }
+
+    let near_plane = 0.1;
+    let far_plane = 1000.0;
+
+    // Convert to screen space using close and far pane info
+    var ss_depth = near_plane / depth_buffer_value;
+
+    // TODO: Adjust the depth to not be flat to the far plane but take into account the spherical distance from the camera
+
+    let chunk_size = 16.0;
+
+    let fog_start = chunk_size*4.0;
+    let fog_depth = chunk_size*2.0;
+
+    let visibility = clamp((ss_depth - fog_start) / fog_depth, 0.0, 1.0);
+
     // Sample each color channel with an arbitrary shift
     return vec4<f32>(
-        mix(background.r, frame.r, visibility),
-        mix(background.g, frame.g, visibility),
-        mix(background.b, frame.b, visibility),
+        mix(frame.r, background.r, visibility),
+        mix(frame.g, background.g, visibility),
+        mix(frame.b, background.b, visibility),
         1.0
     );
 }
