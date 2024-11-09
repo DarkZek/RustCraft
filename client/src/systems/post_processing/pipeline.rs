@@ -1,11 +1,14 @@
+use std::ops::Deref;
 use bevy::core_pipeline::fullscreen_vertex_shader::fullscreen_shader_vertex_state;
-use bevy::prelude::{DirectAssetAccessExt, FromWorld, Resource, World};
+use bevy::pbr::{MeshPipelineViewLayoutKey, MeshPipelineViewLayouts};
+use bevy::prelude::{DirectAssetAccessExt, FromWorld, Msaa, Resource, World};
 use bevy::render::render_resource::{BindGroupLayout, BindGroupLayoutEntries, CachedRenderPipelineId, ColorTargetState, ColorWrites, FragmentState, MultisampleState, PipelineCache, PrimitiveState, RenderPipelineDescriptor, Sampler, SamplerBindingType, SamplerDescriptor, ShaderStages, TextureFormat, TextureSampleType};
 use bevy::render::render_resource::binding_types::{sampler, texture_2d, texture_depth_2d, uniform_buffer};
 use bevy::render::renderer::RenderDevice;
 use bevy::render::texture::BevyDefault;
-use bevy::render::view::ViewDepthTexture;
+use bevy::render::view::{ViewDepthTexture, ViewUniforms};
 use crate::systems::post_processing::settings::PostProcessSettings;
+use bevy::render::view::ViewUniform;
 
 // This contains global data used by the render pipeline. This will be created once on startup.
 #[derive(Resource)]
@@ -34,6 +37,7 @@ impl FromWorld for PostProcessPipeline {
                     sampler(SamplerBindingType::Filtering),
                     // The settings uniform that will control the effect
                     uniform_buffer::<PostProcessSettings>(true),
+                    uniform_buffer::<ViewUniform>(true),
                 ),
             ),
         );

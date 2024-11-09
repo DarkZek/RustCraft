@@ -1,11 +1,12 @@
 use bevy::ecs::query::QueryItem;
 use bevy::ecs::system::lifetimeless::Read;
+use bevy::pbr::{MeshViewBindGroup, ViewFogUniformOffset, ViewLightProbesUniformOffset, ViewLightsUniformOffset, ViewScreenSpaceReflectionsUniformOffset};
 use bevy::prelude::{Camera3d, Query, World};
 use bevy::render::extract_component::{ComponentUniforms, DynamicUniformIndex};
 use bevy::render::render_graph::{NodeRunError, RenderGraphContext, ViewNode};
 use bevy::render::render_resource::{BindGroupEntries, BindingResource, Operations, PipelineCache, RenderPassColorAttachment, RenderPassDescriptor, TextureUsages, TextureViewDescriptor};
 use bevy::render::renderer::RenderContext;
-use bevy::render::view::{ViewDepthTexture, ViewTarget};
+use bevy::render::view::{ViewDepthTexture, ViewTarget, ViewUniformOffset, ViewUniforms};
 use crate::systems::post_processing::pipeline::PostProcessPipeline;
 use crate::systems::post_processing::settings::PostProcessSettings;
 
@@ -26,7 +27,10 @@ impl ViewNode for PostProcessNode {
         // As there could be multiple post processing components sent to the GPU (one per camera),
         // we need to get the index of the one that is associated with the current view.
         &'static DynamicUniformIndex<PostProcessSettings>,
-        Read<ViewDepthTexture>
+        // As there could be multiple post processing components sent to the GPU (one per camera),
+        // we need to get the index of the one that is associated with the current view.
+        Read<ViewDepthTexture>,
+        &'static ViewUniformOffset,
     );
 
     // Runs the node logic
@@ -40,12 +44,20 @@ impl ViewNode for PostProcessNode {
         &self,
         _graph: &mut RenderGraphContext,
         render_context: &mut RenderContext,
-        (view_target, _post_process_settings, settings_index, depth_texture): QueryItem<Self::ViewQuery>,
+        (
+            view_target,
+            _post_process_settings,
+            settings_index,
+            depth_texture,
+            view_uniform_offset
+        ): QueryItem<Self::ViewQuery>,
         world: &World,
     ) -> Result<(), NodeRunError> {
         // Get the pipeline resource that contains the global data we need
         // to create the render pipeline
         let post_process_pipeline = world.resource::<PostProcessPipeline>();
+
+        let view_uniforms = world.resource::<ViewUniforms>().uniforms.binding().unwrap();
 
         // The pipeline cache is a cache of all previously created pipelines.
         // It is required to avoid creating a new pipeline each frame,
@@ -73,8 +85,6 @@ impl ViewNode for PostProcessNode {
         // the current main texture information to be lost.
         let post_process = view_target.post_process_write();
 
-        // let depth_view = depth_texture.texture.create_view(&TextureViewDescriptor::default());
-
         // The bind_group gets created each frame.
         //
         // Normally, you would create a bind_group in the Queue set,
@@ -94,6 +104,7 @@ impl ViewNode for PostProcessNode {
                 &post_process_pipeline.sampler,
                 // Set the settings binding
                 settings_binding.clone(),
+                view_uniforms
             )),
         );
 
@@ -118,7 +129,7 @@ impl ViewNode for PostProcessNode {
         // By passing in the index of the post process settings on this view, we ensure
         // that in the event that multiple settings were sent to the GPU (as would be the
         // case with multiple cameras), we use the correct one.
-        render_pass.set_bind_group(0, &bind_group, &[settings_index.index()]);
+        render_pass.set_bind_group(0, &bind_group, &[settings_index.index(), view_uniform_offset.offset]);
         render_pass.draw(0..3, 0..1);
 
         Ok(())
