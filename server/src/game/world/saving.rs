@@ -16,6 +16,7 @@ use std::str::FromStr;
 use std::sync::atomic::Ordering;
 use rc_shared::game_objects::{DebugGameObjectData, GameObjectData, GameObjectType, ItemDropGameObjectData, PlayerGameObjectData};
 use crate::config::WorldType;
+use crate::game::generation::ChunkGenerationConfig;
 use crate::game::inventory::Inventory;
 use crate::game::world::deserialized_player::DeserializedPlayerData;
 
@@ -23,7 +24,8 @@ impl WorldData {
     pub fn load_spawn_chunks(
         &mut self,
         command: &mut Commands,
-        config: &ServerConfig
+        config: &ServerConfig,
+        res_config: &ChunkGenerationConfig
     ) {
         // Load spawn area
         for x in -3..=3 {
@@ -45,7 +47,7 @@ impl WorldData {
                     }.unwrap_or_else(|| {
                         // Generate the chunk
                         let data = match config.world_type {
-                            WorldType::Regular => ChunkData::generate(pos),
+                            WorldType::Regular => ChunkData::generate(pos, res_config),
                             WorldType::Canvas => ChunkData::generate_canvas(pos)
                         };
                         DeserializedChunkData {

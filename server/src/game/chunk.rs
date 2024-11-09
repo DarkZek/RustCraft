@@ -8,6 +8,7 @@ pub struct ChunkData {
     pub world: ChunkDataStorage,
     pub block_metadata: ChunkBlockMetadata,
     pub metadata: ChunkMetadata,
+    pub dirty: bool
 }
 
 impl ChunkData {
@@ -22,6 +23,7 @@ impl ChunkData {
             world,
             block_metadata,
             metadata,
+            dirty: false,
         }
     }
 
@@ -31,6 +33,7 @@ impl ChunkData {
             world: ChunkDataStorage::Empty,
             block_metadata: Default::default(),
             metadata: Default::default(),
+            dirty: false,
         }
     }
 

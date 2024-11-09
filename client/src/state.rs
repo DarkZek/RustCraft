@@ -8,4 +8,5 @@ pub enum AppState {
     MainMenu,
     Connecting,
     InGame,
+    Shutdown,
 }

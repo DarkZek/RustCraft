@@ -1,3 +1,5 @@
+mod world_gen;
+
 use bevy::app::App;
 use bevy::ecs::system::SystemState;
 use bevy::prelude::{Event, EventReader, EventWriter, Plugin, Update, World};
@@ -15,6 +17,7 @@ use crate::game::transform::Transform;
 use crate::game::world::data::WorldData;
 use crate::game::world::WORLD_SPAWN_LOCATION;
 use crate::transport::TransportSystem;
+use crate::game::commands::world_gen::parse_world_gen;
 
 pub struct CommandsPlugin;
 
@@ -59,6 +62,9 @@ pub fn execute_commands(
             }
             "give" => {
                 parse_give(args, command.user_id, world)
+            }
+            "wg" => {
+                parse_world_gen(args, command.user_id, world)
             }
             &_ => format!("Unknown command <{}>", command_name)
         };

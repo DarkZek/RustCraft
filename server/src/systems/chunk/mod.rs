@@ -1,3 +1,5 @@
+mod dirty;
+
 use crate::game::chunk::ChunkData;
 use crate::{TransportSystem, WorldData};
 
@@ -13,7 +15,10 @@ use rc_networking::protocol::Protocol;
 use rc_networking::types::{ReceivePacket, SendPacket};
 use std::collections::{HashMap, HashSet};
 use rc_networking::protocol::clientbound::chunk_column_update::ChunkColumnUpdate;
+use rc_shared::chunk::ChunkPosition;
 use crate::config::{ServerConfig, WorldType};
+use crate::game::generation::ChunkGenerationConfig;
+use crate::systems::chunk::dirty::sync_dirty_chunks;
 
 const MAX_OUTSTANDING_CHUNK_REQUESTS: usize = 80;
 const CHUNKS_GENERATED_PER_TICK: usize = 40;
@@ -32,16 +37,18 @@ impl Plugin for ChunkPlugin {
         .add_systems(Update, handle_disconnections)
         .add_systems(Update, get_chunk_requests)
         .add_systems(Update, request_chunks)
-        .add_systems(Update, generate_chunks);
+        .add_systems(Update, generate_chunks)
+        .add_systems(Update, sync_dirty_chunks)
+        .insert_resource(ChunkGenerationConfig::default());
     }
 }
 
 #[derive(Resource)]
 pub struct ChunkSystem {
-    pub user_loaded_chunks: HashMap<UserId, HashSet<Vector3<i32>>>,
+    pub user_loaded_chunks: HashMap<UserId, HashSet<ChunkPosition>>,
     pub user_loaded_columns: HashMap<UserId, HashSet<Vector2<i32>>>,
-    pub generating_chunks: HashSet<Vector3<i32>>,
-    pub requesting_chunks: HashMap<UserId, Vec<Vector3<i32>>>,
+    pub generating_chunks: HashSet<ChunkPosition>,
+    pub requesting_chunks: HashMap<UserId, Vec<ChunkPosition>>,
     // How many chunk requests have been send and are waiting acknowledgement
     pub chunk_outstanding_requests: HashMap<UserId, usize>,
 }
@@ -158,7 +165,8 @@ pub fn request_chunks(
 pub fn generate_chunks(
     mut system: ResMut<ChunkSystem>,
     mut world: ResMut<WorldData>,
-    config: Res<ServerConfig>
+    config: Res<ServerConfig>,
+    gen_config: Res<ChunkGenerationConfig>
 ) {
     // Generate X chunks per loop
     let chunks_per_loop = system
@@ -190,7 +198,7 @@ pub fn generate_chunks(
             }.unwrap_or_else(|| {
                 // Generate the chunk
                 match config.world_type {
-                    WorldType::Regular => ChunkData::generate(*pos),
+                    WorldType::Regular => ChunkData::generate(*pos, &gen_config),
                     WorldType::Canvas => ChunkData::generate_canvas(*pos)
                 }
             })

@@ -5,6 +5,7 @@ use crate::{AppExit, ServerConfig};
 use bevy::prelude::*;
 use nalgebra::Vector3;
 use rc_shared::game_objects::{GameObjectType, ItemDropGameObjectData, PlayerGameObjectData};
+use crate::game::generation::ChunkGenerationConfig;
 use crate::game::inventory::Inventory;
 use crate::game::world::column::propagate_chunk_columns;
 
@@ -52,7 +53,8 @@ fn save_world(
 fn load_spawn_chunks(
     mut command: Commands,
     mut world: ResMut<WorldData>,
-    config: Res<ServerConfig>
+    config: Res<ServerConfig>,
+    res_config: Res<ChunkGenerationConfig>
 ) {
-    world.load_spawn_chunks(&mut command, &config);
+    world.load_spawn_chunks(&mut command, &config, &res_config);
 }

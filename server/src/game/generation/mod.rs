@@ -8,14 +8,19 @@ mod structures;
 use std::time::Instant;
 
 use crate::game::chunk::ChunkData;
-use crate::game::generation::phase1::generate_environment_map;
+use crate::game::generation::phase1::{EnvironmentMapConfig, generate_environment_map};
 use crate::game::generation::phase2::generate_greybox_chunk;
 use crate::game::generation::phase3::decorate_chunk;
 use crate::game::generation::phase4::add_structures;
-use bevy::prelude::trace;
+use bevy::prelude::{Resource, trace};
 use nalgebra::Vector3;
 use rc_shared::chunk::ChunkDataStorage;
 use rc_shared::CHUNK_SIZE;
+
+#[derive(Resource, Default)]
+pub struct ChunkGenerationConfig {
+    pub environment_map_config: EnvironmentMapConfig
+}
 
 impl ChunkData {
     /// Works in 4 phases
@@ -27,7 +32,10 @@ impl ChunkData {
     ///     More block types are added, such as grass, dirt, sand, water
     /// Phase 4: Structures
     ///     Structures are generated in this step such as trees
-    pub fn generate(position: Vector3<i32>) -> ChunkData {
+    pub fn generate(
+        position: Vector3<i32>,
+        config: &ChunkGenerationConfig
+    ) -> ChunkData {
 
         let started = Instant::now();
 
@@ -35,6 +43,7 @@ impl ChunkData {
         let environment_map = generate_environment_map(
             seed,
             position,
+            &config.environment_map_config
         );
 
         let (mut chunk_data, heightmap) = generate_greybox_chunk(seed, position, &environment_map);

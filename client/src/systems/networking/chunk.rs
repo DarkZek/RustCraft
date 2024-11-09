@@ -35,6 +35,10 @@ pub fn network_chunk_sync(
             Protocol::FullChunkUpdate(update) => {
                 let location = Vector3::new(update.x, update.y, update.z);
 
+                if chunk_service.chunks.contains_key(&location) {
+                    chunk_service.unload_chunk(location, &mut commands);
+                }
+
                 chunk_service.create_chunk(
                     location,
                     update.data.clone(),
