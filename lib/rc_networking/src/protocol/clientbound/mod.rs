@@ -11,3 +11,4 @@ pub mod update_inventory_slot;
 pub mod update_inventory;
 pub mod game_mode_update;
 pub mod chunk_column_update;
+pub mod unload_all_chunks;

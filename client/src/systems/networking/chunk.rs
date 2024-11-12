@@ -138,6 +138,9 @@ pub fn network_chunk_sync(
                     });
                 }
             }
+            Protocol::UnloadAllChunks(_) => {
+                chunk_service.unload_all_chunks(&mut commands);
+            }
             _ => {}
         }
     }

@@ -58,10 +58,12 @@ fn fragment(in: FullscreenVertexOutput) -> @location(0) vec4<f32> {
 
     let chunk_size = 16.0;
 
-    let fog_start = chunk_size*4.0;
-    let fog_depth = chunk_size*2.0;
+    let fog_start = chunk_size*3.0;
+    let fog_depth = chunk_size*3.0;
 
-    let visibility = clamp((distance_depth - fog_start) / fog_depth, 0.0, 1.0);
+    var visibility = clamp((distance_depth - fog_start) / fog_depth, 0.0, 1.0);
+
+    visibility = pow(visibility, 1.5);
 
     // Sample each color channel with an arbitrary shift
     return vec4<f32>(

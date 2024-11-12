@@ -9,15 +9,52 @@ use ::noise::{RidgedMulti, Perlin};
 use ::noise::{MultiFractal, NoiseFn, Seedable, Turbulence};
 use rc_shared::relative_chunk_flat_map::RelativeChunkFlatMap;
 
+pub struct GreyboxMapConfig {
+    pub ground_scale_1: f32,
+    pub ground_scale_2: f32,
+    pub ground_scale_3: f32,
+    pub ground_scale_4: f32,
+
+    pub hilly_pow: f64,
+    pub hilly_scaler_1: f64,
+    pub hilly_scaler_2: f64,
+
+    pub terrain_scaler: f64,
+
+    pub ground_scaler_1: f64,
+    pub ground_scaler_2: f64,
+
+    pub cave_scale: f64
+}
+
+impl Default for GreyboxMapConfig {
+    fn default() -> Self {
+        Self {
+            ground_scale_1: 30.0,
+            ground_scale_2: 50.0,
+            ground_scale_3: 100.0,
+            ground_scale_4: 5.0,
+            hilly_pow: 3.0,
+            hilly_scaler_1: 8.0,
+            hilly_scaler_2: 1.2,
+            terrain_scaler: 10.0,
+            ground_scaler_1: 5.0,
+            ground_scaler_2: 2.0,
+            cave_scale: 0.03
+        }
+    }
+}
+
 pub fn generate_greybox_chunk(
     seed: u32,
     pos: Vector3<i32>,
     environment: &EnvironmentMap,
+    config: &GreyboxMapConfig
 ) -> (RawChunkData, RelativeChunkFlatMap<i32>) {
-    let ground_noise = SimplexNoise::new(0).with_scale(30.0);
-    let ground_noise_2 = SimplexNoise::new(100).with_scale(50.0);
-    let ground_noise_3 = SimplexNoise::new(200).with_scale(100.0);
-    let ground_noise_4 = SimplexNoise::new(150).with_scale(5.0);
+    let ground_noise = SimplexNoise::new(0).with_scale(config.ground_scale_1);
+    let ground_noise_2 = SimplexNoise::new(100).with_scale(config.ground_scale_2);
+    let ground_noise_3 = SimplexNoise::new(200).with_scale(config.ground_scale_3);
+    let ground_noise_4 = SimplexNoise::new(150).with_scale(config.ground_scale_4);
 
     let world_pos = pos * CHUNK_SIZE as i32;
 
@@ -25,30 +62,25 @@ pub fn generate_greybox_chunk(
 
     for x in (world_pos.x - CHUNK_SIZE as i32)..(world_pos.x + (CHUNK_SIZE as i32 * 2)) {
         for z in (world_pos.z - CHUNK_SIZE as i32)..(world_pos.z + (CHUNK_SIZE as i32 * 2)) {
-            let base_height = 35;
-
             let environment_entry = environment.get([x, z]).unwrap();
 
             // Hilly
-            let height_multiplier = 8.0 +
+            let height_multiplier = 1.0 +
                 (
-                    clamp_map(0.5..1.0, 0.0..8.0, environment_entry.terrain).powf(3.0)
-                    + clamp_map(0.3..0.7, 0.0..4.0, ground_noise_4.sample_2d(x, z))
+                    clamp_map(0.5..1.0, 0.0..config.hilly_scaler_1, environment_entry.terrain).powf(config.hilly_pow)
+                    * clamp_map(0.3..0.7, 0.8..config.hilly_scaler_2, ground_noise_4.sample_2d(x, z))
                 );
 
             let ground_level = (ground_noise_3.sample_2d(x, z)
                 * height_multiplier
-                + environment_entry.terrain * 10.0
-                + ground_noise_2.sample_2d(x, z) * 5.0
-                + ground_noise.sample_2d(x, z) * 2.0)
+                + environment_entry.terrain * config.terrain_scaler
+                + ground_noise_2.sample_2d(x, z) * config.ground_scaler_1
+                + ground_noise.sample_2d(x, z) * config.ground_scaler_2)
                 .floor() as i32;
 
             heightmap.set([x, z], ground_level);
         }
     }
-
-
-    let scale = 0.05;
 
     let primary_jade = RidgedMulti::<Perlin>::new(seed)
         .set_lacunarity(2.20703125)
@@ -71,7 +103,11 @@ pub fn generate_greybox_chunk(
                     (pos.z * 16) + z as i32,
                 );
 
-                let v = caves.get([absolute.x as f64 * scale, absolute.z as f64 * scale, absolute.y as f64 * scale * 2.0]);
+                let v = caves.get([
+                    absolute.x as f64 * config.cave_scale,
+                    absolute.z as f64 * config.cave_scale,
+                    absolute.y as f64 * config.cave_scale * 2.0
+                ]);
 
                 let threshold = clamp_map(
                     10.0..25.0,

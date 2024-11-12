@@ -16,6 +16,7 @@ use self::clientbound::update_inventory_slot::UpdateInventorySlot;
 use serde::{Deserialize, Serialize};
 use crate::protocol::clientbound::chunk_column_update::ChunkColumnUpdate;
 use crate::protocol::clientbound::game_mode_update::GameModeUpdate;
+use crate::protocol::clientbound::unload_all_chunks::UnloadAllChunks;
 use crate::protocol::serverbound::change_hotbar_slot::ChangeHotbarSlot;
 use crate::protocol::serverbound::destroy_block::DestroyBlock;
 use crate::protocol::serverbound::place_block::PlaceBlock;
@@ -55,5 +56,6 @@ pub enum Protocol {
     AcknowledgeChunk(AcknowledgeChunk),
     UpdateInventorySlot(UpdateInventorySlot),
     UpdateInventory(UpdateInventory),
-    Disconnect(String)
+    Disconnect(String),
+    UnloadAllChunks(UnloadAllChunks)
 }

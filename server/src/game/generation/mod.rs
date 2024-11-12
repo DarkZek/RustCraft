@@ -9,7 +9,7 @@ use std::time::Instant;
 
 use crate::game::chunk::ChunkData;
 use crate::game::generation::phase1::{EnvironmentMapConfig, generate_environment_map};
-use crate::game::generation::phase2::generate_greybox_chunk;
+use crate::game::generation::phase2::{generate_greybox_chunk, GreyboxMapConfig};
 use crate::game::generation::phase3::decorate_chunk;
 use crate::game::generation::phase4::add_structures;
 use bevy::prelude::{Resource, trace};
@@ -19,7 +19,8 @@ use rc_shared::CHUNK_SIZE;
 
 #[derive(Resource, Default)]
 pub struct ChunkGenerationConfig {
-    pub environment_map_config: EnvironmentMapConfig
+    pub environment_map_config: EnvironmentMapConfig,
+    pub greybox_map_config: GreyboxMapConfig
 }
 
 impl ChunkData {
@@ -46,7 +47,7 @@ impl ChunkData {
             &config.environment_map_config
         );
 
-        let (mut chunk_data, heightmap) = generate_greybox_chunk(seed, position, &environment_map);
+        let (mut chunk_data, heightmap) = generate_greybox_chunk(seed, position, &environment_map, &config.greybox_map_config);
 
         decorate_chunk(seed, position, &mut chunk_data, &heightmap, &environment_map);
 
