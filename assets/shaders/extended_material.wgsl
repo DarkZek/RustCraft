@@ -109,7 +109,7 @@ fn vertex(vertex_no_morph: CustomVertexInput) -> CustomVertexOutput {
     let lighting_color = vertex_no_morph.lighting.xyz * lighting_strength;
 
     // Proportionally mix colours depending on strengths
-    var light_color = skylight_color + lighting_color;
+    let light_color = skylight_color + lighting_color;
 
     out.lighting += vec4(light_color, 0.0) + ambient;
 

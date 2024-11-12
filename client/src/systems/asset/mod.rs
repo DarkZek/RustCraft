@@ -48,14 +48,14 @@ impl AssetService {
                 base_color: Color::from(RED),
                 ..default()
             },
-            extension: ChunkMaterialExtension { uniform: ChunkMaterialUniform { ambient_strength: 0.04, ..default() } },
+            extension: ChunkMaterialExtension { uniform: ChunkMaterialUniform { ambient_strength: 0.18, ..default() } },
         });
         let translucent_texture_atlas_material = translucent_materials.add(ExtendedMaterial {
             base: StandardMaterial {
                 base_color: Color::from(RED),
                 ..default()
             },
-            extension: TranslucentChunkMaterialExtension { uniform: ChunkMaterialUniform { time: 0.0, ambient_strength: 0.04, ..default() } },
+            extension: TranslucentChunkMaterialExtension { uniform: ChunkMaterialUniform { time: 0.0, ambient_strength: 0.18, ..default() } },
         });
 
         AssetService {

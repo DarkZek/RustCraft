@@ -66,7 +66,7 @@ pub fn build_texture_atlas(
                 reflectance: 0.0,
                 ..default()
             },
-            extension: ChunkMaterialExtension { uniform: ChunkMaterialUniform { ambient_strength: 0.04, ..default() } },
+            extension: ChunkMaterialExtension { uniform: ChunkMaterialUniform { ambient_strength: 0.18, ..default() } },
         },
     );
 
@@ -81,7 +81,7 @@ pub fn build_texture_atlas(
                 reflectance: 0.0,
                 ..default()
             },
-            extension: TranslucentChunkMaterialExtension { uniform: ChunkMaterialUniform { time: 0.0, ambient_strength: 0.04, ..default() } },
+            extension: TranslucentChunkMaterialExtension { uniform: ChunkMaterialUniform { time: 0.0, ambient_strength: 0.18, ..default() } },
         },
     );
 

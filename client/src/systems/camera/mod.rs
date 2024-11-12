@@ -1,12 +1,10 @@
 use bevy::core_pipeline::bloom::BloomSettings;
 use crate::game::player::Player;
 use bevy::core_pipeline::core_3d::Camera3dDepthLoadOp;
-use bevy::core_pipeline::experimental::taa::TemporalAntiAliasBundle;
-use bevy::pbr::ScreenSpaceAmbientOcclusionBundle;
+use bevy::core_pipeline::tonemapping::Tonemapping;
 use bevy::prelude::*;
 use bevy::render::render_resource::TextureUsages;
 use bevy::render::view::GpuCulling;
-use rc_shared::helpers::to_bevy_vec3;
 use crate::systems::debugging::DebuggingInfo;
 use crate::systems::physics::PhysicsObject;
 use crate::systems::post_processing::settings::PostProcessSettings;
@@ -31,6 +29,7 @@ fn setup_camera(mut commands: Commands) {
                 camera: Camera {
                     ..default()
                 },
+                tonemapping: Tonemapping::None,
                 camera_3d: Camera3d {
                     depth_load_op: Camera3dDepthLoadOp::Clear(0.0),
                     depth_texture_usages: TextureUsages::RENDER_ATTACHMENT.into(),

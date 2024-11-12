@@ -142,6 +142,13 @@ fn parse_give(command: Vec<String>, user_id: UserId, world: &mut World) -> Strin
         }
     };
 
+    if item_amount < 0 {
+        return format!("Invalid amount: {}", item_amount);
+    }
+    if item_amount > 255 {
+        return format!("Invalid amount: {}", item_amount);
+    }
+
     // Lookup item
     let item_stack = {
         let Some((_, item)) = world.get_resource::<ItemStates>().unwrap().get_by_id(target_item) else {

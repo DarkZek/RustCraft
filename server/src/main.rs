@@ -35,7 +35,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
 use rc_networking::protocol::Protocol;
 use rc_shared::atlas::{TEXTURE_ATLAS, TextureAtlas};
-use rc_shared::PHYSICS_SYNC_RATE_SECONDS;
+use rc_shared::{config as config_macro, PHYSICS_SYNC_RATE_SECONDS};
 use crate::game::commands::CommandsPlugin;
 use crate::game::entity::EntityPlugin;
 use crate::game::join_message::{join_message, leave_message};
@@ -55,7 +55,7 @@ fn main() {
 
     info!("Rustcraft Server starting");
 
-    let assets_dir = dotenv!("ASSETS_DIR");
+    let assets_dir = config_macro!("ASSETS_DIR");
 
     // Build App
     App::default()
